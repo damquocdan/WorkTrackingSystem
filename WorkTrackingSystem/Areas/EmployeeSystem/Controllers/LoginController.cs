@@ -1,0 +1,53 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using WorkTrackingSystem.Areas.EmployeeSystem.Models;
+using WorkTrackingSystem.Models;
+
+namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
+{
+    [Area("EmployeeSystem")]
+    public class LoginController : Controller
+    {
+        public WorkTrackingSystemContext _context;
+        public LoginController(WorkTrackingSystemContext context)
+        {
+            _context = context;
+        }
+        public IActionResult Index()
+        {
+            return View();
+        }
+        [HttpPost] // POST -> khi submit form
+        public IActionResult Index(Login model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không hợp lệ.");
+                return View(model);
+            }
+
+            var pass = model.Password;
+            var dataLogin = _context.Users.FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(pass));
+            if (dataLogin != null)
+            {
+                HttpContext.Session.SetString("AdminLogin", model.UserName);
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không chính xác.");
+                return View(model);
+            }
+
+        }
+        [HttpGet]// thoát đăng nhập, huỷ session
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Remove("AdminLogin"); // huỷ session với key AdminLogin đã lưu trước đó
+
+            return RedirectToAction("Index");
+        }
+    }
+}
+
