@@ -1,0 +1,2 @@
+E:\Devmaster\DuAn\WorkTrackingSystem\WorkTrackingSystem\wwwroot\dist\img\logo.png
+E:\Devmaster\DuAn\WorkTrackingSystem\WorkTrackingSystem\wwwroot\dist\img\logologin.png

@@ -1,0 +1,96 @@
+﻿@model IEnumerable<WorkTrackingSystem.Models.Job>
+
+@{
+    ViewData["Title"] = "Công việc"; // Vietnamese title
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+}
+
+<h1 class="text-center mb-4"><i class="fas fa-tasks"></i> Quản lý công việc</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Tạo mới</a>
+</p>
+
+<table class="table table-bordered table-hover">
+    <thead class="thead-light">
+        <tr>
+            <th>Tên</th>
+            <th>Mô tả</th>
+            <th>Hạn chót 1</th>
+            <th>Hạn chót 2</th>
+            <th>Hạn chót 3</th>
+            <th>Ngày hoàn thành</th>
+            <th>Trạng thái</th>
+            <th>Đánh giá khối lượng</th>
+            <th>Đánh giá tiến độ</th>
+            <th>Đánh giá chất lượng</th>
+            <th>Tóm tắt đánh giá</th>
+            <th>Thời gian</th>
+            <th>Danh mục</th>
+            <th>Nhân viên</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Deadline1)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Deadline2)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Deadline3)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CompletionDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VolumeAssessment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProgressAssessment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QualityAssessment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SummaryOfReviews)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Time)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category.Name)  @* Display Category Name *@
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName) @* Display Employee Name *@
+                </td>
+                <td class="text-center">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Sửa</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Chi tiết</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.table').DataTable(); // Initialize DataTables (optional)
+        });
+    </script>
+}

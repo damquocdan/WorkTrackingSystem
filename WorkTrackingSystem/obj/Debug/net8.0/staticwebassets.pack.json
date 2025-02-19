@@ -185,14 +185,6 @@
       "PackagePath": "staticwebassets\\dist\\img\\icons.png"
     },
     {
-      "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\dist\\img\\logo.png",
-      "PackagePath": "staticwebassets\\dist\\img\\logo.png"
-    },
-    {
-      "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\dist\\img\\logologin.png",
-      "PackagePath": "staticwebassets\\dist\\img\\logologin.png"
-    },
-    {
       "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\dist\\img\\photo1.png",
       "PackagePath": "staticwebassets\\dist\\img\\photo1.png"
     },

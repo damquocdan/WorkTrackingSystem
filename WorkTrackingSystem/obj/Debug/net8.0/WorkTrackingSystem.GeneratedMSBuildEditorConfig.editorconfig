@@ -132,6 +132,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcRW1wbG95ZWVzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Jobs/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcSm9ic1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Jobs/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcSm9ic1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Jobs/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcSm9ic1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Jobs/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcSm9ic1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Jobs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcSm9ic1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Login/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcTG9naW5cSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

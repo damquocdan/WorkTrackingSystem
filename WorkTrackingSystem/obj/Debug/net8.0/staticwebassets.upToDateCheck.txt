@@ -43,8 +43,6 @@ wwwroot\dist\img\credit\paypal2.png
 wwwroot\dist\img\credit\visa.png
 wwwroot\dist\img\default-150x150.png
 wwwroot\dist\img\icons.png
-wwwroot\dist\img\logo.png
-wwwroot\dist\img\logologin.png
 wwwroot\dist\img\photo1.png
 wwwroot\dist\img\photo2.png
 wwwroot\dist\img\photo3.jpg
