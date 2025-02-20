@@ -1,4 +1,4 @@
-﻿namespace WorkTrackingSystem.Areas.ProjectMamager.Models
+﻿namespace WorkTrackingSystem.Areas.ProjectManager.Models
 {
     public class Login
     {

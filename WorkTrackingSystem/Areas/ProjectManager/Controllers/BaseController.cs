@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace WorkTrackingSystem.Areas.ProjectMamager.Controllers
+namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
-        [Area("ProjectMamager")]
+        [Area("ProjectManager")]
         public class BaseController : Controller, IActionFilter
         {
             public override void OnActionExecuted(ActionExecutedContext context)
             {
-                if (context.HttpContext.Session.GetString("AdminLogin") == null)
+                if (context.HttpContext.Session.GetString("ProjectManagerLogin") == null)
                 {
                     context.Result = new RedirectToRouteResult(
-                        new RouteValueDictionary(new { Controller = "Login", Action = "Index", Areas = "ProjectMamager" }));
+                        new RouteValueDictionary(new { Controller = "Login", Action = "Index", Areas = "ProjectManager" }));
                 }
                 base.OnActionExecuted(context);
             }

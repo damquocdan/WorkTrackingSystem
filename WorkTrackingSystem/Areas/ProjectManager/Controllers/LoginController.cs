@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using WorkTrackingSystem.Areas.ProjectMamager.Models;
+using WorkTrackingSystem.Areas.ProjectManager.Models;
 using WorkTrackingSystem.Models;
 
-namespace WorkTrackingSystem.Areas.ProjectMamager.Controllers
+namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
-    [Area("ProjectMamager")]
+    [Area("ProjectManager")]
     public class LoginController : Controller
     {
         public WorkTrackingSystemContext _context;
@@ -31,7 +31,7 @@ namespace WorkTrackingSystem.Areas.ProjectMamager.Controllers
             var dataLogin = _context.Users.FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(pass));
             if (dataLogin != null)
             {
-                HttpContext.Session.SetString("AdminLogin", model.UserName);
+                HttpContext.Session.SetString("ProjectManagerLogin", model.UserName);
                 return RedirectToAction("Index", "Dashboard");
             }
             else
@@ -44,7 +44,7 @@ namespace WorkTrackingSystem.Areas.ProjectMamager.Controllers
         [HttpGet]// thoát đăng nhập, huỷ session
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("AdminLogin"); // huỷ session với key AdminLogin đã lưu trước đó
+            HttpContext.Session.Remove("ProjectManagerLogin"); // huỷ session với key AdminLogin đã lưu trước đó
 
             return RedirectToAction("Index");
         }

@@ -41,11 +41,10 @@ public partial class WorkTrackingSystemContext : DbContext
     {
         modelBuilder.Entity<Analysis>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC072F82D57F");
+            entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC07BB5D04B9");
 
             entity.ToTable("ANALYSIS");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Create_By");
@@ -72,16 +71,15 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Analyses)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__ANALYSIS__Employ__778AC167");
+                .HasConstraintName("FK__ANALYSIS__Employ__55F4C372");
         });
 
         modelBuilder.Entity<Baselineassessment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__BASELINE__3214EC07A79E23C3");
+            entity.HasKey(e => e.Id).HasName("PK__BASELINE__3214EC07A9CDDD5A");
 
             entity.ToTable("BASELINEASSESSMENT");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Create_By");
@@ -107,16 +105,15 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Baselineassessments)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__BASELINEA__Emplo__6B24EA82");
+                .HasConstraintName("FK__BASELINEA__Emplo__498EEC8D");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CATEGORY__3214EC071D2B0C85");
+            entity.HasKey(e => e.Id).HasName("PK__CATEGORY__3214EC07568E4136");
 
             entity.ToTable("CATEGORY");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Code)
                 .HasMaxLength(25)
                 .IsUnicode(false);
@@ -144,11 +141,10 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DEPARTME__3214EC07661312EF");
+            entity.HasKey(e => e.Id).HasName("PK__DEPARTME__3214EC071ACD1238");
 
             entity.ToTable("DEPARTMENT");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
@@ -171,11 +167,10 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__EMPLOYEE__3214EC07B095430C");
+            entity.HasKey(e => e.Id).HasName("PK__EMPLOYEE__3214EC07B1FCE942");
 
             entity.ToTable("EMPLOYEE");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
@@ -184,13 +179,13 @@ public partial class WorkTrackingSystemContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("Create_Date");
-            entity.Property(e => e.DepartmentId).HasColumnName("Department_id");
+            entity.Property(e => e.DepartmentId).HasColumnName("Department_Id");
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.Property(e => e.FirstName)
                 .HasMaxLength(255)
                 .HasColumnName("First_Name");
             entity.Property(e => e.Gender).HasMaxLength(10);
-            entity.Property(e => e.HireDate).HasColumnName("hire_date");
+            entity.Property(e => e.HireDate).HasColumnName("Hire_Date");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDelete).HasDefaultValue(false);
             entity.Property(e => e.LastName)
@@ -208,20 +203,19 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Department).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.DepartmentId)
-                .HasConstraintName("FK__EMPLOYEE__Depart__47DBAE45");
+                .HasConstraintName("FK__EMPLOYEE__Depart__2645B050");
 
             entity.HasOne(d => d.Position).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.PositionId)
-                .HasConstraintName("FK__EMPLOYEE__Positi__48CFD27E");
+                .HasConstraintName("FK__EMPLOYEE__Positi__2739D489");
         });
 
         modelBuilder.Entity<Job>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__JOB__3214EC074A2C66DB");
+            entity.HasKey(e => e.Id).HasName("PK__JOB__3214EC07277C417C");
 
             entity.ToTable("JOB");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CategoryId).HasColumnName("Category_Id");
             entity.Property(e => e.CompletionDate).HasDefaultValueSql("(NULL)");
             entity.Property(e => e.CreateBy)
@@ -252,20 +246,19 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK__JOB__Category_Id__5AEE82B9");
+                .HasConstraintName("FK__JOB__Category_Id__395884C4");
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__JOB__Employee_Id__59FA5E80");
+                .HasConstraintName("FK__JOB__Employee_Id__3864608B");
         });
 
         modelBuilder.Entity<Position>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__POSITION__3214EC0706BFE4A7");
+            entity.HasKey(e => e.Id).HasName("PK__POSITION__3214EC079C02F2BE");
 
             entity.ToTable("POSITION");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Create_By");
@@ -288,11 +281,10 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Systemsw>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SYSTEMS__3214EC07D2BABBF1");
+            entity.HasKey(e => e.Id).HasName("PK__SYSTEMSW__3214EC07AD19F911");
 
             entity.ToTable("SYSTEMSW");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Create_By");
@@ -314,11 +306,10 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__USERS__3214EC07CF7D69D2");
+            entity.HasKey(e => e.Id).HasName("PK__USERS__3214EC0741D4F25C");
 
             entity.ToTable("USERS");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreateBy)
                 .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Create_By");
@@ -341,7 +332,7 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Users)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__USERS__Employee___0C85DE4D");
+                .HasConstraintName("FK__USERS__Employee___6AEFE058");
         });
 
         OnModelCreatingPartial(modelBuilder);

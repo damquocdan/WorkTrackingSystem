@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace WorkTrackingSystem.Areas.ProjectMamager.Controllers {
+namespace WorkTrackingSystem.Areas.ProjectManager.Controllers {
 
     public class DashboardController : BaseController
     {
@@ -15,8 +15,6 @@ namespace WorkTrackingSystem.Areas.ProjectMamager.Controllers {
 
         public async Task<IActionResult> Index()
         {
- 
-
             return View();
         }
     }

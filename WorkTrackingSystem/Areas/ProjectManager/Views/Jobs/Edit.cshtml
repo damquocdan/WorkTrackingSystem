@@ -1,0 +1,150 @@
+﻿@model WorkTrackingSystem.Models.Job
+
+@{
+    ViewData["Title"] = "Chỉnh sửa công việc";
+    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+}
+
+<div class="">
+    <h1 class="mb-4"><i class="bi bi-pencil-square"></i> Chỉnh sửa công việc</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="EmployeeId" class="form-label"><i class="bi bi-person"></i> Nhân viên:</label>
+                    <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
+                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
+                    <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Deadline1" class="form-label"><i class="bi bi-calendar-event"></i> Hạn chót 1:</label>
+                    <input asp-for="Deadline1" class="form-control" />
+                    <span asp-validation-for="Deadline1" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Deadline2" class="form-label"><i class="bi bi-calendar-event"></i> Hạn chót 2:</label>
+                    <input asp-for="Deadline2" class="form-control" />
+                    <span asp-validation-for="Deadline2" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Deadline3" class="form-label"><i class="bi bi-calendar-event"></i> Hạn chót 3:</label>
+                    <input asp-for="Deadline3" class="form-control" />
+                    <span asp-validation-for="Deadline3" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CompletionDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày hoàn thành:</label>
+                    <input asp-for="CompletionDate" class="form-control" />
+                    <span asp-validation-for="CompletionDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label"><i class="bi bi-check-square"></i> Trạng thái:</label>
+                    <input asp-for="Status" class="form-control" />
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="VolumeAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng:</label>
+                    <input asp-for="VolumeAssessment" class="form-control" />
+                    <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProgressAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá tiến độ:</label>
+                    <input asp-for="ProgressAssessment" class="form-control" />
+                    <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="QualityAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá chất lượng:</label>
+                    <input asp-for="QualityAssessment" class="form-control" />
+                    <span asp-validation-for="QualityAssessment" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SummaryOfReviews" class="form-label"><i class="bi bi-journal-text"></i> Tóm tắt đánh giá:</label>
+                    <input asp-for="SummaryOfReviews" class="form-control" />
+                    <span asp-validation-for="SummaryOfReviews" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Time" class="form-label"><i class="bi bi-clock"></i> Thời gian:</label>
+                    <input asp-for="Time" class="form-control" />
+                    <span asp-validation-for="Time" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="IsDelete" class="form-label"><i class="bi bi-trash"></i> Đã xóa:</label>
+                    <input asp-for="IsDelete" class="form-control" />
+                    <span asp-validation-for="IsDelete" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="IsActive" class="form-label"><i class="bi bi-check-circle"></i> Hoạt động:</label>
+                    <input asp-for="IsActive" class="form-control" />
+                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CreateDate" class="form-label"><i class="bi bi-calendar-plus"></i> Ngày tạo:</label>
+                    <input asp-for="CreateDate" class="form-control" />
+                    <span asp-validation-for="CreateDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UpdateDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày cập nhật:</label>
+                    <input asp-for="UpdateDate" class="form-control" />
+                    <span asp-validation-for="UpdateDate" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CreateBy" class="form-label"><i class="bi bi-person-plus"></i> Người tạo:</label>
+                    <input asp-for="CreateBy" class="form-control" />
+                    <span asp-validation-for="CreateBy" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="UpdateBy" class="form-label"><i class="bi bi-person-check"></i> Người cập nhật:</label>
+                    <input asp-for="UpdateBy" class="form-control" />
+                    <span asp-validation-for="UpdateBy" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu</button>
+                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

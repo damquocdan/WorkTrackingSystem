@@ -54,7 +54,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Vaulue,Description,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Systemsw systemsw)
+        public async Task<IActionResult> Create([Bind("Id,Name,Value,Description,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Systemsw systemsw)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Vaulue,Description,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Systemsw systemsw)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Value,Description,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Systemsw systemsw)
         {
             if (id != systemsw.Id)
             {

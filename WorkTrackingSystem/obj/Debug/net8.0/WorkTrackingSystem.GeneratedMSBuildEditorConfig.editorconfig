@@ -316,8 +316,108 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXF9WaWV3U3RhcnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Categories/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQ2F0ZWdvcmllc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Categories/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQ2F0ZWdvcmllc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Categories/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQ2F0ZWdvcmllc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Categories/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQ2F0ZWdvcmllc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Categories/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQ2F0ZWdvcmllc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Login/Index.cshtml]
@@ -332,8 +432,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcU2hhcmVkXF9QcmVsb2FkZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Shared/_ProjectMamager.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcU2hhcmVkXF9Qcm9qZWN0TWFtYWdlci5jc2h0bWw=
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcU2hhcmVkXF9Qcm9qZWN0TWFuYWdlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Shared/_SideBar.cshtml]
