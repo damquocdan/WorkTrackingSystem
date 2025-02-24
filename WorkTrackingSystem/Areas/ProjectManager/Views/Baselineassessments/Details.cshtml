@@ -8,27 +8,68 @@
 <div class="">
     <h1 class="mb-4 text-primary fw-bold">Chi tiết đánh giá cơ bản</h1>
     
-    <div class="card shadow-lg p-4">
+    <div class="card shadow-lg p-4 @(Model.Evaluate == true ? "bg-success bg-opacity-50 text-white" : "bg-danger bg-opacity-50 text-white")">
         <div class="row">
             <div class="col-md-8">
                 <dl class="row fs-5">
                     <dt class="col-sm-4 fw-bold"><i class="bi bi-person"></i> Nhân viên:</dt>
-                    <dd class="col-sm-8 fw-bold text-info">
+                    <dd class="col-sm-8 fw-bold text-dark">
                         @Html.DisplayFor(model => model.Employee.Code) -
                         @Html.DisplayFor(model => model.Employee.FirstName)
                         @Html.DisplayFor(model => model.Employee.LastName)
                     </dd>
                     <dt class="col-sm-4 fw-bold"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.VolumeAssessment)</dd>
+                    <dd class="col-sm-8">
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" role="progressbar"
+                                 style="width: @Model.VolumeAssessment%;border: 2px solid black;"
+                                 aria-valuenow="@Model.VolumeAssessment"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                @Model.VolumeAssessment%
+                            </div>
+                        </div>
+                    </dd>
 
                     <dt class="col-sm-4 fw-bold"><i class="bi bi-graph-up"></i> Đánh giá tiến độ:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ProgressAssessment)</dd>
+                    <dd class="col-sm-8">
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: @Model.ProgressAssessment%;border: 2px solid black;"
+                                 aria-valuenow="@Model.ProgressAssessment"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                @Model.ProgressAssessment%
+                            </div>
+                        </div>
+                    </dd>
 
                     <dt class="col-sm-4 fw-bold"><i class="bi bi-star"></i> Đánh giá chất lượng:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.QualityAssessment)</dd>
+                    <dd class="col-sm-8">
+                        <div class="progress">
+                            <div class="progress-bar bg-danger" role="progressbar"
+                                 style="width: @Model.QualityAssessment%;border: 2px solid black;"
+                                 aria-valuenow="@Model.QualityAssessment"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                @Model.QualityAssessment%
+                            </div>
+                        </div>
+                    </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-chat-left-text"></i> Tóm tắt đánh giá:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.SummaryOfReviews)</dd>
+                    <dt class="col-sm-4 fw-bold"><i class="bi bi-chat-left-text"></i> Đánh giá tổng hợp:</dt>
+                    <dd class="col-sm-8">
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar"
+                                 style="width: @(Model.SummaryOfReviews?.ToString("F2"))%; border: 2px solid black;"
+                                 aria-valuenow="@(Model.SummaryOfReviews?.ToString("F2"))"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                @(Model.SummaryOfReviews?.ToString("F2"))%
+                            </div>
+                        </div>
+                    </dd>
+
 
                     <dt class="col-sm-4 fw-bold"><i class="bi bi-clock"></i> Tháng:</dt>
                     <dd class="col-sm-8 text-primary fw-bold">

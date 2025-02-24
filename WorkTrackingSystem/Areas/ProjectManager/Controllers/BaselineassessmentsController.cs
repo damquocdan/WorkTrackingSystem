@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Baselineassessments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time)
         {
             // Lấy ManagerId từ session
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -54,8 +55,38 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                             b.Employee.DepartmentId.HasValue &&
                             managedDepartments.Contains(b.Employee.DepartmentId.Value));
 
+            // Lọc theo mã nhân viên
+            if (!string.IsNullOrEmpty(employeeCode))
+            {
+                assessments = assessments.Where(b => b.Employee.Code.Contains(employeeCode));
+            }
+
+            // Lọc theo tên nhân viên
+            if (!string.IsNullOrEmpty(employeeName))
+            {
+                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+            }
+
+            // Lọc theo trạng thái đánh giá
+            if (evaluate.HasValue)
+            {
+                assessments = assessments.Where(b => b.Evaluate == evaluate.Value);
+            }
+
+            // Lọc theo tháng/năm
+            if (!string.IsNullOrEmpty(time))
+            {
+                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+                {
+                    assessments = assessments.Where(b => b.Time.HasValue &&
+                                                         b.Time.Value.Year == selectedTime.Year &&
+                                                         b.Time.Value.Month == selectedTime.Month);
+                }
+            }
+
             return View(await assessments.ToListAsync());
         }
+
 
 
         // GET: ProjectManager/Baselineassessments/Details/5
