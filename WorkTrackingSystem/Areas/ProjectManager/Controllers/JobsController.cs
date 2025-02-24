@@ -147,6 +147,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         {
             if (ModelState.IsValid)
             {
+                job.Status = 4;
                 _context.Add(job);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -169,10 +170,21 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", job.EmployeeId);
+
+            ViewData["CategoryId"] = new SelectList(
+                _context.Categories.Select(c => new { c.Id, Display = c.Code + " - " + c.Name }),
+                "Id", "Display", job.CategoryId
+            );
+
+            ViewData["EmployeeId"] = new SelectList(
+                _context.Employees.Select(e => new { e.Id, Display = e.Code + " - " + e.FirstName + " " + e.LastName }),
+                "Id", "Display", job.EmployeeId
+            );
+
             return View(job);
         }
+
+
 
         // POST: ProjectManager/Jobs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -192,6 +204,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 {
                     _context.Update(job);
                     await _context.SaveChangesAsync();
+                    await UpdateBaselineAssessment(job.EmployeeId);
+                    // 🔹 Cập nhật bảng Analysis sau khi chỉnh sửa Job
+                    await UpdateAnalysis(job.EmployeeId);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -206,9 +221,130 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
             return View(job);
+        }
+        private async Task UpdateBaselineAssessment(long? employeeId)
+        {
+            if (employeeId == null)
+                return;
+
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            // Lấy danh sách công việc của nhân viên trong tháng hiện tại có đánh giá
+            var jobs = await _context.Jobs
+                .Where(j => j.EmployeeId == employeeId && j.Time.HasValue &&
+                            j.Time.Value.Month == currentMonth && j.Time.Value.Year == currentYear)
+                .ToListAsync();
+
+            if (!jobs.Any())
+                return;
+
+            // Tính trung bình các đánh giá
+            double avgVolume = jobs.Average(j => j.VolumeAssessment ?? 0);
+            double avgProgress = jobs.Average(j => j.ProgressAssessment ?? 0);
+            double avgQuality = jobs.Average(j => j.QualityAssessment ?? 0);
+            double avgSummary = jobs.Average(j => j.SummaryOfReviews ?? 0);
+
+            bool evaluate = avgSummary >= 50;
+            // Tìm bản ghi BaselineAssessment của nhân viên trong tháng hiện tại
+            var baseline = await _context.Baselineassessments
+                .FirstOrDefaultAsync(b => b.EmployeeId == employeeId && b.Time.HasValue &&
+                                          b.Time.Value.Month == currentMonth && b.Time.Value.Year == currentYear);
+
+            if (baseline == null)
+            {
+                // Nếu chưa có bản ghi trong tháng, tạo mới
+                baseline = new Baselineassessment
+                {
+                    EmployeeId = employeeId,
+                    VolumeAssessment = avgVolume,
+                    ProgressAssessment = avgProgress,
+                    QualityAssessment = avgQuality,
+                    SummaryOfReviews = avgSummary,
+                    Time = new DateTime(currentYear, currentMonth, 1),
+                    Evaluate = evaluate,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+                _context.Baselineassessments.Add(baseline);
+            }
+            else
+            {
+                // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
+                baseline.VolumeAssessment = avgVolume;
+                baseline.ProgressAssessment = avgProgress;
+                baseline.QualityAssessment = avgQuality;
+                baseline.SummaryOfReviews = avgSummary;
+                baseline.Evaluate = evaluate;
+                baseline.UpdateDate = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task UpdateAnalysis(long? employeeId)
+        {
+            if (employeeId == null)
+                return;
+
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            // Lấy danh sách công việc của nhân viên trong tháng hiện tại
+            var jobs = await _context.Jobs
+                .Where(j => j.EmployeeId == employeeId && j.Time.HasValue &&
+                            j.Time.Value.Month == currentMonth && j.Time.Value.Year == currentYear)
+                .ToListAsync();
+
+            int total = jobs.Count;
+            int ontime = jobs.Count(j => j.Status == 1);
+            int late = jobs.Count(j => j.Status == 2);
+            int overdue = jobs.Count(j => j.Status == 3);
+            int processing = jobs.Count(j => j.Status == 4);
+
+            // Tính trung bình đánh giá của nhân viên
+            var averageReview = jobs.Any()
+                ? jobs.Average(j => j.SummaryOfReviews ?? 0)
+                : 0;
+
+            // Tìm bản ghi Analysis của nhân viên trong tháng hiện tại
+            var analysis = await _context.Analyses
+                .FirstOrDefaultAsync(a => a.EmployeeId == employeeId && a.Time.HasValue &&
+                                          a.Time.Value.Month == currentMonth && a.Time.Value.Year == currentYear);
+
+            if (analysis == null)
+            {
+                // Nếu chưa có bản ghi trong tháng, tạo mới
+                analysis = new Analysis
+                {
+                    EmployeeId = employeeId,
+                    Total = total,
+                    Ontime = ontime,
+                    Late = late,
+                    Overdue = overdue,
+                    Processing = processing,
+                    Time = new DateTime(currentYear, currentMonth, 1),
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+                _context.Analyses.Add(analysis);
+            }
+            else
+            {
+                // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
+                analysis.Total = total;
+                analysis.Ontime = ontime;
+                analysis.Late = late;
+                analysis.Overdue = overdue;
+                analysis.Processing = processing;
+                analysis.UpdateDate = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         // GET: ProjectManager/Jobs/Delete/5

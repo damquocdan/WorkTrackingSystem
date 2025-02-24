@@ -9,69 +9,110 @@
     <h1 class="mb-4"><i class="bi bi-file-earmark-text"></i> Chi tiết công việc</h1>
 
     <div class="card p-3">
-        <dl class="row">
-            <dt class="col-sm-3"><i class="bi bi-card-heading"></i> Tên công việc:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+        <div class="row">
+            <!-- Cột 1 -->
+            <div class="col-md-3">
+                <dl>
+                    <dt><i class="bi bi-card-heading"></i> Tên công việc:</dt>
+                    <dd>@Html.DisplayFor(model => model.Name)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-file-text"></i> Mô tả:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+                    <dt><i class="bi bi-file-text"></i> Mô tả:</dt>
+                    <dd>@Html.DisplayFor(model => model.Description)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-calendar-event"></i> Hạn chót 1:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Deadline1)</dd>
+                    <dt><i class="bi bi-calendar-event"></i> Hạn chót 1:</dt>
+                    <dd>@Html.DisplayFor(model => model.Deadline1)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-calendar-event"></i> Hạn chót 2:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Deadline2)</dd>
+                    <dt><i class="bi bi-calendar-event"></i> Hạn chót 2:</dt>
+                    <dd>@Html.DisplayFor(model => model.Deadline2)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-calendar-event"></i> Hạn chót 3:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Deadline3)</dd>
+                    <dt><i class="bi bi-calendar-event"></i> Hạn chót 3:</dt>
+                    <dd>@Html.DisplayFor(model => model.Deadline3)</dd>
+                </dl>
+            </div>
 
-            <dt class="col-sm-3"><i class="bi bi-calendar-check"></i> Ngày hoàn thành:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.CompletionDate)</dd>
+            <!-- Cột 2 -->
+            <div class="col-md-3">
+                <dl>
+                    <dt><i class="bi bi-calendar-check"></i> Ngày hoàn thành:</dt>
+                    <dd>@Html.DisplayFor(model => model.CompletionDate)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-check-square"></i> Trạng thái:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Status)</dd>
+                    <dt><i class="bi bi-check-square"></i> Trạng thái:</dt>
+                    <dd>@Html.DisplayFor(model => model.Status)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.VolumeAssessment)</dd>
+                    <dt><i class="bi bi-clock"></i> Thời gian:</dt>
+                    <dd>@Html.DisplayFor(model => model.Time)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-bar-chart-line"></i> Đánh giá tiến độ:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.ProgressAssessment)</dd>
+                    <dt><i class="bi bi-trash"></i> Đã xóa:</dt>
+                    <dd>
+                        @((Model.IsDelete ?? false) ? "Đã xóa" : "Chưa xóa")
+                    </dd>
 
-            <dt class="col-sm-3"><i class="bi bi-bar-chart-line"></i> Đánh giá chất lượng:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.QualityAssessment)</dd>
+                    <dt><i class="bi bi-check-circle"></i> Hoạt động:</dt>
+                    <dd>
+                        @((Model.IsActive ?? false) ? "Hoạt động" : "Không hoạt động")
+                    </dd>
 
-            <dt class="col-sm-3"><i class="bi bi-journal-text"></i> Tóm tắt đánh giá:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.SummaryOfReviews)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-clock"></i> Thời gian:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Time)</dd>
+                </dl>
+            </div>
 
-            <dt class="col-sm-3"><i class="bi bi-trash"></i> Đã xóa:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.IsDelete)</dd>
+            <!-- Cột 3 -->
+            <div class="col-md-3">
+                <dl>
+                    <dt><i class="bi bi-calendar-plus"></i> Ngày tạo:</dt>
+                    <dd>@Html.DisplayFor(model => model.CreateDate)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-check-circle"></i> Hoạt động:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.IsActive)</dd>
+                    <dt><i class="bi bi-calendar-check"></i> Ngày cập nhật:</dt>
+                    <dd>@Html.DisplayFor(model => model.UpdateDate)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-calendar-plus"></i> Ngày tạo:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.CreateDate)</dd>
+                    <dt><i class="bi bi-person-plus"></i> Người tạo:</dt>
+                    <dd>@Html.DisplayFor(model => model.CreateBy)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-calendar-check"></i> Ngày cập nhật:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.UpdateDate)</dd>
+                    <dt><i class="bi bi-person-check"></i> Người cập nhật:</dt>
+                    <dd>@Html.DisplayFor(model => model.UpdateBy)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-person-plus"></i> Người tạo:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.CreateBy)</dd>
+                    <dt><i class="bi bi-tag"></i> Danh mục:</dt>
+                    <dd>@Html.DisplayFor(model => model.Category.Name)</dd>
 
-            <dt class="col-sm-3"><i class="bi bi-person-check"></i> Người cập nhật:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.UpdateBy)</dd>
+                    <dt><i class="bi bi-person"></i> Nhân viên:</dt>
+                    <dd>@Html.DisplayFor(model => model.Employee.Code) - @Html.DisplayFor(model => model.Employee.FirstName) @Html.DisplayFor(model => model.Employee.LastName)</dd>
+                </dl>
+            </div>
 
-            <dt class="col-sm-3"><i class="bi bi-tag"></i> Danh mục:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Category.Id)</dd>
+            <!-- Cột 4 - Đánh giá -->
+            <div class="col-md-3">
+                <h5><i class="bi bi-bar-chart-line"></i> Đánh giá</h5>
+                <div class="mb-2">
+                    <label>Khối lượng</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: @Model.VolumeAssessment%;" aria-valuenow="@Model.VolumeAssessment" aria-valuemin="0" aria-valuemax="100">@Model.VolumeAssessment%</div>
+                    </div>
+                </div>
 
-            <dt class="col-sm-3"><i class="bi bi-person"></i> Nhân viên:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Employee.Id)</dd>
-        </dl>
+                <div class="mb-2">
+                    <label>Tiến độ</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @Model.ProgressAssessment%;" aria-valuenow="@Model.ProgressAssessment" aria-valuemin="0" aria-valuemax="100">@Model.ProgressAssessment%</div>
+                    </div>
+                </div>
 
-        <div>
+                <div class="mb-2">
+                    <label>Chất lượng</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: @Model.QualityAssessment%;" aria-valuenow="@Model.QualityAssessment" aria-valuemin="0" aria-valuemax="100">@Model.QualityAssessment%</div>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label>Đánh giá tổng hợp:</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: @Model.SummaryOfReviews%;" aria-valuenow="@Model.SummaryOfReviews" aria-valuemin="0" aria-valuemax="100">@Model.SummaryOfReviews%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
             <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a>
             <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
         </div>

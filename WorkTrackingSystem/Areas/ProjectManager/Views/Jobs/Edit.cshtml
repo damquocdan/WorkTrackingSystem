@@ -1,150 +1,138 @@
 ﻿@model WorkTrackingSystem.Models.Job
-
 @{
     ViewData["Title"] = "Chỉnh sửa công việc";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
 
-<div class="">
-    <h1 class="mb-4"><i class="bi bi-pencil-square"></i> Chỉnh sửa công việc</h1>
 
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Edit">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Id" />
+<h1 class="text-center mb-4">Sửa công việc</h1>
 
-                <div class="mb-3">
-                    <label asp-for="EmployeeId" class="form-label"><i class="bi bi-person"></i> Nhân viên:</label>
-                    <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
-                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
-                </div>
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
 
-                <div class="mb-3">
-                    <label asp-for="CategoryId" class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
-                    <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
-                    <span asp-validation-for="CategoryId" class="text-danger"></span>
-                </div>
+                    <div class="row">
+                        <!-- Cột 1 -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="EmployeeId" class="form-label">Nhân viên</label>
+                                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId" disabled></select>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+                            <div class="mb-3" >
+                                <label asp-for="CategoryId" class="form-label">Danh mục</label>
+                                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId" disabled></select>
+                            </div>
+                            <div class="mb-3" hidden>
+                                <label asp-for="EmployeeId" class="form-label">Nhân viên</label>
+                                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId">
+                                    <option value="">-- Chọn nhân viên --</option>
+                                </select>
+                                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
-                    <input asp-for="Description" class="form-control" />
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
+                            <div class="mb-3" hidden>
+                                <label asp-for="CategoryId" class="form-label">Danh mục</label>
+                                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label">Tên công việc</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Deadline1" class="form-label"><i class="bi bi-calendar-event"></i> Hạn chót 1:</label>
-                    <input asp-for="Deadline1" class="form-control" />
-                    <span asp-validation-for="Deadline1" class="text-danger"></span>
-                </div>
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Mô tả</label>
+                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
 
-                <div class="mb-3">
-                    <label asp-for="Deadline2" class="form-label"><i class="bi bi-calendar-event"></i> Hạn chót 2:</label>
-                    <input asp-for="Deadline2" class="form-control" />
-                    <span asp-validation-for="Deadline2" class="text-danger"></span>
-                </div>
+                        <!-- Cột 2 -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Time" class="form-label">Thời gian bắt đầu</label>
+                                <input asp-for="Time" type="date" class="form-control" readonly />
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Deadline3" class="form-label"><i class="bi bi-calendar-event"></i> Hạn chót 3:</label>
-                    <input asp-for="Deadline3" class="form-control" />
-                    <span asp-validation-for="Deadline3" class="text-danger"></span>
-                </div>
+                            <div class="mb-3">
+                                <label asp-for="Deadline1" class="form-label">Hạn chót 1</label>
+                                <input asp-for="Deadline1" class="form-control" type="date" />
+                                <span asp-validation-for="Deadline1" class="text-danger"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="CompletionDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày hoàn thành:</label>
-                    <input asp-for="CompletionDate" class="form-control" />
-                    <span asp-validation-for="CompletionDate" class="text-danger"></span>
-                </div>
+                            <div class="mb-3">
+                                <label asp-for="Deadline2" class="form-label">Hạn chót 2</label>
+                                <input asp-for="Deadline2" class="form-control" type="date" />
+                                <span asp-validation-for="Deadline2" class="text-danger"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Status" class="form-label"><i class="bi bi-check-square"></i> Trạng thái:</label>
-                    <select asp-for="Status" class="form-control">
-                        <option value="1">Hoàn thành</option>
-                        <option value="2">Chưa hoàn thành</option>
-                        <option value="3">Hoàn thành muộn</option>
-                        <option value="4">Đang xử lý</option>
-                    </select>
-                    <span asp-validation-for="Status" class="text-danger"></span>
-                </div>
+                            <div class="mb-3">
+                                <label asp-for="Deadline3" class="form-label">Hạn chót 3</label>
+                                <input asp-for="Deadline3" class="form-control" type="date" />
+                                <span asp-validation-for="Deadline3" class="text-danger"></span>
+                            </div>
 
+                            <div class="mb-3">
+                                <label asp-for="CompletionDate" class="form-label">Ngày hoàn thành</label>
+                                <input asp-for="CompletionDate" class="form-control" type="date" />
+                                <span asp-validation-for="CompletionDate" class="text-danger"></span>
+                            </div>
+                        </div>
 
-                <div class="mb-3">
-                    <label asp-for="VolumeAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng:</label>
-                    <input asp-for="VolumeAssessment" class="form-control" />
-                    <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
-                </div>
+                        <!-- Cột 3 -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Status" class="form-label">Trạng thái</label>
+                                <select asp-for="Status" class="form-control" id="status">
+                                    <option value="1">Hoàn thành</option>
+                                    <option value="2">Chưa hoàn thành</option>
+                                    <option value="3">Hoàn thành muộn</option>
+                                    <option value="4">Đang xử lý</option>
+                                </select>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="ProgressAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá tiến độ:</label>
-                    <input asp-for="ProgressAssessment" class="form-control" />
-                    <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
-                </div>
+                            <div id="assessmentFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label asp-for="VolumeAssessment" class="form-label">Đánh giá khối lượng</label>
+                                    <input asp-for="VolumeAssessment" class="form-range" type="range" min="0" max="100" id="volume" />
+                                    <span id="volumeValue">0</span>
+                                </div>
 
-                <div class="mb-3">
-                    <label asp-for="QualityAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá chất lượng:</label>
-                    <input asp-for="QualityAssessment" class="form-control" />
-                    <span asp-validation-for="QualityAssessment" class="text-danger"></span>
-                </div>
+                                <div class="mb-3">
+                                    <label asp-for="ProgressAssessment" class="form-label">Đánh giá tiến độ</label>
+                                    <input asp-for="ProgressAssessment" class="form-range" type="range" min="0" max="100" id="progress" />
+                                    <span id="progressValue">0</span>
+                                </div>
 
-                <div class="mb-3">
-                    <label asp-for="SummaryOfReviews" class="form-label"><i class="bi bi-journal-text"></i> Tóm tắt đánh giá:</label>
-                    <input asp-for="SummaryOfReviews" class="form-control" />
-                    <span asp-validation-for="SummaryOfReviews" class="text-danger"></span>
-                </div>
+                                <div class="mb-3">
+                                    <label asp-for="QualityAssessment" class="form-label">Đánh giá chất lượng</label>
+                                    <input asp-for="QualityAssessment" class="form-range" type="range" min="0" max="100" id="quality" />
+                                    <span id="qualityValue">0</span>
+                                </div>
 
-                <div class="mb-3">
-                    <label asp-for="Time" class="form-label"><i class="bi bi-clock"></i> Thời gian:</label>
-                    <input asp-for="Time" class="form-control" />
-                    <span asp-validation-for="Time" class="text-danger"></span>
-                </div>
+                                <div class="mb-3">
+                                    <label asp-for="SummaryOfReviews" class="form-label">Tóm tắt đánh giá</label>
+                                    <input asp-for="SummaryOfReviews" class="form-control" id="summary" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="IsDelete" class="form-label"><i class="bi bi-trash"></i> Đã xóa:</label>
-                    <input asp-for="IsDelete" class="form-control" />
-                    <span asp-validation-for="IsDelete" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="IsActive" class="form-label"><i class="bi bi-check-circle"></i> Hoạt động:</label>
-                    <input asp-for="IsActive" class="form-control" />
-                    <span asp-validation-for="IsActive" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="CreateDate" class="form-label"><i class="bi bi-calendar-plus"></i> Ngày tạo:</label>
-                    <input asp-for="CreateDate" class="form-control" />
-                    <span asp-validation-for="CreateDate" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="UpdateDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày cập nhật:</label>
-                    <input asp-for="UpdateDate" class="form-control" />
-                    <span asp-validation-for="UpdateDate" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="CreateBy" class="form-label"><i class="bi bi-person-plus"></i> Người tạo:</label>
-                    <input asp-for="CreateBy" class="form-control" />
-                    <span asp-validation-for="CreateBy" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="UpdateBy" class="form-label"><i class="bi bi-person-check"></i> Người cập nhật:</label>
-                    <input asp-for="UpdateBy" class="form-control" />
-                    <span asp-validation-for="UpdateBy" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu</button>
-                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
-                </div>
-            </form>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Lưu</button>
+                        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Quay lại danh sách</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -153,4 +141,52 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script> @* Replace with your Font Awesome Kit code *@
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let statusField = document.getElementById("status");
+            let assessmentFields = document.getElementById("assessmentFields");
+            let volumeInput = document.getElementById("volume");
+            let progressInput = document.getElementById("progress");
+            let qualityInput = document.getElementById("quality");
+            let summaryInput = document.getElementById("summary");
+
+            // Các span để hiển thị giá trị
+            let volumeValue = document.getElementById("volumeValue");
+            let progressValue = document.getElementById("progressValue");
+            let qualityValue = document.getElementById("qualityValue");
+
+            function updateVisibility() {
+                if (statusField.value == "1" || statusField.value == "3") {
+                    assessmentFields.style.display = "block";
+                } else {
+                    assessmentFields.style.display = "none";
+                    volumeInput.value = progressInput.value = qualityInput.value = summaryInput.value = 0;
+                }
+            }
+
+            function updateSummary() {
+                let volume = parseFloat(volumeInput.value) || 0;
+                let progress = parseFloat(progressInput.value) || 0;
+                let quality = parseFloat(qualityInput.value) || 0;
+                let summary = (0.60 * volume + 0.15 * progress + 0.25 * quality).toFixed(2);
+                summaryInput.value = summary;
+
+                // Cập nhật giá trị hiển thị của các slider
+                volumeValue.textContent = volume;
+                progressValue.textContent = progress;
+                qualityValue.textContent = quality;
+            }
+
+            // Lắng nghe sự kiện thay đổi giá trị của range input
+            volumeInput.addEventListener("input", updateSummary);
+            progressInput.addEventListener("input", updateSummary);
+            qualityInput.addEventListener("input", updateSummary);
+
+            statusField.addEventListener("change", updateVisibility);
+            updateVisibility();
+            updateSummary(); // Cập nhật giá trị khi trang tải lần đầu
+        });
+    </script>
+
 }
