@@ -84,7 +84,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
             }
 
-            return View(await assessments.ToListAsync());
+            return View(await assessments.OrderByDescending(x => x.Time).ToListAsync());
+
         }
 
 
