@@ -22,9 +22,41 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Baselineassessments
         public async Task<IActionResult> Index()
         {
-            var workTrackingSystemContext = _context.Baselineassessments.Include(b => b.Employee);
-            return View(await workTrackingSystemContext.ToListAsync());
+            // Lấy ManagerId từ session
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Tìm nhân viên (quản lý) đang đăng nhập
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Lấy danh sách phòng ban mà quản lý đang phụ trách
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2)) // 2 = Quản lý
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            // Lọc danh sách đánh giá của nhân viên thuộc các phòng ban mà quản lý phụ trách
+            var assessments = _context.Baselineassessments
+                .Include(b => b.Employee)
+                .Where(b => b.Employee != null &&
+                            b.Employee.DepartmentId.HasValue &&
+                            managedDepartments.Contains(b.Employee.DepartmentId.Value));
+
+            return View(await assessments.ToListAsync());
         }
+
 
         // GET: ProjectManager/Baselineassessments/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -48,9 +80,41 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Baselineassessments/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            // Lấy thông tin quản lý đang đăng nhập từ session
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Tìm nhân viên (quản lý) đang đăng nhập
+            var manager = _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefault();
+
+            if (manager == null || manager.DepartmentId == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Lấy danh sách nhân viên thuộc phòng ban của quản lý
+            var employees = _context.Employees
+                .Where(e => e.DepartmentId == manager.DepartmentId)
+                .Select(e => new
+                {
+                    Id = e.Id,
+                    FullName = e.FirstName + " " + e.LastName // Hiển thị họ và tên đầy đủ
+                })
+                .ToList();
+
+            // Truyền danh sách nhân viên vào ViewData để hiển thị trong dropdown
+            ViewData["EmployeeId"] = new SelectList(employees, "Id", "FullName");
+
             return View();
         }
+
 
         // POST: ProjectManager/Baselineassessments/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

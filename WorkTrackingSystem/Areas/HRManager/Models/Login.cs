@@ -1,4 +1,4 @@
-﻿namespace WorkTrackingSystem.Areas.HRMamager.Models
+﻿namespace WorkTrackingSystem.Areas.HRManager.Models
 {
     public class Login
     {

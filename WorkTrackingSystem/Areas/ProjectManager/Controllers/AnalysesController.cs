@@ -22,9 +22,39 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Analyses
         public async Task<IActionResult> Index()
         {
-            var workTrackingSystemContext = _context.Analyses.Include(a => a.Employee);
+            // Lấy thông tin quản lý từ session
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login"); // Chuyển hướng nếu không có session
+            }
+
+            // Tìm nhân viên (quản lý) đang đăng nhập
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null || manager.DepartmentId == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Lấy danh sách nhân viên thuộc phòng ban của quản lý
+            var employeeIdsInManagedDepartment = await _context.Employees
+                .Where(e => e.DepartmentId == manager.DepartmentId)
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            // Lọc danh sách phân tích chỉ của nhân viên trong phòng ban
+            var workTrackingSystemContext = _context.Analyses
+                .Include(a => a.Employee)
+                .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+
             return View(await workTrackingSystemContext.ToListAsync());
         }
+
 
         // GET: ProjectManager/Analyses/Details/5
         public async Task<IActionResult> Details(long? id)

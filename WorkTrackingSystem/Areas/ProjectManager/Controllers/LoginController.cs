@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using WorkTrackingSystem.Areas.ProjectManager.Models;
@@ -28,10 +29,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var pass = model.Password;
-            var dataLogin = _context.Users.FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(pass));
+            var dataLogin = _context.Users.FirstOrDefault(x =>
+        x.UserName.Equals(model.UserName)
+        && x.Password.Equals(pass)
+        && x.Employee.PositionId == 2);
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("ProjectManagerLogin", model.UserName);
+
                 return RedirectToAction("Index", "Dashboard");
             }
             else

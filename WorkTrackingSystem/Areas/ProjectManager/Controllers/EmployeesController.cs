@@ -22,9 +22,40 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Employees
         public async Task<IActionResult> Index()
         {
-            var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-            return View(await workTrackingSystemContext.ToListAsync());
+            // Lấy ManagerId từ session
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Tìm nhân viên đang đăng nhập
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Lấy danh sách phòng ban mà nhân viên này quản lý
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2)) // 2 = Quản lý
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            // Lọc danh sách nhân viên thuộc phòng ban mà quản lý này phụ trách
+            var employeesInManagedDepartments = _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value));
+
+            return View(await employeesInManagedDepartments.ToListAsync());
         }
+
 
         // GET: ProjectManager/Employees/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -49,8 +80,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Employees/Create
         public IActionResult Create()
         {
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id");
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id");
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name");
             return View();
         }
 
