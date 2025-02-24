@@ -100,14 +100,24 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             // Lấy danh sách nhân viên thuộc phòng ban của quản lý
+            // Lấy tháng và năm hiện tại
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
+
+            // Lấy danh sách nhân viên chưa có đánh giá trong tháng hiện tại
             var employees = _context.Employees
-                .Where(e => e.DepartmentId == manager.DepartmentId)
+                .Where(e => e.DepartmentId == manager.DepartmentId &&
+                            !_context.Baselineassessments.Any(b => b.EmployeeId == e.Id &&
+                                                                   b.Time.HasValue &&
+                                                                   b.Time.Value.Month == currentMonth &&
+                                                                   b.Time.Value.Year == currentYear))
                 .Select(e => new
                 {
                     Id = e.Id,
-                    FullName = e.FirstName + " " + e.LastName // Hiển thị họ và tên đầy đủ
+                    FullName = e.Code + " - " + e.FirstName + " " + e.LastName // Hiển thị họ và tên đầy đủ
                 })
                 .ToList();
+
 
             // Truyền danh sách nhân viên vào ViewData để hiển thị trong dropdown
             ViewData["EmployeeId"] = new SelectList(employees, "Id", "FullName");
@@ -125,6 +135,16 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         {
             if (ModelState.IsValid)
             {
+                baselineassessment.SummaryOfReviews = (baselineassessment.VolumeAssessment * 0.6) +
+                                         (baselineassessment.ProgressAssessment * 0.15) +
+                                         (baselineassessment.QualityAssessment * 0.25);
+
+                // Nếu tổng điểm đánh giá > 50, Evaluate = true
+                baselineassessment.Evaluate = baselineassessment.SummaryOfReviews > 50;
+                baselineassessment.Time = DateTime.Now;
+                baselineassessment.CreateDate = DateTime.Now;
+                baselineassessment.IsActive = true;
+                baselineassessment.IsDelete = false;
                 _context.Add(baselineassessment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -141,14 +161,21 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return NotFound();
             }
 
-            var baselineassessment = await _context.Baselineassessments.FindAsync(id);
+            var baselineassessment = await _context.Baselineassessments
+                .Include(b => b.Employee) // Load Employee để lấy tên
+                .FirstOrDefaultAsync(b => b.Id == id);
+
             if (baselineassessment == null)
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
+
+            // Lấy tên nhân viên để hiển thị
+            ViewBag.EmployeeName = baselineassessment.Employee.Code + " - " + baselineassessment.Employee.FirstName + " " + baselineassessment.Employee.LastName;
+
             return View(baselineassessment);
         }
+
 
         // POST: ProjectManager/Baselineassessments/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -162,11 +189,46 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return NotFound();
             }
 
+            var existingRecord = await _context.Baselineassessments.FindAsync(id);
+            if (existingRecord == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(baselineassessment);
+                    // Chỉ cập nhật các trường cần thiết, giữ nguyên giá trị ban đầu của một số trường
+                    existingRecord.VolumeAssessment = baselineassessment.VolumeAssessment;
+                    existingRecord.ProgressAssessment = baselineassessment.ProgressAssessment;
+                    existingRecord.QualityAssessment = baselineassessment.QualityAssessment;
+                    existingRecord.SummaryOfReviews = (baselineassessment.VolumeAssessment * 0.6) +
+                                                      (baselineassessment.ProgressAssessment * 0.15) +
+                                                      (baselineassessment.QualityAssessment * 0.25);
+
+                    // Nếu tổng điểm đánh giá > 50, Evaluate = true
+                    existingRecord.Evaluate = existingRecord.SummaryOfReviews > 50;
+                    existingRecord.UpdateDate = DateTime.Now;
+
+                    string userIdStr = HttpContext.Session.GetString("ProjectManagerLogin");
+                    if (long.TryParse(userIdStr, out long userId))
+                    {
+                        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+                        if (user != null && user.EmployeeId.HasValue)
+                        {
+                            existingRecord.UpdateBy = user.EmployeeId;
+                        }
+                    }
+
+                    // Giữ nguyên các giá trị không thay đổi
+                    // existingRecord.Time = existingRecord.Time; // Không cần vì không cập nhật lại
+                    // existingRecord.IsDelete = existingRecord.IsDelete;
+                    // existingRecord.IsActive = existingRecord.IsActive;
+                    // existingRecord.CreateDate = existingRecord.CreateDate;
+                    // existingRecord.CreateBy = existingRecord.CreateBy;
+
+                    _context.Update(existingRecord);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -182,6 +244,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
             return View(baselineassessment);
         }
