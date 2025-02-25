@@ -17,12 +17,16 @@
             <th>Mã</th>
             <th>Tên</th>
             <th>Mô tả</th>
+            <th>IsActive</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
+            var strCheck = item.IsActive == true ? "<i class='fa fa-check text-success'></i>" :
+            "<i class='fas fa-times text-danger'></i>"; //kiểm tra xem IsDelete là true hay false
+
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Code)
@@ -32,6 +36,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td class="text-center">
+                    <a href='#' data-id="@item.Id" class="btnActive">@Html.Raw(strCheck)</a>
                 </td>
                 <td class="text-center">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Sửa</a>
@@ -44,9 +51,11 @@
 </table>
 
 @section Scripts {
+    <script src="~/js/Checkbox.js"></script>
     <script>
         $(document).ready(function () {
             $('.table').DataTable(); // Initialize DataTables (optional)
         });
+        var activeUrl = '/adminsystem/departments/IsActive';
     </script>
 }
