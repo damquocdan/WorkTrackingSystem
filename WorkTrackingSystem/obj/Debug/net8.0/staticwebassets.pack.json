@@ -293,6 +293,10 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\avatar.png",
+      "PackagePath": "staticwebassets\\images\\avatar.png"
+    },
+    {
       "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

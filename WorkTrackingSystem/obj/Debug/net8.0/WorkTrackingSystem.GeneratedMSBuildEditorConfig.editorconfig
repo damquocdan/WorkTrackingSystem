@@ -500,6 +500,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index1.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4MS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4Mi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index3.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4My5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
