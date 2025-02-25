@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\views\\jobs\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\views\\jobs\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\jobscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\jobscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,10 +17,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\models\u200B\\analysis.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:models\u200B\\analysis.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\views\\jobs\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\views\\jobs\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\views\\jobs\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -94,8 +94,7 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Views\\Baselineassessments\\Index.cshtml",
               "ViewState": "AgIAAG8AAAAAAAAAAAAAAHsAAABLAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-24T10:46:01.993Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T10:46:01.993Z"
             },
             {
               "$type": "Document",
@@ -107,8 +106,7 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Views\\Baselineassessments\\Edit.cshtml",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-24T09:19:56.359Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:19:56.359Z"
             },
             {
               "$type": "Document",
@@ -120,12 +118,11 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Views\\Shared\\_ProjectManager.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-24T09:12:16.342Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:12:16.342Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "Edit.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\Jobs\\Edit.cshtml",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Views\\Jobs\\Edit.cshtml",
@@ -146,8 +143,7 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Views\\Jobs\\Details.cshtml",
               "ViewState": "AgIAACYAAAAAAAAAAAAcwDUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-24T08:39:06.492Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T08:39:06.492Z"
             },
             {
               "$type": "Document",
@@ -159,8 +155,7 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Views\\Employees\\Edit.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-24T08:39:04.294Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T08:39:04.294Z"
             }
           ]
         },
@@ -170,7 +165,7 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Baselineassessment.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Baselineassessment.cs",
               "RelativeDocumentMoniker": "Models\u200B\\Baselineassessment.cs",
@@ -178,12 +173,11 @@
               "RelativeToolTip": "Models\u200B\\Baselineassessment.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAAwCUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-24T11:21:45.047Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T11:21:45.047Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Analysis.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Analysis.cs",
               "RelativeDocumentMoniker": "Models\u200B\\Analysis.cs",
@@ -191,18 +185,17 @@
               "RelativeToolTip": "Models\u200B\\Analysis.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAAwCUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-24T10:51:42.611Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T10:51:42.611Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "JobsController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
-              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs*",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\JobsController.cs*",
-              "ViewState": "AgIAAPsAAAAAAAAAAAAcwBgBAAA3AAAAAAAAAA==",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEBAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-24T08:40:37.851Z",
               "EditorCaption": ""
@@ -217,8 +210,7 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
               "ViewState": "AgIAAJUAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-24T09:34:53.403Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:34:53.403Z"
             },
             {
               "$type": "Document",
@@ -230,8 +222,7 @@
               "RelativeToolTip": "Areas\\ProjectManager\\Views\\Jobs\\Index.cshtml",
               "ViewState": "AgIAABUAAAAAAAAAAAAAACMAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-02-24T09:28:19.049Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:28:19.049Z"
             },
             {
               "$type": "Document",
@@ -243,8 +234,7 @@
               "RelativeToolTip": "Models\u200B\\Category.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-24T09:30:34.604Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:30:34.604Z"
             },
             {
               "$type": "Document",
@@ -256,8 +246,7 @@
               "RelativeToolTip": "Models\u200B\\Employee.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-24T09:29:33.131Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:29:33.131Z"
             },
             {
               "$type": "Document",
@@ -269,8 +258,7 @@
               "RelativeToolTip": "Models\u200B\\Job.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAAAwDUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-24T09:17:03.489Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-24T09:17:03.489Z"
             }
           ]
         }
