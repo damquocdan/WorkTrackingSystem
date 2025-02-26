@@ -105,7 +105,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", baselineassessment);
+            }
             return View(baselineassessment);
         }
 

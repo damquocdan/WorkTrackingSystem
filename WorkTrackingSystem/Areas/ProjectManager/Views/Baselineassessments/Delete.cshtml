@@ -6,7 +6,7 @@
 }
 
 <div class="container">
-    <h1 class="mb-4 text-danger fw-bold">Xóa đánh giá cơ bản</h1>
+    <h1 class="mb-4 text-danger ">Xóa đánh giá cơ bản</h1>
 
     <div class="card shadow-lg p-4 @(Model.Evaluate == true ? "bg-success bg-opacity-50 text-white" : "bg-danger bg-opacity-50 text-white")">
         <div class="row">
@@ -14,14 +14,14 @@
                 <p class="fs-5">Bạn có chắc chắn muốn xóa đánh giá cơ bản này?</p>
 
                 <dl class="row fs-5">
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-person"></i> Nhân viên:</dt>
-                    <dd class="col-sm-8 fw-bold text-dark">
+                    <dt class="col-sm-4 "><i class="bi bi-person"></i> Nhân viên:</dt>
+                    <dd class="col-sm-8  text-dark">
                         @Html.DisplayFor(model => model.Employee.Code) -
                         @Html.DisplayFor(model => model.Employee.FirstName)
                         @Html.DisplayFor(model => model.Employee.LastName)
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng:</dt>
                     <dd class="col-sm-8">
                         <div class="progress">
                             <div class="progress-bar bg-primary" role="progressbar"
@@ -34,7 +34,7 @@
                         </div>
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-graph-up"></i> Đánh giá tiến độ:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-graph-up"></i> Đánh giá tiến độ:</dt>
                     <dd class="col-sm-8">
                         <div class="progress">
                             <div class="progress-bar bg-success" role="progressbar"
@@ -47,7 +47,7 @@
                         </div>
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-star"></i> Đánh giá chất lượng:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-star"></i> Đánh giá chất lượng:</dt>
                     <dd class="col-sm-8">
                         <div class="progress">
                             <div class="progress-bar bg-danger" role="progressbar"
@@ -60,37 +60,37 @@
                         </div>
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-chat-left-text"></i> Tóm tắt đánh giá:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-chat-left-text"></i> Tóm tắt đánh giá:</dt>
                     <dd class="col-sm-8">@Html.DisplayFor(model => model.SummaryOfReviews)</dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-clock"></i> Thời gian:</dt>
-                    <dd class="col-sm-8 text-primary fw-bold">
+                    <dt class="col-sm-4 "><i class="bi bi-clock"></i> Thời gian:</dt>
+                    <dd class="col-sm-8 text-primary ">
                         @(Model.Time.HasValue ? Model.Time.Value.ToString("MM/yyyy") : "Không có dữ liệu")
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-clipboard-check"></i> Đánh giá:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-clipboard-check"></i> Đánh giá:</dt>
                     <dd class="col-sm-8">@(Model.Evaluate == true ? "Đạt" : "Chưa đạt")</dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-trash"></i> Trạng thái xóa:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-trash"></i> Trạng thái xóa:</dt>
                     <dd class="col-sm-8">
                         @(Model.IsDelete.HasValue ? (Model.IsDelete.Value ? "Đã xóa" : "Chưa xóa") : "Không xác định")
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-check-circle"></i> Hoạt động:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-check-circle"></i> Hoạt động:</dt>
                     <dd class="col-sm-8">
                         @(Model.IsActive.HasValue ? (Model.IsActive.Value ? "Hoạt động" : "Chưa hoạt động") : "Không xác định")
                     </dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-calendar-plus"></i> Ngày tạo:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-calendar-plus"></i> Ngày tạo:</dt>
                     <dd class="col-sm-8">@Model.CreateDate?.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-calendar-check"></i> Ngày cập nhật:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-calendar-check"></i> Ngày cập nhật:</dt>
                     <dd class="col-sm-8">@Model.UpdateDate?.ToString("dd/MM/yyyy HH:mm")</dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-person-plus"></i> Người tạo:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-person-plus"></i> Người tạo:</dt>
                     <dd class="col-sm-8">@Html.DisplayFor(model => model.CreateBy)</dd>
 
-                    <dt class="col-sm-4 fw-bold"><i class="bi bi-person-check"></i> Người cập nhật:</dt>
+                    <dt class="col-sm-4 "><i class="bi bi-person-check"></i> Người cập nhật:</dt>
                     <dd class="col-sm-8">@Html.DisplayFor(model => model.UpdateBy)</dd>
                 </dl>
             </div>

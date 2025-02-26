@@ -26,21 +26,21 @@
                 <div class="mb-3">
                     <label asp-for="VolumeAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng (1 - 100):</label>
                     <input asp-for="VolumeAssessment" type="range" class="form-range" min="1" max="100" id="VolumeAssessment" oninput="updateValue('VolumeAssessmentValue', this.value); calculateSummary()" />
-                    <span id="VolumeAssessmentValue" class="fw-bold">@Model.VolumeAssessment</span>
+                    <span id="VolumeAssessmentValue" class="">@Model.VolumeAssessment</span>
                     <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="ProgressAssessment" class="form-label"><i class="bi bi-graph-up"></i> Đánh giá tiến độ (1 - 100):</label>
                     <input asp-for="ProgressAssessment" type="range" class="form-range" min="1" max="100" id="ProgressAssessment" oninput="updateValue('ProgressAssessmentValue', this.value); calculateSummary()" />
-                    <span id="ProgressAssessmentValue" class="fw-bold">@Model.ProgressAssessment</span>
+                    <span id="ProgressAssessmentValue" class="">@Model.ProgressAssessment</span>
                     <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="QualityAssessment" class="form-label"><i class="bi bi-star"></i> Đánh giá chất lượng (1 - 100):</label>
                     <input asp-for="QualityAssessment" type="range" class="form-range" min="1" max="100" id="QualityAssessment" oninput="updateValue('QualityAssessmentValue', this.value); calculateSummary()" />
-                    <span id="QualityAssessmentValue" class="fw-bold">@Model.QualityAssessment</span>
+                    <span id="QualityAssessmentValue" class="">@Model.QualityAssessment</span>
                     <span asp-validation-for="QualityAssessment" class="text-danger"></span>
                 </div>
 

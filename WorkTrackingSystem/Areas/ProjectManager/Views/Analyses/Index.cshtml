@@ -7,11 +7,11 @@
 <div class="row">
     <div class="col-md-12" id="list-section">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-9">
                 <form method="get">
                     <div class="row">
                         <!-- Tìm kiếm theo nhân viên -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <input type="text" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@Context.Request.Query["searchText"]" />
                         </div>
 
@@ -21,7 +21,7 @@
                         </div>
 
                         <!-- Sắp xếp -->
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <select name="sortOrder" class="form-control">
                                 <option value="">-- Sắp xếp theo --</option>
                                 <option value="total_asc" selected="@(Context.Request.Query["sortOrder"] == "total_asc")">Tổng số ↑</option>
@@ -40,19 +40,19 @@
                         </div>
 
                         <!-- Nút tìm kiếm -->
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
                         </div>
 
                         <!-- Nút reset -->
-                        <div class="col-md-2">
-                            <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i> Reset</a>
+                        <div class="col-md-1">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i></a>
                         </div>
                     </div>
                 </form>
 
             </div>
-            <div class="col-md-4 text-end">
+            <div class="col-md-3 text-end">
                 <a href="@Url.Action("ExportToExcel")" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
                 <a href="@Url.Action("SendEmail")" class="btn btn-warning"><i class="bi bi-envelope"></i> Gửi Email</a>
             </div>

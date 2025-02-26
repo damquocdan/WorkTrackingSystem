@@ -25,6 +25,18 @@
                 <h4 class="mb-3">Thống kê trạng thái</h4>
                 <canvas id="statusChart"></canvas>
             </div>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="employeeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person"></i> Thông tin nhân viên
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="employeeDropdown">
+                    <li class="dropdown-item"><i class="bi bi-calendar"></i> Ngày sinh: @Html.DisplayFor(model => model.Employee.Birthday)</li>
+                    <li class="dropdown-item"><i class="bi bi-gender-ambiguous"></i> Giới tính: @Html.DisplayFor(model => model.Employee.Gender)</li>
+                    <li class="dropdown-item"><i class="bi bi-envelope"></i> Email: @Html.DisplayFor(model => model.Employee.Email)</li>
+                    <li class="dropdown-item"><i class="bi bi-telephone"></i> Số điện thoại: @Html.DisplayFor(model => model.Employee.Phone)</li>
+                    <li class="dropdown-item"><i class="bi bi-geo-alt"></i> Địa chỉ: @Html.DisplayFor(model => model.Employee.Address)</li>
+                </ul>
+            </div>
 
             <dt class="col-sm-3"><i class="bi bi-trash"></i> Đã xóa:</dt>
             <dd class="col-sm-9">@(Model.IsDelete.HasValue ? (Model.IsDelete.Value ? "Đã xóa" : "Chưa xóa") : "Không xác định")</dd>
