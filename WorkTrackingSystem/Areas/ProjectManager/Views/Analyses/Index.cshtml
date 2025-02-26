@@ -5,131 +5,167 @@
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
 <div class="row">
-    <div class="col-md-8">
-        <form method="get">
-            <div class="row">
-                <!-- Tìm kiếm theo nhân viên -->
-                <div class="col-md-4">
-                    <input type="text" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@Context.Request.Query["searchText"]" />
-                </div>
+    <div class="col-md-12" id="list-section">
+        <div class="row">
+            <div class="col-md-8">
+                <form method="get">
+                    <div class="row">
+                        <!-- Tìm kiếm theo nhân viên -->
+                        <div class="col-md-4">
+                            <input type="text" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@Context.Request.Query["searchText"]" />
+                        </div>
 
-                <!-- Bộ lọc thời gian (Tháng) -->
-                <div class="col-md-2">
-                    <input type="month" name="time" class="form-control" value="@Context.Request.Query["time"]">
-                </div>
+                        <!-- Bộ lọc thời gian (Tháng) -->
+                        <div class="col-md-2">
+                            <input type="month" name="time" class="form-control" value="@Context.Request.Query["time"]">
+                        </div>
 
-                <!-- Sắp xếp -->
-                <div class="col-md-2">
-                    <select name="sortOrder" class="form-control">
-                        <option value="">-- Sắp xếp theo --</option>
-                        <option value="total_asc" selected="@(Context.Request.Query["sortOrder"] == "total_asc")">Tổng số ↑</option>
-                        <option value="total_desc" selected="@(Context.Request.Query["sortOrder"] == "total_desc")">Tổng số ↓</option>
-                        <option value="ontime_asc" selected="@(Context.Request.Query["sortOrder"] == "ontime_asc")">Đúng hạn ↑</option>
-                        <option value="ontime_desc" selected="@(Context.Request.Query["sortOrder"] == "ontime_desc")">Đúng hạn ↓</option>
-                        <option value="late_asc" selected="@(Context.Request.Query["sortOrder"] == "late_asc")">Trễ hạn ↑</option>
-                        <option value="late_desc" selected="@(Context.Request.Query["sortOrder"] == "late_desc")">Trễ hạn ↓</option>
-                        <option value="overdue_asc" selected="@(Context.Request.Query["sortOrder"] == "overdue_asc")">Quá hạn ↑</option>
-                        <option value="overdue_desc" selected="@(Context.Request.Query["sortOrder"] == "overdue_desc")">Quá hạn ↓</option>
-                        <option value="processing_asc" selected="@(Context.Request.Query["sortOrder"] == "processing_asc")">Đang xử lý ↑</option>
-                        <option value="processing_desc" selected="@(Context.Request.Query["sortOrder"] == "processing_desc")">Đang xử lý ↓</option>
-                        <option value="time_asc" selected="@(Context.Request.Query["sortOrder"] == "time_asc")">Thời gian ↑</option>
-                        <option value="time_desc" selected="@(Context.Request.Query["sortOrder"] == "time_desc")">Thời gian ↓</option>
-                    </select>
-                </div>
+                        <!-- Sắp xếp -->
+                        <div class="col-md-2">
+                            <select name="sortOrder" class="form-control">
+                                <option value="">-- Sắp xếp theo --</option>
+                                <option value="total_asc" selected="@(Context.Request.Query["sortOrder"] == "total_asc")">Tổng số ↑</option>
+                                <option value="total_desc" selected="@(Context.Request.Query["sortOrder"] == "total_desc")">Tổng số ↓</option>
+                                <option value="ontime_asc" selected="@(Context.Request.Query["sortOrder"] == "ontime_asc")">Đúng hạn ↑</option>
+                                <option value="ontime_desc" selected="@(Context.Request.Query["sortOrder"] == "ontime_desc")">Đúng hạn ↓</option>
+                                <option value="late_asc" selected="@(Context.Request.Query["sortOrder"] == "late_asc")">Trễ hạn ↑</option>
+                                <option value="late_desc" selected="@(Context.Request.Query["sortOrder"] == "late_desc")">Trễ hạn ↓</option>
+                                <option value="overdue_asc" selected="@(Context.Request.Query["sortOrder"] == "overdue_asc")">Quá hạn ↑</option>
+                                <option value="overdue_desc" selected="@(Context.Request.Query["sortOrder"] == "overdue_desc")">Quá hạn ↓</option>
+                                <option value="processing_asc" selected="@(Context.Request.Query["sortOrder"] == "processing_asc")">Đang xử lý ↑</option>
+                                <option value="processing_desc" selected="@(Context.Request.Query["sortOrder"] == "processing_desc")">Đang xử lý ↓</option>
+                                <option value="time_asc" selected="@(Context.Request.Query["sortOrder"] == "time_asc")">Thời gian ↑</option>
+                                <option value="time_desc" selected="@(Context.Request.Query["sortOrder"] == "time_desc")">Thời gian ↓</option>
+                            </select>
+                        </div>
 
-                <!-- Nút tìm kiếm -->
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
-                </div>
+                        <!-- Nút tìm kiếm -->
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
+                        </div>
 
-                <!-- Nút reset -->
-                <div class="col-md-2">
-                    <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i> Reset</a>
-                </div>
+                        <!-- Nút reset -->
+                        <div class="col-md-2">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i> Reset</a>
+                        </div>
+                    </div>
+                </form>
+
             </div>
-        </form>
+            <div class="col-md-4 text-end">
+                <a href="@Url.Action("ExportToExcel")" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+                <a href="@Url.Action("SendEmail")" class="btn btn-warning"><i class="bi bi-envelope"></i> Gửi Email</a>
+            </div>
+        </div>
 
+        <br />
+        <div class="">
+            <h1 class="mb-4">Danh sách phân tích</h1>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><i class="bi bi-calculator"></i> Tổng số</th>
+                            <th><i class="bi bi-check-circle"></i> Đúng hạn</th>
+                            <th><i class="bi bi-exclamation-triangle"></i> Trễ hạn</th>
+                            <th><i class="bi bi-calendar-x"></i> Quá hạn</th>
+                            <th><i class="bi bi-hourglass-split"></i> Đang xử lý</th>
+                            <th><i class="bi bi-clock"></i> Thời gian</th>
+                            <th><i class="bi bi-person"></i> Nhân viên</th>
+                            <th><i class="bi bi-gear"></i> Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
+                                            @item.Total
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;"
+                                             aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
+                                            @item.Ontime
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;"
+                                             aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
+                                            @item.Late
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;"
+                                             aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
+                                            @item.Overdue
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;"
+                                             aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
+                                            @item.Processing
+                                        </div>
+                                    </div>
+                                </td>
+
+
+
+                                <td>@(item.Time?.ToString("MM/yyyy"))</td>
+
+                                <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
+                                <td>
+                                    <a data-url="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info ajax-action"><i class="bi bi-info-circle"></i> Chi tiết</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4 text-end">
-        <a href="@Url.Action("ExportToExcel")" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
-        <a href="@Url.Action("SendEmail")" class="btn btn-warning"><i class="bi bi-envelope"></i> Gửi Email</a>
+    <div class="col-md-4 d-none" id="detail-section">
+        
+        <div class="actionCustomers"></div>
     </div>
 </div>
 
-<br />
-<div class="">
-    <h1 class="mb-4">Danh sách phân tích</h1>
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th><i class="bi bi-calculator"></i> Tổng số</th>
-                    <th><i class="bi bi-check-circle"></i> Đúng hạn</th>
-                    <th><i class="bi bi-exclamation-triangle"></i> Trễ hạn</th>
-                    <th><i class="bi bi-calendar-x"></i> Quá hạn</th>
-                    <th><i class="bi bi-hourglass-split"></i> Đang xử lý</th>
-                    <th><i class="bi bi-clock"></i> Thời gian</th>
-                    <th><i class="bi bi-person"></i> Nhân viên</th>
-                    <th><i class="bi bi-gear"></i> Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            <div class="progress" style="height: 40px;">
-                                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
-                                    @item.Total
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress" style="height: 40px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;"
-                                     aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
-                                    @item.Ontime
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress" style="height: 40px;">
-                                <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;"
-                                     aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
-                                    @item.Late
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress" style="height: 40px;">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;"
-                                     aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
-                                    @item.Overdue
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress" style="height: 40px;">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;"
-                                     aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
-                                    @item.Processing
-                                </div>
-                            </div>
-                        </td>
-
-
-
-                        <td>@(item.Time?.ToString("MM/yyyy"))</td>
-
-                        <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="bi bi-info-circle"></i> Chi tiết</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".ajax-action").click(function (e) {
+            e.preventDefault();
+
+            var url = $(this).data("url");
+
+            // Kiểm tra nếu phần chi tiết đang ẩn, thì thay đổi layout
+            if ($("#detail-section").hasClass("d-none")) {
+                $("#list-section").removeClass("col-md-12").addClass("col-md-8");
+                $("#detail-section").removeClass("d-none").addClass("col-md-4");
+            }
+
+            // Load nội dung vào phần chi tiết
+            $(".actionCustomers").load(url, function (response, status, xhr) {
+                if (status === "error") {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        });
+    });
+        function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
+        $("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
+    }
+</script>

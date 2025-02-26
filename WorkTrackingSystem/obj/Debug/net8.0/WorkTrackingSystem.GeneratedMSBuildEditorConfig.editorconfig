@@ -456,6 +456,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcX0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
