@@ -48,6 +48,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Users/Create
         public IActionResult Create()
         {
+           
             ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p=>p.Position).Select(e => new
             {
                 Id= e.Id,
@@ -64,13 +65,29 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+            bool employeeAccount = _context.Users.Any(u => u.EmployeeId == user.EmployeeId);
+            if (employeeAccount)
+            {
+                TempData["ErrorMessage"] = "Nhân viên này đã có tài khoản!"; // Lưu thông báo lỗi
+                return RedirectToAction(nameof(Create));
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(user);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Tạo tài khoản thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            var employees = _context.Employees
+                .Include(e=>e.Position)
+                .Where(e=> !_context.Users.Any(u=>u.EmployeeId == e.Id))
+                .Select(e=> new
+                {
+                    Id= e.Id,
+                    FullName= e.FirstName+" "+e.LastName+ " - "+ e.Position.Name
+
+                }).ToList();
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName", user.EmployeeId);
             return View(user);
         }
 
