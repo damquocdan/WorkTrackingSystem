@@ -48,7 +48,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Users/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p=>p.Position).Select(e => new
+            {
+                Id= e.Id,
+                FullName = e.FirstName+" "+e.LastName+"-"+e.Position.Name,
+
+            }), "Id", "FullName");
             return View();
         }
 

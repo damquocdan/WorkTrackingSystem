@@ -161,7 +161,6 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
         private bool EmployeeExists(long id)
         {
             return _context.Employees.Any(e => e.Id == id);

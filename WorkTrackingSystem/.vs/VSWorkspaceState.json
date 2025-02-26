@@ -1,10 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Areas",
+    "\\Areas\\AdminSystem",
+    "\\Areas\\AdminSystem\\Controllers",
     "\\Areas\\ProjectManager",
     "\\Areas\\ProjectManager\\Views",
     "\\Areas\\ProjectManager\\Views\\Jobs"
   ],
-  "SelectedNode": "\\WorkTrackingSystem.sln",
+  "SelectedNode": "\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
   "PreviewInSolutionExplorer": false
 }
