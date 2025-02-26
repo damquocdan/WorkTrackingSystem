@@ -1,11 +1,11 @@
 ﻿@model WorkTrackingSystem.Models.Category
 
 @{
-    ViewData["Title"] = "Chi tiết danh mục";
+    ViewData["Title"] = "Chi tiết hạng mục";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
 
-<h1 class="text-center mb-4">Chi tiết danh mục</h1>
+<h1 class="text-center mb-4">Chi tiết hạng mục</h1>
 
 <div class="row justify-content-center">
     <div class="col-md-8">
@@ -15,7 +15,7 @@
                     <dt class="col-sm-4 fw-bold">Mã code</dt>
                     <dd class="col-sm-8">@Html.DisplayFor(model => model.Code)</dd>
 
-                    <dt class="col-sm-4 fw-bold">Tên danh mục</dt>
+                    <dt class="col-sm-4 fw-bold">Tên hạng mục</dt>
                     <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
 
                     <dt class="col-sm-4 fw-bold">Mô tả</dt>

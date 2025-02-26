@@ -85,7 +85,6 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 {
                     Id= e.Id,
                     FullName= e.FirstName+" "+e.LastName+ " - "+ e.Position.Name
-
                 }).ToList();
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName", user.EmployeeId);
             return View(user);
