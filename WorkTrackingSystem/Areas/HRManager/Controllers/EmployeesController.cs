@@ -20,14 +20,18 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Employees
-        public async Task<IActionResult> Index(string search )
+        public async Task<IActionResult> Index(string search, int? DepartmentId )
         {
-           
-
+            var employees = _context.Employees.Include(e => e.Department).Include(e => e.Position).ToList();
+            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+            if (DepartmentId >0)
+            {
+                 employees = employees.Where(e=>e.DepartmentId == DepartmentId).ToList();
+            }
             if (!string.IsNullOrEmpty(search))
             {
                 var searchLower = search.ToLower();
-                 var employees = _context.Employees
+                  employees = _context.Employees
                     .Where(e =>
                     (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower))
                     .Include(e => e.Department)
@@ -35,11 +39,9 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                     .ToList();
                 return View(employees);
             }
-            else
-            {
-                var employees = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-                return View(await employees.ToListAsync());
-            }
+            return View( employees);
+            
+          
            
         }
 

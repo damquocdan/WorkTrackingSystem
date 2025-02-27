@@ -10,15 +10,29 @@
 <p>
     <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Tạo mới</a>
 </p>
-<form>
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" name="search" placeholder="Nhập tên nhân viên" />
-        <button class="input-group-text" id="basic-addon2" type="submit">tìm kiếm</button>
+<div class="row">
+    <div class="col-md-6">
+        <form>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="search" placeholder="Nhập tên nhân viên" />
+                <button class="input-group-text" id="basic-addon2" type="submit">tìm kiếm</button>
+            </div>
+
+        </form>
     </div>
-    <select>
-        <option value="1"></option>
-    </select>
-</form>
+    <div class="col-md-6">
+        <form asp-controller="Employees" asp-action="Index" method="get" class="form-inline">
+            <div class="form-group " style="">
+                <select class="custom-select" id="DepartmentId" name="DepartmentId" style="min-width: 180px;" asp-items="ViewBag.Department">
+                    <option value="0" disabled selected>Chọn phòng ban</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-default mr-1">Lọc</button>
+        </form>
+    </div>
+</div>
+
+
 <table class="table table-bordered table-hover">
     <thead class="thead-light">
         <tr>
