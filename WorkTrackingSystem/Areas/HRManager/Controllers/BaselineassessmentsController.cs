@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,11 +21,64 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Baselineassessments
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time)
         {
-            var workTrackingSystemContext = _context.Baselineassessments.Include(b => b.Employee);
-            return View(await workTrackingSystemContext.ToListAsync());
+            // Lấy ManagerId từ session
+            var managerUsername = HttpContext.Session.GetString("HRManagerLogin");
+
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Tìm nhân viên (quản lý) đang đăng nhập
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var assessments = _context.Baselineassessments
+        .Include(b => b.Employee)
+        .AsQueryable(); 
+
+            // Lọc theo mã nhân viên
+            if (!string.IsNullOrEmpty(employeeCode))
+            {
+                assessments = assessments.Where(b => b.Employee.Code.Contains(employeeCode));
+            }
+
+            // Lọc theo tên nhân viên
+            if (!string.IsNullOrEmpty(employeeName))
+            {
+                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+            }
+
+            // Lọc theo trạng thái đánh giá
+            if (evaluate.HasValue)
+            {
+                assessments = assessments.Where(b => b.Evaluate == evaluate.Value);
+            }
+
+            // Lọc theo tháng/năm
+            if (!string.IsNullOrEmpty(time))
+            {
+                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+                {
+                    assessments = assessments.Where(b => b.Time.HasValue &&
+                                                         b.Time.Value.Year == selectedTime.Year &&
+                                                         b.Time.Value.Month == selectedTime.Month);
+                }
+            }
+
+            return View(await assessments.OrderByDescending(x => x.Time).ToListAsync());
+
         }
+
 
         // GET: HRManager/Baselineassessments/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -41,7 +95,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", baselineassessment);
+            }
             return View(baselineassessment);
         }
 

@@ -17,6 +17,18 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers {
         {
             return View();
         }
+        public async Task<IActionResult> Index1()
+        {
+            return View();
+        }
+        public async Task<IActionResult> Index2()
+        {
+            return View();
+        }
+        public async Task<IActionResult> Index3()
+        {
+            return View();
+        }
     }
 
 }

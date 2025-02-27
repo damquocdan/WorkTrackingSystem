@@ -288,16 +288,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXERldGFpbHMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXF9EZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Create.cshtml]
@@ -308,16 +308,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcRGV0YWlscy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcX0RldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Devmaster/DuAn/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Dashboard/Index.cshtml]

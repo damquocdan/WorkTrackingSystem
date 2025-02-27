@@ -34,7 +34,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         && x.Employee.PositionId == 2 && x.Employee.DepartmentId == 1);
             if (dataLogin != null)
             {
-                HttpContext.Session.SetString("AdminLogin", model.UserName);
+                HttpContext.Session.SetString("HRManagerLogin", model.UserName);
                 return RedirectToAction("Index", "Dashboard");
             }
             else
@@ -47,7 +47,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [HttpGet]// thoát đăng nhập, huỷ session
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("AdminLogin"); // huỷ session với key AdminLogin đã lưu trước đó
+            HttpContext.Session.Remove("HRManagerLogin"); // huỷ session với key AdminLogin đã lưu trước đó
 
             return RedirectToAction("Index");
         }
