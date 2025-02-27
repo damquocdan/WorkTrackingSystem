@@ -104,6 +104,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
+           
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
             ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
             return View(employee);
