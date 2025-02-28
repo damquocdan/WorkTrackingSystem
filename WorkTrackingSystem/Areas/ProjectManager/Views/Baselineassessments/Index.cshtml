@@ -15,23 +15,21 @@
         .Select(g => new
         {
             MonthYear = g.Key,
-            AvgVolume = g.Average(x => x.VolumeAssessment),
-            AvgProgress = g.Average(x => x.ProgressAssessment),
-            AvgQuality = g.Average(x => x.QualityAssessment),
-            AvgSummary = g.Average(x => x.SummaryOfReviews)
+            SumVolume = g.Sum(x => x.VolumeAssessment ?? 0),  // Tính tổng thay vì trung bình
+            SumProgress = g.Sum(x => x.ProgressAssessment ?? 0),
+            SumQuality = g.Sum(x => x.QualityAssessment ?? 0),
+            SumSummary = g.Sum(x => x.SummaryOfReviews ?? 0)
         })
         .OrderBy(g => g.MonthYear)
         .ToList();
 
     var labels = groupedData.Select(x => x.MonthYear).ToList();
-    var avgVolume = groupedData.Select(x => x.AvgVolume).ToList();
-    var avgProgress = groupedData.Select(x => x.AvgProgress).ToList();
-    var avgQuality = groupedData.Select(x => x.AvgQuality).ToList();
-    var avgSummary = groupedData.Select(x => x.AvgSummary).ToList();
+    var sumVolume = groupedData.Select(x => x.SumVolume).ToList();
+    var sumProgress = groupedData.Select(x => x.SumProgress).ToList();
+    var sumQuality = groupedData.Select(x => x.SumQuality).ToList();
+    var sumSummary = groupedData.Select(x => x.SumSummary).ToList();
 }
-<style>
 
-</style>
 <div class="row">
     <div class="col-md-6">
         <div class="">
@@ -90,13 +88,12 @@
                 <table class="table table-hover table-bordered">
                     <thead class="table-dark">
                         <tr>
-                            <th><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng</th>
-                            <th><i class="bi bi-graph-up"></i> Đánh giá tiến độ</th>
-                            <th><i class="bi bi-star"></i> Đánh giá chất lượng</th>
-                            <th><i class="bi bi-chat-left-text"></i> Đánh giá tổng hợp </th>
+                            <th><i class="bi bi-bar-chart-line"></i> Tổng đánh giá khối lượng</th>
+                            <th><i class="bi bi-graph-up"></i> Tổng đánh giá tiến độ</th>
+                            <th><i class="bi bi-star"></i> Tổng đánh giá chất lượng</th>
+                            <th><i class="bi bi-chat-left-text"></i> Tổng đánh giá tổng hợp</th>
                             <th><i class="bi bi-clock"></i> Tháng</th>
                             <th><i class="bi bi-clipboard-check"></i> Đánh giá</th>
-
                             <th><i class="bi bi-person"></i> Nhân viên</th>
                             <th><i class="bi bi-gear"></i> Hành động</th>
                         </tr>
@@ -105,52 +102,11 @@
                         @foreach (var item in Model)
                         {
                             <tr class="@(item.Evaluate.GetValueOrDefault() ? "table-success" : "table-danger")">
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" role="progressbar"
-                                             style="width: @item.VolumeAssessment%;"
-                                             aria-valuenow="@item.VolumeAssessment"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            @item.VolumeAssessment%
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" role="progressbar"
-                                             style="width: @item.ProgressAssessment%;"
-                                             aria-valuenow="@item.ProgressAssessment"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            @item.ProgressAssessment%
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-danger" role="progressbar"
-                                             style="width: @item.QualityAssessment%;"
-                                             aria-valuenow="@item.QualityAssessment"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            @item.QualityAssessment%
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-warning" role="progressbar"
-                                             style="width: @item.SummaryOfReviews%;"
-                                             aria-valuenow="@item.SummaryOfReviews"
-                                             aria-valuemin="0"
-                                             aria-valuemax="100">
-                                            @item.SummaryOfReviews%
-                                        </div>
-                                    </div>
-                                </td>
+                                <td>@item.VolumeAssessment</td>
+                                <td>@item.ProgressAssessment</td>
+                                <td>@item.QualityAssessment</td>
+                                <td>@item.SummaryOfReviews</td>
                                 <td>@(item.Time.HasValue ? item.Time.Value.ToString("MM/yyyy") : "")</td>
-
                                 <td>
                                     @if (item.Evaluate.GetValueOrDefault())
                                     {
@@ -161,12 +117,9 @@
                                         <p>Chưa đạt</p>
                                     }
                                 </td>
-
                                 <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
                                 <td>
-                                    @*                                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a> *@
                                     <a class="btn btn-sm btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
-                                    @*                                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="bi-trash"></i> Xóa</a> *@
                                 </td>
                             </tr>
                         }
@@ -179,14 +132,15 @@
         </div>
     </div>
 </div>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     var labels = @Html.Raw(Json.Serialize(labels));
-    var avgVolume = @Html.Raw(Json.Serialize(avgVolume));
-    var avgProgress = @Html.Raw(Json.Serialize(avgProgress));
-    var avgQuality = @Html.Raw(Json.Serialize(avgQuality));
-    var avgSummary = @Html.Raw(Json.Serialize(avgSummary));
+    var sumVolume = @Html.Raw(Json.Serialize(sumVolume));
+    var sumProgress = @Html.Raw(Json.Serialize(sumProgress));
+    var sumQuality = @Html.Raw(Json.Serialize(sumQuality));
+    var sumSummary = @Html.Raw(Json.Serialize(sumSummary));
 
     var ctx1 = document.getElementById('evaluationChart').getContext('2d');
     var evaluationChart = new Chart(ctx1, {
@@ -195,24 +149,35 @@
             labels: labels,
             datasets: [
                 {
-                    label: 'TB DGKL',
-                    data: avgVolume,
+                    label: 'Tổng DGKL',
+                    data: sumVolume,
                     borderColor: 'blue',
                     fill: false
                 },
                 {
-                    label: 'TB DGTĐ',
-                    data: avgProgress,
+                    label: 'Tổng DGTĐ',
+                    data: sumProgress,
                     borderColor: 'green',
                     fill: false
                 },
                 {
-                    label: 'TB DGCL',
-                    data: avgQuality,
+                    label: 'Tổng DGCL',
+                    data: sumQuality,
                     borderColor: 'red',
                     fill: false
                 }
             ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tổng điểm'
+                    }
+                }
+            }
         }
     });
 
@@ -222,10 +187,21 @@
         data: {
             labels: labels,
             datasets: [{
-                label: 'Trung bình Đánh giá tổng hợp',
-                data: avgSummary,
+                label: 'Tổng Đánh giá tổng hợp',
+                data: sumSummary,
                 backgroundColor: 'orange'
             }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tổng điểm'
+                    }
+                }
+            }
         }
     });
 </script>
@@ -237,13 +213,11 @@
 
             var url = $(this).data("url");
 
-            // Kiểm tra nếu phần chi tiết đang ẩn, thì thay đổi layout
             if ($("#detail-section").hasClass("d-none")) {
                 $("#list-section").removeClass("col-md-12").addClass("col-md-8");
                 $("#detail-section").removeClass("d-none").addClass("col-md-4");
             }
 
-            // Load nội dung vào phần chi tiết
             $(".actionCustomers").load(url, function (response, status, xhr) {
                 if (status === "error") {
                     alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
@@ -251,8 +225,9 @@
             });
         });
     });
-        function closeDetailSection() {
-        $("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
-        $("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
+
+    function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
     }
 </script>

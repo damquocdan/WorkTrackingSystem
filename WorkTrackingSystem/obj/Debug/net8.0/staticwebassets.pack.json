@@ -297,6 +297,14 @@
       "PackagePath": "staticwebassets\\images\\avatar.png"
     },
     {
+      "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\job.jpg",
+      "PackagePath": "staticwebassets\\images\\job.jpg"
+    },
+    {
+      "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\logo.png",
+      "PackagePath": "staticwebassets\\images\\logo.png"
+    },
+    {
       "Id": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },

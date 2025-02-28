@@ -458,24 +458,31 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             // Lấy danh sách công việc của nhân viên trong tháng hiện tại có đánh giá
             var jobs = await _context.Jobs
-                .Where(j => j.EmployeeId == employeeId && j.Time.HasValue &&
-                            j.Time.Value.Month == currentMonth && j.Time.Value.Year == currentYear)
+                .Where(j => j.EmployeeId == employeeId
+                         && j.Time.HasValue
+                         && j.Time.Value.Month == currentMonth
+                         && j.Time.Value.Year == currentYear
+                         && (j.Status == 1 || j.Status == 3)) // Chỉ tính các công việc "Hoàn thành" hoặc "Hoàn thành muộn"
                 .ToListAsync();
 
             if (!jobs.Any())
                 return;
 
-            // Tính trung bình các đánh giá
-            double avgVolume = jobs.Average(j => j.VolumeAssessment ?? 0);
-            double avgProgress = jobs.Average(j => j.ProgressAssessment ?? 0);
-            double avgQuality = jobs.Average(j => j.QualityAssessment ?? 0);
-            double avgSummary = jobs.Average(j => j.SummaryOfReviews ?? 0);
+            // Tính tổng các đánh giá
+            double sumVolume = jobs.Sum(j => j.VolumeAssessment ?? 0);
+            double sumProgress = jobs.Sum(j => j.ProgressAssessment ?? 0);
+            double sumQuality = jobs.Sum(j => j.QualityAssessment ?? 0);
+            double sumSummary = jobs.Sum(j => j.SummaryOfReviews ?? 0);
 
-            bool evaluate = avgSummary >= 50;
+            // Xác định trạng thái Evaluate (giả sử tổng Summary >= 6 là đạt, bạn có thể điều chỉnh ngưỡng)
+            bool evaluate = sumSummary >= 6;
+
             // Tìm bản ghi BaselineAssessment của nhân viên trong tháng hiện tại
             var baseline = await _context.Baselineassessments
-                .FirstOrDefaultAsync(b => b.EmployeeId == employeeId && b.Time.HasValue &&
-                                          b.Time.Value.Month == currentMonth && b.Time.Value.Year == currentYear);
+                .FirstOrDefaultAsync(b => b.EmployeeId == employeeId
+                                       && b.Time.HasValue
+                                       && b.Time.Value.Month == currentMonth
+                                       && b.Time.Value.Year == currentYear);
 
             if (baseline == null)
             {
@@ -483,10 +490,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 baseline = new Baselineassessment
                 {
                     EmployeeId = employeeId,
-                    VolumeAssessment = avgVolume,
-                    ProgressAssessment = avgProgress,
-                    QualityAssessment = avgQuality,
-                    SummaryOfReviews = avgSummary,
+                    VolumeAssessment = sumVolume,
+                    ProgressAssessment = sumProgress,
+                    QualityAssessment = sumQuality,
+                    SummaryOfReviews = sumSummary,
                     Time = new DateTime(currentYear, currentMonth, 1),
                     Evaluate = evaluate,
                     CreateDate = DateTime.Now,
@@ -497,10 +504,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             else
             {
                 // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
-                baseline.VolumeAssessment = avgVolume;
-                baseline.ProgressAssessment = avgProgress;
-                baseline.QualityAssessment = avgQuality;
-                baseline.SummaryOfReviews = avgSummary;
+                baseline.VolumeAssessment = sumVolume;
+                baseline.ProgressAssessment = sumProgress;
+                baseline.QualityAssessment = sumQuality;
+                baseline.SummaryOfReviews = sumSummary;
                 baseline.Evaluate = evaluate;
                 baseline.UpdateDate = DateTime.Now;
             }
