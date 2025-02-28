@@ -2,12 +2,16 @@
   "ExpandedNodes": [
     "",
     "\\Areas",
-    "\\Areas\\AdminSystem",
-    "\\Areas\\AdminSystem\\Controllers",
+    "\\Areas\\EmployeeSystem",
+    "\\Areas\\EmployeeSystem\\Controllers",
+    "\\Areas\\HRManager",
+    "\\Areas\\HRManager\\Views",
+    "\\Areas\\HRManager\\Views\\Shared",
     "\\Areas\\ProjectManager",
     "\\Areas\\ProjectManager\\Views",
-    "\\Areas\\ProjectManager\\Views\\Jobs"
+    "\\Areas\\ProjectManager\\Views\\Jobs",
+    "\\Areas\\ProjectManager\\Views\\Shared"
   ],
-  "SelectedNode": "\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
+  "SelectedNode": "\\Areas\\EmployeeSystem\\Controllers\\EmployeesController.cs",
   "PreviewInSolutionExplorer": false
 }

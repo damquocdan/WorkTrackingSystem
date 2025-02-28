@@ -526,3 +526,12 @@ E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\refint\WorkT
 E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.pdb
 E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.genruntimeconfig.cache
 E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\ref\WorkTrackingSystem.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Authorization.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Components.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Forms.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Components.QuickGrid.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Components.Web.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Metadata.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\Microsoft.JSInterop.dll

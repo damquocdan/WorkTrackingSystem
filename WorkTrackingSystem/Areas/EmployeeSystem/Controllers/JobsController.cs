@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Areas.EmployeeSystem.Models;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
@@ -22,8 +23,32 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         // GET: EmployeeSystem/Jobs
         public async Task<IActionResult> Index()
         {
-            var workTrackingSystemContext = _context.Jobs.Include(j => j.Category).Include(j => j.Employee);
-            return View(await workTrackingSystemContext.ToListAsync());
+            var sessionUserId = HttpContext.Session.GetString("UserId");
+
+            if (string.IsNullOrEmpty(sessionUserId))
+            {
+                return RedirectToAction("Login", "Account"); // Chưa đăng nhập
+            }
+
+            // Nếu User.Id là kiểu int
+            if (!int.TryParse(sessionUserId, out int userId))
+            {
+                return BadRequest("UserId trong session không hợp lệ.");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null || user.EmployeeId == null)
+            {
+                return NotFound("Không tìm thấy nhân viên tương ứng.");
+            }
+
+            var jobs = await _context.Jobs
+                .Include(j => j.Category)
+                .Include(j => j.Employee)
+                .Where(j => j.EmployeeId == user.EmployeeId)
+                .ToListAsync();
+            ViewBag.Jobs = jobs;
+            return View(jobs);
         }
 
         // GET: EmployeeSystem/Jobs/Details/5
@@ -128,43 +153,30 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         }
 
         // GET: EmployeeSystem/Jobs/Delete/5
-        public async Task<IActionResult> Delete(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var job = await _context.Jobs
-                .Include(j => j.Category)
-                .Include(j => j.Employee)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            return View(job);
-        }
-
-        // POST: EmployeeSystem/Jobs/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
-        {
-            var job = await _context.Jobs.FindAsync(id);
-            if (job != null)
-            {
-                _context.Jobs.Remove(job);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
+        
         private bool JobExists(long id)
         {
             return _context.Jobs.Any(e => e.Id == id);
+        }
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusViewModel model)
+        {
+            if (model == null || model.JobId <= 0)
+            {
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+            }
+
+            var job = await _context.Jobs.FindAsync(model.JobId);
+            if (job == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy công việc" });
+            }
+
+            job.Status = model.Status;
+            _context.Jobs.Update(job);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
     }
 }

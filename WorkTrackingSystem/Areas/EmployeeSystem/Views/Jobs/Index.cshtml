@@ -7,18 +7,19 @@
 
 <h2 class="text-primary text-center mb-4">Danh sách Công Việc</h2>
 
-<!-- Bộ lọc trạng thái -->
-<div class="mb-3 d-flex justify-content-between">
-    <div>
-        <select id="filterStatus" class="form-select" style="max-width: 200px;">
-            <option value="">Tất cả trạng thái</option>
-            <option value="Chưa bắt đầu">Chưa bắt đầu</option>
-            <option value="Đang thực hiện">Đang thực hiện</option>
-            <option value="Hoàn thành">Hoàn thành</option>
-            <option value="Trễ hạn">Trễ hạn</option>
-        </select>
-    </div>
-    <a asp-action="Create" class="btn btn-success"><i class="fas fa-plus"></i> Tạo công việc mới</a>
+<!-- Thanh công cụ tìm kiếm và bộ lọc -->
+<div class="d-flex justify-content-between mb-3">
+    <!-- Ô tìm kiếm -->
+    <input type="text" id="searchBox" class="form-control w-25" placeholder="Tìm kiếm công việc...">
+
+    <!-- Bộ lọc trạng thái -->
+    <select id="filterStatus" class="form-select w-25">
+        <option value="">Tất cả trạng thái</option>
+        <option value="0">Chưa bắt đầu</option>
+        <option value="1">Đang thực hiện</option>
+        <option value="2">Hoàn thành</option>
+        <option value="3">Trễ hạn</option>
+    </select>
 </div>
 
 <table class="table table-bordered table-hover shadow">
@@ -28,60 +29,82 @@
             <th>Hạn chót</th>
             <th>Trạng thái</th>
             <th>Tiến độ</th>
-            <th>Thao tác</th>
         </tr>
     </thead>
-    <tbody>
-        @foreach (var item in Model.Where(j => j.EmployeeId == ViewBag.CurrentEmployeeId)) // Chỉ lấy công việc của nhân viên đang đăng nhập
+    <tbody id="jobTable">
+        @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.Name</td>
+            <tr class="job-row" data-status="@item.Status">
+                <td class="job-name">@item.Name</td>
                 <td>@item.Deadline1?.ToString("dd/MM/yyyy")</td>
                 <td class="text-center">
-                    @if (item.Status == 0)
-                    {
-                        <span class="badge bg-secondary">Chưa bắt đầu</span>
-                    }
-                    else if (item.Status == 1)
-                    {
-                        <span class="badge bg-warning text-dark">Đang thực hiện</span>
-                    }
-                    else if (item.Status == 2)
-                    {
-                        <span class="badge bg-success">Hoàn thành</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger">Trễ hạn</span>
-                    }
+                    <select class="form-select status-dropdown" data-job-id="@item.Id">
+                        <option value="0" selected="@(item.Status == 0 ? "selected" : null)">Chưa bắt đầu</option>
+                        <option value="1" selected="@(item.Status == 1 ? "selected" : null)">Đang thực hiện</option>
+                        <option value="2" selected="@(item.Status == 2 ? "selected" : null)">Hoàn thành</option>
+                        <option value="3" selected="@(item.Status == 3 ? "selected" : null)">Trễ hạn</option>
+                    </select>
                 </td>
                 <td class="text-center">
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: @(item.ProgressAssessment ?? 0)%;">
-                            @(item.ProgressAssessment ?? 0)%
-                        </div>
-                    </div>
+                    <input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.ProgressAssessment" min="0" max="100" step="5">
+                    <span class="progress-value">@item.ProgressAssessment%</span>
                 </td>
-               @*  <td class="text-center">
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i></a>
-                </td> *@
             </tr>
         }
     </tbody>
 </table>
 
 @section Scripts {
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
-        document.getElementById('filterStatus').addEventListener('change', function () {
-            var selectedStatus = this.value.toLowerCase();
-            var rows = document.querySelectorAll("tbody tr");
+        document.addEventListener('DOMContentLoaded', function () {
+            let searchBox = document.getElementById('searchBox');
+            let filterStatus = document.getElementById('filterStatus');
 
-            rows.forEach(row => {
-                var statusText = row.querySelector("td:nth-child(3)").textContent.toLowerCase();
-                row.style.display = (selectedStatus === "" || statusText.includes(selectedStatus)) ? "" : "none";
+            // Chức năng tìm kiếm
+            searchBox.addEventListener('input', function () {
+                let searchTerm = this.value.toLowerCase();
+                document.querySelectorAll('.job-row').forEach(row => {
+                    let jobName = row.querySelector('.job-name').textContent.toLowerCase();
+                    row.style.display = jobName.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Chức năng lọc công việc theo trạng thái
+            filterStatus.addEventListener('change', function () {
+                let selectedStatus = this.value;
+                document.querySelectorAll('.job-row').forEach(row => {
+                    let jobStatus = row.getAttribute('data-status');
+                    row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
+                });
+            });
+
+            // Cập nhật tiến độ
+            document.querySelectorAll('.progress-slider').forEach(slider => {
+                slider.addEventListener('input', function () {
+                    let jobId = this.dataset.jobId;
+                    let progress = this.value;
+                    this.nextElementSibling.textContent = progress + '%';
+
+                    fetch('/Job/UpdateProgress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: jobId, progress: progress })
+                    });
+                });
+            });
+
+            // Cập nhật trạng thái
+            document.querySelectorAll('.status-dropdown').forEach(select => {
+                select.addEventListener('change', function () {
+                    let jobId = this.dataset.jobId;
+                    let status = this.value;
+
+                    fetch('/Job/UpdateStatus', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: jobId, status: status })
+                    });
+                });
             });
         });
     </script>
