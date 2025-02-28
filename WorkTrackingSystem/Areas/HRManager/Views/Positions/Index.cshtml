@@ -7,9 +7,9 @@
 
 <h1 class="text-center mb-4"><i class="fas fa-briefcase"></i> Quản lý chức vụ</h1>
 
-<p>
+@* <p>
     <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Tạo mới</a>
-</p>
+</p> *@
 
 <table class="table table-bordered table-hover">
     <thead class="thead-light">
@@ -34,9 +34,9 @@
                     @Html.DisplayFor(modelItem => item.Status)
                 </td>
                 <td class="text-center">
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Sửa</a>
+                  @*   <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Sửa</a> *@
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Chi tiết</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Xóa</a>
+                  @*   <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="fas fa-trash-alt"></i> Xóa</a> *@
                 </td>
             </tr>
         }

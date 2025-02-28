@@ -32,6 +32,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("AdminLogin", model.UserName);
+                HttpContext.Session.SetString("UserId", dataLogin.Id.ToString());
+               
                 return RedirectToAction("Index", "Dashboard");
             }
             else

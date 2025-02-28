@@ -24,21 +24,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             return View(await _context.Departments.ToListAsync());
         }
-        public IActionResult IsActive(long id)
-        {
-
-            var item = _context.Departments.Find(id);
-            var nSPB = _context.Employees.Where(x => x.DepartmentId == id).Count();
-            if (item != null && nSPB == 0)
-            {
-                item.IsActive = !item.IsActive;
-                var entry = _context.Entry<Department>(item);
-                entry.State = EntityState.Modified;
-                _context.SaveChanges();
-                return Json(new { success = true, IsActive = item.IsActive });
-            }
-            return Json(new { success = false });
-        }
+      
 
         // GET: AdminSystem/Departments/Details/5
         public async Task<IActionResult> Details(long? id)

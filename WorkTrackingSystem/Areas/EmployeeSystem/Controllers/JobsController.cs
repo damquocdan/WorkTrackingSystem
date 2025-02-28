@@ -7,26 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
 
-namespace WorkTrackingSystem.Areas.HRManager.Controllers
+namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 {
-    [Area("HRManager")]
-    public class UsersController : Controller
+    [Area("EmployeeSystem")]
+    public class JobsController : Controller
     {
         private readonly WorkTrackingSystemContext _context;
 
-        public UsersController(WorkTrackingSystemContext context)
+        public JobsController(WorkTrackingSystemContext context)
         {
             _context = context;
         }
 
-        // GET: HRManager/Users
+        // GET: EmployeeSystem/Jobs
         public async Task<IActionResult> Index()
         {
-            var workTrackingSystemContext = _context.Users.Include(u => u.Employee);
+            var workTrackingSystemContext = _context.Jobs.Include(j => j.Category).Include(j => j.Employee);
             return View(await workTrackingSystemContext.ToListAsync());
         }
 
-        // GET: HRManager/Users/Details/5
+        // GET: EmployeeSystem/Jobs/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -34,47 +34,45 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Employee)
+            var job = await _context.Jobs
+                .Include(j => j.Category)
+                .Include(j => j.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
+            if (job == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(job);
         }
 
-        // GET: HRManager/Users/Create
+        // GET: EmployeeSystem/Jobs/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
-            {
-                Id = e.Id,
-                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
-
-            }), "Id", "FullName");
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
             return View();
         }
 
-        // POST: HRManager/Users/Create
+        // POST: EmployeeSystem/Jobs/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
+        public async Task<IActionResult> Create([Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
+                _context.Add(job);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
-            return View(user);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+            return View(job);
         }
 
-        // GET: HRManager/Users/Edit/5
+        // GET: EmployeeSystem/Jobs/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
@@ -82,28 +80,24 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            var job = await _context.Jobs.FindAsync(id);
+            if (job == null)
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
-            {
-                Id = e.Id,
-                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
-
-            }), "Id", "FullName");
-            return View(user);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+            return View(job);
         }
 
-        // POST: HRManager/Users/Edit/5
+        // POST: EmployeeSystem/Jobs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
+        public async Task<IActionResult> Edit(long id, [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
         {
-            if (id != user.Id)
+            if (id != job.Id)
             {
                 return NotFound();
             }
@@ -112,12 +106,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 try
                 {
-                    _context.Update(user);
+                    _context.Update(job);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.Id))
+                    if (!JobExists(job.Id))
                     {
                         return NotFound();
                     }
@@ -128,11 +122,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
-            return View(user);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+            return View(job);
         }
 
-        // GET: HRManager/Users/Delete/5
+        // GET: EmployeeSystem/Jobs/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -140,35 +135,36 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users
-                .Include(u => u.Employee)
+            var job = await _context.Jobs
+                .Include(j => j.Category)
+                .Include(j => j.Employee)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
+            if (job == null)
             {
                 return NotFound();
             }
 
-            return View(user);
+            return View(job);
         }
 
-        // POST: HRManager/Users/Delete/5
+        // POST: EmployeeSystem/Jobs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
+            var job = await _context.Jobs.FindAsync(id);
+            if (job != null)
             {
-                _context.Users.Remove(user);
+                _context.Jobs.Remove(job);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UserExists(long id)
+        private bool JobExists(long id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return _context.Jobs.Any(e => e.Id == id);
         }
     }
 }

@@ -5,11 +5,8 @@
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
 
-<h1 class="text-center mb-4"><i class="fas fa-building"></i> Quản lý phòng ban</h1>
+<h1 class="text-center mb-4"><i class="fas fa-building"></i> Danh sách phòng ban</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Tạo mới</a>
-</p>
 
 <table class="table table-bordered table-hover">
     <thead class="thead-light">
@@ -17,16 +14,14 @@
             <th>Mã</th>
             <th>Tên</th>
             <th>Mô tả</th>
-            <th>IsActive</th>
+           
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            var strCheck = item.IsActive == true ? "<i class='fa fa-check text-success'></i>" :
-            "<i class='fas fa-times text-danger'></i>"; //kiểm tra xem IsDelete là true hay false
-
+           
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Code)
@@ -37,9 +32,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
-                <td class="text-center">
-                    <a href='#' data-id="@item.Id" class="btnActive">@Html.Raw(strCheck)</a>
-                </td>
+               
                 <td class="text-center">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Sửa</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Chi tiết</a>
@@ -51,11 +44,11 @@
 </table>
 
 @section Scripts {
-    <script src="~/js/Checkbox.js"></script>
+  
     <script>
         $(document).ready(function () {
             $('.table').DataTable(); // Initialize DataTables (optional)
         });
-        var activeUrl = '/adminsystem/departments/IsActive';
+      
     </script>
 }

@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
 
-namespace WorkTrackingSystem.Areas.HRManager.Controllers
+namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 {
-    [Area("HRManager")]
+    [Area("EmployeeSystem")]
     public class UsersController : Controller
     {
         private readonly WorkTrackingSystemContext _context;
@@ -19,14 +19,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             _context = context;
         }
 
-        // GET: HRManager/Users
+        // GET: EmployeeSystem/Users
         public async Task<IActionResult> Index()
         {
             var workTrackingSystemContext = _context.Users.Include(u => u.Employee);
             return View(await workTrackingSystemContext.ToListAsync());
         }
 
-        // GET: HRManager/Users/Details/5
+        // GET: EmployeeSystem/Users/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -45,19 +45,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             return View(user);
         }
 
-        // GET: HRManager/Users/Create
+        // GET: EmployeeSystem/Users/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
-            {
-                Id = e.Id,
-                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
-
-            }), "Id", "FullName");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
             return View();
         }
 
-        // POST: HRManager/Users/Create
+        // POST: EmployeeSystem/Users/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -74,7 +69,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             return View(user);
         }
 
-        // GET: HRManager/Users/Edit/5
+        // GET: EmployeeSystem/Users/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
@@ -87,16 +82,11 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
-            {
-                Id = e.Id,
-                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
-
-            }), "Id", "FullName");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
             return View(user);
         }
 
-        // POST: HRManager/Users/Edit/5
+        // POST: EmployeeSystem/Users/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -132,7 +122,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             return View(user);
         }
 
-        // GET: HRManager/Users/Delete/5
+        // GET: EmployeeSystem/Users/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -151,7 +141,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             return View(user);
         }
 
-        // POST: HRManager/Users/Delete/5
+        // POST: EmployeeSystem/Users/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
