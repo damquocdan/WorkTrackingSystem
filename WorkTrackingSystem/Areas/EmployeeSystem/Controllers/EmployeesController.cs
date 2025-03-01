@@ -21,6 +21,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         }
 
         // GET: EmployeeSystem/Employees
+        //thông tin nhân viên
         public async Task<IActionResult> Index()
         {
             var userId = HttpContext.Session.GetString("UserId"); 
@@ -128,6 +129,14 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             {
                 try
                 {
+                    var userId = HttpContext.Session.GetString("UserId");
+                    
+                     id = long.Parse(userId);
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+                 employee = await _context.Employees
+                        .Include(e => e.Department)
+                        .Include(e => e.Position)
+                        .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
                     employee.UpdateDate = DateTime.Now;
                     _context.Update(employee);
                     await _context.SaveChangesAsync();

@@ -59,7 +59,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             let searchBox = document.getElementById('searchBox');
             let filterStatus = document.getElementById('filterStatus');
-
+            console.log("check1")
             // Chức năng tìm kiếm
             searchBox.addEventListener('input', function () {
                 let searchTerm = this.value.toLowerCase();
@@ -81,31 +81,49 @@
             // Cập nhật tiến độ
             document.querySelectorAll('.progress-slider').forEach(slider => {
                 slider.addEventListener('input', function () {
-                    let jobId = this.dataset.jobId;
-                    let progress = this.value;
+                    let jobId = parseInt(this.dataset.jobId);
+                    let progress = parseFloat(this.value);
                     this.nextElementSibling.textContent = progress + '%';
 
-                    fetch('/Job/UpdateProgress', {
+                    fetch('/ProjectManager/Job/UpdateProgress', { // Đảm bảo đường dẫn đúng
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: jobId, progress: progress })
-                    });
+                    }).then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log("Cập nhật tiến độ thành công!");
+                            } else {
+                                console.error("Lỗi cập nhật:", data.message);
+                            }
+                        })
+                        .catch(error => console.error('Lỗi:', error));
                 });
             });
+
 
             // Cập nhật trạng thái
             document.querySelectorAll('.status-dropdown').forEach(select => {
                 select.addEventListener('change', function () {
-                    let jobId = this.dataset.jobId;
-                    let status = this.value;
+                    let jobId = parseInt(this.dataset.jobId);
+                    let status = parseInt(this.value);
 
-                    fetch('/Job/UpdateStatus', {
+                    fetch('/ProjectManager/Job/UpdateStatus', { // Đảm bảo đường dẫn chính xác
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: jobId, status: status })
-                    });
+                        body: JSON.stringify({ jobId: jobId, status: status })
+                    }).then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log("Cập nhật trạng thái thành công!");
+                            } else {
+                                console.error("Lỗi cập nhật:", data.message);
+                            }
+                        })
+                        .catch(error => console.error('Lỗi:', error));
                 });
             });
+
         });
     </script>
 }
