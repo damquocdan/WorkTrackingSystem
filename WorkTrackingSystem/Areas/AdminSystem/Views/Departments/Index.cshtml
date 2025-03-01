@@ -17,12 +17,14 @@
             <th>Mã</th>
             <th>Tên</th>
             <th>Mô tả</th>
+           
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
+           
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Code)
@@ -33,6 +35,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
+              
                 <td class="text-center">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Sửa</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="fas fa-info-circle"></i> Chi tiết</a>
@@ -44,9 +47,11 @@
 </table>
 
 @section Scripts {
+    
     <script>
         $(document).ready(function () {
             $('.table').DataTable(); // Initialize DataTables (optional)
         });
+        
     </script>
 }

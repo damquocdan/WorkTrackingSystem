@@ -1,0 +1,39 @@
+﻿@model WorkTrackingSystem.Models.Employee
+
+<h2 class="text-center text-primary mb-4">Thông tin cá nhân</h2>
+
+<div class="card mx-auto shadow-lg p-4" style="max-width: 500px; border-radius: 15px;">
+    <div class="card-body text-center">
+        <!-- Avatar -->
+        <img src="@(Model.Avatar ?? "/images/default-avatar.png")"
+             class="rounded-circle shadow" width="150" height="150"
+             style="object-fit: cover; border: 4px solid #007bff;" />
+
+        <h4 class="mt-3 fw-bold">@Model.FirstName @Model.LastName</h4>
+        <p class="text-muted"><i class="fas fa-id-badge"></i> Mã nhân viên: <strong>@Model.Code</strong></p>
+
+        <hr class="my-3" />
+
+        <!-- Thông tin chi tiết -->
+        <div class="text-start">
+            <p><i class="fas fa-building"></i> <strong>Phòng ban:</strong> @(Model.Department?.Name ?? "Chưa cập nhật")</p>
+            <p><i class="fas fa-user-tie"></i> <strong>Chức vụ:</strong> @(Model.Position?.Name ?? "Chưa cập nhật")</p>
+            <p><i class="fas fa-venus-mars"></i> <strong>Giới tính:</strong> @(Model.Gender ?? "Chưa cập nhật")</p>
+            <p><i class="fas fa-birthday-cake"></i> <strong>Ngày sinh:</strong> @Model.Birthday?.ToString("dd/MM/yyyy")</p>
+            <p><i class="fas fa-phone"></i> <strong>Số điện thoại:</strong> @Model.Phone</p>
+            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> @Model.Email</p>
+            <p><i class="fas fa-map-marker-alt"></i> <strong>Địa chỉ:</strong> @(Model.Address ?? "Chưa cập nhật")</p>
+        </div>
+
+        <hr class="my-3" />
+
+        <!-- Nút chỉnh sửa -->
+        <a asp-action="Edit" asp-controller="Employees" asp-route-id="@Model.Id" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Chỉnh sửa
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

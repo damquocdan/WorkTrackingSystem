@@ -169,7 +169,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[row, 3].Value = job.Name;
                     worksheet.Cells[row, 4].Value = job.Status == 1 ? "Hoàn thành" :
                                                     job.Status == 2 ? "Chưa hoàn thành" :
-                                                    job.Status == 3 ? "Hoàn thành muộn" : job.Status == 4 ?  "Đang xử lý":
+                                                    job.Status == 3 ? "Hoàn thành muộn" : job.Status == 4 ? "Đang xử lý" :
                     worksheet.Cells[row, 5].Value = job.SummaryOfReviews;
                     worksheet.Cells[row, 6].Value = job.Time.HasValue ? job.Time.Value.ToString("dd/MM/yyyy") : "N/A";
                     worksheet.Cells[row, 7].Value = job.Category != null ? job.Category.Name : "Chưa có danh mục";
@@ -301,30 +301,24 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .ToList();
 
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-
-            // Truyền danh sách nhân viên (hỗ trợ chọn nhiều nhân viên)
             ViewData["EmployeeId"] = new SelectList(employeesInManagedDepartments, "Id", "FullName");
             ViewData["Employees"] = new MultiSelectList(employeesInManagedDepartments, "Id", "FullName");
 
             var newJob = new Job
             {
                 Time = DateTime.Now,
-                Status = 0
+                Status = 4 // Đặt mặc định là "Đang xử lý"
             };
             return View(newJob);
         }
 
-
-
-        // POST: ProjectManager/Jobs/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-    [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job,
-    List<int> SelectedEmployees,
-    int? SingleEmployeeId)
+            [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job,
+            List<int> SelectedEmployees,
+            int? SingleEmployeeId,
+            List<Job> Jobs) // Thêm danh sách Jobs cho "1 nhân viên - nhiều công việc"
         {
             if (ModelState.IsValid)
             {
@@ -339,42 +333,62 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                             CategoryId = job.CategoryId,
                             Name = job.Name,
                             Description = job.Description,
+                            Deadline1 = job.Deadline1,
+                            Deadline2 = job.Deadline2,
+                            Deadline3 = job.Deadline3,
                             CompletionDate = job.CompletionDate,
                             Status = 4,
                             Time = DateTime.Now,
                             IsActive = true,
-                            IsDelete = false
+                            IsDelete = false,
+                            CreateDate = DateTime.Now,
+                            CreateBy = _context.Users.FirstOrDefault(u => u.UserName == HttpContext.Session.GetString("ProjectManagerLogin"))?.Id
                         };
                         _context.Jobs.Add(newJob);
-                        await _context.SaveChangesAsync(); // Lưu từng job để có ID trước khi cập nhật analysis
-                        await UpdateAnalysis(empId); // Cập nhật bảng Analysis
+                        await _context.SaveChangesAsync();
+                        await UpdateAnalysis(empId);
                     }
                 }
-                else if (SingleEmployeeId.HasValue)
+                else if (SingleEmployeeId.HasValue && Jobs != null && Jobs.Count > 0)
                 {
-                    // Một nhân viên - Một công việc
-                    job.EmployeeId = SingleEmployeeId.Value;
-                    job.Status = 4;
-                    job.Time = DateTime.Now;
-                    _context.Jobs.Add(job);
-                    await _context.SaveChangesAsync();
-                    await UpdateAnalysis(job.EmployeeId); // Cập nhật bảng Analysis
+                    // Một nhân viên - Nhiều công việc
+                    foreach (var j in Jobs)
+                    {
+                        j.EmployeeId = SingleEmployeeId.Value;
+                        j.Status = 4;
+                        j.Time = DateTime.Now;
+                        j.IsActive = true;
+                        j.IsDelete = false;
+                        j.CreateDate = DateTime.Now;
+                        j.CreateBy = _context.Users.FirstOrDefault(u => u.UserName == HttpContext.Session.GetString("ProjectManagerLogin"))?.Id;
+                        _context.Jobs.Add(j);
+                        await _context.SaveChangesAsync();
+                        await UpdateAnalysis(j.EmployeeId.Value);
+                    }
                 }
                 else
                 {
                     // Một nhân viên - Một công việc (mặc định)
                     job.Status = 4;
                     job.Time = DateTime.Now;
+                    job.IsActive = true;
+                    job.IsDelete = false;
+                    job.CreateDate = DateTime.Now;
+                    job.CreateBy = _context.Users.FirstOrDefault(u => u.UserName == HttpContext.Session.GetString("ProjectManagerLogin"))?.Id;
                     _context.Jobs.Add(job);
                     await _context.SaveChangesAsync();
-                    await UpdateAnalysis(job.EmployeeId); // Cập nhật bảng Analysis
+                    await UpdateAnalysis(job.EmployeeId.Value);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
+            var employees = _context.Employees
+                .Select(e => new { Id = e.Id, FullName = e.FirstName + " " + e.LastName })
+                .ToList();
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName", job.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(employees, "Id", "FullName", job.EmployeeId);
+            ViewData["Employees"] = new MultiSelectList(employees, "Id", "FullName", SelectedEmployees);
             return View(job);
         }
 

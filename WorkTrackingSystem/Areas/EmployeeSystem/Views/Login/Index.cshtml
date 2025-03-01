@@ -1,4 +1,4 @@
-﻿@model WorkTrackingSystem.Areas.EmployeeSystem.Models.Login
+﻿@model WorkTrackingSystem.Areas.AdminSystem.Models.Login
 @{
     Layout = null;
 }
@@ -28,11 +28,11 @@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
     <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
 
 </head>
 <body class="hold-transition login-page">
@@ -47,7 +47,7 @@
 
                 <form asp-action="Index" method="post">
                     <div class="input-group mb-3">
-                        <input asp-for="UserName" type="text" class="form-control" placeholder="Email">
+                        <input asp-for="UserName" type="text" class="form-control" placeholder="UserName">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -85,7 +85,7 @@
                         </a>
                     </div>
                 </form>
-  
+
                 <p class="mb-1">
                     <a href="forgot-password.html">I forgot my password</a>
                 </p>
@@ -97,8 +97,8 @@
         </div>
     </div>
     <!-- Scripts -->
-    <script src="../../plugins/jquery/jquery.min.js"></script>
-    <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../dist/js/adminlte.min.js"></script>
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/dist/js/adminlte.min.js"></script>
 </body>
 </html>

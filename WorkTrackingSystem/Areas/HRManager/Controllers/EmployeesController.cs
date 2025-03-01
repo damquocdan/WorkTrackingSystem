@@ -20,10 +20,30 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Employees
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search, int? DepartmentId )
         {
-            var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-            return View(await workTrackingSystemContext.ToListAsync());
+         
+            var employees = _context.Employees.Include(e => e.Department).Include(e => e.Position).ToList();
+            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+            if (DepartmentId >0)
+            {
+                 employees = employees.Where(e=>e.DepartmentId == DepartmentId).ToList();
+            }
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchLower = search.ToLower();
+                  employees = _context.Employees
+                    .Where(e =>
+                    (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower))
+                    .Include(e => e.Department)
+                    .Include(e => e.Position)
+                    .ToList();
+                return View(employees);
+            }
+            return View( employees);
+            
+          
+           
         }
 
         // GET: HRManager/Employees/Details/5
@@ -63,6 +83,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             if (ModelState.IsValid)
             {
+                employee.CreateDate= DateTime.Now;
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -85,8 +106,9 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+           
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
             return View(employee);
         }
 

@@ -8176,23 +8176,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Dam Quoc Dan\\.nuget\\packages\\": {},
+    "C:\\Users\\Wind\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
+      "projectUniqueName": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
       "projectName": "WorkTrackingSystem",
-      "projectPath": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
-      "packagesPath": "C:\\Users\\Dam Quoc Dan\\.nuget\\packages\\",
-      "outputPath": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\obj\\",
+      "projectPath": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
+      "packagesPath": "C:\\Users\\Wind\\.nuget\\packages\\",
+      "outputPath": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Dam Quoc Dan\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Wind\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -8201,7 +8201,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

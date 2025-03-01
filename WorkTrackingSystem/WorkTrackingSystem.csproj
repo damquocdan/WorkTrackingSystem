@@ -51,4 +51,11 @@
     <None Include="wwwroot\plugins\ckfinder\src\CKFinder.Connector.WebApp\Properties\PublishProfiles\FolderProfile.pubxml.user" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Areas\EmployeeSystem\Views\Login\Index.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

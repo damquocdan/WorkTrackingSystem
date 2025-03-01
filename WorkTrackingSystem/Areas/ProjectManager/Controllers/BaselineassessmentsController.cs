@@ -184,7 +184,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", baselineassessment.EmployeeId);
             return View(baselineassessment);
         }
 
@@ -280,7 +280,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", baselineassessment.EmployeeId);
             return View(baselineassessment);
         }
 

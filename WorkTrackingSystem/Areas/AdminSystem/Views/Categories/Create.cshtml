@@ -1,11 +1,11 @@
 ﻿@model WorkTrackingSystem.Models.Category
 
 @{
-    ViewData["Title"] = "Tạo danh mục";
+    ViewData["Title"] = "Tạo hạng mục";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
 
-<h1 class="text-center mb-4">Tạo danh mục</h1>
+<h1 class="text-center mb-4">Tạo hạng mục</h1>
 
 <div class="row justify-content-center">
     <div class="col-md-8">
@@ -15,19 +15,13 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Id" class="form-label">Mã danh mục</label>
-                        <input asp-for="Id" class="form-control" />
-                        <span asp-validation-for="Id" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
                         <label asp-for="Code" class="form-label">Mã code</label>
                         <input asp-for="Code" class="form-control" />
                         <span asp-validation-for="Code" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Name" class="form-label">Tên danh mục</label>
+                        <label asp-for="Name" class="form-label">Tên hạng mục</label>
                         <input asp-for="Name" class="form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>

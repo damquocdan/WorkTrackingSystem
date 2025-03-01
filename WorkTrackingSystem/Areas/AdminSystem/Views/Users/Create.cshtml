@@ -4,6 +4,21 @@
     ViewData["Title"] = "Tạo người dùng";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <h1 class="text-center mb-4">Tạo người dùng</h1>
 
@@ -14,11 +29,7 @@
                 <form asp-action="Create">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="Id" class="form-label">Mã người dùng</label>
-                        <input asp-for="Id" class="form-control" />
-                        <span asp-validation-for="Id" class="text-danger"></span>
-                    </div>
+                   
 
                     <div class="mb-3">
                         <label asp-for="UserName" class="form-label">Tên người dùng</label>

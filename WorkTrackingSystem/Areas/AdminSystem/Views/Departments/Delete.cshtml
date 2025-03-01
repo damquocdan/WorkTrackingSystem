@@ -4,37 +4,51 @@
     ViewData["Title"] = "Xóa phòng ban"; // Vietnamese title
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
-
-<h1 class="text-center mb-4"><i class="fas fa-building"></i> Xóa phòng ban</h1>
-
-<h3 class="text-danger">Bạn có chắc chắn muốn xóa phòng ban này?</h3>
-
-<div>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">
-            Mã
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Code)
-        </dd>
-        <dt class="col-sm-3">
-            Tên
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-3">
-            Mô tả
-        </dt>
-        <dd class="col-sm-9">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-    </dl>
-
-    <form asp-action="Delete" class="mt-3">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Xóa</button>
-        <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Trở về danh sách</a>
-    </form>
+<div class="row">
+    <div class="col-sm-6"><h3 class="mb-0">@ViewData["Title"]</h3></div>
+    <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-end">
+            <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Departments">Phòng ban</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Xóa </li>
+        </ol>
+    </div>
 </div>
+<h3 class="text-danger text-center">Bạn có chắc chắn muốn xóa phòng ban này?</h3>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">
+                        Mã
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Code)
+                    </dd>
+                    <dt class="col-sm-3">
+                        Tên
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Name)
+                    </dd>
+                    <dt class="col-sm-3">
+                        Mô tả
+                    </dt>
+                    <dd class="col-sm-9">
+                        @Html.DisplayFor(model => model.Description)
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete" class="mt-3">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Xóa</button>
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Trở về danh sách</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    
+ 
+

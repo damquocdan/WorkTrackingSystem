@@ -24,6 +24,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             return View(await _context.Departments.ToListAsync());
         }
+      
 
         // GET: AdminSystem/Departments/Details/5
         public async Task<IActionResult> Details(long? id)

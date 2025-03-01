@@ -28,11 +28,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return View(model);
             }
 
+            var positonIdProjectManage = _context.Systemsws.FirstOrDefault(s => s.Name == "positonIdProjectManage").Value;
             var pass = model.Password;
             var dataLogin = _context.Users.FirstOrDefault(x =>
         x.UserName.Equals(model.UserName)
         && x.Password.Equals(pass)
-        && x.Employee.PositionId == 2);
+        && x.Employee.PositionId == Convert.ToInt16(positonIdProjectManage));
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("ProjectManagerLogin", model.UserName);

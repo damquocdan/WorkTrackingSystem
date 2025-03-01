@@ -51,46 +51,34 @@
             </div>
 
             <div id="taskContainer">
-                <div class="task-group">
+                <div class="task-group" data-index="0">
                     <div class="mb-3">
-                        <label asp-for="CategoryId" class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
-                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
-                        <span asp-validation-for="CategoryId" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Name" class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
-                        <input asp-for="Description" class="form-control" />
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <label class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
+                        <select name="Jobs[0].CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="Deadline1" class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 1:</label>
-                        <input asp-for="Deadline1" type="date" class="form-control" />
-                        <span asp-validation-for="Deadline1" class="text-danger"></span>
+                        <label class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
+                        <input name="Jobs[0].Name" class="form-control" />
                     </div>
-
                     <div class="mb-3">
-                        <label asp-for="Deadline2" class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 2:</label>
-                        <input asp-for="Deadline2" type="date" class="form-control" />
-                        <span asp-validation-for="Deadline2" class="text-danger"></span>
+                        <label class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
+                        <input name="Jobs[0].Description" class="form-control" />
                     </div>
-
                     <div class="mb-3">
-                        <label asp-for="Deadline3" class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 3:</label>
-                        <input asp-for="Deadline3" type="date" class="form-control" />
-                        <span asp-validation-for="Deadline3" class="text-danger"></span>
+                        <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 1:</label>
+                        <input name="Jobs[0].Deadline1" type="date" class="form-control" />
                     </div>
-
                     <div class="mb-3">
-                        <label asp-for="CompletionDate" class="form-label"><i class="bi bi-calendar-check"></i> Hạn hoàn thành:</label>
-                        <input asp-for="CompletionDate" type="date" class="form-control" />
-                        <span asp-validation-for="CompletionDate" class="text-danger"></span>
+                        <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 2:</label>
+                        <input name="Jobs[0].Deadline2" type="date" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 3:</label>
+                        <input name="Jobs[0].Deadline3" type="date" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-calendar-check"></i> Hạn hoàn thành:</label>
+                        <input name="Jobs[0].CompletionDate" type="date" class="form-control" />
                     </div>
                 </div>
             </div>
@@ -116,11 +104,22 @@
             let selected = this.value;
             document.querySelectorAll(".task-type").forEach(e => e.style.display = "none");
             document.querySelectorAll(`.${selected}`).forEach(e => e.style.display = "block");
+            if (selected !== "oneToMany") {
+                document.getElementById("taskContainer").innerHTML = document.querySelector(".task-group").outerHTML;
+            }
         });
 
         document.getElementById("addTask").addEventListener("click", function () {
+            let taskContainer = document.getElementById("taskContainer");
+            let taskCount = taskContainer.children.length;
             let newTask = document.querySelector(".task-group").cloneNode(true);
-            document.getElementById("taskContainer").appendChild(newTask);
+            newTask.setAttribute("data-index", taskCount);
+            newTask.querySelectorAll("input, select").forEach(input => {
+                let name = input.name.replace("Jobs[0]", `Jobs[${taskCount}]`);
+                input.name = name;
+                input.value = ""; // Reset giá trị để tránh sao chép
+            });
+            taskContainer.appendChild(newTask);
         });
     </script>
 }
