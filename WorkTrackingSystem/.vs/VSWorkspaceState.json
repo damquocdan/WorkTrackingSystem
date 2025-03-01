@@ -3,7 +3,8 @@
     "",
     "\\Areas",
     "\\Areas\\EmployeeSystem",
-    "\\Areas\\EmployeeSystem\\Controllers",
+    "\\Areas\\EmployeeSystem\\Views",
+    "\\Areas\\EmployeeSystem\\Views\\Jobs",
     "\\Areas\\HRManager",
     "\\Areas\\HRManager\\Views",
     "\\Areas\\HRManager\\Views\\Shared",
@@ -12,6 +13,6 @@
     "\\Areas\\ProjectManager\\Views\\Jobs",
     "\\Areas\\ProjectManager\\Views\\Shared"
   ],
-  "SelectedNode": "\\Areas\\EmployeeSystem\\Controllers\\EmployeesController.cs",
+  "SelectedNode": "\\Areas\\EmployeeSystem\\Views\\Jobs\\Index.cshtml",
   "PreviewInSolutionExplorer": false
 }
