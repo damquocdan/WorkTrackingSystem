@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using WorkTrackingSystem.Areas.HRManager.Models;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class LoginController : BaseController
+    public class LoginController : Controller
     {
         public WorkTrackingSystemContext _context;
         public LoginController(WorkTrackingSystemContext context)
@@ -32,7 +30,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             var dataLogin = _context.Users.FirstOrDefault(x =>
         x.UserName.Equals(model.UserName)
         && x.Password.Equals(pass)
-        && x.Employee.PositionId == 3 && x.Employee.DepartmentId == 1);
+        && x.Employee.PositionId == 2 && x.Employee.DepartmentId == 1);
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("HRManagerLogin", model.UserName);
@@ -55,4 +53,3 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
     }
 }
-

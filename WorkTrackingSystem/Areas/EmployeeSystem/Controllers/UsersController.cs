@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Areas.EmployeeSystem.Models;
 using WorkTrackingSystem.Models;
+using UserEditViewModel = WorkTrackingSystem.Areas.EmployeeSystem.Models.UserEditViewModel;
 
 namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 {

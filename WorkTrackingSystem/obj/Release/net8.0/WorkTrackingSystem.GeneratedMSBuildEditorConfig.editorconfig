@@ -214,6 +214,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcU3lzdGVtc3dzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/UserInfor/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcVXNlckluZm9yXENoYW5nZVBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/UserInfor/UserInfor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcVXNlckluZm9yXFVzZXJJbmZvci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/AdminSystem/Views/Users/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5TeXN0ZW1cVmlld3NcVXNlcnNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -282,10 +290,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcSm9ic1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/Login/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcTG9naW5cSW5kZXguY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcU2hhcmVkXF9FbXBsb3llZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -304,6 +308,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/UserInfor/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcVXNlckluZm9yXENoYW5nZVBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/UserInfor/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcVXNlckluZm9yXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/UserInfor/UserInfor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcVXNlckluZm9yXFVzZXJJbmZvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/Users/Create.cshtml]
@@ -346,16 +362,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXERldGFpbHMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Analyses/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEFuYWx5c2VzXF9EZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Create.cshtml]
@@ -366,16 +382,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcRGV0YWlscy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Baselineassessments/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEJhc2VsaW5lYXNzZXNzbWVudHNcX0RldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Dashboard/Index.cshtml]
@@ -402,6 +418,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXERlcGFydG1lbnRzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Departments/_Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXERlcGFydG1lbnRzXF9DcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Departments/_Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXERlcGFydG1lbnRzXF9EZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Departments/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXERlcGFydG1lbnRzXF9EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Departments/_Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXERlcGFydG1lbnRzXF9FZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Employees/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEVtcGxveWVlc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -420,6 +452,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Employees/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEVtcGxveWVlc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Employees/_Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEVtcGxveWVlc1xfQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Employees/_Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEVtcGxveWVlc1xfRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Employees/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEVtcGxveWVlc1xfRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Employees/_Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXEVtcGxveWVlc1xfRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Login/Index.cshtml]
@@ -446,6 +494,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFBvc2l0aW9uc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Positions/_Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFBvc2l0aW9uc1xfQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Positions/_Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFBvc2l0aW9uc1xfRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Positions/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFBvc2l0aW9uc1xfRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Positions/_Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFBvc2l0aW9uc1xfRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Shared/_HRManager.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFNoYXJlZFxfSFJNYW5hZ2VyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -466,6 +530,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFNoYXJlZFxfVmFsaWRhdGlvblNjcmlwdHNQYXJ0aWFsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/UserInfor/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJJbmZvclxDaGFuZ2VQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/UserInfor/UserInfor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJJbmZvclxVc2VySW5mb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Users/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -484,6 +556,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Users/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Users/_Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJzXF9DcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Users/_Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJzXF9EZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Users/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJzXF9EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/Users/_Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSFJNYW5hZ2VyXFZpZXdzXFVzZXJzXF9FZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/HRManager/Views/_ViewImports.cshtml]
@@ -514,6 +602,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Analyses/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQW5hbHlzZXNcX0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -522,16 +614,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xEZXRhaWxzLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Baselineassessments/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcQmFzZWxpbmVhc3Nlc3NtZW50c1xfRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Categories/Create.cshtml]
@@ -558,6 +650,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index1.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4MS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4Mi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Dashboard/Index3.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRGFzaGJvYXJkXEluZGV4My5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Employees/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcRW1wbG95ZWVzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -582,20 +686,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xEZWxldGUuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xEZXRhaWxzLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/_Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xfRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Jobs/_Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcSm9ic1xfRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Login/Index.cshtml]
@@ -620,6 +724,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/UserInfor/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcVXNlckluZm9yXENoYW5nZVBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/UserInfor/UserInfor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcUHJvamVjdE1hbmFnZXJcVmlld3NcVXNlckluZm9yXFVzZXJJbmZvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/ProjectManager/Views/_ViewImports.cshtml]
