@@ -28,7 +28,7 @@
             <th>Tên công việc</th>
             <th>Hạn chót</th>
             <th>Trạng thái</th>
-            <th>Tiến độ</th>
+            <th>Ngày hoàn thiện</th>
         </tr>
     </thead>
     <tbody id="jobTable">
@@ -46,9 +46,14 @@
                     </select>
                 </td>
                 <td class="text-center">
+                    <input type="date" class="completion-date" data-job-id="@item.Id"
+                           value="@(item.CompletionDate.HasValue ? item.CompletionDate.Value.ToString("yyyy-MM-dd") : "")">
+                </td>
+
+                @* <td class="text-center">
                     <input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.ProgressAssessment" min="0" max="100" step="5">
                     <span class="progress-value">@item.ProgressAssessment%</span>
-                </td>
+                </td> *@
             </tr>
         }
     </tbody>
@@ -78,22 +83,24 @@
                     row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
                 });
             });
-           
-            // Cập nhật tiến độ
-            document.querySelectorAll('.progress-slider').forEach(slider => {
-                slider.addEventListener('input', function () {
-                    let jobId = parseInt(this.dataset.jobId)
-                    let progress = parseFloat(this.value);
-                    this.nextElementSibling.textContent = progress + '%';
+            //cập nhập ngày hoàn thành thực tế
 
-                    fetch('/EmployeeSystem/Jobs/UpdateProgress', {
+            document.querySelectorAll('.completion-date').forEach(input => {
+                input.addEventListener('change', function () {
+                    let jobId = parseInt(this.dataset.jobId);
+                    let completionDate = this.value; // Giá trị đã chọn từ input date (YYYY-MM-DD)
+
+                    if (!completionDate) return;
+
+                    fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: jobId, progress: progress })
-                    }).then(response => response.json())
+                        body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
+                    })
+                        .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                console.log("Cập nhật tiến độ thành công!");
+                                console.log("Cập nhật ngày hoàn thành thành công!");
                             } else {
                                 console.error("Lỗi cập nhật:", data.message);
                             }
@@ -101,6 +108,29 @@
                         .catch(error => console.error('Lỗi:', error));
                 });
             });
+
+            // // Cập nhật tiến độ
+            // document.querySelectorAll('.progress-slider').forEach(slider => {
+            //     slider.addEventListener('input', function () {
+            //         let jobId = parseInt(this.dataset.jobId)
+            //         let progress = parseFloat(this.value);
+            //         this.nextElementSibling.textContent = progress + '%';
+
+            //         fetch('/EmployeeSystem/Jobs/UpdateProgress', {
+            //             method: 'POST',
+            //             headers: { 'Content-Type': 'application/json' },
+            //             body: JSON.stringify({ id: jobId, progress: progress })
+            //         }).then(response => response.json())
+            //             .then(data => {
+            //                 if (data.success) {
+            //                     console.log("Cập nhật tiến độ thành công!");
+            //                 } else {
+            //                     console.error("Lỗi cập nhật:", data.message);
+            //                 }
+            //             })
+            //             .catch(error => console.error('Lỗi:', error));
+            //     });
+            // });
 
         
             // Cập nhật trạng thái

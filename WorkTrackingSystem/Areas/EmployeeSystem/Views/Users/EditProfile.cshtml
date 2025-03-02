@@ -1,0 +1,62 @@
+﻿@model WorkTrackingSystem.Areas.EmployeeSystem.Models.UserEditViewModel
+
+@{
+    ViewData["Title"] = "Chỉnh sửa thông tin cá nhân";
+    Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
+}
+
+<div class="container d-flex justify-content-center">
+    <div class="card shadow-lg p-4 mt-5" style="max-width: 500px; width: 100%;">
+        <h2 class="text-primary text-center mb-4">
+            <i class="bi bi-person-circle"></i> Chỉnh sửa thông tin
+        </h2>
+
+        <form asp-action="EditProfile" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Tên đăng nhập -->
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label fw-bold"><i class="bi bi-person"></i> Tên đăng nhập</label>
+                <input asp-for="UserName" class="form-control" readonly>
+            </div>
+
+            <!-- Mật khẩu hiện tại -->
+            <div class="mb-3">
+                <label asp-for="CurrentPassword" class="form-label fw-bold">
+                    <i class="bi bi-key"></i> Mật khẩu hiện tại
+                </label>
+                <input asp-for="CurrentPassword" type="password" class="form-control" placeholder="Nhập mật khẩu hiện tại">
+            </div>
+
+            <!-- Mật khẩu mới -->
+            <div class="mb-3">
+                <label asp-for="NewPassword" class="form-label fw-bold">
+                    <i class="bi bi-lock"></i> Mật khẩu mới
+                </label>
+                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Nhập mật khẩu mới">
+            </div>
+
+            <!-- Xác nhận mật khẩu -->
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label fw-bold">
+                    <i class="bi bi-check-circle"></i> Xác nhận mật khẩu
+                </label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Nhập lại mật khẩu mới">
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <!-- Nút lưu thay đổi -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Lưu thay đổi
+                </button>
+            </div>
+        </form>
+
+        <!-- Hiển thị thông báo thành công -->
+        @if (ViewData["Message"] != null)
+        {
+            <div class="alert alert-success mt-3 text-center">@ViewData["Message"]</div>
+        }
+    </div>
+</div>

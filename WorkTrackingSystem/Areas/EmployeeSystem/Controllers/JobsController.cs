@@ -71,25 +71,48 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             return Json(new { success = true, message = "Cập nhật thành công" });
         }
         [HttpPost]
-        public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
+        public IActionResult UpdateCompletionDate([FromBody] UpdateCompletionDateModel model)
         {
-            if (request == null || request.Id <= 0)
-            {
-                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
-            }
-
-            var job = await _context.Jobs.FindAsync(request.Id);
+            var job = _context.Jobs.Find(model.JobId);
             if (job == null)
             {
-                return NotFound(new { success = false, message = "Không tìm thấy công việc" });
+                return Json(new { success = false, message = "Không tìm thấy công việc" });
             }
 
-            job.ProgressAssessment = request.Progress;
-            _context.Entry(job).State = EntityState.Modified; // Đánh dấu có thay đổi
-            await _context.SaveChangesAsync(); 
-
-            return Ok(new { success = true });
+            if (DateOnly.TryParse(model.CompletionDate, out DateOnly completionDate))
+            {
+                job.CompletionDate = completionDate;
+                _context.SaveChanges();
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Ngày không hợp lệ" });
+            }
         }
+
+       
+
+        //[HttpPost]
+        //public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
+        //{
+        //    if (request == null || request.Id <= 0)
+        //    {
+        //        return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+        //    }
+
+        //    var job = await _context.Jobs.FindAsync(request.Id);
+        //    if (job == null)
+        //    {
+        //        return NotFound(new { success = false, message = "Không tìm thấy công việc" });
+        //    }
+
+        //    job.ProgressAssessment = request.Progress;
+        //    _context.Entry(job).State = EntityState.Modified; // Đánh dấu có thay đổi
+        //    await _context.SaveChangesAsync(); 
+
+        //    return Ok(new { success = true });
+        //}
 
         // GET: EmployeeSystem/Jobs/Details/5
         //public async Task<IActionResult> Details(long? id)
