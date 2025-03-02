@@ -7,7 +7,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class LoginController : BaseController
+    public class LoginController : Controller
     {
         public WorkTrackingSystemContext _context;
         public LoginController(WorkTrackingSystemContext context)

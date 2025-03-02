@@ -8,7 +8,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
-    public class LoginController : BaseController
+    public class LoginController : Controller
     {
         public WorkTrackingSystemContext _context;
         public LoginController(WorkTrackingSystemContext context)
