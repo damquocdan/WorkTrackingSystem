@@ -2,7 +2,110 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="index-background">
+    <div class="overlay">
+        <div class="overlay-content">
+            <h1>Đánh giá công việc nhân viên</h1>
+            <div class="intro-text">
+                <p>Chào mừng đến với <strong>ABC Corp</strong>, đơn vị hàng đầu trong quản lý và đánh giá hiệu suất nhân viên. Với hơn <strong>10 năm kinh nghiệm</strong>, chúng tôi cung cấp giải pháp tối ưu để nâng cao hiệu quả làm việc. Công ty tự hào hỗ trợ hơn 150 doanh nghiệp trên toàn quốc, mang đến công cụ đánh giá hiện đại, chính xác và dễ sử dụng. Đội ngũ chuyên gia của chúng tôi luôn đồng hành cùng bạn, đảm bảo mọi công việc được hoàn thành xuất sắc.</p>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <h3>ABC Corp</h3>
+                    <p>Tên công ty</p>
+                </div>
+                <div class="stat-item">
+                    <h3>150</h3>
+                    <p>Số nhân viên</p>
+                </div>
+                <div class="stat-item">
+                    <h3>320</h3>
+                    <p>Công việc đã đánh giá</p>
+                </div>
+                <div class="stat-item">
+                    <h3>2025</h3>
+                    <p>Năm hoạt động</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* Background Styling */
+    .index-background {
+        background-image: url('/images/job.jpg'); /* Correct path for wwwroot */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh; /* Full viewport height */
+        position: relative;
+        color: #fff; /* White text for contrast */
+    }
+
+    /* Overlay for readability */
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Overlay Content Styling */
+    .overlay-content h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        color: #ed3d34; /* Accent color for emphasis */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Shadow for readability */
+    }
+
+    /* Intro Text Styling */
+    .intro-text {
+        max-width: 700px;
+        margin: 0 auto 2rem auto;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        background-color: rgba(25, 127, 202, 0.7); /* Semi-transparent blue background */
+        padding: 1rem 2rem;
+        border-radius: 8px;
+    }
+
+        .intro-text strong {
+            color: #ed3d34; /* Highlight key phrases */
+        }
+
+    /* Stats Styling */
+    .overlay-content .stats {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+ 
+    }
+
+    .overlay-content .stat-item {
+        background-color: rgba(25, 127, 202, 0.8); /* Semi-transparent primary color */
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem;
+        min-width: 200px;
+    }
+
+        .overlay-content .stat-item h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .overlay-content .stat-item p {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+</style>

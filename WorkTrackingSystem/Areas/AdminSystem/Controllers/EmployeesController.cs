@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
     [Area("AdminSystem")]
-    public class EmployeesController : Controller
+    public class EmployeesController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -67,8 +68,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
             return View(employee);
         }
 
@@ -102,7 +103,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid) 
             {
                 try
                 {
@@ -122,8 +123,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
             return View(employee);
         }
 

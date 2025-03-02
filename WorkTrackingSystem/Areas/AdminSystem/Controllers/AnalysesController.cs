@@ -71,7 +71,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", analysis.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", analysis.EmployeeId);
             return View(analysis);
         }
 
@@ -88,7 +88,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", analysis.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", analysis.EmployeeId);
             return View(analysis);
         }
 
@@ -124,7 +124,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", analysis.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", analysis.EmployeeId);
             return View(analysis);
         }
 

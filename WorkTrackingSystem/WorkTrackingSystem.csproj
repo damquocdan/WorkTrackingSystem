@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="EPPlus" Version="7.6.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
@@ -26,10 +25,9 @@
   <ItemGroup>
     <Folder Include="Areas\AdminSystem\Data\" />
     <Folder Include="Areas\EmployeeSystem\Data\" />
+    <Folder Include="Areas\EmployeeSystem\Views\Login\" />
     <Folder Include="Areas\HRManager\Data\" />
     <Folder Include="Areas\ProjectManager\Data\" />
-    <Folder Include="wwwroot\images\" />
-    <Folder Include="wwwroot\NewFolder\" />
     <Folder Include="wwwroot\plugins\ckfinder\App_Data\" />
     <Folder Include="wwwroot\plugins\ckfinder\src\CKFinder.Connector.Plugin.DiskQuota\bin\Debug\" />
     <Folder Include="wwwroot\plugins\ckfinder\src\CKFinder.Connector.Plugin.DiskQuota\bin\Release\" />
@@ -55,39 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Areas\HRManager\Views\Positions\Delete.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Positions\Details.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Positions\Edit.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Positions\Index.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Users\Create.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Users\Delete.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Users\Details.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Users\Edit.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Areas\HRManager\Views\Users\Index.cshtml">
+    <Content Update="Areas\EmployeeSystem\Views\UserInfor\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

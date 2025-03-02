@@ -1,20 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj": {}
+    "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj": {}
   },
   "projects": {
-    "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj": {
+    "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
+        "projectUniqueName": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
         "projectName": "WorkTrackingSystem",
-        "projectPath": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
-        "packagesPath": "C:\\Users\\Minh Hai\\.nuget\\packages\\",
-        "outputPath": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\obj\\",
+        "projectPath": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\WorkTrackingSystem.csproj",
+        "packagesPath": "C:\\Users\\Wind\\.nuget\\packages\\",
+        "outputPath": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Minh Hai\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Wind\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -34,19 +38,21 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter": {
+            "EPPlus": {
               "target": "Package",
-              "version": "[8.0.11, )"
-            },
-            "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[8.0.11, )"
+              "version": "[7.6.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
@@ -96,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

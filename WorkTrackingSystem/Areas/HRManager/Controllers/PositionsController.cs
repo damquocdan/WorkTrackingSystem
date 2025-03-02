@@ -10,7 +10,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class PositionsController : Controller
+    public class PositionsController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -39,13 +39,20 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", position);
+            }
             return View(position);
         }
 
         // GET: HRManager/Positions/Create
         public IActionResult Create()
         {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create");
+            }
             return View();
         }
 
@@ -77,6 +84,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             if (position == null)
             {
                 return NotFound();
+            }
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Edit", position);
             }
             return View(position);
         }
@@ -130,7 +141,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Delete", position);
+            }
             return View(position);
         }
 

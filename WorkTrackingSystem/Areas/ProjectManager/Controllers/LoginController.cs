@@ -8,13 +8,14 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
-    public class LoginController : Controller
+    public class LoginController : BaseController
     {
         public WorkTrackingSystemContext _context;
         public LoginController(WorkTrackingSystemContext context)
         {
             _context = context;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -36,7 +37,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("ProjectManagerLogin", model.UserName);
-
+                HttpContext.Session.SetString("ProjectManageUserId", dataLogin.Id.ToString());
                 return RedirectToAction("Index", "Dashboard");
             }
             else
@@ -46,6 +47,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
         }
+
+
         [HttpGet]// thoát đăng nhập, huỷ session
         public IActionResult Logout()
         {

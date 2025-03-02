@@ -101,23 +101,25 @@
                             </div>
 
                             <div id="assessmentFields" style="display: none;">
+                                <!-- Volume Assessment -->
                                 <div class="mb-3">
                                     <label asp-for="VolumeAssessment" class="form-label">Đánh giá khối lượng</label>
-                                    <input asp-for="VolumeAssessment" class="form-range" type="range" min="0" max="100" id="volume" />
-                                    <span id="volumeValue">0</span>
+                                    <input asp-for="VolumeAssessment" class="form-control" type="number" min="0" max="3" id="volume" value="0" />
+                                    <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
                                 </div>
 
+                                <!-- Progress Assessment -->
                                 <div class="mb-3">
                                     <label asp-for="ProgressAssessment" class="form-label">Đánh giá tiến độ</label>
-                                    <input asp-for="ProgressAssessment" class="form-range" type="range" min="0" max="100" id="progress" />
-                                    <span id="progressValue">0</span>
+                                    <input asp-for="ProgressAssessment" class="form-control" type="number" min="0" max="3" id="progress" value="0" />
+                                    <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
                                 </div>
 
+                                <!-- Quality Assessment -->
                                 <div class="mb-3">
                                     <label asp-for="QualityAssessment" class="form-label">Đánh giá chất lượng</label>
-                                    <input asp-for="QualityAssessment" class="form-range" typ
-                                           e="range" min="0" max="100" id="quality" />
-                                    <span id="qualityValue">0</span>
+                                    <input asp-for="QualityAssessment" class="form-control" type="number" min="0" max="3" id="quality" value="0" />
+                                    <span asp-validation-for="QualityAssessment" class="text-danger"></span>
                                 </div>
 
                                 <div class="mb-3">
@@ -152,17 +154,15 @@
             let qualityInput = document.getElementById("quality");
             let summaryInput = document.getElementById("summary");
 
-            // Các span để hiển thị giá trị
-            let volumeValue = document.getElementById("volumeValue");
-            let progressValue = document.getElementById("progressValue");
-            let qualityValue = document.getElementById("qualityValue");
-
             function updateVisibility() {
                 if (statusField.value == "1" || statusField.value == "3") {
                     assessmentFields.style.display = "block";
                 } else {
                     assessmentFields.style.display = "none";
-                    volumeInput.value = progressInput.value = qualityInput.value = summaryInput.value = 0;
+                    volumeInput.value = 0;
+                    progressInput.value = 0;
+                    qualityInput.value = 0;
+                    summaryInput.value = 0;
                 }
             }
 
@@ -172,14 +172,9 @@
                 let quality = parseFloat(qualityInput.value) || 0;
                 let summary = (0.60 * volume + 0.15 * progress + 0.25 * quality).toFixed(2);
                 summaryInput.value = summary;
-
-                // Cập nhật giá trị hiển thị của các slider
-                volumeValue.textContent = volume;
-                progressValue.textContent = progress;
-                qualityValue.textContent = quality;
             }
 
-            // Lắng nghe sự kiện thay đổi giá trị của range input
+            // Lắng nghe sự kiện thay đổi giá trị của input number
             volumeInput.addEventListener("input", updateSummary);
             progressInput.addEventListener("input", updateSummary);
             qualityInput.addEventListener("input", updateSummary);
@@ -189,5 +184,4 @@
             updateSummary(); // Cập nhật giá trị khi trang tải lần đầu
         });
     </script>
-
 }

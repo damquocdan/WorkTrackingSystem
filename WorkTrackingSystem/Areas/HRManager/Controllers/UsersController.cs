@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -41,19 +42,21 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", user);
+            }
             return View(user);
         }
 
         // GET: HRManager/Users/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                Id = e.Id,
-                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
-
-            }), "Id", "FullName");
+                return PartialView("_Create");
+            }
             return View();
         }
 
@@ -87,12 +90,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
-            {
-                Id = e.Id,
-                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
 
-            }), "Id", "FullName");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create", user);
+            }
             return View(user);
         }
 
@@ -147,7 +150,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Delete", user);
+            }
             return View(user);
         }
 

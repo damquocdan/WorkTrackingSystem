@@ -11,7 +11,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
-    public class BaselineassessmentsController : Controller
+    public class BaselineassessmentsController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -105,7 +105,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", baselineassessment);
+            }
             return View(baselineassessment);
         }
 

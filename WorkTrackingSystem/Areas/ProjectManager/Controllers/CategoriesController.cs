@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
-    public class CategoriesController : Controller
+    public class CategoriesController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 

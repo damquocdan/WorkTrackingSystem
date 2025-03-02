@@ -1,7 +1,8 @@
-﻿using System;
+﻿                                                                     using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
     [Area("AdminSystem")]
-    public class JobsController : Controller
+    public class JobsController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -21,7 +22,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
         // GET: AdminSystem/Jobs
         public async Task<IActionResult> Index()
-        {
+        {           
             var workTrackingSystemContext = _context.Jobs.Include(j => j.Category).Include(j => j.Employee);
             return View(await workTrackingSystemContext.ToListAsync());
         }
@@ -72,7 +73,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
             return View(job);
         }
@@ -90,8 +91,13 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
+
+            }), "Id", "FullName");
             return View(job);
         }
 
@@ -127,7 +133,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
             return View(job);
         }

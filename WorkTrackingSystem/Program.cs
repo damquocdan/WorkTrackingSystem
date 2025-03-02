@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +8,8 @@ var connectionString = builder.Configuration.GetConnectionString("AppDBConnectio
 builder.Services.AddDbContext<WorkTrackingSystemContext>(options =>
     options.UseSqlServer(connectionString));
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromSeconds(3600);  // Thời gian session hết hạn
@@ -14,6 +17,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;  // Cookie là cần thiết cho ứng dụng
     options.Cookie.Name = "WorkTrackingSystem";  // Tên cookie
 });
+builder.Services.AddAuthentication();
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
@@ -31,7 +37,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
+app.UseCookiePolicy();
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");

@@ -8,7 +8,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             public override void OnActionExecuted(ActionExecutedContext context)
             {
-                if (context.HttpContext.Session.GetString("AdminLogin") == null)
+                if (context.HttpContext.Session.GetString("HRManagerLogin") == null)
                 {
                     context.Result = new RedirectToRouteResult(
                         new RouteValueDictionary(new { Controller = "Login", Action = "Index", Areas = "HRManager" }));

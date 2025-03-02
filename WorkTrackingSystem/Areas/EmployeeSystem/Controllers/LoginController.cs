@@ -14,6 +14,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         {
             _context = context;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -31,7 +32,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             var dataLogin = _context.Users.FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(pass));
             if (dataLogin != null)
             {
-                HttpContext.Session.SetString("AdminLogin", model.UserName);
+                HttpContext.Session.SetString("EmployeeSystem", model.UserName);
                 HttpContext.Session.SetString("UserId", dataLogin.Id.ToString());
                
                 return RedirectToAction("Index", "Dashboard");
@@ -46,10 +47,14 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         [HttpGet]// thoát đăng nhập, huỷ session
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("AdminLogin"); // huỷ session với key AdminLogin đã lưu trước đó
+            HttpContext.Session.Remove("EmployeeSystem"); // huỷ session với key AdminLogin đã lưu trước đó
 
             return RedirectToAction("Index");
         }
+
+
+
+
     }
 }
 

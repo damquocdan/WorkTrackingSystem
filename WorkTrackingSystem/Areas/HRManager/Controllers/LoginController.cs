@@ -7,13 +7,14 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class LoginController : Controller
+    public class LoginController : BaseController
     {
         public WorkTrackingSystemContext _context;
         public LoginController(WorkTrackingSystemContext context)
         {
             _context = context;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -34,7 +35,8 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         && x.Employee.PositionId == 3 && x.Employee.DepartmentId == 1);
             if (dataLogin != null)
             {
-                HttpContext.Session.SetString("AdminLogin", model.UserName);
+                HttpContext.Session.SetString("HRManagerLogin", model.UserName);
+                HttpContext.Session.SetString("HRUserId", dataLogin.Id.ToString());
                 return RedirectToAction("Index", "Dashboard");
             }
             else
@@ -47,7 +49,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [HttpGet]// thoát đăng nhập, huỷ session
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("AdminLogin"); // huỷ session với key AdminLogin đã lưu trước đó
+            HttpContext.Session.Remove("HRManagerLogin"); // huỷ session với key AdminLogin đã lưu trước đó
 
             return RedirectToAction("Index");
         }

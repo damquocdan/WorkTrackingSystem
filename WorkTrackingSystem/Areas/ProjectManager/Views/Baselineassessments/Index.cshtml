@@ -15,180 +15,121 @@
         .Select(g => new
         {
             MonthYear = g.Key,
-            AvgVolume = g.Average(x => x.VolumeAssessment),
-            AvgProgress = g.Average(x => x.ProgressAssessment),
-            AvgQuality = g.Average(x => x.QualityAssessment),
-            AvgSummary = g.Average(x => x.SummaryOfReviews)
+            SumVolume = g.Sum(x => x.VolumeAssessment ?? 0),  // Tính tổng thay vì trung bình
+            SumProgress = g.Sum(x => x.ProgressAssessment ?? 0),
+            SumQuality = g.Sum(x => x.QualityAssessment ?? 0),
+            SumSummary = g.Sum(x => x.SummaryOfReviews ?? 0)
         })
         .OrderBy(g => g.MonthYear)
         .ToList();
 
     var labels = groupedData.Select(x => x.MonthYear).ToList();
-    var avgVolume = groupedData.Select(x => x.AvgVolume).ToList();
-    var avgProgress = groupedData.Select(x => x.AvgProgress).ToList();
-    var avgQuality = groupedData.Select(x => x.AvgQuality).ToList();
-    var avgSummary = groupedData.Select(x => x.AvgSummary).ToList();
+    var sumVolume = groupedData.Select(x => x.SumVolume).ToList();
+    var sumProgress = groupedData.Select(x => x.SumProgress).ToList();
+    var sumQuality = groupedData.Select(x => x.SumQuality).ToList();
+    var sumSummary = groupedData.Select(x => x.SumSummary).ToList();
 }
-<style>
 
-</style>
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-success ">
-            <div class="card-header">Tổng Đạt</div>
-            <div class="card-body">
-                <h5 class="card-title">@passedEvaluations</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-danger 3">
-            <div class="card-header">Tổng Chưa Đạt</div>
-            <div class="card-body">
-                <h5 class="card-title">@failedEvaluations</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-info  ">
-            <div class="card-header">Tỷ lệ Đạt</div>
-            <div class="card-body">
-                <h5 class="card-title">@passRate.ToString("0.00")%</h5>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row">
-    <div class="col-md-6" style="height:320px;"><canvas id="evaluationChart" width="200" height="100"></canvas></div>
-    <div class="col-md-6" style="height:320px;"><canvas id="summaryChart" width="200" height="100"></canvas></div>
-</div>
+    <div class="col-md-6">
+        <div class="">
+            <h1 class="mb-4 text-center">Danh sách đánh giá cơ bản</h1>
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Mã nhân viên:</label>
+                    <input type="text" name="employeeCode" class="form-control" value="@Context.Request.Query["employeeCode"]" placeholder="Nhập mã nhân viên">
+                </div>
 
+                <div class="col-md-3">
+                    <label class="form-label">Tên nhân viên:</label>
+                    <input type="text" name="employeeName" class="form-control" value="@Context.Request.Query["employeeName"]" placeholder="Nhập tên nhân viên">
+                </div>
 
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái đánh giá:</label>
+                    <select name="evaluate" class="form-select">
+                        <option value="">Tất cả</option>
+                        <option value="true" selected="@(Context.Request.Query["evaluate"] == "true")">Đạt</option>
+                        <option value="false" selected="@(Context.Request.Query["evaluate"] == "false")">Chưa đạt</option>
+                    </select>
+                </div>
 
-<div class="">
-    <h1 class="mb-4 text-center">Danh sách đánh giá cơ bản</h1>
-    <form asp-action="Index" method="get" class="row g-3">
-        <div class="col-md-3">
-            <label class="form-label">Mã nhân viên:</label>
-            <input type="text" name="employeeCode" class="form-control" value="@Context.Request.Query["employeeCode"]" placeholder="Nhập mã nhân viên">
+                <div class="col-md-3">
+                    <label class="form-label">Tháng/Năm:</label>
+                    <input type="month" name="time" class="form-control" value="@Context.Request.Query["time"]">
+                </div>
+
+                <div class="col-md-12 text-end">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
+                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i> Reset</a>
+                </div>
+            </form>
         </div>
-
-        <div class="col-md-3">
-            <label class="form-label">Tên nhân viên:</label>
-            <input type="text" name="employeeName" class="form-control" value="@Context.Request.Query["employeeName"]" placeholder="Nhập tên nhân viên">
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-6" style="height: 300px;">
+                <div class="chart-container border p-3">
+                    <h5 class="text-center">Biểu đồ đánh giá</h5>
+                    <canvas id="evaluationChart" width="200" height="100"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6" style="height: 300px;">
+                <div class="chart-container border p-3">
+                    <h5 class="text-center">Tóm tắt công việc</h5>
+                    <canvas id="summaryChart" width="200" height="100"></canvas>
+                </div>
+            </div>
         </div>
-
-        <div class="col-md-3">
-            <label class="form-label">Trạng thái đánh giá:</label>
-            <select name="evaluate" class="form-select">
-                <option value="">Tất cả</option>
-                <option value="true" selected="@(Context.Request.Query["evaluate"] == "true")">Đạt</option>
-                <option value="false" selected="@(Context.Request.Query["evaluate"] == "false")">Chưa đạt</option>
-            </select>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="list-section">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><i class="bi bi-bar-chart-line"></i> Tổng đánh giá khối lượng</th>
+                            <th><i class="bi bi-graph-up"></i> Tổng đánh giá tiến độ</th>
+                            <th><i class="bi bi-star"></i> Tổng đánh giá chất lượng</th>
+                            <th><i class="bi bi-chat-left-text"></i> Tổng đánh giá tổng hợp</th>
+                            <th><i class="bi bi-clock"></i> Tháng</th>
+                            <th><i class="bi bi-clipboard-check"></i> Đánh giá</th>
+                            <th><i class="bi bi-person"></i> Nhân viên</th>
+                            <th><i class="bi bi-gear"></i> Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.Evaluate.GetValueOrDefault() ? "table-success" : "table-danger")">
+                                <td>@item.VolumeAssessment</td>
+                                <td>@item.ProgressAssessment</td>
+                                <td>@item.QualityAssessment</td>
+                                <td>@item.SummaryOfReviews</td>
+                                <td>@(item.Time.HasValue ? item.Time.Value.ToString("MM/yyyy") : "")</td>
+                                <td>
+                                    @if (item.Evaluate.GetValueOrDefault())
+                                    {
+                                        <p>Đạt</p>
+                                    }
+                                    else
+                                    {
+                                        <p>Chưa đạt</p>
+                                    }
+                                </td>
+                                <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
+                                <td>
+                                    <a class="btn btn-sm btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <div class="col-md-3">
-            <label class="form-label">Tháng/Năm:</label>
-            <input type="month" name="time" class="form-control" value="@Context.Request.Query["time"]">
+        <div class="col-md-4 d-none" id="detail-section">
+            <div class="actionCustomers"></div>
         </div>
-
-        <div class="col-md-12 text-end">
-            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
-            <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i> Reset</a>
-        </div>
-    </form>
-    <hr>
-
-    <p>
-        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo mới đánh giá nhân viên</a>
-    </p>
-
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng</th>
-                    <th><i class="bi bi-graph-up"></i> Đánh giá tiến độ</th>
-                    <th><i class="bi bi-star"></i> Đánh giá chất lượng</th>
-                    <th><i class="bi bi-chat-left-text"></i> Đánh giá tổng hợp </th>
-                    <th><i class="bi bi-clock"></i> Tháng</th>
-                    <th><i class="bi bi-clipboard-check"></i> Đánh giá</th>
-   
-                    <th><i class="bi bi-person"></i> Nhân viên</th>
-                    <th><i class="bi bi-gear"></i> Hành động</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr class="@(item.Evaluate.GetValueOrDefault() ? "table-success" : "table-danger")">
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar bg-primary" role="progressbar"
-                                     style="width: @item.VolumeAssessment%;"
-                                     aria-valuenow="@item.VolumeAssessment"
-                                     aria-valuemin="0"
-                                     aria-valuemax="100">
-                                    @item.VolumeAssessment%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar bg-success" role="progressbar"
-                                     style="width: @item.ProgressAssessment%;"
-                                     aria-valuenow="@item.ProgressAssessment"
-                                     aria-valuemin="0"
-                                     aria-valuemax="100">
-                                    @item.ProgressAssessment%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: @item.QualityAssessment%;"
-                                     aria-valuenow="@item.QualityAssessment"
-                                     aria-valuemin="0"
-                                     aria-valuemax="100">
-                                    @item.QualityAssessment%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar bg-warning" role="progressbar"
-                                     style="width: @item.SummaryOfReviews%;"
-                                     aria-valuenow="@item.SummaryOfReviews"
-                                     aria-valuemin="0"
-                                     aria-valuemax="100">
-                                    @item.SummaryOfReviews%
-                                </div>
-                            </div>
-                        </td>
-                        <td>@(item.Time.HasValue ? item.Time.Value.ToString("MM/yyyy") : "")</td>
-
-                        <td>
-                            @if (item.Evaluate.GetValueOrDefault())
-                            {
-                                <p>Đạt</p>
-                            }
-                            else
-                            {
-                                <p>Chưa đạt</p>
-                            }
-                        </td>
-
-                        <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a>
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="bi bi-info-circle"></i> Chi tiết</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"><i class="bi-trash"></i> Xóa</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
 </div>
 
@@ -196,10 +137,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     var labels = @Html.Raw(Json.Serialize(labels));
-    var avgVolume = @Html.Raw(Json.Serialize(avgVolume));
-    var avgProgress = @Html.Raw(Json.Serialize(avgProgress));
-    var avgQuality = @Html.Raw(Json.Serialize(avgQuality));
-    var avgSummary = @Html.Raw(Json.Serialize(avgSummary));
+    var sumVolume = @Html.Raw(Json.Serialize(sumVolume));
+    var sumProgress = @Html.Raw(Json.Serialize(sumProgress));
+    var sumQuality = @Html.Raw(Json.Serialize(sumQuality));
+    var sumSummary = @Html.Raw(Json.Serialize(sumSummary));
 
     var ctx1 = document.getElementById('evaluationChart').getContext('2d');
     var evaluationChart = new Chart(ctx1, {
@@ -208,24 +149,35 @@
             labels: labels,
             datasets: [
                 {
-                    label: 'TB DG khối lượng',
-                    data: avgVolume,
+                    label: 'Tổng DGKL',
+                    data: sumVolume,
                     borderColor: 'blue',
                     fill: false
                 },
                 {
-                    label: 'TB DG tiến độ',
-                    data: avgProgress,
+                    label: 'Tổng DGTĐ',
+                    data: sumProgress,
                     borderColor: 'green',
                     fill: false
                 },
                 {
-                    label: 'TB DG chất lượng',
-                    data: avgQuality,
+                    label: 'Tổng DGCL',
+                    data: sumQuality,
                     borderColor: 'red',
                     fill: false
                 }
             ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tổng điểm'
+                    }
+                }
+            }
         }
     });
 
@@ -235,10 +187,47 @@
         data: {
             labels: labels,
             datasets: [{
-                label: 'Trung bình Đánh giá tổng hợp',
-                data: avgSummary,
+                label: 'Tổng Đánh giá tổng hợp',
+                data: sumSummary,
                 backgroundColor: 'orange'
             }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tổng điểm'
+                    }
+                }
+            }
         }
     });
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".ajax-action").click(function (e) {
+            e.preventDefault();
+
+            var url = $(this).data("url");
+
+            if ($("#detail-section").hasClass("d-none")) {
+                $("#list-section").removeClass("col-md-12").addClass("col-md-8");
+                $("#detail-section").removeClass("d-none").addClass("col-md-4");
+            }
+
+            $(".actionCustomers").load(url, function (response, status, xhr) {
+                if (status === "error") {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        });
+    });
+
+    function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
+    }
 </script>

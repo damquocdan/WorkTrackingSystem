@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
     [Area("AdminSystem")]
-    public class BaselineassessmentsController : Controller
+    public class BaselineassessmentsController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -48,7 +49,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Baselineassessments/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name");
             return View();
         }
 
@@ -65,7 +66,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", baselineassessment.EmployeeId);
             return View(baselineassessment);
         }
 
@@ -82,7 +83,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", baselineassessment.EmployeeId);
             return View(baselineassessment);
         }
 
@@ -118,7 +119,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", baselineassessment.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", baselineassessment.EmployeeId);
             return View(baselineassessment);
         }
 
