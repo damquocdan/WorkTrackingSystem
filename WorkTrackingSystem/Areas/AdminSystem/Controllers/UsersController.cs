@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
     [Area("AdminSystem")]
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -22,7 +23,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Users
         public async Task<IActionResult> Index()
         {
-            var workTrackingSystemContext = _context.Users.Include(u => u.Employee);
+            var workTrackingSystemContext = _context.Users.Include(u => u.Employee).ThenInclude(e=>e.Position);
             return View(await workTrackingSystemContext.ToListAsync());
         }
 

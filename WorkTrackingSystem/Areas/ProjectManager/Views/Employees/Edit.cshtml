@@ -15,21 +15,24 @@
                 <input type="hidden" asp-for="Id" />
 
                 <div class="mb-3">
-                    <label asp-for="DepartmentId" class="form-label"><i class="bi bi-building"></i> Phòng ban:</label>
+                  @*   <label asp-for="DepartmentId" class="form-label"><i class="bi bi-building"></i> Phòng ban:</label>
                     <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
-                    <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    <span asp-validation-for="DepartmentId" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="DepartmentId" />
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="PositionId" class="form-label"><i class="bi bi-briefcase"></i> Chức vụ:</label>
+               @*      <label asp-for="PositionId" class="form-label"><i class="bi bi-briefcase"></i> Chức vụ:</label>
                     <select asp-for="PositionId" class="form-control" asp-items="ViewBag.PositionId"></select>
-                    <span asp-validation-for="PositionId" class="text-danger"></span>
+                    <span asp-validation-for="PositionId" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="PositionId" />
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Code" class="form-label"><i class="bi bi-code"></i> Mã:</label>
-                    <input asp-for="Code" class="form-control" />
+                    <input asp-for="Code" class="form-control" readonly/>
                     <span asp-validation-for="Code" class="text-danger"></span>
+
                 </div>
 
                 <div class="mb-3">
@@ -52,7 +55,7 @@
 
                 <div class="mb-3">
                     <label asp-for="Birthday" class="form-label"><i class="bi bi-calendar-date"></i> Ngày sinh:</label>
-                    <input asp-for="Birthday" class="form-control" />
+                    <input asp-for="Birthday" type="date" class="form-control" />
                     <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
 
@@ -87,39 +90,45 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="IsDelete" class="form-label"><i class="bi bi-trash"></i> Đã xóa:</label>
+             @*        <label asp-for="IsDelete" class="form-label"><i class="bi bi-trash"></i> Đã xóa:</label>
                     <input asp-for="IsDelete" class="form-control" />
-                    <span asp-validation-for="IsDelete" class="text-danger"></span>
+                    <span asp-validation-for="IsDelete" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="Avatar" />
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="IsActive" class="form-label"><i class="bi bi-check-circle"></i> Hoạt động:</label>
+           @*          <label asp-for="IsActive" class="form-label"><i class="bi bi-check-circle"></i> Hoạt động:</label>
                     <input asp-for="IsActive" class="form-control" />
-                    <span asp-validation-for="IsActive" class="text-danger"></span>
+                    <span asp-validation-for="IsActive" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="IsActive" />
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="CreateDate" class="form-label"><i class="bi bi-calendar-plus"></i> Ngày tạo:</label>
+         @*            <label asp-for="CreateDate" class="form-label"><i class="bi bi-calendar-plus"></i> Ngày tạo:</label>
                     <input asp-for="CreateDate" class="form-control" />
-                    <span asp-validation-for="CreateDate" class="text-danger"></span>
+                    <span asp-validation-for="CreateDate" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="CreateDate" />
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="UpdateDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày cập nhật:</label>
+             @*        <label asp-for="UpdateDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày cập nhật:</label>
                     <input asp-for="UpdateDate" class="form-control" />
-                    <span asp-validation-for="UpdateDate" class="text-danger"></span>
+                    <span asp-validation-for="UpdateDate" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="UpdateDate" />
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="CreateBy" class="form-label"><i class="bi bi-person-plus"></i> Người tạo:</label>
+         @*            <label asp-for="CreateBy" class="form-label"><i class="bi bi-person-plus"></i> Người tạo:</label>
                     <input asp-for="CreateBy" class="form-control" />
-                    <span asp-validation-for="CreateBy" class="text-danger"></span>
+                    <span asp-validation-for="CreateBy" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="CreateBy" />
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="UpdateBy" class="form-label"><i class="bi bi-person-check"></i> Người cập nhật:</label>
+     @*                <label asp-for="UpdateBy" class="form-label"><i class="bi bi-person-check"></i> Người cập nhật:</label>
                     <input asp-for="UpdateBy" class="form-control" />
-                    <span asp-validation-for="UpdateBy" class="text-danger"></span>
+                    <span asp-validation-for="UpdateBy" class="text-danger"></span> *@
+                    <input type="hidden" asp-for="UpdateBy" />
                 </div>
 
                 <div class="mb-3">

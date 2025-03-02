@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Areas\AdminSystem\Data\" />
     <Folder Include="Areas\EmployeeSystem\Data\" />
+    <Folder Include="Areas\EmployeeSystem\Views\Login\" />
     <Folder Include="Areas\HRManager\Data\" />
     <Folder Include="Areas\ProjectManager\Data\" />
     <Folder Include="wwwroot\plugins\ckfinder\App_Data\" />
@@ -52,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Areas\EmployeeSystem\Views\Login\Index.cshtml">
+    <Content Update="Areas\EmployeeSystem\Views\UserInfor\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

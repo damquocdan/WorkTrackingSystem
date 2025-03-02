@@ -28,7 +28,7 @@
             <th>Tên công việc</th>
             <th>Hạn chót</th>
             <th>Trạng thái</th>
-            <th>Tiến độ</th>
+            <th>Ngày hoàn thiện</th>
         </tr>
     </thead>
     <tbody id="jobTable">
@@ -46,9 +46,14 @@
                     </select>
                 </td>
                 <td class="text-center">
+                    <input type="date" class="completion-date" data-job-id="@item.Id"
+                           value="@(item.CompletionDate.HasValue ? item.CompletionDate.Value.ToString("yyyy-MM-dd") : "")">
+                </td>
+
+                @* <td class="text-center">
                     <input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.ProgressAssessment" min="0" max="100" step="5">
                     <span class="progress-value">@item.ProgressAssessment%</span>
-                </td>
+                </td> *@
             </tr>
         }
     </tbody>
@@ -59,7 +64,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             let searchBox = document.getElementById('searchBox');
             let filterStatus = document.getElementById('filterStatus');
-
+           
             // Chức năng tìm kiếm
             searchBox.addEventListener('input', function () {
                 let searchTerm = this.value.toLowerCase();
@@ -72,40 +77,88 @@
             // Chức năng lọc công việc theo trạng thái
             filterStatus.addEventListener('change', function () {
                 let selectedStatus = this.value;
+                console.log("selected",this.value)
                 document.querySelectorAll('.job-row').forEach(row => {
                     let jobStatus = row.getAttribute('data-status');
                     row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
                 });
             });
+            //cập nhập ngày hoàn thành thực tế
 
-            // Cập nhật tiến độ
-            document.querySelectorAll('.progress-slider').forEach(slider => {
-                slider.addEventListener('input', function () {
-                    let jobId = this.dataset.jobId;
-                    let progress = this.value;
-                    this.nextElementSibling.textContent = progress + '%';
+            document.querySelectorAll('.completion-date').forEach(input => {
+                input.addEventListener('change', function () {
+                    let jobId = parseInt(this.dataset.jobId);
+                    let completionDate = this.value; // Giá trị đã chọn từ input date (YYYY-MM-DD)
 
-                    fetch('/Job/UpdateProgress', {
+                    if (!completionDate) return;
+
+                    fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: jobId, progress: progress })
-                    });
+                        body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log("Cập nhật ngày hoàn thành thành công!");
+                            } else {
+                                console.error("Lỗi cập nhật:", data.message);
+                            }
+                        })
+                        .catch(error => console.error('Lỗi:', error));
                 });
             });
 
+            // // Cập nhật tiến độ
+            // document.querySelectorAll('.progress-slider').forEach(slider => {
+            //     slider.addEventListener('input', function () {
+            //         let jobId = parseInt(this.dataset.jobId)
+            //         let progress = parseFloat(this.value);
+            //         this.nextElementSibling.textContent = progress + '%';
+
+            //         fetch('/EmployeeSystem/Jobs/UpdateProgress', {
+            //             method: 'POST',
+            //             headers: { 'Content-Type': 'application/json' },
+            //             body: JSON.stringify({ id: jobId, progress: progress })
+            //         }).then(response => response.json())
+            //             .then(data => {
+            //                 if (data.success) {
+            //                     console.log("Cập nhật tiến độ thành công!");
+            //                 } else {
+            //                     console.error("Lỗi cập nhật:", data.message);
+            //                 }
+            //             })
+            //             .catch(error => console.error('Lỗi:', error));
+            //     });
+            // });
+
+        
             // Cập nhật trạng thái
             document.querySelectorAll('.status-dropdown').forEach(select => {
                 select.addEventListener('change', function () {
-                    let jobId = this.dataset.jobId;
-                    let status = this.value;
-
-                    fetch('/Job/UpdateStatus', {
+                    let jobId = parseInt(this.dataset.jobId);
+                    let status = parseInt(this.value);
+                  
+                    fetch('/EmployeeSystem/Jobs/UpdateStatus', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: jobId, status: status })
-                    });
+                        body: JSON.stringify({ jobId: jobId, status: status })
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    }).then(data => {
+                        console.log("Server response:", data);
+                        if (data.success) {
+                            console.log("Cập nhật trạng thái thành công!");
+                        } else {
+                            console.error("Lỗi cập nhật:", data.message);
+                        }
+                    }).catch(error => console.error('Lỗi:', error));
                 });
             });
+
         });
     </script>
 }

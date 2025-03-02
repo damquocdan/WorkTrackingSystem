@@ -21,6 +21,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         }
 
         // GET: EmployeeSystem/Employees
+        //thông tin nhân viên
         public async Task<IActionResult> Index()
         {
             var userId = HttpContext.Session.GetString("UserId"); 
@@ -90,8 +91,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
             return View(employee);
         }
 
@@ -128,6 +129,14 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             {
                 try
                 {
+                    var userId = HttpContext.Session.GetString("UserId");
+                    
+                     id = long.Parse(userId);
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+                 employee = await _context.Employees
+                        .Include(e => e.Department)
+                        .Include(e => e.Position)
+                        .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
                     employee.UpdateDate = DateTime.Now;
                     _context.Update(employee);
                     await _context.SaveChangesAsync();

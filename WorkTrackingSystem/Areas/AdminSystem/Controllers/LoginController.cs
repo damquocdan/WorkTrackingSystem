@@ -10,10 +10,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
     public class LoginController : Controller
     {
         public WorkTrackingSystemContext _context;
+
         public LoginController(WorkTrackingSystemContext context)
         {
             _context = context;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -32,6 +34,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("AdminLogin", model.UserName);
+                HttpContext.Session.SetString("AdminUserId", dataLogin.Id.ToString());
                 return RedirectToAction("Index", "Dashboard");
             }
             else

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class EmployeesController : Controller
+    public class EmployeesController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -20,30 +21,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Employees
-        public async Task<IActionResult> Index(string search, int? DepartmentId )
+        public async Task<IActionResult> Index()
         {
-         
-            var employees = _context.Employees.Include(e => e.Department).Include(e => e.Position).ToList();
-            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
-            if (DepartmentId >0)
-            {
-                 employees = employees.Where(e=>e.DepartmentId == DepartmentId).ToList();
-            }
-            if (!string.IsNullOrEmpty(search))
-            {
-                var searchLower = search.ToLower();
-                  employees = _context.Employees
-                    .Where(e =>
-                    (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower))
-                    .Include(e => e.Department)
-                    .Include(e => e.Position)
-                    .ToList();
-                return View(employees);
-            }
-            return View( employees);
-            
-          
-           
+            var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
+            return View(await workTrackingSystemContext.ToListAsync());
         }
 
         // GET: HRManager/Employees/Details/5
@@ -62,7 +43,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", employee);
+            }
             return View(employee);
         }
 
@@ -71,6 +55,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
             ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name");
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create");
+            }
             return View();
         }
 
@@ -83,13 +71,16 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                employee.CreateDate= DateTime.Now;
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
             ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create", employee);
+            }
             return View(employee);
         }
 
@@ -106,9 +97,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-           
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Edit", employee);
+            }
             return View(employee);
         }
 
@@ -165,7 +159,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Delete", employee);
+            }
             return View(employee);
         }
 

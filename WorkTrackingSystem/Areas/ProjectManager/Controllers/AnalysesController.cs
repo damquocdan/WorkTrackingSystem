@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
-    public class AnalysesController : Controller
+    public class AnalysesController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -310,7 +310,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", analysis.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", analysis.EmployeeId);
             return View(analysis);
         }
 
@@ -327,7 +327,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", analysis.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", analysis.EmployeeId);
             return View(analysis);
         }
 
@@ -363,7 +363,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", analysis.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", analysis.EmployeeId);
             return View(analysis);
         }
 

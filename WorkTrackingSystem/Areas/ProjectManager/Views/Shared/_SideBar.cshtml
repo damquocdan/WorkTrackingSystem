@@ -1,4 +1,7 @@
-﻿<aside class="main-sidebar sidebar-dark-primary elevation-4">
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a asp-controller="Dashboard" asp-action="Index" class="brand-link">
         <img src="~/images/logo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
         <span class="brand-text font-weight-light">Quản lý công việc</span>
@@ -10,7 +13,14 @@
                 <img src="~/images/avatar.png" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                <a href="#" class="d-block">Alexander Pierce</a>
+                @if (HttpContextAccessor.HttpContext.Session.GetString("ProjectManagerLogin") != null)
+                {
+                    <a href="#" class="d-block">@HttpContextAccessor.HttpContext.Session.GetString("ProjectManagerLogin")</a>
+                }
+                else
+                {
+                    <a href="#" class="d-block">Guest</a>
+                }
             </div>
         </div>
 
@@ -27,7 +37,7 @@
 
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                <li class="nav-item menu-open">
+                @* <li class="nav-item menu-open">
                     <a href="#" class="nav-link active">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
@@ -55,11 +65,10 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> *@
                 <li class="nav-item">
                     <a asp-controller="Categories" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-list-alt"></i>
-
                         <p>
                             Quản lý d.mục c.việc
                             <i class="fas fa-angle-left right"></i>
@@ -81,7 +90,6 @@
                 <li class="nav-item">
                     <a asp-controller="Jobs" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-list-alt"></i>
-
                         <p>
                             Quản lý công việc
                             <i class="fas fa-angle-left right"></i>
@@ -103,7 +111,6 @@
                 <li class="nav-item">
                     <a asp-controller="Employees" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-user-cog"></i>
-
                         <p>
                             Quản lý nhân viên
                             <i class="fas fa-angle-left right"></i>
@@ -120,7 +127,6 @@
                 <li class="nav-item">
                     <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
-
                         <p>
                             Quản lý đánh giá
                             <i class="fas fa-angle-left right"></i>
@@ -137,7 +143,6 @@
                 <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
-
                         <p>
                             Quản lý phân tích
                             <i class="fas fa-angle-left right"></i>
@@ -151,6 +156,15 @@
                         </li>
                     </ul>
                 </li>
+                @if (HttpContextAccessor.HttpContext.Session.GetString("ProjectManagerLogin") != null)
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Login" asp-action="Logout" class="nav-link">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p>Đăng xuất</p>
+                        </a>
+                    </li>
+                }
             </ul>
         </nav>
     </div>

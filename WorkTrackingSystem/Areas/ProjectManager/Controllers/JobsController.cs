@@ -14,7 +14,7 @@ using OfficeOpenXml.Drawing.Chart;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
-    public class JobsController : Controller
+    public class JobsController : BaseController
     {
         private readonly WorkTrackingSystemContext _context;
 
@@ -32,6 +32,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
+            //lấy thông tin nhân viên đăng nhập
             var manager = await _context.Users
                 .Where(u => u.UserName == managerUsername)
                 .Select(u => u.Employee)
@@ -42,11 +43,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
+            //lấy id phòng ban mà nhân viên quản lý
             var managedDepartments = await _context.Departments
                 .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
                 .Select(d => d.Id)
                 .ToListAsync();
 
+            //lấy id phòng ban mà nhân viên quản lý
             var employeesInManagedDepartments = await _context.Employees
                 .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
                 .Select(e => e.Id)
@@ -169,7 +172,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[row, 3].Value = job.Name;
                     worksheet.Cells[row, 4].Value = job.Status == 1 ? "Hoàn thành" :
                                                     job.Status == 2 ? "Chưa hoàn thành" :
-                                                    job.Status == 3 ? "Hoàn thành muộn" : job.Status == 4 ? "Đang xử lý" :
+                                                    job.Status == 3 ? "Hoàn thành muộn" : job.Status == 4 ?  "Đang xử lý":
                     worksheet.Cells[row, 5].Value = job.SummaryOfReviews;
                     worksheet.Cells[row, 6].Value = job.Time.HasValue ? job.Time.Value.ToString("dd/MM/yyyy") : "N/A";
                     worksheet.Cells[row, 7].Value = job.Category != null ? job.Category.Name : "Chưa có danh mục";

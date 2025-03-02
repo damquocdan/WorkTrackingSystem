@@ -7,13 +7,14 @@ using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
     [Area("HRManager")]
-    public class LoginController : Controller
+    public class LoginController : BaseController
     {
         public WorkTrackingSystemContext _context;
         public LoginController(WorkTrackingSystemContext context)
         {
             _context = context;
         }
+
         public IActionResult Index()
         {
             return View();
@@ -35,6 +36,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("HRManagerLogin", model.UserName);
+                HttpContext.Session.SetString("HRUserId", dataLogin.Id.ToString());
                 return RedirectToAction("Index", "Dashboard");
             }
             else
