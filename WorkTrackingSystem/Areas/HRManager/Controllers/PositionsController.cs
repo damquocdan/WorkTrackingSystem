@@ -92,6 +92,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                     position.CreateBy = employee.Id;
                     //department.CreateBy = $"{employee.FirstName ?? ""} {employee.LastName ?? ""}".Trim();
                 }
+                position.CreateDate = DateTime.Now;
                 _context.Add(position);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -135,6 +136,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 try
                 {
+                    position.UpdateDate= DateTime.Now;
                     _context.Update(position);
                     await _context.SaveChangesAsync();
                 }
