@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using WorkTrackingSystem.Areas.ProjectManager.Models;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
@@ -29,11 +30,15 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return View(model);
             }
 
-            var pass = model.Password;
-            var dataLogin = _context.Users.FirstOrDefault(x =>
-        x.UserName.Equals(model.UserName)
-        && x.Password.Equals(pass)
-        && x.Employee.PositionId == 2);
+            //    var pass = model.Password;
+            //    var dataLogin = _context.Users.FirstOrDefault(x =>
+            //x.UserName.Equals(model.UserName)
+            //&& x.Password.Equals(pass)
+            //&& x.Employee.PositionId == 2);
+            string IdValues = _context.Systemsws.FirstOrDefault(x => x.Name.Equals("ProjectManager")).Value;
+
+            var password = SHA.GetSha256Hash(model.Password);
+            var dataLogin = _context.Users.Include(x => x.Employee).FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(password) && x.Employee.PositionId.ToString().Equals(IdValues));
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("ProjectManagerLogin", model.UserName);
