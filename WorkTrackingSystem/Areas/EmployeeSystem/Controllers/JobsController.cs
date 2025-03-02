@@ -65,7 +65,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
                 return NotFound(new { success = false, message = "Không tìm thấy công việc" });
             }
             job.Status = model.Status.HasValue ? model.Status.Value : job.Status;
-            _context.Entry(job).State = EntityState.Modified; // Đánh dấu là có thay đổi
+            _context.Entry(job).State = EntityState.Modified; 
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Cập nhật thành công" });
@@ -86,7 +86,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 
             job.ProgressAssessment = request.Progress;
             _context.Entry(job).State = EntityState.Modified; // Đánh dấu có thay đổi
-            await _context.SaveChangesAsync(); // Lưu thay đổi một cách bất đồng bộ
+            await _context.SaveChangesAsync(); 
 
             return Ok(new { success = true });
         }
