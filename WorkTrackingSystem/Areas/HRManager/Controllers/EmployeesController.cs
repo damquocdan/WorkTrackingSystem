@@ -71,6 +71,31 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = HttpContext.Session.GetString("HRUserId");
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return RedirectToAction("Index", "Login");
+                }
+                long id = long.Parse(userId);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+                if (user == null || user.EmployeeId == null)
+                {
+                    return NotFound("Không tìm thấy thông tin nhân viên.");
+                }
+
+               employee = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
+
+                if (employee == null)
+                {
+                    return NotFound("Không tìm thấy thông tin nhân viên.");
+                }
+                if (employee.FirstName != null && employee.LastName != null)
+                {
+                    employee.CreateBy = employee.Id;
+                    //department.CreateBy = $"{employee.FirstName ?? ""} {employee.LastName ?? ""}".Trim();
+                }
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

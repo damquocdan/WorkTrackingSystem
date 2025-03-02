@@ -46,7 +46,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             {
                 return NotFound("Không tìm thấy thông tin nhân viên.");
             }
-
+            
             return View(employee);
         }
 

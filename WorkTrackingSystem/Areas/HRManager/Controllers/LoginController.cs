@@ -30,7 +30,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             var dataLogin = _context.Users.FirstOrDefault(x =>
         x.UserName.Equals(model.UserName)
         && x.Password.Equals(pass)
-        && x.Employee.PositionId == 2 && x.Employee.DepartmentId == 1);
+        && x.Employee.PositionId == 3 && x.Employee.DepartmentId == 1);
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("HRManagerLogin", model.UserName);
