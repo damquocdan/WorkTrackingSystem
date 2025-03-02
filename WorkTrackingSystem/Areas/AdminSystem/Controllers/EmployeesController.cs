@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
@@ -65,7 +67,21 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(employee);
+                employee.CreateBy = HttpContext.Session.GetString("AdminLogin");
+
+               
                 await _context.SaveChangesAsync();
+                var lastInsertedId = employee.Id;
+                var users = new User()
+                {
+                    EmployeeId = lastInsertedId,
+                    UserName = employee.Email,
+                    Password = "Devmaster@6789",
+                    CreateBy = HttpContext.Session.GetString("AdminLogin")
+                };
+                _context.AddAsync(users);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
@@ -107,6 +123,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 try
                 {
+                    employee.UpdateDate = DateTime.Now;
+                    employee.UpdateBy = HttpContext.Session.GetString("AdminLogin");
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }

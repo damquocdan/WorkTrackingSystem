@@ -115,7 +115,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             }
 
             user.UpdateDate = DateTime.Now;
-            user.UpdateBy = userId;
+            user.UpdateBy = HttpContext.Session.GetString("ProjectManagerLogin");
 
             await _context.SaveChangesAsync();
 

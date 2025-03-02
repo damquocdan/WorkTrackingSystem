@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WorkTrackingSystem.Models​;
+namespace WorkTrackingSystem.Models;
 
 public partial class Systemsw
 {
@@ -21,7 +21,7 @@ public partial class Systemsw
 
     public DateTime? UpdateDate { get; set; }
 
-    public long? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
-    public long? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 }

@@ -116,7 +116,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             }
 
             user.UpdateDate = DateTime.Now;
-            user.UpdateBy = userId;
+            user.UpdateBy = HttpContext.Session.GetString("AdminLogin");
 
             await _context.SaveChangesAsync();
 

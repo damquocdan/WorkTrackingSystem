@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WorkTrackingSystem.Models​;
+namespace WorkTrackingSystem.Models;
 
 public partial class Category
 {
     public long Id { get; set; }
 
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     public string? Name { get; set; }
 
@@ -23,9 +23,9 @@ public partial class Category
 
     public DateTime? UpdateDate { get; set; }
 
-    public long? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
-    public long? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 
     public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 }
