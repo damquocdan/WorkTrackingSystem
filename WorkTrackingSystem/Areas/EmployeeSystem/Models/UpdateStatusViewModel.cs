@@ -2,7 +2,7 @@
 {
     public class UpdateStatusViewModel
     {
-        public int JobId { get; set; }
+        public long JobId { get; set; }
         public byte? Status { get; set; }
     }
 }

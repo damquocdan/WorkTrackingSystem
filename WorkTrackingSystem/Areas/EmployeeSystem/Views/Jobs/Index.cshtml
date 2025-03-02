@@ -77,15 +77,15 @@
                     row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
                 });
             });
-
+            console.log("check2")
             // Cập nhật tiến độ
             document.querySelectorAll('.progress-slider').forEach(slider => {
                 slider.addEventListener('input', function () {
-                    let jobId = parseInt(this.dataset.jobId);
+                    let jobId = parseInt(this.dataset.jobId)
                     let progress = parseFloat(this.value);
                     this.nextElementSibling.textContent = progress + '%';
 
-                    fetch('/ProjectManager/Job/UpdateProgress', { // Đảm bảo đường dẫn đúng
+                    fetch('/EmployeeSystem/Jobs/UpdateProgress', { // Đảm bảo đường dẫn đúng
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: jobId, progress: progress })
@@ -101,26 +101,30 @@
                 });
             });
 
-
+            console.log("check3")
             // Cập nhật trạng thái
             document.querySelectorAll('.status-dropdown').forEach(select => {
                 select.addEventListener('change', function () {
                     let jobId = parseInt(this.dataset.jobId);
                     let status = parseInt(this.value);
-
-                    fetch('/ProjectManager/Job/UpdateStatus', { // Đảm bảo đường dẫn chính xác
+                    console.log("this.dataset:",this.value)
+                    fetch('/EmployeeSystem/Jobs/UpdateStatus', { // Đảm bảo đúng đường dẫn API
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ jobId: jobId, status: status })
-                    }).then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                console.log("Cập nhật trạng thái thành công!");
-                            } else {
-                                console.error("Lỗi cập nhật:", data.message);
-                            }
-                        })
-                        .catch(error => console.error('Lỗi:', error));
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    }).then(data => {
+                        console.log("Server response:", data);
+                        if (data.success) {
+                            console.log("Cập nhật trạng thái thành công!");
+                        } else {
+                            console.error("Lỗi cập nhật:", data.message);
+                        }
+                    }).catch(error => console.error('Lỗi:', error));
                 });
             });
 

@@ -64,31 +64,34 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             {
                 return NotFound(new { success = false, message = "Không tìm thấy công việc" });
             }
-
-            job.Status = model.Status ?? job.Status; // Đảm bảo không bị null
+            job.Status = model.Status.HasValue ? model.Status.Value : job.Status;
             _context.Entry(job).State = EntityState.Modified; // Đánh dấu là có thay đổi
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, message = "Cập nhật thành công" });
         }
-
         [HttpPost]
-        public IActionResult UpdateProgress(UpdateProgressRequest request)
+        public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
         {
             if (request == null || request.Id <= 0)
             {
-                return BadRequest(new { success = false, Message = "Dữ liệu không hợp lệ" });
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
             }
-            var job = _context.Jobs.Find(request.Id);
+
+            var job = await _context.Jobs.FindAsync(request.Id);
             if (job == null)
             {
-                return NotFound(new {success= false, Message="Không tìm thấy công việc "});
+                return NotFound(new { success = false, message = "Không tìm thấy công việc" });
             }
+
             job.ProgressAssessment = request.Progress;
-            _context.SaveChanges();
+            _context.Entry(job).State = EntityState.Modified; // Đánh dấu có thay đổi
+            await _context.SaveChangesAsync(); // Lưu thay đổi một cách bất đồng bộ
+
             return Ok(new { success = true });
         }
-            // GET: EmployeeSystem/Jobs/Details/5
+
+        // GET: EmployeeSystem/Jobs/Details/5
         //public async Task<IActionResult> Details(long? id)
         //{
         //    if (id == null)
