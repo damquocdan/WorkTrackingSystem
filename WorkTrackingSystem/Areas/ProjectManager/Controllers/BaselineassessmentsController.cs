@@ -252,7 +252,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         var user = _context.Users.FirstOrDefault(u => u.Id == userId);
                         if (user != null && user.EmployeeId.HasValue)
                         {
-                            existingRecord.UpdateBy = user.EmployeeId;
+                            existingRecord.UpdateBy = HttpContext.Session.GetString("ProjectManagerLogin");
                         }
                     }
 

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System.Collections.Generic;
 using WorkTrackingSystem.Areas.AdminSystem.Models;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
@@ -28,20 +30,18 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không hợp lệ.");
                 return View(model);
             }
-
-            var pass = model.Password;
-            var dataLogin = _context.Users.FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(pass));
-            if (dataLogin != null)
-            {
+            string IdValues = _context.Systemsws.FirstOrDefault(x => x.Name.Equals("AdminSystem")).Value;
+           
+            var password = SHA.GetSha256Hash(model.Password);
+            var dataLogin = _context.Users.Include(x=>x.Employee).FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(password) && x.Employee.PositionId.ToString().Equals(IdValues));
+            if (dataLogin != null )
+            {   
                 HttpContext.Session.SetString("AdminLogin", model.UserName);
                 HttpContext.Session.SetString("AdminUserId", dataLogin.Id.ToString());
                 return RedirectToAction("Index", "Dashboard");
             }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không chính xác.");
-                return View(model);
-            }
+            ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không chính xác.");
+            return View(model);
 
         }
         [HttpGet]// thoát đăng nhập, huỷ session

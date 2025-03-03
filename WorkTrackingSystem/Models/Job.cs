@@ -33,6 +33,8 @@ public partial class Job
 
     public double? SummaryOfReviews { get; set; }
 
+    public double? Progress { get; set; }
+
     public DateTime? Time { get; set; }
 
     public bool? IsDelete { get; set; }
@@ -43,9 +45,9 @@ public partial class Job
 
     public DateTime? UpdateDate { get; set; }
 
-    public long? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
-    public long? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 
     public virtual Category? Category { get; set; }
 

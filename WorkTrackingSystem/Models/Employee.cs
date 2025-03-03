@@ -11,7 +11,7 @@ public partial class Employee
 
     public long? PositionId { get; set; }
 
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     public string? FirstName { get; set; }
 
@@ -39,9 +39,9 @@ public partial class Employee
 
     public DateTime? UpdateDate { get; set; }
 
-    public long? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
-    public long? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 
     public virtual ICollection<Analysis> Analyses { get; set; } = new List<Analysis>();
 

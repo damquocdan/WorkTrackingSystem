@@ -7,7 +7,7 @@ public partial class Department
 {
     public long Id { get; set; }
 
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     public string? Name { get; set; }
 
@@ -21,9 +21,9 @@ public partial class Department
 
     public DateTime? UpdateDate { get; set; }
 
-    public long? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
-    public long? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

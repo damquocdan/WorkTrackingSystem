@@ -44,17 +44,9 @@
 				</a>
 				</li> *@
 
-				<li class="nav-item">
-					<a asp-action="Index" asp-controller="Employees" class="nav-link">
-						<i class="nav-icon fas fa-user"></i>
-						<p>
-							Thông tin nhân viên
-						</p>
-					</a>
 
-				</li>
 				<li class="nav-item">
-					<a asp-action="Index" asp-controller="Jobs" class="nav-link">
+					<a  asp-action="Index" asp-controller="Jobs" class="nav-link">
 						<i class="nav-icon fas fa-tasks"></i>
 						<p>
 							Công việc
@@ -64,11 +56,31 @@
 
 				</li>
 				<li class="nav-item">
-					<a asp-action="Editprofile" asp-controller="Users" class="nav-link">
+					<a asp-action="UserInfor" asp-controller="UserInfor" class="nav-link">
+						<i class="nav-icon fas fa-user"></i>
+						<p>
+							Thông tin nhân viên
+						</p>
+					</a>
+
+				</li>
+				<li class="nav-item">
+					<a asp-action="ChangePassword" asp-controller="UserInfor" class="nav-link">
 						<i class="nav-icon fas fa-user"></i>
 						<p>
 
 							Thay đổi mật khẩu
+
+						</p>
+					</a>
+
+				</li>
+				<li class="nav-item">
+					<a asp-action="Logout" asp-controller="Login" class="nav-link">
+						<i class="nav-icon fas fa-user"></i>
+						<p>
+
+							Đăng xuất
 
 						</p>
 					</a>

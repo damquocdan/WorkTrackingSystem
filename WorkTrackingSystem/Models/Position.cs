@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace WorkTrackingSystem.Models;
 
 public partial class Position
 {
     public long Id { get; set; }
-    [DisplayName("Tên chức vụ")]
-    [Required(ErrorMessage ="Tên chức vụ không để trống")]
+
     public string? Name { get; set; }
 
     public string? Description { get; set; }
@@ -24,9 +21,9 @@ public partial class Position
 
     public DateTime? UpdateDate { get; set; }
 
-    public long? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
-    public long? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
 }

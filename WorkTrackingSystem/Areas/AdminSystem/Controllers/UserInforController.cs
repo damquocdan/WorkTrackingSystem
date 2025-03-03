@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
@@ -95,9 +96,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             //}
 
             // Nếu đổi mật khẩu
+
+            
             if (!string.IsNullOrEmpty(model.CurrentPassword))
             {
-                if (user.Password != model.CurrentPassword)
+                var CurrentPassword = SHA.GetSha256Hash(model.CurrentPassword);
+                if (user.Password != CurrentPassword)
                 {
                     ModelState.AddModelError(string.Empty, "Mật khẩu hiện tại không đúng.");
                     return View(model);
@@ -108,12 +112,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                     ModelState.AddModelError(string.Empty, "Mật khẩu mới không khớp.");
                     return View(model);
                 }
-
-                user.Password = model.NewPassword;
+                if (!string.IsNullOrEmpty(model.NewPassword))
+                    user.Password = SHA.GetSha256Hash(model.NewPassword);
             }
 
             user.UpdateDate = DateTime.Now;
-            user.UpdateBy = userId;
+            user.UpdateBy = HttpContext.Session.GetString("Adminl"); ;
 
             await _context.SaveChangesAsync();
 

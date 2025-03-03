@@ -345,7 +345,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                             IsActive = true,
                             IsDelete = false,
                             CreateDate = DateTime.Now,
-                            CreateBy = _context.Users.FirstOrDefault(u => u.UserName == HttpContext.Session.GetString("ProjectManagerLogin"))?.Id
+                            CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
                         };
                         _context.Jobs.Add(newJob);
                         await _context.SaveChangesAsync();
@@ -363,7 +363,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         j.IsActive = true;
                         j.IsDelete = false;
                         j.CreateDate = DateTime.Now;
-                        j.CreateBy = _context.Users.FirstOrDefault(u => u.UserName == HttpContext.Session.GetString("ProjectManagerLogin"))?.Id;
+                        j.CreateBy = HttpContext.Session.GetString("ProjectManagerLogin");
                         _context.Jobs.Add(j);
                         await _context.SaveChangesAsync();
                         await UpdateAnalysis(j.EmployeeId.Value);
@@ -377,7 +377,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     job.IsActive = true;
                     job.IsDelete = false;
                     job.CreateDate = DateTime.Now;
-                    job.CreateBy = _context.Users.FirstOrDefault(u => u.UserName == HttpContext.Session.GetString("ProjectManagerLogin"))?.Id;
+                    job.CreateBy = HttpContext.Session.GetString("ProjectManagerLogin");
                     _context.Jobs.Add(job);
                     await _context.SaveChangesAsync();
                     await UpdateAnalysis(job.EmployeeId.Value);

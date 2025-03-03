@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using WorkTrackingSystem.Areas.EmployeeSystem.Models;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 
 namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
@@ -27,9 +28,10 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
                 ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không hợp lệ.");
                 return View(model);
             }
+            string IdValues = _context.Systemsws.FirstOrDefault(x => x.Name.Equals("EmployeeSystem")).Value;
 
-            var pass = model.Password;
-            var dataLogin = _context.Users.FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(pass));
+            var password = SHA.GetSha256Hash(model.Password);
+            var dataLogin = _context.Users.Include(x => x.Employee).FirstOrDefault(x => x.UserName.Equals(model.UserName) && x.Password.Equals(password) && x.Employee.PositionId.ToString().Equals(IdValues));
             if (dataLogin != null)
             {
                 HttpContext.Session.SetString("EmployeeSystem", model.UserName);
