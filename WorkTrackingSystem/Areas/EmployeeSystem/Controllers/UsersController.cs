@@ -100,7 +100,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             }
 
             user.UpdateDate = DateTime.Now;
-            user.UpdateBy = userId;
+            //user.UpdateBy = ;
 
             await _context.SaveChangesAsync();
 

@@ -93,7 +93,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 }
                 if (employee.FirstName != null && employee.LastName != null)
                 {
-                    employee.CreateBy = employee.Id;
+                    employee.CreateBy = employee.FirstName+""+employee.LastName;
                     //department.CreateBy = $"{employee.FirstName ?? ""} {employee.LastName ?? ""}".Trim();
                 }
                 employee.CreateDate = DateTime.Now;
