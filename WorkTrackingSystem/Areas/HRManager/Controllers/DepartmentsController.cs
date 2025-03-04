@@ -128,6 +128,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Code,Name,Description,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Department department)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+            var idus = long.Parse(userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == idus);
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
+
             if (id != department.Id)
             {
                 return NotFound();
@@ -137,6 +145,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 try
                 {
+                    department.UpdateBy= employee.FirstName + "" + employee.LastName;
                     department.UpdateDate = DateTime.Now;
                     _context.Update(department);
                     await _context.SaveChangesAsync();

@@ -97,22 +97,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 }
                 long id = long.Parse(userId);
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-
-                if (user == null || user.EmployeeId == null)
-                {
-                    return NotFound("Không tìm thấy thông tin nhân viên.");
-                }
-
-               employee = await _context.Employees
+               var employeeCr = await _context.Employees
                     .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
 
-                if (employee == null)
+                if (employeeCr.FirstName != null && employeeCr.LastName != null)
                 {
-                    return NotFound("Không tìm thấy thông tin nhân viên.");
-                }
-                if (employee.FirstName != null && employee.LastName != null)
-                {
-                    employee.CreateBy = employee.FirstName+""+employee.LastName;
+                    employee.CreateBy = employeeCr.FirstName+""+ employeeCr.LastName;
                     //department.CreateBy = $"{employee.FirstName ?? ""} {employee.LastName ?? ""}".Trim();
                 }
                 employee.CreateDate = DateTime.Now;
@@ -142,8 +132,8 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Edit", employee);
@@ -158,6 +148,13 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,DepartmentId,PositionId,Code,FirstName,LastName,Gender,Birthday,Phone,Email,HireDate,Address,Avatar,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Employee employee)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+            var idus = long.Parse(userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == idus);
+            var employeead = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
             if (id != employee.Id)
             {
                 return NotFound();
@@ -168,6 +165,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 try
                 {
                     employee.UpdateDate= DateTime.Now;
+                    employee.UpdateBy = employeead.FirstName + "" + employeead.LastName;
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }

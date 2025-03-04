@@ -55,7 +55,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         // GET: HRManager/Users/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
+
+            }), "Id", "FullName");  
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Create");
@@ -70,8 +75,22 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+           
+            long id = long.Parse(userId);
+
+            var userad = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+          
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == userad.EmployeeId);
+
             if (ModelState.IsValid)
             {
+                user.CreateDate= DateTime.Now;
+                user.CreateBy= employee.FirstName+""+ employee.LastName;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -93,11 +112,15 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
 
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            }), "Id", "FullName");
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_Create", user);
+                return PartialView("_Edit", user);
             }
             return View(user);
         }
@@ -109,6 +132,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+            var idus = long.Parse(userId);
+            var userad = await _context.Users.FirstOrDefaultAsync(u => u.Id == idus);
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == userad.EmployeeId);
+
             if (id != user.Id)
             {
                 return NotFound();
@@ -118,6 +149,8 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 try
                 {
+                    user.UpdateDate = DateTime.Now;
+                    user.UpdateBy = employee.FirstName+""+employee.LastName;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }

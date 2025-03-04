@@ -88,12 +88,12 @@
                 <table class="table table-hover table-bordered">
                     <thead class="table-dark">
                         <tr>
-                            <th><i class="bi bi-bar-chart-line"></i> Tổng đánh giá khối lượng</th>
-                            <th><i class="bi bi-graph-up"></i> Tổng đánh giá tiến độ</th>
-                            <th><i class="bi bi-star"></i> Tổng đánh giá chất lượng</th>
-                            <th><i class="bi bi-chat-left-text"></i> Tổng đánh giá tổng hợp</th>
-                            <th><i class="bi bi-clock"></i> Tháng</th>
-                            <th><i class="bi bi-clipboard-check"></i> Đánh giá</th>
+                            <th><i class="bi bi-bar-chart-line"></i>@Html.DisplayNameFor(Model=>Model.FirstOrDefault().VolumeAssessment)</th>
+                            <th><i class="bi bi-graph-up"></i>@Html.DisplayNameFor(Model => Model.FirstOrDefault().ProgressAssessment)</th>
+                            <th><i class="bi bi-star"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().QualityAssessment)</th>
+                            <th><i class="bi bi-chat-left-text"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().SummaryOfReviews)</th>
+                            <th><i class="bi bi-clock"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().SummaryOfReviews)</th>
+                            <th><i class="bi bi-clipboard-check"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().Time)</th>
                             <th><i class="bi bi-person"></i> Nhân viên</th>
                             <th><i class="bi bi-gear"></i> Hành động</th>
                         </tr>

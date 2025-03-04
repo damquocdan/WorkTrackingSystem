@@ -65,12 +65,12 @@
                 <table class="table table-striped table-bordered">
                     <thead class="table-dark">
                         <tr>
-                            <th><i class="bi bi-calculator"></i> Tổng số</th>
-                            <th><i class="bi bi-check-circle"></i> Đúng hạn</th>
-                            <th><i class="bi bi-exclamation-triangle"></i> Trễ hạn</th>
-                            <th><i class="bi bi-calendar-x"></i> Quá hạn</th>
-                            <th><i class="bi bi-hourglass-split"></i> Đang xử lý</th>
-                            <th><i class="bi bi-clock"></i> Thời gian</th>
+                            <th><i class="bi bi-calculator"></i> @Html.DisplayNameFor(Model=> Model.FirstOrDefault().Total)</th>
+                            <th><i class="bi bi-check-circle"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().Ontime)</th>
+                            <th><i class="bi bi-exclamation-triangle"></i>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Late)</th>
+                            <th><i class="bi bi-calendar-x"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().Overdue)</th>
+                            <th><i class="bi bi-hourglass-split"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().Processing)</th>
+                            <th><i class="bi bi-clock"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().Time)</th>
                             <th><i class="bi bi-person"></i> Nhân viên</th>
                             <th><i class="bi bi-gear"></i> Hành động</th>
                         </tr>

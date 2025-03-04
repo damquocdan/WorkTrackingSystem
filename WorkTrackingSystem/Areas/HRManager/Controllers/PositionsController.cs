@@ -88,12 +88,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 {
                     return NotFound("Không tìm thấy thông tin nhân viên.");
                 }
-                if (employee.FirstName != null && employee.LastName != null)
-                {
                     position.CreateBy = employee.FirstName+""+employee.LastName;
-                    //department.CreateBy = $"{employee.FirstName ?? ""} {employee.LastName ?? ""}".Trim();
-                }
-				position.CreateBy = position.CreateBy?.ToString();
 				position.CreateDate = DateTime.Now;
                 _context.Add(position);
 		
@@ -130,6 +125,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,Name,Description,Status,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Position position)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+            var idus = long.Parse(userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == idus);
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
+
             if (id != position.Id)
             {
                 return NotFound();
@@ -140,6 +143,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 try
                 {
                     position.UpdateDate= DateTime.Now;
+                    position.UpdateBy= employee.FirstName + "" + employee.LastName;
                     _context.Update(position);
                     await _context.SaveChangesAsync();
                 }
