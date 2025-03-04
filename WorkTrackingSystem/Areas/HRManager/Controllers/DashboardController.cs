@@ -53,18 +53,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers {
                 })
                 .OrderBy(g => g.Month)
                 .ToList();
-            //        var assessmentsByMonth = _context.Baselineassessments
-            //.Where(b => b.Time.HasValue)
-            //.GroupBy(b => new { Year = b.Time.Value.Year, Month = b.Time.Value.Month }) // Group theo số nguyên
-            //.Select(g => new
-            //{
-            //    Month = g.Key.Month + "-" + g.Key.Year, // Chuyển đổi sang chuỗi ở bước Select
-            //    AvgVolume = g.Average(b => b.VolumeAssessment ?? 0),
-            //    AvgProgress = g.Average(b => b.ProgressAssessment ?? 0),
-            //    AvgQuality = g.Average(b => b.QualityAssessment ?? 0)
-            //})
-            //.OrderBy(g => g.Month)
-            //.ToList();
+            
 
             ViewBag.AssessmentMonths = assessmentsByMonth.Select(a => a.Month).ToList();
             ViewBag.AssessmentVolumes = assessmentsByMonth.Select(a => a.AvgVolume).ToList();

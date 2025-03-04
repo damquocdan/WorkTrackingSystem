@@ -852,3 +852,6 @@ E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\scopedcss\pr
 E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.csproj.CopyComplete
 E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.genruntimeconfig.cache
 E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\ref\WorkTrackingSystem.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\X.PagedList.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\X.PagedList.Mvc.Core.dll
+E:\DevMaster\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.MvcApplicationPartsAssemblyInfo.cs

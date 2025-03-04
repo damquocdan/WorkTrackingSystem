@@ -42,16 +42,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 })
                 .OrderBy(g => g.MonthYear)
                 .ToList();
-            //var jobsByMonth = _context.Jobs
-            //     .Where(j => j.CreateDate.HasValue && j.IsActive == true && j.IsDelete == false)
-            //     .GroupBy(j => new { j.CreateDate.Value.Year, j.CreateDate.Value.Month }) // Group theo số nguyên
-            //     .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month) // Sắp xếp theo thời gian thực tế
-            //     .Select(g => new
-            //     {
-            //         Month = $"{g.Key.Month}/{g.Key.Year}", // Chuyển sang chuỗi chỉ sau khi lấy dữ liệu
-            //         TotalJobs = g.Count()
-            //     })
-            //     .ToList(); // ToList() sau cùng để tối ưu
+            
 
             ViewBag.JobMonths = jobsByMonth.Select(j => j.MonthYear).ToList();
             ViewBag.JobCounts = jobsByMonth.Select(j => j.TotalJobs).ToList();

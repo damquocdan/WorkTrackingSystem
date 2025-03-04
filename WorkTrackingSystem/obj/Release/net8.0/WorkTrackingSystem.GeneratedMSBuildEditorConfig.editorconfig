@@ -290,6 +290,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcSm9ic1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/Login/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcTG9naW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcU2hhcmVkXF9FbXBsb3llZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -312,10 +316,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/UserInfor/ChangePassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcVXNlckluZm9yXENoYW5nZVBhc3N3b3JkLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/UserInfor/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = QXJlYXNcRW1wbG95ZWVTeXN0ZW1cVmlld3NcVXNlckluZm9yXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/DevMaster/WorkTrackingSystem/WorkTrackingSystem/Areas/EmployeeSystem/Views/UserInfor/UserInfor.cshtml]

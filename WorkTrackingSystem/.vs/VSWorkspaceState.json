@@ -3,14 +3,14 @@
     "",
     "\\Areas",
     "\\Areas\\HRManager",
-    "\\Areas\\HRManager\\Controllers",
     "\\Areas\\HRManager\\Views",
     "\\Areas\\HRManager\\Views\\Shared",
     "\\Areas\\ProjectManager",
+    "\\Areas\\ProjectManager\\Controllers",
     "\\Areas\\ProjectManager\\Views",
     "\\Areas\\ProjectManager\\Views\\Jobs",
     "\\Areas\\ProjectManager\\Views\\Shared"
   ],
-  "SelectedNode": "\\Areas\\HRManager\\Controllers\\DepartmentsController.cs",
+  "SelectedNode": "\\Areas\\EmployeeSystem\\Controllers\\JobsController.cs",
   "PreviewInSolutionExplorer": false
 }
