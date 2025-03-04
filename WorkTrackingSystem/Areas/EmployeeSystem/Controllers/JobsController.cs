@@ -24,44 +24,26 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 		// GET: EmployeeSystem/Jobs
 		public async Task<IActionResult> Index()
 		{
-			var userCount = await _context.Users.CountAsync();
-			Console.WriteLine($"Số lượng users: {userCount}");
+			//var userCount = await _context.Users.CountAsync();
 			var sessionUserId = HttpContext.Session.GetString("UserId");
-
 			if (string.IsNullOrEmpty(sessionUserId))
 			{
 				return RedirectToAction("Login", "Account");
 			}
-
-
 			if (!long.TryParse(sessionUserId, out long userId))
 			{
 				return BadRequest("UserId trong session không hợp lệ.");
 			}
-
 			var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 			if (user == null || user.EmployeeId == null)
 			{
 				return NotFound("Không tìm thấy nhân viên tương ứng.");
 			}
 			var jobs = await _context.Jobs
-				.Include(j=>j.Employee)
+				.Include(j => j.Category)
+				.Include(j => j.Employee)
 				.Where(j => j.EmployeeId == user.EmployeeId)
-				.Select(j => new
-				{
-					j.Id,
-					j.Name,
-					j.Description,
-					CreateBy = !string.IsNullOrEmpty(j.CreateBy) ? j.CreateBy : null,
-					UpdateBy = !string.IsNullOrEmpty(j.UpdateBy) ? j.UpdateBy : null
-				})
 				.ToListAsync();
-
-			//var jobs = await _context.Jobs
-			//    .Include(j => j.Category)
-			//    .Include(j => j.Employee)
-			//    .Where(j => j.EmployeeId == user.EmployeeId)
-			//    .ToListAsync();
 
 			ViewBag.Jobs = jobs;
 			return View(jobs);
