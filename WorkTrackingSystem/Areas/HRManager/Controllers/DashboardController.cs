@@ -40,31 +40,31 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers {
                 .ToList();
 
             // Thống kê đánh giá cơ bản theo tháng (chuyển sang client-side)
-            //var assessmentsByMonth = _context.Baselineassessments
-            //    .Where(b => b.Time.HasValue)
-            //    .ToList() // Chuyển sang client-side
-            //    .GroupBy(b => b.Time.Value.ToString("MM/yyyy"))
-            //    .Select(g => new
-            //    {
-            //        Month = g.Key,
-            //        AvgVolume = g.Average(b => b.VolumeAssessment ?? 0),
-            //        AvgProgress = g.Average(b => b.ProgressAssessment ?? 0),
-            //        AvgQuality = g.Average(b => b.QualityAssessment ?? 0)
-            //    })
-            //    .OrderBy(g => g.Month)
-            //    .ToList();
             var assessmentsByMonth = _context.Baselineassessments
-    .Where(b => b.Time.HasValue)
-    .GroupBy(b => new { Year = b.Time.Value.Year, Month = b.Time.Value.Month }) // Group theo số nguyên
-    .Select(g => new
-    {
-        Month = g.Key.Month + "-" + g.Key.Year, // Chuyển đổi sang chuỗi ở bước Select
-        AvgVolume = g.Average(b => b.VolumeAssessment ?? 0),
-        AvgProgress = g.Average(b => b.ProgressAssessment ?? 0),
-        AvgQuality = g.Average(b => b.QualityAssessment ?? 0)
-    })
-    .OrderBy(g => g.Month)
-    .ToList();
+                .Where(b => b.Time.HasValue)
+                .ToList() // Chuyển sang client-side
+                .GroupBy(b => b.Time.Value.ToString("MM/yyyy"))
+                .Select(g => new
+                {
+                    Month = g.Key,
+                    AvgVolume = g.Average(b => b.VolumeAssessment ?? 0),
+                    AvgProgress = g.Average(b => b.ProgressAssessment ?? 0),
+                    AvgQuality = g.Average(b => b.QualityAssessment ?? 0)
+                })
+                .OrderBy(g => g.Month)
+                .ToList();
+            //        var assessmentsByMonth = _context.Baselineassessments
+            //.Where(b => b.Time.HasValue)
+            //.GroupBy(b => new { Year = b.Time.Value.Year, Month = b.Time.Value.Month }) // Group theo số nguyên
+            //.Select(g => new
+            //{
+            //    Month = g.Key.Month + "-" + g.Key.Year, // Chuyển đổi sang chuỗi ở bước Select
+            //    AvgVolume = g.Average(b => b.VolumeAssessment ?? 0),
+            //    AvgProgress = g.Average(b => b.ProgressAssessment ?? 0),
+            //    AvgQuality = g.Average(b => b.QualityAssessment ?? 0)
+            //})
+            //.OrderBy(g => g.Month)
+            //.ToList();
 
             ViewBag.AssessmentMonths = assessmentsByMonth.Select(a => a.Month).ToList();
             ViewBag.AssessmentVolumes = assessmentsByMonth.Select(a => a.AvgVolume).ToList();
