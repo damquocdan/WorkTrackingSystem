@@ -71,6 +71,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                     return RedirectToAction("Index", "Login");
                 }
                 long id = long.Parse(userId);
+               
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
 
                 if (user == null || user.EmployeeId == null)
@@ -92,9 +93,11 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                     position.CreateBy = employee.FirstName+""+employee.LastName;
                     //department.CreateBy = $"{employee.FirstName ?? ""} {employee.LastName ?? ""}".Trim();
                 }
-                position.CreateDate = DateTime.Now;
+				position.CreateBy = position.CreateBy?.ToString();
+				position.CreateDate = DateTime.Now;
                 _context.Add(position);
-                await _context.SaveChangesAsync();
+		
+				await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(position);

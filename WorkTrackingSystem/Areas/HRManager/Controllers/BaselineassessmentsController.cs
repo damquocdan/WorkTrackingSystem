@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
@@ -21,8 +22,9 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Baselineassessments
-        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time)
+        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time,int page=1)
         {
+            var limit = 8;
             // Lấy ManagerId từ session
             var managerUsername = HttpContext.Session.GetString("HRManagerLogin");
 
@@ -75,7 +77,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 }
             }
 
-            return View(await assessments.OrderByDescending(x => x.Time).ToListAsync());
+            return View( assessments.OrderByDescending(x => x.Time).ToPagedList(page,limit));
 
         }
 

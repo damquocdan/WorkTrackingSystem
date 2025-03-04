@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
@@ -21,10 +22,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, int page= 1)
         {
+            var limit = 8;
+
             var workTrackingSystemContext = _context.Users.Include(u => u.Employee);
-            return View(await workTrackingSystemContext.ToListAsync());
+            return View( workTrackingSystemContext.ToPagedList(page,limit));
         }
 
         // GET: HRManager/Users/Details/5
