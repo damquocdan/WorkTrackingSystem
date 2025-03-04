@@ -110,86 +110,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 744,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 6,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UserInforController.cs",
-              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\UserInforController.cs",
-              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\UserInforController.cs",
-              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\UserInforController.cs",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\UserInforController.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAIwHwAAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:30:53.649Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "JobsController.cs",
-              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
-              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
-              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
-              "ViewState": "AgIAAFwBAAAAAAAAAAAIwHsBAABXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:29:41.346Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UserInforController.cs",
-              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\UserInforController.cs",
-              "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\UserInforController.cs",
-              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\UserInforController.cs",
-              "RelativeToolTip": "Areas\\HRManager\\Controllers\\UserInforController.cs",
-              "ViewState": "AgIAAFgAAAAAAAAAAAAIwHUAAABRAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:28:57.528Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "BaselineassessmentsController.cs",
-              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
-              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
-              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
-              "ViewState": "AgIAAOEAAAAAAAAAAAAIwP4AAABrAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:28:42.232Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "EmployeesController.cs",
-              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
-              "RelativeDocumentMoniker": "Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
-              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
-              "RelativeToolTip": "Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
-              "ViewState": "AgIAAD4AAAAAAAAAAAAwwE8AAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:26:24.081Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Employee.cs",
-              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Employee.cs",
-              "RelativeDocumentMoniker": "Models\u200B\\Employee.cs",
-              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Employee.cs",
-              "RelativeToolTip": "Models\u200B\\Employee.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:25:28.734Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
@@ -216,6 +138,79 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserInforController.cs",
+              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\UserInforController.cs",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\UserInforController.cs",
+              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\UserInforController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\UserInforController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHwAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-02T10:30:53.649Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "JobsController.cs",
+              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
+              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
+              "ViewState": "AgIAAFwBAAAAAAAAAAAIwHsBAABXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-02T10:29:41.346Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UserInforController.cs",
+              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\UserInforController.cs",
+              "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\UserInforController.cs",
+              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\UserInforController.cs",
+              "RelativeToolTip": "Areas\\HRManager\\Controllers\\UserInforController.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAIwHUAAABRAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-02T10:28:57.528Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BaselineassessmentsController.cs",
+              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
+              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
+              "ViewState": "AgIAAOEAAAAAAAAAAAAIwP4AAABrAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-02T10:28:42.232Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "EmployeesController.cs",
+              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
+              "RelativeDocumentMoniker": "Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
+              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
+              "RelativeToolTip": "Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAwwE8AAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-02T10:26:24.081Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Employee.cs",
+              "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Employee.cs",
+              "RelativeDocumentMoniker": "Models\u200B\\Employee.cs",
+              "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Employee.cs",
+              "RelativeToolTip": "Models\u200B\\Employee.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-02T10:25:28.734Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 9,
               "Title": "WorkTrackingSystemContext.cs",
               "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\WorkTrackingSystemContext.cs",
@@ -224,8 +219,7 @@
               "RelativeToolTip": "Models\u200B\\WorkTrackingSystemContext.cs",
               "ViewState": "AgIAACEAAAAAAAAAAAAkwC0AAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:24:58.537Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-02T10:24:58.537Z"
             },
             {
               "$type": "Document",
@@ -237,8 +231,7 @@
               "RelativeToolTip": "Areas\\AdminSystem\\Views\\Shared\\_SideBar.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-02T09:08:30.027Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-02T09:08:30.027Z"
             },
             {
               "$type": "Document",
@@ -250,8 +243,7 @@
               "RelativeToolTip": "Areas\\AdminSystem\\Controllers\\LoginController.cs",
               "ViewState": "AgIAABUAAAAAAAAAAAAowCYAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T09:05:56.36Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-02T09:05:56.36Z"
             },
             {
               "$type": "Document",
@@ -263,8 +255,7 @@
               "RelativeToolTip": "Areas\\AdminSystem\\Controllers\\DashboardController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T08:53:40.765Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-02T08:53:40.765Z"
             },
             {
               "$type": "Document",
@@ -288,8 +279,7 @@
               "RelativeToolTip": "Areas\\AdminSystem\\Controllers\\UserInforController.cs",
               "ViewState": "AgIAAGMAAAAAAAAAAAAIwHcAAABBAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T09:05:14.468Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-02T09:05:14.468Z"
             },
             {
               "$type": "Document",
@@ -313,8 +303,7 @@
               "RelativeToolTip": "Areas\\EmployeeSystem\\Controllers\\UserInforController.cs",
               "ViewState": "AgIAAGUAAAAAAAAAAAAIwHYAAABHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T08:54:22.24Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-02T08:54:22.24Z"
             },
             {
               "$type": "Document",
