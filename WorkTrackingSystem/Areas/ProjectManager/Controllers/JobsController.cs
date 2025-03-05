@@ -24,7 +24,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Jobs
-        public async Task<IActionResult> Index(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder)
+        public async Task<IActionResult> Index(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
@@ -32,7 +32,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            //lấy thông tin nhân viên đăng nhập
+            // Lấy thông tin nhân viên đăng nhập
             var manager = await _context.Users
                 .Where(u => u.UserName == managerUsername)
                 .Select(u => u.Employee)
@@ -43,13 +43,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            //lấy id phòng ban mà nhân viên quản lý
+            // Lấy id phòng ban mà nhân viên quản lý
             var managedDepartments = await _context.Departments
                 .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
                 .Select(d => d.Id)
                 .ToListAsync();
 
-            //lấy id phòng ban mà nhân viên quản lý
+            // Lấy id nhân viên trong các phòng ban được quản lý
             var employeesInManagedDepartments = await _context.Employees
                 .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
                 .Select(e => e.Id)
@@ -88,6 +88,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 jobs = jobs.Where(j => j.Time.HasValue && j.Time.Value.Date == DateTime.Today);
             }
 
+            // Lọc theo tháng được chọn
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+            {
+                jobs = jobs.Where(j => j.Time.HasValue &&
+                                      j.Time.Value.Year == selectedMonth.Year &&
+                                      j.Time.Value.Month == selectedMonth.Month);
+            }
+
             // Sắp xếp dữ liệu
             switch (sortOrder)
             {
@@ -104,145 +112,144 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     jobs = jobs.OrderByDescending(j => j.SummaryOfReviews);
                     break;
             }
+
             ViewData["TotalCompleted"] = await jobs.CountAsync(j => j.Status == 1);
             ViewData["TotalNotCompleted"] = await jobs.CountAsync(j => j.Status == 2);
             ViewData["TotalLate"] = await jobs.CountAsync(j => j.Status == 3);
             ViewData["TotalProcessing"] = await jobs.CountAsync(j => j.Status == 4);
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+
             return View(await jobs.ToListAsync());
         }
-        public async Task<IActionResult> ExportToExcel()
+        public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
         {
-            // Lấy dữ liệu công việc và thống kê theo tháng
-            var jobs = await _context.Jobs
-                .Include(j => j.Employee)
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            var employeesInManagedDepartments = await _context.Employees
+                .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            var jobs = _context.Jobs
                 .Include(j => j.Category)
-                .ToListAsync();
+                .Include(j => j.Employee)
+                .Where(j => j.EmployeeId.HasValue && employeesInManagedDepartments.Contains(j.EmployeeId.Value));
 
-            var jobStats = await _context.Jobs
-                .GroupBy(j => new { j.Time.Value.Month, j.Time.Value.Year })
-                .Select(g => new
-                {
-                    Month = g.Key.Month,
-                    Year = g.Key.Year,
-                    TotalCompleted = g.Count(j => j.Status == 1),
-                    TotalNotCompleted = g.Count(j => j.Status == 2),
-                    TotalLate = g.Count(j => j.Status == 3),
-                    TotalProcessing = g.Count(j => j.Status == 0)
-                })
-                .OrderBy(g => g.Year).ThenBy(g => g.Month)
-                .ToListAsync();
+            // Áp dụng các bộ lọc giống như trong Index
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                jobs = jobs.Where(j =>
+                    j.Employee.Code.Contains(searchText) ||
+                    j.Employee.FirstName.Contains(searchText) ||
+                    j.Employee.LastName.Contains(searchText) ||
+                    j.Name.Contains(searchText));
+            }
 
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            if (status.HasValue)
+            {
+                jobs = jobs.Where(j => j.Status == status.Value);
+            }
+
+            if (categoryId.HasValue)
+            {
+                jobs = jobs.Where(j => j.CategoryId == categoryId.Value);
+            }
+
+            if (dueToday)
+            {
+                jobs = jobs.Where(j => j.Time.HasValue && j.Time.Value.Date == DateTime.Today);
+            }
+
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+            {
+                jobs = jobs.Where(j => j.Time.HasValue &&
+                                      j.Time.Value.Year == selectedMonth.Year &&
+                                      j.Time.Value.Month == selectedMonth.Month);
+            }
+
+            switch (sortOrder)
+            {
+                case "due_asc":
+                    jobs = jobs.OrderBy(j => j.Time);
+                    break;
+                case "due_desc":
+                    jobs = jobs.OrderByDescending(j => j.Time);
+                    break;
+                case "review_asc":
+                    jobs = jobs.OrderBy(j => j.SummaryOfReviews);
+                    break;
+                case "review_desc":
+                    jobs = jobs.OrderByDescending(j => j.SummaryOfReviews);
+                    break;
+            }
+
+            var jobList = await jobs.ToListAsync();
+
+            // Tạo file Excel bằng EPPlus
             using (var package = new ExcelPackage())
             {
-                var worksheet = package.Workbook.Worksheets.Add("DanhSachCongViec");
+                var worksheet = package.Workbook.Worksheets.Add("Jobs");
+                worksheet.Cells[1, 1].Value = "STT";
+                worksheet.Cells[1, 2].Value = "Nhân viên";
+                worksheet.Cells[1, 3].Value = "Hạng mục";
+                worksheet.Cells[1, 4].Value = "Công việc";
+                worksheet.Cells[1, 5].Value = "Deadline";
+                worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
+                worksheet.Cells[1, 7].Value = "Trạng thái";
+                worksheet.Cells[1, 8].Value = "Đánh giá khối lượng";
+                worksheet.Cells[1, 9].Value = "Đánh giá tiến độ";
+                worksheet.Cells[1, 10].Value = "Đánh giá chất lượng";
+                worksheet.Cells[1, 11].Value = "Đánh giá tổng hợp";
 
-                // Thiết lập tiêu đề
-                worksheet.Cells["A1:G1"].Merge = true;
-                worksheet.Cells["A1"].Value = "DANH SÁCH CÔNG VIỆC";
-                worksheet.Cells["A1"].Style.Font.Size = 16;
-                worksheet.Cells["A1"].Style.Font.Bold = true;
-                worksheet.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                // Header
-                worksheet.Cells[3, 1].Value = "STT";
-                worksheet.Cells[3, 2].Value = "Nhân viên";
-                worksheet.Cells[3, 3].Value = "Tên công việc";
-                worksheet.Cells[3, 4].Value = "Trạng thái";
-                worksheet.Cells[3, 5].Value = "Đánh giá tổng hợp";
-                worksheet.Cells[3, 6].Value = "Hạn hoàn thành";
-                worksheet.Cells[3, 7].Value = "Danh mục";
-
-                using (var range = worksheet.Cells["A3:G3"])
+                // Điền dữ liệu
+                for (int i = 0; i < jobList.Count; i++)
                 {
-                    range.Style.Font.Bold = true;
-                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    range.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    var job = jobList[i];
+                    worksheet.Cells[i + 2, 1].Value = i + 1; // STT
+                    worksheet.Cells[i + 2, 2].Value = $"{job.Employee.Code} {job.Employee.FirstName} {job.Employee.LastName}";
+                    worksheet.Cells[i + 2, 3].Value = job.Category.Name;
+                    worksheet.Cells[i + 2, 4].Value = job.Name;
+                    worksheet.Cells[i + 2, 5].Value = job.Time?.ToString("dd/MM/yyyy");
+                    worksheet.Cells[i + 2, 6].Value = job.Time?.ToString("dd/MM/yyyy"); // Giả sử ngày hoàn thành bằng Deadline
+                    worksheet.Cells[i + 2, 7].Value = job.Status switch
+                    {
+                        1 => "Hoàn thành",
+                        2 => "Chưa hoàn thành",
+                        3 => "Hoàn thành muộn",
+                        _ => "Đang xử lý"
+                    };
+                    worksheet.Cells[i + 2, 8].Value = job.VolumeAssessment;
+                    worksheet.Cells[i + 2, 9].Value = job.ProgressAssessment;
+                    worksheet.Cells[i + 2, 10].Value = job.QualityAssessment;
+                    worksheet.Cells[i + 2, 11].Value = job.SummaryOfReviews;
                 }
 
-                // Dữ liệu công việc
-                int row = 4;
-                int index = 1;
-                foreach (var job in jobs)
-                {
-                    worksheet.Cells[row, 1].Value = index++;
-                    worksheet.Cells[row, 2].Value = job.Employee != null ? $"{job.Employee.Code} - {job.Employee.FirstName} {job.Employee.LastName}" : "Chưa có nhân viên";
-                    worksheet.Cells[row, 3].Value = job.Name;
-                    worksheet.Cells[row, 4].Value = job.Status == 1 ? "Hoàn thành" :
-                                                    job.Status == 2 ? "Chưa hoàn thành" :
-                                                    job.Status == 3 ? "Hoàn thành muộn" : job.Status == 4 ?  "Đang xử lý":
-                    worksheet.Cells[row, 5].Value = job.SummaryOfReviews;
-                    worksheet.Cells[row, 6].Value = job.Time.HasValue ? job.Time.Value.ToString("dd/MM/yyyy") : "N/A";
-                    worksheet.Cells[row, 7].Value = job.Category != null ? job.Category.Name : "Chưa có danh mục";
-
-                    row++;
-                }
-
-                worksheet.Cells.AutoFitColumns();
-
-                // Thêm sheet thống kê công việc
-                var statsSheet = package.Workbook.Worksheets.Add("ThongKe");
-
-                statsSheet.Cells["A1"].Value = "Thống kê công việc theo tháng";
-                statsSheet.Cells["A1:E1"].Merge = true;
-                statsSheet.Cells["A1"].Style.Font.Size = 14;
-                statsSheet.Cells["A1"].Style.Font.Bold = true;
-                statsSheet.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                // Header thống kê
-                statsSheet.Cells[3, 1].Value = "Tháng";
-                statsSheet.Cells[3, 2].Value = "Hoàn thành";
-                statsSheet.Cells[3, 3].Value = "Chưa hoàn thành";
-                statsSheet.Cells[3, 4].Value = "Hoàn thành muộn";
-                statsSheet.Cells[3, 5].Value = "Đang xử lý";
-
-                using (var range = statsSheet.Cells["A3:E3"])
-                {
-                    range.Style.Font.Bold = true;
-                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    range.Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
-                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                }
-
-                // Đổ dữ liệu thống kê
-                int statsRow = 4;
-                foreach (var stat in jobStats)
-                {
-                    statsSheet.Cells[statsRow, 1].Value = $"{stat.Month}/{stat.Year}";
-                    statsSheet.Cells[statsRow, 2].Value = stat.TotalCompleted;
-                    statsSheet.Cells[statsRow, 3].Value = stat.TotalNotCompleted;
-                    statsSheet.Cells[statsRow, 4].Value = stat.TotalLate;
-                    statsSheet.Cells[statsRow, 5].Value = stat.TotalProcessing;
-                    statsRow++;
-                }
-
-                statsSheet.Cells.AutoFitColumns();
-
-                // Thêm biểu đồ thống kê
-                var chart = statsSheet.Drawings.AddChart("chart", eChartType.ColumnClustered);
-                chart.Title.Text = "Thống kê công việc theo tháng";
-                chart.SetPosition(1, 0, 7, 0); // Vị trí biểu đồ
-                chart.SetSize(800, 400); // Kích thước
-
-                var series1 = chart.Series.Add(statsSheet.Cells[$"B4:B{statsRow - 1}"], statsSheet.Cells[$"A4:A{statsRow - 1}"]);
-                series1.Header = "Hoàn thành";
-
-                var series2 = chart.Series.Add(statsSheet.Cells[$"C4:C{statsRow - 1}"], statsSheet.Cells[$"A4:A{statsRow - 1}"]);
-                series2.Header = "Chưa hoàn thành";
-
-                var series3 = chart.Series.Add(statsSheet.Cells[$"D4:D{statsRow - 1}"], statsSheet.Cells[$"A4:A{statsRow - 1}"]);
-                series3.Header = "Hoàn thành muộn";
-
-                var series4 = chart.Series.Add(statsSheet.Cells[$"E4:E{statsRow - 1}"], statsSheet.Cells[$"A4:A{statsRow - 1}"]);
-                series4.Header = "Đang xử lý";
+                // Định dạng cột
+                worksheet.Cells[1, 1, 1, 11].Style.Font.Bold = true;
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
                 // Xuất file Excel
-                var stream = new MemoryStream();
-                package.SaveAs(stream);
-                stream.Position = 0;
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DanhSachCongViec.xlsx");
+                var stream = new MemoryStream(package.GetAsByteArray());
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
             }
         }
 

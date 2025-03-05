@@ -150,7 +150,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item">
+               @*  <li class="nav-item">
                     <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
                         <i class="nav-icon fa fa-check-square"></i>
                         <p>
@@ -165,8 +165,8 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item">
+                </li> *@
+               @*  <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">
                         <i class="nav-icon fa fa-chart-line"></i>
                         <p>
@@ -181,7 +181,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> *@
                 @if (HttpContextAccessor.HttpContext.Session.GetString("HRManagerLogin") != null)
                 {
                     <li class="nav-item">

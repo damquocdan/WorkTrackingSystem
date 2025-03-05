@@ -8,6 +8,7 @@ using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Areas.EmployeeSystem.Models;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 {
@@ -22,8 +23,9 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 		}
 
 		// GET: EmployeeSystem/Jobs
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(int page=1)
 		{
+			var limit = 9;
 			//var userCount = await _context.Users.CountAsync();
 			var sessionUserId = HttpContext.Session.GetString("UserId");
 			if (string.IsNullOrEmpty(sessionUserId))
@@ -39,34 +41,16 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			{
 				return NotFound("Không tìm thấy nhân viên tương ứng.");
 			}
-			var jobs = await _context.Jobs
+			var jobs =  _context.Jobs
 				.Include(j => j.Category)
 				.Include(j => j.Employee)
 				.Where(j => j.EmployeeId == user.EmployeeId)
-				.ToListAsync();
+				.ToPagedList(page,limit);
 
 			ViewBag.Jobs = jobs;
 			return View(jobs);
 		}
-		[HttpPost]
-		public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusViewModel model)
-		{
-			if (model == null || model.JobId <= 0)
-			{
-				return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
-			}
-
-			var job = await _context.Jobs.FindAsync(model.JobId);
-			if (job == null)
-			{
-				return NotFound(new { success = false, message = "Không tìm thấy công việc" });
-			}
-			job.Status = model.Status.HasValue ? model.Status.Value : job.Status;
-			_context.Entry(job).State = EntityState.Modified;
-			await _context.SaveChangesAsync();
-
-			return Json(new { success = true, message = "Cập nhật thành công" });
-		}
+		
 		[HttpPost]
 		public IActionResult UpdateCompletionDate([FromBody] UpdateCompletionDateModel model)
 		{
@@ -87,27 +71,51 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				return Json(new { success = false, message = "Ngày không hợp lệ" });
 			}
 		}
+		[HttpPost]
+	
+		public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
+		{
+			if (request == null || request.Id <= 0)
+			{
+				return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+			}
 
-		//[HttpPost]
-		//public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
-		//{
-		//    if (request == null || request.Id <= 0)
-		//    {
-		//        return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
-		//    }
+			var job = await _context.Jobs.FindAsync(request.Id);
+			if (job == null)
+			{
+				return NotFound(new { success = false, message = "Không tìm thấy công việc" });
+			}
 
-		//    var job = await _context.Jobs.FindAsync(request.Id);
-		//    if (job == null)
-		//    {
-		//        return NotFound(new { success = false, message = "Không tìm thấy công việc" });
-		//    }
+			// Cập nhật tiến độ
+			job.Progress = request.Progress;
 
-		//    job.ProgressAssessment = request.Progress;
-		//    _context.Entry(job).State = EntityState.Modified; // Đánh dấu có thay đổi
-		//    await _context.SaveChangesAsync(); 
+			// Cập nhật trạng thái tự động dựa trên tiến độ và deadline
+			if (job.Progress == 100)
+			{
+				job.Status = 2; // Hoàn thành
+			}
+			else if (job.Progress == null || job.Progress == 0)
+			{
+				job.Status = 0; // Chưa bắt đầu
+			}
+			else if (job.Progress > 0 && job.Progress < 100)
+			{
+				if (job.Deadline1.HasValue && job.Deadline1.Value < DateOnly.FromDateTime(DateTime.Now))
+				{
+					job.Status = 3; // Trễ hạn
+				}
+				else
+				{
+					job.Status = 1; // Đang thực hiện
+				}
+			}
 
-		//    return Ok(new { success = true });
-		//}
+			_context.Entry(job).State = EntityState.Modified;
+			await _context.SaveChangesAsync();
+
+			return Ok(new { success = true, newStatus = job.Status });
+		}
+
 
 		// GET: EmployeeSystem/Jobs/Details/5
 		//public async Task<IActionResult> Details(long? id)
