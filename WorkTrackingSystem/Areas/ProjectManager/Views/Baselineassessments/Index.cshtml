@@ -4,6 +4,10 @@
     ViewData["Title"] = "Danh sách đánh giá cơ bản";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
+@if (TempData["NoDataMessage"] != null)
+{
+    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
+}
 @{
     var totalEvaluations = Model.Count();
     var passedEvaluations = Model.Count(x => x.Evaluate.GetValueOrDefault());
@@ -62,6 +66,20 @@
                 <div class="col-md-12 text-end">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
                     <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i> Reset</a>
+                    @if (Model.Any())
+                    {
+                        <a asp-action="ExportToExcel"
+                           asp-route-employeeCode="@Context.Request.Query["employeeCode"]"
+                           asp-route-employeeName="@Context.Request.Query["employeeName"]"
+                           asp-route-evaluate="@Context.Request.Query["evaluate"]"
+                           asp-route-time="@Context.Request.Query["time"]"
+                           class="btn btn-success"
+                           target="_blank"
+                           download
+                           title="Xuất dữ liệu ra file Excel">
+                            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                        </a>
+                    }
                 </div>
             </form>
         </div>

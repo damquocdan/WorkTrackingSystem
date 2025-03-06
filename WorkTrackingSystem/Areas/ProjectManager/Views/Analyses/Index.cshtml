@@ -4,6 +4,10 @@
     ViewData["Title"] = "Danh sách phân tích";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
+@if (TempData["NoDataMessage"] != null)
+{
+    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
+}
 <div class="row">
     <div class="col-md-12" id="list-section">
         <div class="row">
@@ -53,7 +57,23 @@
 
             </div>
             <div class="col-md-3 text-end">
-                <a href="@Url.Action("ExportToExcel")" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+                @if (Model.Any())
+                {
+                    <a asp-action="ExportToExcel"
+                       asp-route-searchText="@Context.Request.Query["searchText"]"
+                       asp-route-time="@Context.Request.Query["time"]"
+                       asp-route-sortOrder="@Context.Request.Query["sortOrder"]"
+                       class="btn btn-success"
+                       title="Xuất dữ liệu ra file Excel">
+                        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                    </a>
+                }
+                else
+                {
+                    <p>Không có dữ liệu để xuất Excel.</p>
+                }
+                
+
                 <a href="@Url.Action("SendEmail")" class="btn btn-warning"><i class="bi bi-envelope"></i> Gửi Email</a>
             </div>
         </div>

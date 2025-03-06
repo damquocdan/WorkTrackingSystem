@@ -499,7 +499,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             double sumSummary = jobs.Sum(j => j.SummaryOfReviews ?? 0);
 
             // Xác định trạng thái Evaluate (giả sử tổng Summary >= 6 là đạt, bạn có thể điều chỉnh ngưỡng)
-            bool evaluate = sumSummary >= 6;
+            bool evaluate = sumSummary >= 45;
 
             // Tìm bản ghi BaselineAssessment của nhân viên trong tháng hiện tại
             var baseline = await _context.Baselineassessments
