@@ -23,6 +23,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Departments
         public async Task<IActionResult> Index()
         {
+           
             return View(await _context.Departments.ToListAsync());
         }
       

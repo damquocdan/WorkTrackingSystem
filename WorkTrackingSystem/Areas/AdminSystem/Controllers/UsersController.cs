@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
@@ -21,10 +22,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // GET: AdminSystem/Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page= 1 )
         {
+            var limit = 12;
             var workTrackingSystemContext = _context.Users.Include(u => u.Employee).ThenInclude(e=>e.Position);
-            return View(await workTrackingSystemContext.ToListAsync());
+            return View( workTrackingSystemContext.ToPagedList(page,limit));
         }
 
         // GET: AdminSystem/Users/Details/5
@@ -115,6 +117,13 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+           
+            //var employee = await _context.Employees
+            //    .Include(e => e.Department)
+            //    .Include(e => e.Position)
+            //    .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
+           
+
             if (id != user.Id)
             {
                 return NotFound();
@@ -124,6 +133,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 try
                 {
+                    
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }

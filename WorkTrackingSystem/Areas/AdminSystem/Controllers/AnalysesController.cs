@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
@@ -20,10 +21,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // GET: AdminSystem/Analyses
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page=1)
         {
+            var limit = 10;
             var workTrackingSystemContext = _context.Analyses.Include(a => a.Employee);
-            return View(await workTrackingSystemContext.ToListAsync());
+            return View( workTrackingSystemContext.ToPagedList(page,limit));
         }
 
         // GET: AdminSystem/Analyses/Details/5

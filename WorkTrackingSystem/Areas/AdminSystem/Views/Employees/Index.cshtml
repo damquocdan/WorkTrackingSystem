@@ -1,5 +1,5 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.Employee>
-
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Employee>
 @{
     ViewData["Title"] = "Nhân viên"; // Vietnamese title
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
@@ -62,7 +62,17 @@
         }
     </tbody>
 </table>
-
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" },
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
+    DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
+    DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
+    MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
+})
 @section Scripts {
     <script>
         $(document).ready(function () {
