@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.Style;
+using OfficeOpenXml;
 using WorkTrackingSystem.Models;
+using OfficeOpenXml.Drawing.Chart;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
@@ -83,11 +86,153 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                                          b.Time.Value.Month == selectedTime.Month);
                 }
             }
-
+            var assessmentsList = await assessments.ToListAsync();
+            if (!assessmentsList.Any())
+            {
+                TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
+            }
             return View(await assessments.OrderByDescending(x => x.Time).ToListAsync());
 
         }
 
+        public async Task<IActionResult> ExportToExcel(string employeeCode, string employeeName, bool? evaluate, string time)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            var assessments = _context.Baselineassessments
+                .Include(b => b.Employee)
+                .Where(b => b.Employee != null &&
+                            b.Employee.DepartmentId.HasValue &&
+                            managedDepartments.Contains(b.Employee.DepartmentId.Value));
+
+            if (!string.IsNullOrEmpty(employeeCode))
+            {
+                assessments = assessments.Where(b => b.Employee.Code.Contains(employeeCode));
+            }
+
+            if (!string.IsNullOrEmpty(employeeName))
+            {
+                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+            }
+
+            if (evaluate.HasValue)
+            {
+                assessments = assessments.Where(b => b.Evaluate == evaluate.Value);
+            }
+            string selectedMonth = "Toàn bộ";
+            if (!string.IsNullOrEmpty(time))
+            {
+                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+                {
+                    selectedMonth = selectedTime.ToString("MM/yyyy");
+                    assessments = assessments.Where(b => b.Time.HasValue &&
+                                                         b.Time.Value.Year == selectedTime.Year &&
+                                                         b.Time.Value.Month == selectedTime.Month);
+                }
+            }
+
+            var assessmentList = await assessments.OrderByDescending(x => x.Time).ToListAsync();
+            if (!assessmentList.Any())
+            {
+                TempData["NoDataMessage"] = "Không có dữ liệu để xuất Excel.";
+                return RedirectToAction("Index");
+            }
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Danh sách đánh giá");
+
+                worksheet.Cells[1, 1, 1, 7].Merge = true;
+                worksheet.Cells[1, 1].Value = $"Bảng tổng hợp đánh giá tháng {selectedMonth}";
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
+                worksheet.Cells[1, 1].Style.Font.Size = 14;
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                worksheet.Cells[2, 1].Value = "Mã nhân viên";
+                worksheet.Cells[2, 2].Value = "Tên nhân viên";
+                worksheet.Cells[2, 3].Value = "Tổng đánh giá khối lượng";
+                worksheet.Cells[2, 4].Value = "Tổng đánh giá tiến độ";
+                worksheet.Cells[2, 5].Value = "Tổng đánh giá chất lượng";
+                worksheet.Cells[2, 6].Value = "Tổng đánh giá tổng hợp";
+                worksheet.Cells[2, 7].Value = "Đánh giá theo baseline";
+
+                using (var range = worksheet.Cells[2, 1, 2, 7])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                int row = 3;
+                foreach (var item in assessmentList)
+                {
+                    worksheet.Cells[row, 1].Value = item.Employee.Code;
+                    worksheet.Cells[row, 2].Value = $"{item.Employee.FirstName} {item.Employee.LastName}";
+                    worksheet.Cells[row, 3].Value = item.VolumeAssessment;
+                    worksheet.Cells[row, 4].Value = item.ProgressAssessment;
+                    worksheet.Cells[row, 5].Value = item.QualityAssessment;
+                    worksheet.Cells[row, 6].Value = item.SummaryOfReviews;
+                    worksheet.Cells[row, 7].Value = item.Evaluate.GetValueOrDefault() ? "Đạt baseline" : "Chưa đạt baseline";
+
+                    worksheet.Cells[row, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[row, 3, row, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+
+                    row++;
+                }
+
+                worksheet.Cells.AutoFitColumns();
+
+                if (assessmentList.Any())
+                {
+                    var chart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart;
+                    chart.SetPosition(1, 0, 9, 0);
+                    chart.SetSize(500, 350);
+
+                    int totalColumnIndex = 3;
+                    int nameColumnIndex = 2;
+
+                    var dataRange = worksheet.Cells[3, totalColumnIndex, assessmentList.Count + 2, totalColumnIndex];
+                    var labelRange = worksheet.Cells[3, nameColumnIndex, assessmentList.Count + 2, nameColumnIndex];
+
+                    var series = chart.Series.Add(dataRange, labelRange) as ExcelPieChartSerie;
+                    chart.Title.Text = "Đánh giá khối lượng";
+                    chart.Legend.Position = eLegendPosition.Left;
+
+                    if (series != null)
+                    {
+                        series.DataLabel.ShowPercent = true;
+                        series.DataLabel.Position = eLabelPosition.Center;
+                    }
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DanhSachDanhGia.xlsx");
+            }
+        }
 
 
         // GET: ProjectManager/Baselineassessments/Details/5
@@ -175,7 +320,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                          (baselineassessment.QualityAssessment * 0.25);
 
                 // Nếu tổng điểm đánh giá > 50, Evaluate = true
-                baselineassessment.Evaluate = baselineassessment.SummaryOfReviews > 50;
+                baselineassessment.Evaluate = baselineassessment.SummaryOfReviews > 45;
                 baselineassessment.Time = DateTime.Now;
                 baselineassessment.CreateDate = DateTime.Now;
                 baselineassessment.IsActive = true;
