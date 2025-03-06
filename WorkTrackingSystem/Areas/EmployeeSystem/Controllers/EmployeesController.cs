@@ -206,7 +206,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
                 {
                     existingEmployee.Avatar = img;
                 }
-
+                //ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+                //ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
                 _context.Update(existingEmployee);
                 await _context.SaveChangesAsync();
 

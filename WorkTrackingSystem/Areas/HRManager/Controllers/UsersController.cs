@@ -173,7 +173,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
+
+            }), "Id", "FullName");
             return View(user);
         }
 
