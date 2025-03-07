@@ -19,3 +19,12 @@
         color: white;
     }
 
+@media (max-width: 768px) {
+    #list-section {
+        width: 100% !important;
+    }
+
+    #detail-section {
+        width: 100% !important;
+        margin-top: 10px;
+    }
