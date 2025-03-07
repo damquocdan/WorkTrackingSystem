@@ -49,7 +49,7 @@
 						<th><i class="bi bi-phone"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Phone)</th>
 						<th><i class="bi bi-envelope"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
 						<th><i class="bi bi-briefcase"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Position)</th>
-						<th><i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Department)</th>
+						@* <th><i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Department)</th> *@
 						<th><i class="bi bi-gear"></i> Hành động</th>
 					</tr>
 				</thead>
@@ -64,7 +64,7 @@
 							<td>@Html.DisplayFor(modelItem => item.Phone)</td>
 							<td>@Html.DisplayFor(modelItem => item.Email)</td>
 							<td>@Html.DisplayFor(modelItem => item.Position.Name)</td>
-							<td>@Html.DisplayFor(modelItem => item.Department.Name)</td>
+							@* <td>@Html.DisplayFor(modelItem => item.Department.Name)</td> *@
 							<td>
 								<a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })">
 									<i class="bi bi-pencil-square"></i> Sửa

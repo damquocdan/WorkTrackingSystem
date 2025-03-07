@@ -43,25 +43,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
 
 			return View(employees);
 
-			//var employees = _context.Employees.Include(e => e.Department).Include(e => e.Position).ToPagedList(page,limit);
-			//ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
-			//if (DepartmentId > 0)
-			//{
-			//    employees = employees.Where(e => e.DepartmentId == DepartmentId).ToPagedList(page, limit);
-			//}
-			//if (!string.IsNullOrEmpty(search))
-			//{
-			//    var searchLower = search.ToLower();
-			//    employees = _context.Employees
-			//       .Where(e =>
-			//       (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower))
-			//       .Include(e => e.Department)
-			//       .ToPagedList(page, limit);
-			//    return View(employees);
-			//}
-			//return View(employees);
-			//    var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-			//return View(await workTrackingSystemContext.ToListAsync());
+			
 		}
 
 		// GET: HRManager/Employees/Details/5

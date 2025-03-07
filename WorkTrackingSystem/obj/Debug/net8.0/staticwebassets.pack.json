@@ -5,6 +5,10 @@
       "PackagePath": "staticwebassets\\WorkTrackingSystem.bundle.scp.css"
     },
     {
+      "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\css\\pagination.css",
+      "PackagePath": "staticwebassets\\css\\pagination.css"
+    },
+    {
       "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
@@ -293,8 +297,24 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\0499aa25-0e58-4b0b-bb0f-0d788ec5e5a3_logo.png",
+      "PackagePath": "staticwebassets\\images\\0499aa25-0e58-4b0b-bb0f-0d788ec5e5a3_logo.png"
+    },
+    {
+      "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\3bde4945-3c5d-486e-ba8b-95132c731001_avatar.png",
+      "PackagePath": "staticwebassets\\images\\3bde4945-3c5d-486e-ba8b-95132c731001_avatar.png"
+    },
+    {
       "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\avatar.png",
       "PackagePath": "staticwebassets\\images\\avatar.png"
+    },
+    {
+      "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\d7d30682-2053-4b71-a8e1-dc2535566ff7_avatar.png",
+      "PackagePath": "staticwebassets\\images\\d7d30682-2053-4b71-a8e1-dc2535566ff7_avatar.png"
+    },
+    {
+      "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\e5e4f00f-5f6c-42ca-bc4d-0686259e658a_avatar.png",
+      "PackagePath": "staticwebassets\\images\\e5e4f00f-5f6c-42ca-bc4d-0686259e658a_avatar.png"
     },
     {
       "Id": "E:\\DevMaster\\WorkTrackingSystem\\WorkTrackingSystem\\wwwroot\\images\\job.jpg",
