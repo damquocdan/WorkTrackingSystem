@@ -32,9 +32,6 @@
                         <i class="bi bi-person"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().UserName)
                     </th>
                     <th>
-                        <i class="bi bi-key"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Password)
-                    </th>
-                    <th>
                         <i class="bi bi-person-badge"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Employee)
                     </th>
                     <th>
@@ -50,9 +47,9 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.UserName)
                         </td>
-                        <td>
+                       @*  <td>
                             @Html.DisplayFor(modelItem => item.Password)
-                        </td>
+                        </td> *@
                         <td>
                             @Html.DisplayFor(modelItem => item.Employee.Code)-@Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)
                         </td>
@@ -73,12 +70,6 @@
         <div class="actionCustomers"></div>
     </div>
 </div>
-@* @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
-{
-    LiElementClasses = new string[] { "page-item" },
-    PageClasses = new string[] { "page-link" }
-})
- *@
 @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
 {
     LiElementClasses = new string[] { "page-item" },

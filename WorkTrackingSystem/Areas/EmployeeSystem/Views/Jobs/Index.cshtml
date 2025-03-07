@@ -16,10 +16,11 @@
 	<!-- Bộ lọc trạng thái -->
 	<select id="filterStatus" class="form-select w-25">
 		<option value="">Tất cả trạng thái</option>
-		<option value="0">Chưa bắt đầu</option>
-		<option value="1">Đang thực hiện</option>
-		<option value="2">Hoàn thành</option>
-		<option value="3">Trễ hạn</option>
+		<option value="1">Hoàn thành</option>
+		<option value="2">Chưa hoàn thành</option>
+		<option value="3">Hoàn thành muộn</option>
+		<option value="4">Đang xử lý</option>
+		<option value="5">Chưa bắt đầu</option>
 	</select>
 </div>
 
@@ -45,21 +46,24 @@
 				</td>
 				<td class="text-center">
 					<span>
-						@if (item.Status == 0)
-						{
-							<text>Chưa bắt đầu</text>
-						}
-						else if (item.Status == 1)
-						{
-							<text>Đang thực hiện</text>
-						}
-						else if (item.Status == 2)
+						@if (item.Status == 1)
 						{
 							<text>Hoàn thành</text>
 						}
+						else if (item.Status == 2)
+						{
+							<text>Chưa hoàn thành</text>
+						}
+						else if (item.Status == 3)
+						{
+							<text>Hoàn thành muộn</text>
+						}
+						else if(item.Status==4){
+							<text>Đang xử lý</text>
+						}
 						else
 						{
-							<text>Trễ hạn</text>
+							<text>Chưa bắt đầu</text>
 						}
 					</span>
 				</td>
@@ -157,11 +161,11 @@
 									let statusSpan = row.querySelector("td:nth-child(4) span");
 									if (statusSpan) {
 										let newStatus = data.newStatus;
-										statusSpan.textContent = newStatus === 0 ? "Chưa bắt đầu"
-											: newStatus === 1 ? "Đang thực hiện"
-												: newStatus === 2 ? "Hoàn thành"
-													: "Trễ hạn";
-
+										statusSpan.textContent = newStatus === 1 ? "Hoàn thành"
+											: newStatus === 2 ? "Chưa hoàn thành"
+												: newStatus === 3 ? "Hoàn thành muộn"
+													: newStatus===4 ? "Đang xử lý"
+													: "Chưa bắt đầu";
 										// Cập nhật `data-status`
 										row.setAttribute('data-status', newStatus);
 									} else {

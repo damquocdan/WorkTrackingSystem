@@ -25,11 +25,11 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         public async Task<IActionResult> Index(string? search, int page= 1)
         {
             var limit = 8;
-            var workTrackingSystemContext = _context.Users.Include(u => u.Employee);
+            var workTrackingSystemContext = _context.Users.Include(u => u.Employee).Include(u=>u.Employee.Department);
             if (!string.IsNullOrEmpty(search))
             {
                 var searchLower = search.ToLower();
-                 workTrackingSystemContext = _context.Users.Where(u => u.UserName.ToLower().Contains(searchLower)).Include(u => u.Employee);
+                 workTrackingSystemContext = _context.Users.Where(u => u.UserName.ToLower().Contains(searchLower)).Include(u => u.Employee).Include(u=>u.Employee.Department);
                 return View(workTrackingSystemContext.ToPagedList(page, limit));
             }
             //ViewBag.Department= _context.Employees.Include(e=>e.Department).Where(e=>e.DepartmentId ==   )

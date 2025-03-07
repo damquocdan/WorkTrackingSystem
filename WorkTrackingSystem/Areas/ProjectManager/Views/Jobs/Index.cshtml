@@ -13,16 +13,15 @@
                 <div class="col-md-3">
                     <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên / công việc" value="@Context.Request.Query["searchText"]">
                 </div>
-
                 <div class="col-md-2">
                     <select name="status" class="form-control">
                         <option value="">-- Trạng thái --</option>
                         <option value="1">Hoàn thành</option>
                         <option value="2">Chưa hoàn thành</option>
                         <option value="3">Hoàn thành muộn</option>
+                        <option value="4">Đang xử lý</option>
                     </select>
                 </div>
-
                 <div class="col-md-2">
                     <select name="categoryId" class="form-control">
                         <option value="">-- Danh mục --</option>

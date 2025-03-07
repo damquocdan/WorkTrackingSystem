@@ -72,7 +72,6 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			}
 		}
 		[HttpPost]
-	
 		public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
 		{
 			if (request == null || request.Id <= 0)
@@ -86,140 +85,46 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				return NotFound(new { success = false, message = "Không tìm thấy công việc" });
 			}
 
+			// Nếu Progress là null, gán thành 0
+			job.Progress ??= 0;
+
+			// Lấy thời gian hiện tại để so sánh với deadline
+			var today = DateOnly.FromDateTime(DateTime.Now);
+			bool isPastDeadline = job.Deadline1.HasValue && job.Deadline1.Value < today;
+
 			// Cập nhật tiến độ
 			job.Progress = request.Progress;
 
-			// Cập nhật trạng thái tự động dựa trên tiến độ và deadline
-			if (job.Progress == 100)
-			{
-				job.Status = 2; // Hoàn thành
-			}
-			else if (job.Progress == null || job.Progress == 0)
-			{
-				job.Status = 0; // Chưa bắt đầu
-			}
-			else if (job.Progress > 0 && job.Progress < 100)
-			{
-				if (job.Deadline1.HasValue && job.Deadline1.Value < DateOnly.FromDateTime(DateTime.Now))
-				{
-					job.Status = 3; // Trễ hạn
-				}
-				else
-				{
-					job.Status = 1; // Đang thực hiện
-				}
-			}
+            // Cập nhật trạng thái dựa trên tiến độ và deadline
+            if (job.Progress == 100 && !isPastDeadline)
+            {
+                job.Status = 1; // Hoàn thành đúng hạn
+            }
+            else if (isPastDeadline && job.Progress < 100)
+            {
+                job.Status = 2; // Chưa hoàn thành (quá hạn mà chưa đạt 100%)
+            }
+            else if (isPastDeadline && job.Progress == 100)
+            {
+                job.Status = 3; // Hoàn thành muộn (quá hạn nhưng đã đạt 100%)
+            }
+            else if (!isPastDeadline && job.Progress > 0 && job.Progress < 100)
+            {
+                job.Status = 4; // Đang xử lý (chưa đến hạn nhưng tiến độ > 0)
+            }
+            else if (job.Progress == 0)
+            {
+                job.Status = 5; // Chưa bắt đầu
+            }
 
-			_context.Entry(job).State = EntityState.Modified;
+
+            _context.Entry(job).State = EntityState.Modified;
 			await _context.SaveChangesAsync();
 
 			return Ok(new { success = true, newStatus = job.Status });
 		}
 
-
-		// GET: EmployeeSystem/Jobs/Details/5
-		//public async Task<IActionResult> Details(long? id)
-		//{
-		//    if (id == null)
-		//    {
-		//        return NotFound();
-		//    }
-
-		//    var job = await _context.Jobs
-		//        .Include(j => j.Category)
-		//        .Include(j => j.Employee)
-		//        .FirstOrDefaultAsync(m => m.Id == id);
-		//    if (job == null)
-		//    {
-		//        return NotFound();
-		//    }
-
-		//    return View(job);
-		//}
-
-		// GET: EmployeeSystem/Jobs/Create
-		//public IActionResult Create()
-		//{
-		//    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id");
-		//    ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
-		//    return View();
-		//}
-
-		// POST: EmployeeSystem/Jobs/Create
-		// To protect from overposting attacks, enable the specific properties you want to bind to.
-		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		//[HttpPost]
-		//[ValidateAntiForgeryToken]
-		//public async Task<IActionResult> Create([Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
-		//{
-		//    if (ModelState.IsValid)
-		//    {
-		//        _context.Add(job);
-		//        await _context.SaveChangesAsync();
-		//        return RedirectToAction(nameof(Index));
-		//    }
-		//    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
-		//    ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
-		//    return View(job);
-		//}
-
-		//// GET: EmployeeSystem/Jobs/Edit/5
-		//public async Task<IActionResult> Edit(long? id)
-		//{
-		//    if (id == null)
-		//    {
-		//        return NotFound();
-		//    }
-
-		//    var job = await _context.Jobs.FindAsync(id);
-		//    if (job == null)
-		//    {
-		//        return NotFound();
-		//    }
-		//    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
-		//    ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
-		//    return View(job);
-		//}
-
-		//// POST: EmployeeSystem/Jobs/Edit/5
-		//// To protect from overposting attacks, enable the specific properties you want to bind to.
-		//// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		//[HttpPost]
-		//[ValidateAntiForgeryToken]
-		//public async Task<IActionResult> Edit(long id, [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
-		//{
-		//    if (id != job.Id)
-		//    {
-		//        return NotFound();
-		//    }
-
-		//    if (ModelState.IsValid)
-		//    {
-		//        try
-		//        {
-		//            _context.Update(job);
-		//            await _context.SaveChangesAsync();
-		//        }
-		//        catch (DbUpdateConcurrencyException)
-		//        {
-		//            if (!JobExists(job.Id))
-		//            {
-		//                return NotFound();
-		//            }
-		//            else
-		//            {
-		//                throw;
-		//            }
-		//        }
-		//        return RedirectToAction(nameof(Index));
-		//    }
-		//    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
-		//    ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
-		//    return View(job);
-		//}
-
-		// GET: EmployeeSystem/Jobs/Delete/5
-
+	
 		private bool JobExists(long id)
 		{
 			return _context.Jobs.Any(e => e.Id == id);
