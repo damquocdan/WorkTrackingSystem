@@ -3,6 +3,34 @@
   "WorkspaceRootPath": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\views\\baselineassessments\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\views\\baselineassessments\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\views\\analyses\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\views\\analyses\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\analysescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\analysescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\baselineassessmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\baselineassessmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\hrmanager\\controllers\\analysescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\hrmanager\\controllers\\analysescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\hrmanager\\controllers\\baselineassessmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\hrmanager\\controllers\\baselineassessmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\hrmanager\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\hrmanager\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,20 +39,8 @@
       "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\categoriescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\baselineassessmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\baselineassessmentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\basecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\basecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\analysescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:areas\\projectmanager\\controllers\\analysescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6AB0C9C0-362A-4B55-8DE7-1CBDB03DC759}|WorkTrackingSystem.csproj|e:\\devmaster\\duan\\worktrackingsystem\\worktrackingsystem\\areas\\projectmanager\\controllers\\userinforcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -128,7 +144,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 744,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -147,69 +163,81 @@
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "LoginController.cs",
-              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\LoginController.cs",
-              "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\LoginController.cs",
-              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\LoginController.cs",
-              "RelativeToolTip": "Areas\\HRManager\\Controllers\\LoginController.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-05T08:33:18.218Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "CategoriesController.cs",
-              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
-              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
-              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-05T08:28:07.483Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "BaseController.cs",
-              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaseController.cs",
-              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\BaseController.cs",
-              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaseController.cs",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\BaseController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-05T08:28:04.077Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "AnalysesController.cs",
-              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
-              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
-              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
-              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\AnalysesController.cs",
+              "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\AnalysesController.cs",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\AnalysesController.cs",
+              "RelativeToolTip": "Areas\\HRManager\\Controllers\\AnalysesController.cs",
+              "ViewState": "AgIAAHQBAAAAAAAAAAAkwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-05T08:27:30.61Z"
+              "WhenOpened": "2025-03-06T11:31:20.658Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "BaselineassessmentsController.cs",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\BaselineassessmentsController.cs",
+              "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\BaselineassessmentsController.cs",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\BaselineassessmentsController.cs",
+              "RelativeToolTip": "Areas\\HRManager\\Controllers\\BaselineassessmentsController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-06T11:31:13.081Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\Baselineassessments\\Index.cshtml",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Views\\Baselineassessments\\Index.cshtml",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\Baselineassessments\\Index.cshtml",
+              "RelativeToolTip": "Areas\\ProjectManager\\Views\\Baselineassessments\\Index.cshtml",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAAAIkAAABUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-06T07:57:58.35Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AnalysesController.cs",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\AnalysesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T08:27:30.61Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "appsettings.json",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-03-05T08:26:27.464Z"
+              "WhenOpened": "2025-03-05T08:26:27.464Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 10,
               "Title": "UserInforController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\UserInforController.cs",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\UserInforController.cs",
@@ -221,7 +249,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 13,
               "Title": "UserInforController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\UserInforController.cs",
               "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\UserInforController.cs",
@@ -233,19 +261,69 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "BaselineassessmentsController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
               "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
               "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\BaselineassessmentsController.cs",
-              "ViewState": "AgIAAOEAAAAAAAAAAAAIwP4AAABrAAAAAAAAAA==",
+              "ViewState": "AgIAAI0AAAAAAAAAAAAQwNYBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-02T10:28:42.232Z"
+              "WhenOpened": "2025-03-02T10:28:42.232Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\Analyses\\Index.cshtml",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Views\\Analyses\\Index.cshtml",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\Analyses\\Index.cshtml*",
+              "RelativeToolTip": "Areas\\ProjectManager\\Views\\Analyses\\Index.cshtml*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-06T07:57:31.754Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "BaseController.cs",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaseController.cs",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\BaseController.cs",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\BaseController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\BaseController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T08:28:04.077Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "LoginController.cs",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\LoginController.cs",
+              "RelativeDocumentMoniker": "Areas\\HRManager\\Controllers\\LoginController.cs",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\HRManager\\Controllers\\LoginController.cs",
+              "RelativeToolTip": "Areas\\HRManager\\Controllers\\LoginController.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T08:33:18.218Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
+              "Title": "CategoriesController.cs",
+              "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
+              "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
+              "ToolTip": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
+              "RelativeToolTip": "Areas\\ProjectManager\\Controllers\\CategoriesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-05T08:28:07.483Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "JobsController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\JobsController.cs",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\JobsController.cs",
@@ -257,7 +335,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 15,
               "Title": "EmployeesController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Controllers\\EmployeesController.cs",
@@ -269,7 +347,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 32,
               "Title": "Employee.cs",
               "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Employee.cs",
               "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\Employee.cs",
@@ -279,7 +357,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 33,
               "Title": "WorkTrackingSystemContext.cs",
               "DocumentMoniker": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\WorkTrackingSystemContext.cs",
               "ToolTip": "D:\\02.Devaster\\DuAn\\DanhGia\\WorkTrackingSystem\\WorkTrackingSystem\\Models\u200B\\WorkTrackingSystemContext.cs",
@@ -289,7 +367,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "_SideBar.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Views\\Shared\\_SideBar.cshtml",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Views\\Shared\\_SideBar.cshtml",
@@ -301,7 +379,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 17,
               "Title": "LoginController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Controllers\\LoginController.cs",
@@ -313,7 +391,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 11,
               "Title": "DashboardController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\DashboardController.cs",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Controllers\\DashboardController.cs",
@@ -325,7 +403,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 23,
               "Title": "LoginController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\EmployeeSystem\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "Areas\\EmployeeSystem\\Controllers\\LoginController.cs",
@@ -337,7 +415,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 16,
               "Title": "UserInforController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Controllers\\UserInforController.cs",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Controllers\\UserInforController.cs",
@@ -349,7 +427,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 24,
               "Title": "_SideBar.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\EmployeeSystem\\Views\\Shared\\_SideBar.cshtml",
               "RelativeDocumentMoniker": "Areas\\EmployeeSystem\\Views\\Shared\\_SideBar.cshtml",
@@ -361,7 +439,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 14,
               "Title": "UserInforController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\EmployeeSystem\\Controllers\\UserInforController.cs",
               "RelativeDocumentMoniker": "Areas\\EmployeeSystem\\Controllers\\UserInforController.cs",
@@ -373,7 +451,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 21,
               "Title": "DashboardController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\EmployeeSystem\\Controllers\\DashboardController.cs",
               "RelativeDocumentMoniker": "Areas\\EmployeeSystem\\Controllers\\DashboardController.cs",
@@ -385,7 +463,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 22,
               "Title": "Index.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\EmployeeSystem\\Views\\Dashboard\\Index.cshtml",
               "RelativeDocumentMoniker": "Areas\\EmployeeSystem\\Views\\Dashboard\\Index.cshtml",
@@ -397,7 +475,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 20,
               "Title": "_Admin.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Views\\Shared\\_Admin.cshtml",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Views\\Shared\\_Admin.cshtml",
@@ -409,7 +487,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 19,
               "Title": "_NavBar.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Views\\Shared\\_NavBar.cshtml",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Views\\Shared\\_NavBar.cshtml",
@@ -421,7 +499,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 26,
               "Title": "Index.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\EmployeeSystem\\Views\\Login\\Index.cshtml",
               "RelativeDocumentMoniker": "Areas\\EmployeeSystem\\Views\\Login\\Index.cshtml",
@@ -433,7 +511,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 28,
               "Title": "LoginController.cs",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Controllers\\LoginController.cs",
@@ -445,7 +523,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 30,
               "Title": "_Preloader.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Views\\Shared\\_Preloader.cshtml",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Views\\Shared\\_Preloader.cshtml",
@@ -457,7 +535,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 25,
               "Title": "ChangePassword.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Views\\UserInfor\\ChangePassword.cshtml",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Views\\UserInfor\\ChangePassword.cshtml",
@@ -469,7 +547,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 27,
               "Title": "Index.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\AdminSystem\\Views\\Login\\Index.cshtml",
               "RelativeDocumentMoniker": "Areas\\AdminSystem\\Views\\Login\\Index.cshtml",
@@ -481,7 +559,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 29,
               "Title": "Index.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\Login\\Index.cshtml",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Views\\Login\\Index.cshtml",
@@ -493,7 +571,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 31,
               "Title": "UserInfor.cshtml",
               "DocumentMoniker": "E:\\Devmaster\\DuAn\\WorkTrackingSystem\\WorkTrackingSystem\\Areas\\ProjectManager\\Views\\UserInfor\\UserInfor.cshtml",
               "RelativeDocumentMoniker": "Areas\\ProjectManager\\Views\\UserInfor\\UserInfor.cshtml",

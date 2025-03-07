@@ -11,7 +11,6 @@ using OfficeOpenXml;
 using WorkTrackingSystem.Models;
 using System.Net.Mail;
 using System.Net;
-using ClosedXML.Excel;
 using Microsoft.AspNetCore.Hosting;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
