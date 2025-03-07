@@ -11,9 +11,8 @@
     <div class="col-md-6">
         <label class="form-label"><i class="bi bi-list-check"></i> Chọn loại chức năng:</label>
         <select id="taskType" class="form-control">
-            <option value="single">1 Nhân viên - 1 Công việc</option>
+            <option value="oneToMany">1 Nhân viên - 1 Công việc hoặc nhiều Công việc</option>
             <option value="multi">Nhiều Nhân viên - 1 Công việc</option>
-            <option value="oneToMany">1 Nhân viên - Nhiều Công việc</option>
         </select>
     </div>
 </div>
@@ -24,14 +23,6 @@
     <div class="col-md-6">
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <!-- Một nhân viên - Một công việc -->
-            <div class="mb-3 task-type single">
-                <label asp-for="EmployeeId" class="form-label"><i class="bi bi-person"></i> Nhân viên:</label>
-                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
-                <span asp-validation-for="EmployeeId" class="text-danger"></span>
-            </div>
-
             <!-- Nhiều nhân viên - Một công việc -->
             <div class="mb-3 task-type multi" style="display: none;">
                 <label class="form-label"><i class="bi bi-people"></i> Chọn nhân viên:</label>
@@ -42,15 +33,44 @@
                         <label class="form-check-label">@employee.Text</label>
                     </div>
                 }
+                <!-- Thêm các trường cho job -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
+                    <select name="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
+                    <input name="Name" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
+                    <input name="Description" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 1:</label>
+                    <input name="Deadline1" type="date" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 2:</label>
+                    <input name="Deadline2" type="date" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 3:</label>
+                    <input name="Deadline3" type="date" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-calendar-check"></i> Hạn hoàn thành:</label>
+                    <input name="CompletionDate" type="date" class="form-control" />
+                </div>
             </div>
 
             <!-- Một nhân viên - Nhiều công việc -->
-            <div class="mb-3 task-type oneToMany" style="display: none;">
+            <div class="mb-3 task-type oneToMany">
                 <label class="form-label"><i class="bi bi-person"></i> Chọn Nhân viên:</label>
                 <select id="singleEmployee" name="SingleEmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
             </div>
 
-            <div id="taskContainer">
+            <div id="taskContainer" class="oneToMany">
                 <div class="task-group" data-index="0">
                     <div class="mb-3">
                         <label class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
@@ -83,7 +103,7 @@
                 </div>
             </div>
 
-            <div class="mb-3 oneToMany" style="display: none;">
+            <div class="mb-3 oneToMany">
                 <button type="button" class="btn btn-success" id="addTask"><i class="bi bi-plus-circle"></i> Thêm công việc</button>
             </div>
 
@@ -100,13 +120,20 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        document.getElementById("taskType").addEventListener("change", function () {
+                document.getElementById("taskType").addEventListener("change", function () {
             let selected = this.value;
             document.querySelectorAll(".task-type").forEach(e => e.style.display = "none");
             document.querySelectorAll(`.${selected}`).forEach(e => e.style.display = "block");
-            if (selected !== "oneToMany") {
-                document.getElementById("taskContainer").innerHTML = document.querySelector(".task-group").outerHTML;
-            }
+            let taskContainer = document.getElementById("taskContainer");
+        let addTaskButton = document.getElementById("addTask");
+                if (selected === "oneToMany") {
+            taskContainer.style.display = "block";
+            addTaskButton.style.display = "inline-block"; // Hiển thị nút Thêm công việc
+        } else {
+            taskContainer.style.display = "none";
+            addTaskButton.style.display = "none"; // Ẩn nút Thêm công việc khi chọn "multi"
+            taskContainer.innerHTML = document.querySelector(".task-group").outerHTML; // Reset về 1 công việc
+        }
         });
 
         document.getElementById("addTask").addEventListener("click", function () {

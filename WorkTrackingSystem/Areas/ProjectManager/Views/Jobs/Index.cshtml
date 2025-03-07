@@ -13,17 +13,20 @@
                 <div class="col-md-3">
                     <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên / công việc" value="@Context.Request.Query["searchText"]">
                 </div>
-
+                <div class="col-md-2">
+                    <input type="month" name="month" class="form-control" value="@Context.Request.Query["month"]" />
+                </div>
                 <div class="col-md-2">
                     <select name="status" class="form-control">
                         <option value="">-- Trạng thái --</option>
                         <option value="1">Hoàn thành</option>
                         <option value="2">Chưa hoàn thành</option>
                         <option value="3">Hoàn thành muộn</option>
+                        <option value="4">Đang xử lý</option>
                     </select>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <select name="categoryId" class="form-control">
                         <option value="">-- Danh mục --</option>
                         @foreach (var category in ViewData["Categories"] as SelectList)
@@ -32,9 +35,7 @@
                         }
                     </select>
                 </div>
-
-
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <select name="sortOrder" class="form-control">
                         <option value="">-- Sắp xếp --</option>
                         <option value="due_asc">Hạn hoàn thành tăng dần</option>
@@ -43,18 +44,32 @@
                         <option value="review_desc">Đánh giá giảm dần</option>
                     </select>
                 </div>
-
                 <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="dueToday" id="dueToday" value="true" @(Context.Request.Query["dueToday"] == "true" ? "checked" : "")>
+                        <label class="form-check-label" for="dueToday">
+                            Hạn hôm nay
+                        </label>
+                    </div>
                 </div>
                 <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
                     <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
                 </div>
             </div>
         </form>
+
         <p>
             <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo mới công việc</a>
-            <a asp-action="ExportToExcel" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+            <form asp-action="ExportToExcel" method="get">
+                <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
+                <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
+                <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
+                <input type="hidden" name="dueToday" value="@Context.Request.Query["dueToday"]" />
+                <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
+                <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
+                <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+            </form>
         </p>
 
         <div class="table-responsive">
