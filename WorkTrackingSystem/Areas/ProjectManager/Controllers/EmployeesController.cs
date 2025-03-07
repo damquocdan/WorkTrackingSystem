@@ -45,7 +45,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             // Lấy danh sách phòng ban mà nhân viên này quản lý
             var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2)) // 2 = Quản lý
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3)) // 2 = Quản lý
                 .Select(d => d.Id)
                 .ToListAsync();
 
@@ -60,25 +60,54 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
 
         // GET: ProjectManager/Employees/Details/5
-        public async Task<IActionResult> Details(long? id)
+        public IActionResult Details(long id, string month = null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employees
-                .Include(e => e.Department)
-                .Include(e => e.Position)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // Lấy nhân viên
+            var employee = _context.Employees.Find(id);
             if (employee == null)
             {
                 return NotFound();
             }
 
-            return View(employee);
-        }
+            // Xác định tháng (nếu không có thì lấy tháng hiện tại)
+            DateTime selectedMonth = string.IsNullOrEmpty(month)
+                ? DateTime.Now
+                : DateTime.Parse(month + "-01");
 
+            // Lấy danh sách công việc của nhân viên theo tháng
+            var jobs = _context.Jobs
+                .Where(j => j.EmployeeId == id
+                    && j.Deadline1.HasValue
+                    && j.Deadline1.Value.Year == selectedMonth.Year
+                    && j.Deadline1.Value.Month == selectedMonth.Month)
+                .ToList();
+
+            // Lấy đánh giá của nhân viên theo tháng
+            var baseline = _context.Baselineassessments
+                .FirstOrDefault(b => b.EmployeeId == id
+                    && b.Time.HasValue
+                    && b.Time.Value.Year == selectedMonth.Year
+                    && b.Time.Value.Month == selectedMonth.Month);
+
+            // Lấy phân tích của nhân viên theo tháng
+            var analysis = _context.Analyses
+                .FirstOrDefault(a => a.EmployeeId == id
+                    && a.Time.HasValue
+                    && a.Time.Value.Year == selectedMonth.Year
+                    && a.Time.Value.Month == selectedMonth.Month);
+
+            // Tạo view model
+            var viewModel = new EmployeeDetailsViewModel
+            {
+                Employee = employee,
+                Jobs = jobs,
+                BaselineAssessment = baseline,
+                Analysis = analysis,
+                SelectedMonth = selectedMonth
+            };
+
+            return View(viewModel);
+        }
         // GET: ProjectManager/Employees/Create
         public IActionResult Create()
         {
@@ -200,4 +229,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return _context.Employees.Any(e => e.Id == id);
         }
     }
+}
+public class EmployeeDetailsViewModel
+{
+    public Employee Employee { get; set; }
+    public List<Job> Jobs { get; set; }
+    public Baselineassessment BaselineAssessment { get; set; }
+    public Analysis Analysis { get; set; }
+    public DateTime SelectedMonth { get; set; }
 }

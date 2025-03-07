@@ -23,6 +23,7 @@
                         <option value="2">Chưa hoàn thành</option>
                         <option value="3">Hoàn thành muộn</option>
                         <option value="4">Đang xử lý</option>
+                        <option value="5">Chưa bắt đầu</option>
                     </select>
                 </div>
 
@@ -35,7 +36,7 @@
                         }
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <select name="sortOrder" class="form-control">
                         <option value="">-- Sắp xếp --</option>
                         <option value="due_asc">Hạn hoàn thành tăng dần</option>
@@ -43,6 +44,14 @@
                         <option value="review_asc">Đánh giá tăng dần</option>
                         <option value="review_desc">Đánh giá giảm dần</option>
                     </select>
+                </div>
+                <div class="col-md-1">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="showCompletedZeroReview" id="showCompletedZeroReview" value="true" @(Context.Request.Query["showCompletedZeroReview"] == "true" ? "checked" : "")>
+                        <label class="form-check-label" for="showCompletedZeroReview">
+                            Chưa Đ.giá
+                        </label>
+                    </div>
                 </div>
                 <div class="col-md-1">
                     <div class="form-check">
@@ -111,8 +120,12 @@
                                         <span>Hoàn thành muộn</span>
                                         ;
                                         break;
-                                    default:
+                                    case 4:
                                         <span>Đang xử lý</span>
+                                        ;
+                                        break;
+                                    default:
+                                        <span>Chưa bắt đầu</span>
                                         ;
                                         break;
                                 }

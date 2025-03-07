@@ -123,7 +123,7 @@
                                 <td>@item.VolumeAssessment</td>
                                 <td>@item.ProgressAssessment</td>
                                 <td>@item.QualityAssessment</td>
-                                <td>@item.SummaryOfReviews</td>
+                                <td>@(item.SummaryOfReviews != null ? Convert.ToDouble(item.SummaryOfReviews).ToString("F2") : "N/A")</td>
                                 <td>@(item.Time.HasValue ? item.Time.Value.ToString("MM/yyyy") : "")</td>
                                 <td>
                                     @if (item.Evaluate.GetValueOrDefault())

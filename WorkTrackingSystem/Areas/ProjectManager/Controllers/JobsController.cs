@@ -10,6 +10,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml;
 using WorkTrackingSystem.Models;
 using OfficeOpenXml.Drawing.Chart;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
@@ -24,7 +25,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Jobs
-        public async Task<IActionResult> Index(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
+        public async Task<IActionResult> Index(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month, bool showCompletedZeroReview)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
@@ -45,7 +46,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             //lấy id phòng ban mà nhân viên quản lý
             var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
                 .Select(d => d.Id)
                 .ToListAsync();
 
@@ -87,7 +88,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 jobs = jobs.Where(j => j.Time.HasValue && j.Time.Value.Date == DateTime.Today);
             }
-
+            if (showCompletedZeroReview)
+            {
+                jobs = jobs.Where(x => (x.Status == 1 || x.Status == 3) && x.SummaryOfReviews == 0);
+            }
             // Lọc theo tháng được chọn
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
@@ -141,7 +145,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
                 .Select(d => d.Id)
                 .ToListAsync();
 
@@ -236,7 +240,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         1 => "Hoàn thành",
                         2 => "Chưa hoàn thành",
                         3 => "Hoàn thành muộn",
-                        _ => "Đang xử lý"
+                        4 => "Đang xử lý",
+                        _ => "Chưa bắt đầu"
                     };
                     worksheet.Cells[i + 2, 8].Value = job.VolumeAssessment;
                     worksheet.Cells[i + 2, 9].Value = job.ProgressAssessment;
@@ -298,7 +303,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var managedDepartments = _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
                 .Select(d => d.Id)
                 .ToList();
 
@@ -318,7 +323,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             var newJob = new Job
             {
                 Time = DateTime.Now,
-                Status = 4 // Đặt mặc định là "Đang xử lý"
+                Status = 5 // Đặt mặc định là "Đang xử lý"
             };
             return View(newJob);
         }
@@ -349,7 +354,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                             Deadline2 = job.Deadline2,
                             Deadline3 = job.Deadline3,
                             CompletionDate = job.CompletionDate,
-                            Status = 4,
+                            Status = 5,
                             Time = DateTime.Now,
                             IsActive = true,
                             IsDelete = false,
@@ -367,7 +372,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     foreach (var j in Jobs)
                     {
                         j.EmployeeId = SingleEmployeeId.Value;
-                        j.Status = 4;
+                        j.Status = 5;
                         j.Time = DateTime.Now;
                         j.IsActive = true;
                         j.IsDelete = false;
@@ -382,7 +387,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 {
                     // Một nhân viên - Một công việc (mặc định)
 
-                    job.Status = 4;
+                    job.Status = 5;
                     job.Time = DateTime.Now;
                     job.IsActive = true;
                     job.IsDelete = false;
@@ -502,7 +507,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             double sumSummary = jobs.Sum(j => j.SummaryOfReviews ?? 0);
 
             // Xác định trạng thái Evaluate (giả sử tổng Summary >= 6 là đạt, bạn có thể điều chỉnh ngưỡng)
-            bool evaluate = sumSummary >= 6;
+            bool evaluate = sumSummary >= 45;
 
             // Tìm bản ghi BaselineAssessment của nhân viên trong tháng hiện tại
             var baseline = await _context.Baselineassessments

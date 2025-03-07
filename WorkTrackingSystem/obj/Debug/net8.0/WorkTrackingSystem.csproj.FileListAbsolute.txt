@@ -570,3 +570,6 @@ D:\02.Devaster\DuAn\DanhGia\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8
 D:\02.Devaster\DuAn\DanhGia\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.pdb
 D:\02.Devaster\DuAn\DanhGia\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.genruntimeconfig.cache
 D:\02.Devaster\DuAn\DanhGia\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\ref\WorkTrackingSystem.dll
+E:\Devmaster\DuAn\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\X.PagedList.dll
+E:\Devmaster\DuAn\WorkTrackingSystem\WorkTrackingSystem\bin\Debug\net8.0\X.PagedList.Mvc.Core.dll
+E:\Devmaster\DuAn\WorkTrackingSystem\WorkTrackingSystem\obj\Debug\net8.0\WorkTrackingSystem.MvcApplicationPartsAssemblyInfo.cs

@@ -47,7 +47,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             // Lấy danh sách phòng ban mà quản lý đang phụ trách
             var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2)) // 2 = Quản lý
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3)) // 2 = Quản lý
                 .Select(d => d.Id)
                 .ToListAsync();
 
@@ -116,7 +116,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 2))
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
                 .Select(d => d.Id)
                 .ToListAsync();
 
@@ -388,7 +388,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                                       (baselineassessment.QualityAssessment * 0.25);
 
                     // Nếu tổng điểm đánh giá > 50, Evaluate = true
-                    existingRecord.Evaluate = existingRecord.SummaryOfReviews > 50;
+                    existingRecord.Evaluate = existingRecord.SummaryOfReviews > 45;
                     existingRecord.UpdateDate = DateTime.Now;
 
                     string userIdStr = HttpContext.Session.GetString("ProjectManagerLogin");
