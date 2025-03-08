@@ -37,7 +37,11 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
 				var searchLower = search.ToLower();
 				query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower));
 			}
+            if(!string.IsNullOrEmpty(search)&& DepartmentId > 0)
+            {
 
+                query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(search.ToLower()) && e.DepartmentId == DepartmentId);
+            }
 			var employees =  query.ToPagedList(page, limit);
 			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
 
