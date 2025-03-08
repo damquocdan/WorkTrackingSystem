@@ -53,6 +53,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers {
                 })
                 .OrderBy(g => g.Month)
                 .ToList();
+            
 
             ViewBag.AssessmentMonths = assessmentsByMonth.Select(a => a.Month).ToList();
             ViewBag.AssessmentVolumes = assessmentsByMonth.Select(a => a.AvgVolume).ToList();

@@ -1,164 +1,190 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.Job>
-
+﻿
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Job>
 @{
-    ViewData["Title"] = "Danh sách công việc";
-    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+	ViewData["Title"] = "Danh sách công việc";
+	Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
 }
 
 <h2 class="text-primary text-center mb-4">Danh sách Công Việc</h2>
 
 <!-- Thanh công cụ tìm kiếm và bộ lọc -->
 <div class="d-flex justify-content-between mb-3">
-    <!-- Ô tìm kiếm -->
-    <input type="text" id="searchBox" class="form-control w-25" placeholder="Tìm kiếm công việc...">
+	<!-- Ô tìm kiếm -->
+	<input type="text" id="searchBox" class="form-control w-25" placeholder="Tìm kiếm công việc...">
 
-    <!-- Bộ lọc trạng thái -->
-    <select id="filterStatus" class="form-select w-25">
-        <option value="">Tất cả trạng thái</option>
-        <option value="0">Chưa bắt đầu</option>
-        <option value="1">Đang thực hiện</option>
-        <option value="2">Hoàn thành</option>
-        <option value="3">Trễ hạn</option>
-    </select>
+	<!-- Bộ lọc trạng thái -->
+	<select id="filterStatus" class="form-select w-25">
+		<option value="">Tất cả trạng thái</option>
+		<option value="1">Hoàn thành</option>
+		<option value="2">Chưa hoàn thành</option>
+		<option value="3">Hoàn thành muộn</option>
+		<option value="4">Đang xử lý</option>
+		<option value="5">Chưa bắt đầu</option>
+	</select>
 </div>
 
 <table class="table table-bordered table-hover shadow">
-    <thead class="table-primary text-center">
-        <tr>
-            <th>Tên công việc</th>
-            <th>Hạn chót</th>
-            <th>Trạng thái</th>
-            <th>Ngày hoàn thiện</th>
-        </tr>
-    </thead>
-    <tbody id="jobTable">
-        @foreach (var item in Model)
-        {
-            <tr class="job-row" data-status="@item.Status">
-                <td class="job-name">@item.Name</td>
-                <td>@item.Deadline1?.ToString("dd/MM/yyyy")</td>
-                <td class="text-center">
-                    <select class="form-select status-dropdown" data-job-id="@item.Id">
-                        <option value="0" selected="@(item.Status == 0 ? "selected" : null)">Chưa bắt đầu</option>
-                        <option value="1" selected="@(item.Status == 1 ? "selected" : null)">Đang thực hiện</option>
-                        <option value="2" selected="@(item.Status == 2 ? "selected" : null)">Hoàn thành</option>
-                        <option value="3" selected="@(item.Status == 3 ? "selected" : null)">Trễ hạn</option>
-                    </select>
-                </td>
-                <td class="text-center">
-                    <input type="date" class="completion-date" data-job-id="@item.Id"
-                           value="@(item.CompletionDate.HasValue ? item.CompletionDate.Value.ToString("yyyy-MM-dd") : "")">
-                </td>
+	<thead class="table-primary text-center">
+		<tr>
+			<th>Tên công việc</th>
+			<th>Hạn chót</th>
+			<th>Tiến độ </th>
+			<th>Trạng thái</th>
+			<th>Ngày hoàn thiện</th>
+		</tr>
+	</thead>
+	<tbody id="jobTable">
+		@foreach (var item in Model)
+		{
+			<tr class="job-row" data-status="@item.Status">
+				<td class="job-name">@item.Name</td>
+				<td>@item.Deadline1?.ToString("dd/MM/yyyy")</td>
+				<td class="text-center">
+					<input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.Progress" min="0" max="100" step="5">
+					<span class="progress-value">@item.Progress%</span>
+				</td>
+				<td class="text-center">
+					<span>
+						@if (item.Status == 1)
+						{
+							<text>Hoàn thành</text>
+						}
+						else if (item.Status == 2)
+						{
+							<text>Chưa hoàn thành</text>
+						}
+						else if (item.Status == 3)
+						{
+							<text>Hoàn thành muộn</text>
+						}
+						else if(item.Status==4){
+							<text>Đang xử lý</text>
+						}
+						else
+						{
+							<text>Chưa bắt đầu</text>
+						}
+					</span>
+				</td>
+				<td class="text-center">
+					<input type="date" class="completion-date" data-job-id="@item.Id"
+						   value="@(item.CompletionDate.HasValue ? item.CompletionDate.Value.ToString("yyyy-MM-dd") : "")">
+				</td>
 
-                @* <td class="text-center">
-                    <input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.ProgressAssessment" min="0" max="100" step="5">
-                    <span class="progress-value">@item.ProgressAssessment%</span>
-                </td> *@
-            </tr>
-        }
-    </tbody>
+
+			</tr>
+		}
+	</tbody>
 </table>
-
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+{
+	LiElementClasses = new string[] { "page-item" },
+	PageClasses = new string[] { "page-link" },
+	DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
+	DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
+	DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
+	DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
+	DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
+	MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
+})
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let searchBox = document.getElementById('searchBox');
-            let filterStatus = document.getElementById('filterStatus');
-           
-            // Chức năng tìm kiếm
-            searchBox.addEventListener('input', function () {
-                let searchTerm = this.value.toLowerCase();
-                document.querySelectorAll('.job-row').forEach(row => {
-                    let jobName = row.querySelector('.job-name').textContent.toLowerCase();
-                    row.style.display = jobName.includes(searchTerm) ? '' : 'none';
-                });
-            });
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			let searchBox = document.getElementById('searchBox');
+			let filterStatus = document.getElementById('filterStatus');
 
-            // Chức năng lọc công việc theo trạng thái
-            filterStatus.addEventListener('change', function () {
-                let selectedStatus = this.value;
-                console.log("selected",this.value)
-                document.querySelectorAll('.job-row').forEach(row => {
-                    let jobStatus = row.getAttribute('data-status');
-                    row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
-                });
-            });
-            //cập nhập ngày hoàn thành thực tế
+			// Chức năng tìm kiếm
+			searchBox.addEventListener('input', function () {
+				let searchTerm = this.value.toLowerCase();
+				document.querySelectorAll('.job-row').forEach(row => {
+					let jobName = row.querySelector('.job-name').textContent.toLowerCase();
+					row.style.display = jobName.includes(searchTerm) ? '' : 'none';
+				});
+			});
 
-            document.querySelectorAll('.completion-date').forEach(input => {
-                input.addEventListener('change', function () {
-                    let jobId = parseInt(this.dataset.jobId);
-                    let completionDate = this.value; // Giá trị đã chọn từ input date (YYYY-MM-DD)
+			// Chức năng lọc công việc theo trạng thái
+			filterStatus.addEventListener('change', function () {
+				let selectedStatus = this.value;
+				document.querySelectorAll('.job-row').forEach(row => {
+					let jobStatus = row.getAttribute('data-status');
+					row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
+				});
+			});
 
-                    if (!completionDate) return;
+			// Cập nhật ngày hoàn thành thực tế
+			document.querySelectorAll('.completion-date').forEach(input => {
+				input.addEventListener('change', function () {
+					let jobId = parseInt(this.dataset.jobId);
+					let completionDate = this.value;
 
-                    fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                console.log("Cập nhật ngày hoàn thành thành công!");
-                            } else {
-                                console.error("Lỗi cập nhật:", data.message);
-                            }
-                        })
-                        .catch(error => console.error('Lỗi:', error));
-                });
-            });
+					if (!completionDate) return;
 
-            // // Cập nhật tiến độ
-            // document.querySelectorAll('.progress-slider').forEach(slider => {
-            //     slider.addEventListener('input', function () {
-            //         let jobId = parseInt(this.dataset.jobId)
-            //         let progress = parseFloat(this.value);
-            //         this.nextElementSibling.textContent = progress + '%';
+					fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
+					})
+						.then(response => response.json())
+						.then(data => {
+							if (data.success) {
+								console.log("Cập nhật ngày hoàn thành thành công!");
+							} else {
+								console.error("Lỗi cập nhật:", data.message);
+							}
+						})
+						.catch(error => console.error('Lỗi:', error));
+				});
+			});
 
-            //         fetch('/EmployeeSystem/Jobs/UpdateProgress', {
-            //             method: 'POST',
-            //             headers: { 'Content-Type': 'application/json' },
-            //             body: JSON.stringify({ id: jobId, progress: progress })
-            //         }).then(response => response.json())
-            //             .then(data => {
-            //                 if (data.success) {
-            //                     console.log("Cập nhật tiến độ thành công!");
-            //                 } else {
-            //                     console.error("Lỗi cập nhật:", data.message);
-            //                 }
-            //             })
-            //             .catch(error => console.error('Lỗi:', error));
-            //     });
-            // });
+			// Cập nhật tiến độ và trạng thái
+			document.querySelectorAll('.progress-slider').forEach(slider => {
+				slider.addEventListener('input', function () {
+					let jobId = parseInt(this.dataset.jobId);
+					let progress = parseFloat(this.value);
+					this.nextElementSibling.textContent = progress + '%';
 
-        
-            // Cập nhật trạng thái
-            document.querySelectorAll('.status-dropdown').forEach(select => {
-                select.addEventListener('change', function () {
-                    let jobId = parseInt(this.dataset.jobId);
-                    let status = parseInt(this.value);
-                  
-                    fetch('/EmployeeSystem/Jobs/UpdateStatus', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ jobId: jobId, status: status })
-                    }).then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
-                        }
-                        return response.json();
-                    }).then(data => {
-                        console.log("Server response:", data);
-                        if (data.success) {
-                            console.log("Cập nhật trạng thái thành công!");
-                        } else {
-                            console.error("Lỗi cập nhật:", data.message);
-                        }
-                    }).catch(error => console.error('Lỗi:', error));
-                });
-            });
+					fetch('/EmployeeSystem/Jobs/UpdateProgress', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ id: jobId, progress: progress })
+					})
+						.then(response => response.json())
+						.then(data => {
+							if (data.success) {
+								console.log("Cập nhật tiến độ thành công!");
 
-        });
-    </script>
+								// 🔥 Tìm hàng công việc đúng cách 🔥
+								let slider = document.querySelector(`.progress-slider[data-job-id="${jobId}"]`);
+								let row = slider ? slider.closest('.job-row') : null;  // Tìm thẻ <tr> cha
+								if (row) {
+									let statusSpan = row.querySelector("td:nth-child(4) span");
+									if (statusSpan) {
+										let newStatus = data.newStatus;
+										statusSpan.textContent = newStatus === 1 ? "Hoàn thành"
+											: newStatus === 2 ? "Chưa hoàn thành"
+												: newStatus === 3 ? "Hoàn thành muộn"
+													: newStatus===4 ? "Đang xử lý"
+													: "Chưa bắt đầu";
+										// Cập nhật `data-status`
+										row.setAttribute('data-status', newStatus);
+									} else {
+										console.warn(`Không tìm thấy phần tử trạng thái trong hàng có jobId = ${jobId}`);
+									}
+								} else {
+									console.warn(`Không tìm thấy hàng công việc cho jobId = ${jobId}`);
+								}
+							} else {
+								console.error("Lỗi cập nhật:", data.message);
+							}
+						})
+						.catch(error => console.error('Lỗi:', error));
+				});
+			});
+
+		
+		});
+	</script>
 }
+
+

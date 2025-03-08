@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
@@ -30,8 +31,9 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
     string searchText,
     string time, // Thay vì month và year riêng lẻ
     string sortOrder,
-    string filterType)
+    string filterType ,int page=1)
         {
+            var limit = 10;
             var managerUsername = HttpContext.Session.GetString("HRManagerLogin");
 
             if (string.IsNullOrEmpty(managerUsername))
@@ -118,7 +120,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                     break;
             }
 
-            return View(await analyses.ToListAsync());
+            return View( analyses.ToPagedList(page,limit));
         }
 
 

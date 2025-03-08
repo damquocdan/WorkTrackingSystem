@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
@@ -21,10 +22,18 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, int page= 1)
         {
-            var workTrackingSystemContext = _context.Users.Include(u => u.Employee);
-            return View(await workTrackingSystemContext.ToListAsync());
+            var limit = 8;
+            var workTrackingSystemContext = _context.Users.Include(u => u.Employee).Include(u=>u.Employee.Department);
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchLower = search.ToLower();
+                 workTrackingSystemContext = _context.Users.Where(u => u.UserName.ToLower().Contains(searchLower)).Include(u => u.Employee).Include(u=>u.Employee.Department);
+                return View(workTrackingSystemContext.ToPagedList(page, limit));
+            }
+            //ViewBag.Department= _context.Employees.Include(e=>e.Department).Where(e=>e.DepartmentId ==   )
+            return View(workTrackingSystemContext.ToPagedList(page, limit));
         }
 
         // GET: HRManager/Users/Details/5
@@ -52,7 +61,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         // GET: HRManager/Users/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
+
+            }), "Id", "FullName");  
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Create");
@@ -67,8 +81,22 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+           
+            long id = long.Parse(userId);
+
+            var userad = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+
+          
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == userad.EmployeeId);
+
             if (ModelState.IsValid)
             {
+                user.CreateDate= DateTime.Now;
+                user.CreateBy= employee.FirstName+""+ employee.LastName;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -90,11 +118,15 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
 
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            }), "Id", "FullName");
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_Create", user);
+                return PartialView("_Edit", user);
             }
             return View(user);
         }
@@ -106,6 +138,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+            var idus = long.Parse(userId);
+            var userad = await _context.Users.FirstOrDefaultAsync(u => u.Id == idus);
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == userad.EmployeeId);
+
             if (id != user.Id)
             {
                 return NotFound();
@@ -115,6 +155,8 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 try
                 {
+                    user.UpdateDate = DateTime.Now;
+                    user.UpdateBy = employee.FirstName+""+employee.LastName;
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -131,7 +173,12 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
+
+            }), "Id", "FullName");
             return View(user);
         }
 

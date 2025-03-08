@@ -35,7 +35,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers {
             ViewBag.JobStatusLate = _context.Jobs.Where(x => x.EmployeeId == user.EmployeeId).Count(j => j.Status == 3);
             ViewBag.JobStatusProcessing = _context.Jobs.Where(x => x.EmployeeId == user.EmployeeId).Count(j => j.Status == 4);
 
-            // Thống kê công việc theo tháng/năm cho biểu đồ cột (client-side)
+            //Thống kê công việc theo tháng/ năm cho biểu đồ cột(client-side)
             var jobsByMonth = _context.Jobs.Where(x => x.EmployeeId == user.EmployeeId)
                 .Where(j => j.Time.HasValue && j.IsActive == true && j.IsDelete == false)
                 .ToList() // Chuyển sang client-side

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.HRManager.Controllers
 {
@@ -21,14 +22,32 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         }
 
         // GET: HRManager/Employees
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index( string search,int? DepartmentId,int page = 1)
         {
-            var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-            return View(await workTrackingSystemContext.ToListAsync());
-        }
+            var limit = 5;
+			var query = _context.Employees.Include(e => e.Department).Include(e => e.Position).AsQueryable();
 
-        // GET: HRManager/Employees/Details/5
-        public async Task<IActionResult> Details(long? id)
+			if (DepartmentId > 0)
+			{
+				query = query.Where(e => e.DepartmentId == DepartmentId);
+			}
+
+			if (!string.IsNullOrEmpty(search))
+			{
+				var searchLower = search.ToLower();
+				query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower));
+			}
+
+			var employees =  query.ToPagedList(page, limit);
+			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+
+			return View(employees);
+
+			
+		}
+
+		// GET: HRManager/Employees/Details/5
+		public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
             {
@@ -71,6 +90,22 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = HttpContext.Session.GetString("HRUserId");
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return RedirectToAction("Index", "Login");
+                }
+                long id = long.Parse(userId);
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+               var employeeCr = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
+
+                if (employeeCr.FirstName != null && employeeCr.LastName != null)
+                {
+                    employee.CreateBy = employeeCr.FirstName+""+ employeeCr.LastName;
+                 
+                }
+                employee.CreateDate = DateTime.Now;
                 _context.Add(employee);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -97,8 +132,8 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);
-            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Id", employee.PositionId);
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Edit", employee);
@@ -113,6 +148,13 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,DepartmentId,PositionId,Code,FirstName,LastName,Gender,Birthday,Phone,Email,HireDate,Address,Avatar,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Employee employee)
         {
+            var userId = HttpContext.Session.GetString("HRUserId");
+            var idus = long.Parse(userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == idus);
+            var employeead = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
             if (id != employee.Id)
             {
                 return NotFound();
@@ -122,6 +164,8 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 try
                 {
+                    employee.UpdateDate= DateTime.Now;
+                    employee.UpdateBy = employeead.FirstName + "" + employeead.LastName;
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }

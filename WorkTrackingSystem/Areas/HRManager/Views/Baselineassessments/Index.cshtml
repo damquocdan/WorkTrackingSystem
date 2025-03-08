@@ -1,8 +1,8 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.Baselineassessment>
-
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Baselineassessment>
 @{
     ViewData["Title"] = "Danh sách đánh giá cơ bản";
-    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+    Layout = "~/Areas/HRManager/Views/Shared/_HRManager.cshtml";
 }
 @{
     var totalEvaluations = Model.Count();
@@ -88,12 +88,12 @@
                 <table class="table table-hover table-bordered">
                     <thead class="table-dark">
                         <tr>
-                            <th><i class="bi bi-bar-chart-line"></i> Tổng đánh giá khối lượng</th>
-                            <th><i class="bi bi-graph-up"></i> Tổng đánh giá tiến độ</th>
-                            <th><i class="bi bi-star"></i> Tổng đánh giá chất lượng</th>
-                            <th><i class="bi bi-chat-left-text"></i> Tổng đánh giá tổng hợp</th>
-                            <th><i class="bi bi-clock"></i> Tháng</th>
-                            <th><i class="bi bi-clipboard-check"></i> Đánh giá</th>
+                            <th><i class="bi bi-bar-chart-line"></i>@Html.DisplayNameFor(Model=>Model.FirstOrDefault().VolumeAssessment)</th>
+                            <th><i class="bi bi-graph-up"></i>@Html.DisplayNameFor(Model => Model.FirstOrDefault().ProgressAssessment)</th>
+                            <th><i class="bi bi-star"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().QualityAssessment)</th>
+                            <th><i class="bi bi-chat-left-text"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().SummaryOfReviews)</th>
+                            <th><i class="bi bi-clock"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().SummaryOfReviews)</th>
+                            <th><i class="bi bi-clipboard-check"></i> @Html.DisplayNameFor(Model => Model.FirstOrDefault().Time)</th>
                             <th><i class="bi bi-person"></i> Nhân viên</th>
                             <th><i class="bi bi-gear"></i> Hành động</th>
                         </tr>
@@ -132,7 +132,22 @@
         </div>
     </div>
 </div>
-
+@* @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" }
+}) *@
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" },
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
+    DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
+    DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
+    MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
+})
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

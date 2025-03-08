@@ -1,30 +1,41 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.User>
-
+﻿@* @model IEnumerable<WorkTrackingSystem.Models.User> *@
+@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Models.User>
 @{
     ViewData["Title"] = "Danh Sách Người Dùng";
     Layout = "~/Areas/HRManager/Views/Shared/_HRManager.cshtml";
 }
+
+
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <h1>Danh Sách Người Dùng</h1>
+        <h1 class="text-center" >Danh Sách Người Dùng</h1>
 
-        <p>
-            <a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>
-        </p>
+        <div class="row">
+            <p class="col-md-6">
+                <a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>
+            </p>
+            <div class="col-md-6">
+                <form>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="search" placeholder="Nhập tên người dùng" />
+                        <button class="input-group-text" id="basic-addon2" type="submit">tìm kiếm</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
         <table class="table table-striped table-bordered">
             <thead>
                 <tr>
                     <th>
-                        <i class="bi bi-person"></i> @Html.DisplayNameFor(model => model.UserName)
+                        <i class="bi bi-person"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().UserName)
                     </th>
                     <th>
-                        <i class="bi bi-key"></i> @Html.DisplayNameFor(model => model.Password)
+                        <i class="bi bi-person-badge"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Employee)
                     </th>
                     <th>
-                        <i class="bi bi-person-badge"></i> @Html.DisplayNameFor(model => model.Employee)
-                    </th>
-                    <th>
-                        <i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.Employee.Department)
+                        <i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Employee.Department)
                     </th>
                     <th></th>
                 </tr>
@@ -36,9 +47,9 @@
                         <td>
                             @Html.DisplayFor(modelItem => item.UserName)
                         </td>
-                        <td>
+                       @*  <td>
                             @Html.DisplayFor(modelItem => item.Password)
-                        </td>
+                        </td> *@
                         <td>
                             @Html.DisplayFor(modelItem => item.Employee.Code)-@Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)
                         </td>
@@ -59,7 +70,17 @@
         <div class="actionCustomers"></div>
     </div>
 </div>
-
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" },
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
+    DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
+    DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
+    MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
+})
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="form-inline">
+       @*  <div class="form-inline">
             <div class="input-group" data-widget="sidebar-search">
                 <input class="form-control form-control-sidebar" type="search" placeholder="Tìm kiếm" aria-label="Search">
                 <div class="input-group-append">
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-
+ *@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                @*  <li class="nav-item menu-open">
@@ -68,7 +68,7 @@
                 </li> *@
                 <li class="nav-item">
                     <a asp-controller="Positions" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-list-alt"></i>
+                        <i class="nav-icon fa fa-briefcase"></i>
                         <p>
                             Quản lý chức vụ
                             <i class="fas fa-angle-left right"></i>
@@ -89,7 +89,7 @@
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Employees" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-list-alt"></i>
+                        <i class="nav-icon fa fa-users"></i>
                         <p>
                             Quản lý nhân viên
                             <i class="fas fa-angle-left right"></i>
@@ -110,7 +110,7 @@
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Users" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-user-cog"></i>
+                        <i class="nav-icon fa fa-user-shield"></i>
                         <p>
                             Quản lý tài khoản
                             <i class="fas fa-angle-left right"></i>
@@ -131,7 +131,7 @@
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Departments" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-user-cog"></i>
+                        <i class="nav-icon fa fa-building"></i>
                         <p>
                             Quản lý phòng ban
                             <i class="fas fa-angle-left right"></i>
@@ -150,9 +150,9 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item">
+               @*  <li class="nav-item">
                     <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-star"></i>
+                        <i class="nav-icon fa fa-check-square"></i>
                         <p>
                             Quản lý đánh giá
                             <i class="fas fa-angle-left right"></i>
@@ -165,10 +165,10 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-                <li class="nav-item">
+                </li> *@
+               @*  <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">
-                        <i class="nav-icon fas fa-star"></i>
+                        <i class="nav-icon fa fa-chart-line"></i>
                         <p>
                             Quản lý phân tích
                             <i class="fas fa-angle-left right"></i>
@@ -181,7 +181,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> *@
                 @if (HttpContextAccessor.HttpContext.Session.GetString("HRManagerLogin") != null)
                 {
                     <li class="nav-item">
