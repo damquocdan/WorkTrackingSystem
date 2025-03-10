@@ -1,4 +1,6 @@
-﻿<aside class="main-sidebar sidebar-dark-primary elevation-4">
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
 	<!-- Brand Logo -->
 	<a href="" class="brand-link">
 		<img src="~/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
@@ -13,7 +15,14 @@
 				<img src="~/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
 			</div>
 			<div class="info">
-				<a href="#" class="d-block">Alexander Pierce</a>
+				@if (HttpContextAccessor.HttpContext.Session.GetString("EmployeeSystem") != null)
+				{
+					<a href="#" class="d-block">@HttpContextAccessor.HttpContext.Session.GetString("EmployeeSystem")</a>
+				}
+				else
+				{
+					<a href="#" class="d-block">Guest</a>
+				}
 			</div>
 		</div>
 

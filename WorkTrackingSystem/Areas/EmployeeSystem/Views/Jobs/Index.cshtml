@@ -1,48 +1,81 @@
-﻿
-@using X.PagedList.Mvc.Core
+﻿@using X.PagedList.Mvc.Core
 @model X.PagedList.IPagedList<WorkTrackingSystem.Models.Job>
 @{
 	ViewData["Title"] = "Danh sách công việc";
 	Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
 }
 
-<h2 class="text-primary text-center mb-4">Danh sách Công Việc</h2>
+<h2 class="text-primary text-center py-4">Danh sách Công Việc</h2>
 
 <!-- Thanh công cụ tìm kiếm và bộ lọc -->
-<div class="d-flex justify-content-between mb-3">
+
+<div class="row   mb-3">
 	<!-- Ô tìm kiếm -->
-	<input type="text" id="searchBox" class="form-control w-25" placeholder="Tìm kiếm công việc...">
+	<div class="col-md-2">
+		<input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm kiếm công việc...">
+	</div>
+	<!-- Lọc theo tháng -->
+	<div class="col-md-3">
+		<form method="get">
+			<div class="input-group">
+				<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
+				<button type="submit" class="btn btn-primary">📅 Deadline theo tháng</button>
+			</div>
+		</form>
+	</div>
 
 	<!-- Bộ lọc trạng thái -->
-	<select id="filterStatus" class="form-select w-25">
-		<option value="">Tất cả trạng thái</option>
-		<option value="1">Hoàn thành</option>
-		<option value="2">Chưa hoàn thành</option>
-		<option value="3">Hoàn thành muộn</option>
-		<option value="4">Đang xử lý</option>
-		<option value="5">Chưa bắt đầu</option>
-	</select>
-</div>
+	<div class="col-md-2">
+		<select id="filterStatus" class="form-select">
+			<option value="">📌 Tất cả trạng thái</option>
+			<option value="1">✔️ Hoàn thành</option>
+			<option value="2">⏳ Chưa hoàn thành</option>
+			<option value="3">⚠️ Hoàn thành muộn</option>
+			<option value="4">🔄 Đang xử lý</option>
+			<option value="0">❌ Chưa bắt đầu</option>
+		</select>
+	</div>
 
+
+	<!-- Lọc theo khoảng thời gian -->
+	<div class="col-md-4">
+		<form method="get">
+			<div class="input-group">
+				<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" placeholder="Từ ngày">
+				<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" placeholder="Đến ngày">
+				<button type="submit" class="btn btn-success">🔍 Hoàn thành từ</button>
+			</div>
+		</form>
+	</div>
+</div>
 <table class="table table-bordered table-hover shadow">
 	<thead class="table-primary text-center">
 		<tr>
-			<th>Tên công việc</th>
-			<th>Hạn chót</th>
-			<th>Tiến độ </th>
-			<th>Trạng thái</th>
-			<th>Ngày hoàn thiện</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Category.Name)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Name)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Deadline1)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().CompletionDate)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Status)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Progress) </th>
+
 		</tr>
 	</thead>
 	<tbody id="jobTable">
 		@foreach (var item in Model)
 		{
 			<tr class="job-row" data-status="@item.Status">
+				<td>@item.Category.Name</td>
 				<td class="job-name">@item.Name</td>
 				<td>@item.Deadline1?.ToString("dd/MM/yyyy")</td>
 				<td class="text-center">
-					<input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.Progress" min="0" max="100" step="5">
-					<span class="progress-value">@item.Progress%</span>
+					@if (item.Progress == 100 && item.CompletionDate.HasValue)
+					{
+						@item.CompletionDate.Value.ToString("dd/MM/yyyy")
+					}
+					else
+					{
+						<text>-</text> <!-- Hiển thị dấu "-" nếu công việc chưa hoàn thành -->
+					}
 				</td>
 				<td class="text-center">
 					<span>
@@ -58,7 +91,8 @@
 						{
 							<text>Hoàn thành muộn</text>
 						}
-						else if(item.Status==4){
+						else if (item.Status == 4)
+						{
 							<text>Đang xử lý</text>
 						}
 						else
@@ -68,26 +102,32 @@
 					</span>
 				</td>
 				<td class="text-center">
-					<input type="date" class="completion-date" data-job-id="@item.Id"
-						   value="@(item.CompletionDate.HasValue ? item.CompletionDate.Value.ToString("yyyy-MM-dd") : "")">
+					<input type="range" class="progress-slider" data-job-id="@item.Id" value="@item.Progress" min="0" max="100" step="5">
+					<span class="progress-value">@item.Progress%</span>
 				</td>
-
+				@* <td class="text-center">
+			<input type="date" class="completion-date" data-job-id="@item.Id"
+			value="@(item.CompletionDate.HasValue ? item.CompletionDate.Value.ToString("yyyy-MM-dd") : "")">
+			</td> *@
 
 			</tr>
 		}
 	</tbody>
 </table>
-@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+@if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
+{
+	@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
 {
 	LiElementClasses = new string[] { "page-item" },
 	PageClasses = new string[] { "page-link" },
-	DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
-	DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
-	DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
-	DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
-	DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
-	MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
+	DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+	DisplayLinkToLastPage = PagedListDisplayMode.Always,
+	DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+	DisplayLinkToNextPage = PagedListDisplayMode.Always,
+	DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+	MaximumPageNumbersToDisplay = 5
 })
+}
 @section Scripts {
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
@@ -113,29 +153,29 @@
 			});
 
 			// Cập nhật ngày hoàn thành thực tế
-			document.querySelectorAll('.completion-date').forEach(input => {
-				input.addEventListener('change', function () {
-					let jobId = parseInt(this.dataset.jobId);
-					let completionDate = this.value;
+			// document.querySelectorAll('.completion-date').forEach(input => {
+			// 	input.addEventListener('change', function () {
+			// 		let jobId = parseInt(this.dataset.jobId);
+			// 		let completionDate = this.value;
 
-					if (!completionDate) return;
+			// 		if (!completionDate) return;
 
-					fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
-					})
-						.then(response => response.json())
-						.then(data => {
-							if (data.success) {
-								console.log("Cập nhật ngày hoàn thành thành công!");
-							} else {
-								console.error("Lỗi cập nhật:", data.message);
-							}
-						})
-						.catch(error => console.error('Lỗi:', error));
-				});
-			});
+			// 		fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
+			// 			method: 'POST',
+			// 			headers: { 'Content-Type': 'application/json' },
+			// 			body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
+			// 		})
+			// 			.then(response => response.json())
+			// 			.then(data => {
+			// 				if (data.success) {
+			// 					console.log("Cập nhật ngày hoàn thành thành công!");
+			// 				} else {
+			// 					console.error("Lỗi cập nhật:", data.message);
+			// 				}
+			// 			})
+			// 			.catch(error => console.error('Lỗi:', error));
+			// 	});
+			// });
 
 			// Cập nhật tiến độ và trạng thái
 			document.querySelectorAll('.progress-slider').forEach(slider => {
@@ -158,18 +198,27 @@
 								let slider = document.querySelector(`.progress-slider[data-job-id="${jobId}"]`);
 								let row = slider ? slider.closest('.job-row') : null;  // Tìm thẻ <tr> cha
 								if (row) {
-									let statusSpan = row.querySelector("td:nth-child(4) span");
+									let statusSpan = row.querySelector("td:nth-child(5) span");
 									if (statusSpan) {
 										let newStatus = data.newStatus;
 										statusSpan.textContent = newStatus === 1 ? "Hoàn thành"
 											: newStatus === 2 ? "Chưa hoàn thành"
 												: newStatus === 3 ? "Hoàn thành muộn"
-													: newStatus===4 ? "Đang xử lý"
-													: "Chưa bắt đầu";
+													: newStatus === 4 ? "Đang xử lý"
+														: "Chưa bắt đầu";
 										// Cập nhật `data-status`
 										row.setAttribute('data-status', newStatus);
+
 									} else {
 										console.warn(`Không tìm thấy phần tử trạng thái trong hàng có jobId = ${jobId}`);
+									}
+									let completionDateCell = row.querySelector("td:nth-child(4)");
+									if (completionDateCell) {
+										if (progress === 100 && data.completionDate) {
+											completionDateCell.textContent = data.completionDate;
+										} else {
+											completionDateCell.textContent = "-";
+										}
 									}
 								} else {
 									console.warn(`Không tìm thấy hàng công việc cho jobId = ${jobId}`);
@@ -181,8 +230,6 @@
 						.catch(error => console.error('Lỗi:', error));
 				});
 			});
-
-		
 		});
 	</script>
 }
