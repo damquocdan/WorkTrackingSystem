@@ -19,7 +19,7 @@
                     <th><i class="bi bi-code-square"></i> Mã</th>
                     <th><i class="bi bi-fonts"></i> Tên</th>
                     <th><i class="bi bi-file-text"></i> Mô tả</th>
-                    <th><i class="bi bi-folder-symlink"></i> Danh mục cha</th>
+@*                     <th><i class="bi bi-folder-symlink"></i> Danh mục cha</th> *@
                     <th><i class="bi bi-gear"></i> Hành động</th>
                 </tr>
             </thead>
@@ -30,7 +30,7 @@
                         <td>@Html.DisplayFor(modelItem => item.Code)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                        <td>@Html.DisplayFor(modelItem => item.IdParent)</td>
+@*                         <td>@Html.DisplayFor(modelItem => item.IdParent)</td> *@
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a>
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info"><i class="bi bi-info-circle"></i> Chi tiết</a>

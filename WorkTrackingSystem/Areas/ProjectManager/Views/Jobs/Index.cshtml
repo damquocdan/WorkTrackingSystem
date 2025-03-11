@@ -4,11 +4,19 @@
     ViewData["Title"] = "Danh sách công việc";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
-
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 <div class="row">
     <div class="col-md-12" id="list-section">
         <h1 class="mb-4"><i class="bi bi-briefcase"></i> Danh sách công việc</h1>
         <form asp-action="Index" method="get">
+            <!-- Giữ nguyên phần form tìm kiếm -->
             <div class="row mb-3">
                 <div class="col-md-3">
                     <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên / công việc" value="@Context.Request.Query["searchText"]">
@@ -26,13 +34,12 @@
                         <option value="5">Chưa bắt đầu</option>
                     </select>
                 </div>
-
                 <div class="col-md-1">
                     <select name="categoryId" class="form-control">
                         <option value="">-- Danh mục --</option>
-                        @foreach (var category in ViewData["Categories"] as SelectList)
+                        @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
                         {
-                            <option value="@category.Value">@category.Text</option>
+                            <option value="@category.Id">@category.Name</option>
                         }
                     </select>
                 </div>
@@ -48,17 +55,13 @@
                 <div class="col-md-1">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="showCompletedZeroReview" id="showCompletedZeroReview" value="true" @(Context.Request.Query["showCompletedZeroReview"] == "true" ? "checked" : "")>
-                        <label class="form-check-label" for="showCompletedZeroReview">
-                            Chưa Đ.giá
-                        </label>
+                        <label class="form-check-label" for="showCompletedZeroReview">Chưa Đ.giá</label>
                     </div>
                 </div>
                 <div class="col-md-1">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="dueToday" id="dueToday" value="true" @(Context.Request.Query["dueToday"] == "true" ? "checked" : "")>
-                        <label class="form-check-label" for="dueToday">
-                            Hạn hôm nay
-                        </label>
+                        <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
                     </div>
                 </div>
                 <div class="col-md-1">
@@ -69,71 +72,102 @@
         </form>
 
         <p>
-            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo mới công việc</a>
-            <form asp-action="ExportToExcel" method="get">
-                <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
-                <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
-                <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
-                <input type="hidden" name="dueToday" value="@Context.Request.Query["dueToday"]" />
-                <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
-                <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
-                <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
-            </form>
+            <a id="btn-create-job" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo mới công việc</a>
+            
         </p>
 
         <div class="table-responsive">
-            <table class="table table-striped table-bordered">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th><i class="bi bi-person"></i> Nhân viên</th>
+                        <th><i class="bi bi-tag"></i> Danh mục công việc</th>
                         <th><i class="bi bi-card-heading"></i> Tên công việc</th>
-                        <th><i class="bi bi-check-square"></i> Trạng thái</th>
-                        <th><i class="bi bi-journal-text"></i> Đánh giá tổng hợp</th>
+                        <th><i class="bi bi-clock"></i> Hạn chót 1</th>
+                        <th><i class="bi bi-clock"></i> Hạn chót 2</th>
+                        <th><i class="bi bi-clock"></i> Hạn chót 3</th>
                         <th><i class="bi bi-clock"></i> Hạn hoàn thành</th>
-                        <th><i class="bi bi-tag"></i> Danh mục</th>
-
-                        <th>Hành động</th>
+                        <th>
+                            Hành động 
+                            <form asp-action="ExportToExcel" method="get">
+                                <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
+                                <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
+                                <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
+                                <input type="hidden" name="dueToday" value="@Context.Request.Query["dueToday"]" />
+                                <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
+                                <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
+                                <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+                            </form>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
+                    <form id="create-job-form" asp-action="Create" asp-controller="Jobs" asp-area="ProjectManager" method="post">
+                    <tr id="create-row" class="d-none">
+                        <td>
+                            <div class="form-group">
+                                <label>Chọn nhân viên:</label>
+                                <div id="employeeCheckboxGroup">
+                                        @if (ViewBag.Employees != null)
+                                        {
+                                            @foreach (var employee in (IEnumerable<WorkTrackingSystem.Models.Employee>)ViewBag.Employees)
+                                            {
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" name="EmployeeIds" value="@employee.Id" id="employee_@employee.Id">
+                                                <label class="form-check-label" for="employee_@employee.Id">
+                                                        @employee.Code - @employee.FirstName @employee.LastName
+                                                </label>
+                                            </div>
+                                            }
+                                        }
+                                </div>
+                            </div>
+
+                        </td>
+                        <td>
+                            <select class="form-control" id="categorySelect" name="CategoryId">
+                                <option value="">-- Chọn danh mục --</option>
+                                    @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
+                                    {
+                                    <option value="@category.Id">@category.Name</option>
+                                    }
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" id="jobName" name="Name" placeholder="Nhập tên công việc">
+                        </td>
+                        <td>
+                            <input type="date" class="form-control" id="deadline1" name="Deadline1">
+                        </td>
+                        <td>
+                            <input type="date" class="form-control" id="deadline2" name="Deadline2">
+                        </td>
+                        <td>
+                            <input type="date" class="form-control" id="deadline3" name="Deadline3">
+                        </td>
+                        <td>
+                            <input type="date" class="form-control" id="completionDate" name="CompletionDate">
+                        </td>
+                        <td>
+                            <button type="submit" id="save-job-btn" class="btn btn-success"><i class="bi bi-plus"></i> Thêm</button>
+                            <button type="button" id="cancel-job-btn" class="btn btn-secondary"><i class="bi bi-x"></i> Hủy</button>
+                        </td>
+                    </tr>
+                    </form>
+                    
                     @foreach (var item in Model)
                     {
-                        <tr class="
-    @(item.Status == 1 ? "table-success " :
-      item.Status == 2 ? "table-warning " :
-      item.Status == 3 ? "table-danger " :
-      "table-primary")">
+                        <tr class="@(item.Status == 1 ? "table-success" :
+                                   item.Status == 2 ? "table-warning" :
+                                   item.Status == 3 ? "table-danger" :
+                                   "table-primary")">
                             <td>@Html.DisplayFor(modelItem => item.Employee.Code) @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                            <td>
-                                @switch (item.Status)
-                                {
-                                    case 1:
-                                        <span>Hoàn thành</span>
-                                        ;
-                                        break;
-                                    case 2:
-                                        <span>Chưa hoàn thành</span>
-                                        ;
-                                        break;
-                                    case 3:
-                                        <span>Hoàn thành muộn</span>
-                                        ;
-                                        break;
-                                    case 4:
-                                        <span>Đang xử lý</span>
-                                        ;
-                                        break;
-                                    default:
-                                        <span>Chưa bắt đầu</span>
-                                        ;
-                                        break;
-                                }
-                            </td>
-                            <td>@Html.DisplayFor(modelItem => item.SummaryOfReviews)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Time)</td>
                             <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
-
+                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Deadline1)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Deadline2)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Deadline3)</td>
+                            <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
                             <td>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a>
                                 <a class="btn btn-sm btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
@@ -149,22 +183,28 @@
         <div class="actionCustomers"></div>
     </div>
 </div>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
+        $("#btn-create-job").click(function (e) {
+            e.preventDefault();
+            $("#create-row").removeClass("d-none"); // Hiển thị form nhập liệu
+        });
+
+        $("#cancel-job-btn").click(function () {
+            $("#create-row").addClass("d-none"); // Ẩn form
+            $("#create-job-form")[0].reset(); // Reset các giá trị trong form
+        });
+
         $(".ajax-action").click(function (e) {
             e.preventDefault();
-
             var url = $(this).data("url");
-
-            // Kiểm tra nếu phần chi tiết đang ẩn, thì thay đổi layout
             if ($("#detail-section").hasClass("d-none")) {
                 $("#list-section").removeClass("col-md-12").addClass("col-md-8");
                 $("#detail-section").removeClass("d-none").addClass("col-md-4");
             }
-
-            // Load nội dung vào phần chi tiết
             $(".actionCustomers").load(url, function (response, status, xhr) {
                 if (status === "error") {
                     alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
@@ -172,8 +212,9 @@
             });
         });
     });
-        function closeDetailSection() {
-        $("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
-        $("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
+
+    function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
     }
 </script>
