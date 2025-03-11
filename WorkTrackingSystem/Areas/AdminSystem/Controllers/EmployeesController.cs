@@ -67,8 +67,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
-            return View(employee);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Details", employee);
+			}
+			return View(employee);
         }
 
         // GET: AdminSystem/Employees/Create
@@ -76,7 +79,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name");
             ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name");
-            return View();
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create");
+			}
+			return View();
         }
 
         // POST: AdminSystem/Employees/Create
@@ -108,7 +115,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
             ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
-            return View(employee);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create", employee);
+			}
+			return View(employee);
         }
 
         // GET: AdminSystem/Employees/Edit/5
@@ -126,7 +137,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
             ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
-            return View(employee);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Edit", employee);
+			}
+			return View(employee);
         }
 
         // POST: AdminSystem/Employees/Edit/5
@@ -184,8 +199,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
-            return View(employee);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Delete", employee);
+			}
+			return View(employee);
         }
 
         // POST: AdminSystem/Employees/Delete/5

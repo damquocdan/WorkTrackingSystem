@@ -26,6 +26,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             var limit = 12;
             var workTrackingSystemContext = _context.Users.Include(u => u.Employee).ThenInclude(e=>e.Position);
+
             return View( workTrackingSystemContext.ToPagedList(page,limit));
         }
 
@@ -44,8 +45,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
-            return View(user);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Details", user);
+			}
+			return View(user);
         }
 
         // GET: AdminSystem/Users/Create
@@ -58,7 +62,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 FullName = e.FirstName+" "+e.LastName+"-"+ e.Position.Name,
 
             }), "Id", "FullName");
-            return View();
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create");
+			}
+			return View();
         }
 
         // POST: AdminSystem/Users/Create
@@ -90,7 +98,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                     FullName= e.FirstName+" "+e.LastName+ " - "+ e.Position.Name
                 }).ToList();
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName", user.EmployeeId);
-            return View(user);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create", user);
+			}
+			return View(user);
         }
 
         // GET: AdminSystem/Users/Edit/5
@@ -106,8 +118,17 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
-            return View(user);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Include(p => p.Position).Select(e => new
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName + "-" + e.Position.Name,
+
+            }), "Id", "FullName");
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Edit", user);
+			}
+			return View(user);
         }
 
         // POST: AdminSystem/Users/Edit/5
@@ -117,13 +138,6 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
-           
-            //var employee = await _context.Employees
-            //    .Include(e => e.Department)
-            //    .Include(e => e.Position)
-            //    .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
-           
-
             if (id != user.Id)
             {
                 return NotFound();
@@ -169,8 +183,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
-            return View(user);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Delete", user);
+			}
+			return View(user);
         }
 
         // POST: AdminSystem/Users/Delete/5

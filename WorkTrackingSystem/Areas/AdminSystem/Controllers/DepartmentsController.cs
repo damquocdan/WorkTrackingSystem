@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
@@ -42,14 +45,22 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Details", department);
+			}
 
-            return View(department);
+			return View(department);
         }
 
         // GET: AdminSystem/Departments/Create
         public IActionResult Create()
         {
-            return View();
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create");
+			}
+			return View();
         }
 
         // POST: AdminSystem/Departments/Create
@@ -65,7 +76,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(department);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create", department);
+			}
+			return View(department);
         }
 
         // GET: AdminSystem/Departments/Edit/5
@@ -81,7 +96,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-            return View(department);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Edit", department);
+			}
+			return View(department);
         }
 
         // POST: AdminSystem/Departments/Edit/5
@@ -133,8 +152,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
-            return View(department);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Delete", department);
+			}
+			return View(department);
         }
 
         // POST: AdminSystem/Departments/Delete/5

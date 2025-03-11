@@ -40,14 +40,21 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
-            return View(position);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Details", position);
+			}
+			return View(position);
         }
 
         // GET: AdminSystem/Positions/Create
         public IActionResult Create()
         {
-            return View();
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create");
+			}
+			return View();
         }
 
         // POST: AdminSystem/Positions/Create
@@ -63,7 +70,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(position);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create", position);
+			}
+			return View(position);
         }
 
         // GET: AdminSystem/Positions/Edit/5
@@ -79,7 +90,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-            return View(position);
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Edit", position);
+			}
+			return View(position);
         }
 
         // POST: AdminSystem/Positions/Edit/5
@@ -131,8 +146,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Delete", position);
+			}
 
-            return View(position);
+			return View(position);
         }
 
         // POST: AdminSystem/Positions/Delete/5

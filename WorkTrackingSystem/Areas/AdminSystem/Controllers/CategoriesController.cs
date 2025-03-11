@@ -40,13 +40,20 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", category);
+            }
             return View(category);
         }
 
         // GET: AdminSystem/Categories/Create
         public IActionResult Create()
         {
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create");
+            }
             return View();
         }
 
@@ -63,6 +70,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create", category);
+            }
             return View(category);
         }
 
@@ -78,6 +89,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             if (category == null)
             {
                 return NotFound();
+            }
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Edit", category);
             }
             return View(category);
         }
@@ -131,7 +146,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 return NotFound();
             }
-
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Delete", category);
+            }
             return View(category);
         }
 

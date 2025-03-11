@@ -46,7 +46,7 @@
 					<th><i class="bi bi-person"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().LastName)</th> *@
 					<th><i class="bi bi-gender-ambiguous"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Gender)</th>
 					<th><i class="bi bi-calendar-date"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Birthday)</th>
-					<th><i class="bi bi-phone"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Phone)</th>
+					@* <th><i class="bi bi-phone"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Phone)</th> *@
 					<th><i class="bi bi-envelope"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
 					<th><i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().HireDate)</th>
 					<th><i class="bi bi-house"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Address)</th>
@@ -62,15 +62,13 @@
 					<tr>
 						<td>@Html.DisplayFor(modelItem => item.Code)</td>
 						<td>@(item.FirstName + " " + item.LastName)</td>
-						@* <td>@Html.DisplayFor(modelItem => item.FirstName)</td>
-					<td>@Html.DisplayFor(modelItem => item.LastName)</td> *@
 						<td>@Html.DisplayFor(modelItem => item.Gender)</td>
 						<td>@Html.DisplayFor(modelItem => item.Birthday)</td>
-						<td>@Html.DisplayFor(modelItem => item.Phone)</td>
+						@* <td>@Html.DisplayFor(modelItem => item.Phone)</td> *@
 						<td>@Html.DisplayFor(modelItem => item.Email)</td>
 						<td>@Html.DisplayFor(modelItem => item.HireDate)</td>
 						<td>@Html.DisplayFor(modelItem => item.Address)</td>
-						<td>@Html.DisplayFor(modelItem => item.Avatar)</td>
+						<td><img src="@item.Avatar" /></td>
 						@* <td>@Html.DisplayFor(modelItem => item.Department.Name)</td> *@
 						<td>@Html.DisplayFor(modelItem => item.Position.Name)</td>
 						<td>
