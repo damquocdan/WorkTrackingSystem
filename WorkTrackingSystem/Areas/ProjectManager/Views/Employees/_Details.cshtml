@@ -1,0 +1,295 @@
+﻿@model EmployeeDetailsViewModel
+
+<!-- Nút Đóng ở góc trên cùng bên tay phải -->
+<button type="button" class="close-btn" onclick="closeDetailSection()" title="Đóng">
+    <i class="fas fa-times"></i>
+</button>
+
+<h2><i class="fas fa-user"></i> Chi tiết nhân viên: @Model.Employee.Code - @Model.Employee.FirstName @Model.Employee.LastName</h2>
+
+<!-- Thay form hiện tại bằng div và thêm id để dễ xử lý -->
+<div id="search-form" class="mb-3">
+    <input type="hidden" name="id" value="@Model.Employee.Id" id="employee-id" />
+    <div class="row">
+        <div class="col-md-2">
+            <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo công việc" value="@Context.Request.Query["searchText"]" id="search-text" />
+        </div>
+        <div class="col-md-1">
+            <input type="date" name="startDate" class="form-control" placeholder="Từ ngày" value="@Context.Request.Query["startDate"]" id="start-date" />
+        </div>
+        <div class="col-md-1">
+            <input type="date" name="endDate" class="form-control" placeholder="Đến ngày" value="@Context.Request.Query["endDate"]" id="end-date" />
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-control" id="status">
+                <option value="">-- Trạng thái --</option>
+                <option value="1">Hoàn thành</option>
+                <option value="2">Chưa hoàn thành</option>
+                <option value="3">Hoàn thành muộn</option>
+                <option value="4">Đang xử lý</option>
+                <option value="5">Chưa bắt đầu</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <select name="categoryId" class="form-control" id="category-id">
+                <option value="">-- Danh mục --</option>
+                @foreach (var category in ViewData["Categories"] as SelectList)
+                {
+                    <option value="@category.Value">@category.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-1">
+            <select name="sortOrder" class="form-control" id="sort-order">
+                <option value="">-- Sắp xếp --</option>
+                <option value="due_asc">Hạn hoàn thành tăng dần</option>
+                <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                <option value="review_asc">Đánh giá tăng dần</option>
+                <option value="review_desc">Đánh giá giảm dần</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="showCompletedZeroReview" id="show-completed-zero-review" value="true" @(Context.Request.Query["showCompletedZeroReview"] == "true" ? "checked" : "") />
+                <label class="form-check-label" for="showCompletedZeroReview">Chưa Đ.giá</label>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="dueToday" id="due-today" value="true" @(Context.Request.Query["dueToday"] == "true" ? "checked" : "") />
+                <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-primary" id="search-btn"><i class="bi bi-search"></i> Tìm kiếm</button>
+        </div>
+        <div class="col-md-1">
+            <a href="#" class="btn btn-secondary" id="reset-btn"><i class="bi bi-arrow-repeat"></i> Reset</a>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @if (ViewBag.StartDate != null && ViewBag.EndDate != null)
+        {
+            <h3><i class="fas fa-tasks"></i> Công việc từ @(((DateOnly)ViewBag.StartDate).ToString("dd/MM/yyyy")) đến @(((DateOnly)ViewBag.EndDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else if (ViewBag.StartDate != null)
+        {
+            <h3><i class="fas fa-tasks"></i> Công việc từ @(((DateOnly)ViewBag.StartDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else if (ViewBag.EndDate != null)
+        {
+            <h3><i class="fas fa-tasks"></i> Công việc đến @(((DateOnly)ViewBag.EndDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else
+        {
+            <h3><i class="fas fa-tasks"></i> Tất cả công việc</h3>
+        }
+        <form method="post" action="@Url.Action("UpdateJobAssessments", "Employees", new { area = "ProjectManager" })">
+            @Html.AntiForgeryToken()
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-file-signature"></i> Tên công việc</th>
+                        <th class="hide-on-detail"><i class="fas fa-calendar-check"></i> Hạn hoàn thành</th>
+                        <th><i class="fas fa-check-circle"></i> Trạng thái</th>
+                        <th class="hide-on-detail"><i class="fas fa-star"></i> Đánh giá khối lượng</th>
+                        <th class="hide-on-detail"><i class="fas fa-star"></i> Đánh giá tiến độ</th>
+                        <th class="hide-on-detail"><i class="fas fa-star"></i> Đánh giá chất lượng</th>
+                        <th class="hide-on-detail"><i class="fas fa-star"></i> Đánh giá tổng hợp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Jobs.Count; i++)
+                    {
+                        var job = Model.Jobs[i];
+                        <tr>
+                            <td>@job.Name</td>
+                            <td class="hide-on-detail">@job.CompletionDate?.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @switch (job.Status)
+                                {
+                                    case 1:
+                                        <span><i class="fas fa-check-square"></i> Hoàn thành</span>
+                                        break;
+                                    case 2:
+                                        <span><i class="fas fa-times-circle"></i> Chưa hoàn thành</span>
+                                        break;
+                                    case 3:
+                                        <span><i class="fas fa-exclamation-triangle"></i> Hoàn thành muộn</span>
+                                        break;
+                                    case 4:
+                                        <span><i class="fas fa-spinner"></i> Đang xử lý</span>
+                                        break;
+                                    default:
+                                        <span><i class="fas fa-question-circle"></i> Không xác định</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="hide-on-detail">
+                                <input type="hidden" name="Jobs[@i].Id" value="@job.Id" />
+                                <input type="number" class="form-control" name="Jobs[@i].VolumeAssessment"
+                                       value="@job.VolumeAssessment?.ToString("F2")" min="0" max="3" step="0.5" />
+                            </td>
+                            <td class="hide-on-detail">
+                                <input type="number" class="form-control" name="Jobs[@i].ProgressAssessment"
+                                       value="@job.ProgressAssessment?.ToString("F2")" min="0" max="3" step="0.5" />
+                            </td>
+                            <td class="hide-on-detail">
+                                <input type="number" class="form-control" name="Jobs[@i].QualityAssessment"
+                                       value="@job.QualityAssessment?.ToString("F2")" min="0" max="3" step="0.5" />
+                            </td>
+                            <td class="hide-on-detail summary-cell">@job.SummaryOfReviews?.ToString("F2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary">Lưu tất cả</button>
+        </form>
+
+        @if (ViewBag.StartDate != null && ViewBag.EndDate != null)
+        {
+            <h3><i class="fas fa-chart-line"></i> Đánh giá từ @(((DateOnly)ViewBag.StartDate).ToString("dd/MM/yyyy")) đến @(((DateOnly)ViewBag.EndDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else if (ViewBag.StartDate != null)
+        {
+            <h3><i class="fas fa-chart-line"></i> Đánh giá từ @(((DateOnly)ViewBag.StartDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else if (ViewBag.EndDate != null)
+        {
+            <h3><i class="fas fa-chart-line"></i> Đánh giá đến @(((DateOnly)ViewBag.EndDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else
+        {
+            <h3><i class="fas fa-chart-line"></i> Tất cả đánh giá</h3>
+        }
+
+        <div class="row">
+            <div class="col-md-3"><i class="fas fa-weight"></i> Khối lượng: @Model.BaselineAssessment?.VolumeAssessment?.ToString("F2")</div>
+            <div class="col-md-3"><i class="fas fa-tachometer-alt"></i> Tiến độ: @Model.BaselineAssessment?.ProgressAssessment?.ToString("F2")</div>
+            <div class="col-md-3"><i class="fas fa-certificate"></i> Chất lượng: @Model.BaselineAssessment?.QualityAssessment?.ToString("F2")</div>
+            <div class="col-md-3"><i class="fas fa-calculator"></i> Tổng hợp: @Model.BaselineAssessment?.SummaryOfReviews?.ToString("F2")</div>
+        </div>
+
+        @if (ViewBag.StartDate != null && ViewBag.EndDate != null)
+        {
+            <h3><i class="fas fa-chart-pie"></i> Phân tích từ @(((DateOnly)ViewBag.StartDate).ToString("dd/MM/yyyy")) đến @(((DateOnly)ViewBag.EndDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else if (ViewBag.StartDate != null)
+        {
+            <h3><i class="fas fa-chart-pie"></i> Phân tích từ @(((DateOnly)ViewBag.StartDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else if (ViewBag.EndDate != null)
+        {
+            <h3><i class="fas fa-chart-pie"></i> Phân tích đến @(((DateOnly)ViewBag.EndDate).ToString("dd/MM/yyyy"))</h3>
+        }
+        else
+        {
+            <h3><i class="fas fa-chart-pie"></i> Tất cả phân tích</h3>
+        }
+
+        <div class="row">
+            <div class="col-md-2"><i class="fas fa-list-ol"></i> Tổng số: @Model.Analysis?.Total</div>
+            <div class="col-md-2"><i class="fas fa-calendar-check"></i> Đúng hạn: @Model.Analysis?.Ontime</div>
+            <div class="col-md-2"><i class="fas fa-calendar-times"></i> Trễ hạn: @Model.Analysis?.Late</div>
+            <div class="col-md-2"><i class="fas fa-calendar-exclamation"></i> Quá hạn: @Model.Analysis?.Overdue</div>
+            <div class="col-md-2"><i class="fas fa-sync-alt"></i> Đang xử lý: @Model.Analysis?.Processing</div>
+        </div>
+    </div>
+</div>
+    
+
+<style>
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #dc3545; /* Màu đỏ */
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+    }
+
+        .close-btn:hover {
+            background-color: #c82333; /* Màu đỏ đậm hơn khi hover */
+        }
+</style>
+<script>
+    $(document).ready(function () {
+        // Xử lý nút Tìm kiếm
+        $("#search-btn").click(function (e) {
+            e.preventDefault();
+            performSearch();
+        });
+
+        // Xử lý nút Reset
+        $("#reset-btn").click(function (e) {
+            e.preventDefault();
+            resetSearch();
+        });
+
+        function performSearch() {
+            var url = '@Url.Action("Details", new { id = Model.Employee.Id })';
+            var data = {
+                id: $("#employee-id").val(),
+                searchText: $("#search-text").val(),
+                startDate: $("#start-date").val(),
+                endDate: $("#end-date").val(),
+                status: $("#status").val(),
+                categoryId: $("#category-id").val(),
+                sortOrder: $("#sort-order").val(),
+                showCompletedZeroReview: $("#show-completed-zero-review").is(":checked"),
+                dueToday: $("#due-today").is(":checked")
+            };
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                data: data,
+                success: function (response) {
+                    // Cập nhật nội dung trong #detail-section
+                    $("#detail-section .actionCustomers").html(response);
+                },
+                error: function (xhr, status, error) {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        }
+
+        function resetSearch() {
+            var url = '@Url.Action("Details", new { id = Model.Employee.Id })';
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function (response) {
+                    $("#detail-section .actionCustomers").html(response);
+                    // Reset các trường nhập liệu
+                    $("#search-text").val("");
+                    $("#start-date").val("");
+                    $("#end-date").val("");
+                    $("#status").val("");
+                    $("#category-id").val("");
+                    $("#sort-order").val("");
+                    $("#show-completed-zero-review").prop("checked", false);
+                    $("#due-today").prop("checked", false);
+                },
+                error: function (xhr, status, error) {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        }
+    });
+</script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/rowreorder/1.2.8/js/dataTables.rowReorder.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" />

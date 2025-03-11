@@ -33,7 +33,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            //lấy thông tin nhân viên đăng nhập
             var manager = await _context.Users
                 .Where(u => u.UserName == managerUsername)
                 .Select(u => u.Employee)
@@ -44,24 +43,26 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            //lấy id phòng ban mà nhân viên quản lý
+            // Lấy danh sách phòng ban mà người quản lý này quản lý (dựa trên PositionId == 3)
             var managedDepartments = await _context.Departments
                 .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
                 .Select(d => d.Id)
                 .ToListAsync();
 
-            //lấy id phòng ban mà nhân viên quản lý
+            // Lấy danh sách nhân viên thuộc các phòng ban mà người quản lý đang quản lý
             var employeesInManagedDepartments = await _context.Employees
                 .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
-                .Select(e => e.Id)
-                .ToListAsync();
+                .ToListAsync(); // Lấy toàn bộ thông tin nhân viên, không chỉ Id
 
+            // Gán danh sách nhân viên vào ViewBag để hiển thị trong dropdown
+            ViewBag.Employees = employeesInManagedDepartments;
+
+            // Phần còn lại của mã liên quan đến việc lọc và sắp xếp công việc (jobs)
             var jobs = _context.Jobs
                 .Include(j => j.Category)
                 .Include(j => j.Employee)
-                .Where(j => j.EmployeeId.HasValue && employeesInManagedDepartments.Contains(j.EmployeeId.Value));
+                .Where(j => j.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => e.Id).Contains(j.EmployeeId.Value));
 
-            // Tìm kiếm theo mã nhân viên, họ tên nhân viên, tên công việc
             if (!string.IsNullOrEmpty(searchText))
             {
                 jobs = jobs.Where(j =>
@@ -71,35 +72,33 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     j.Name.Contains(searchText));
             }
 
-            // Lọc theo trạng thái công việc
             if (status.HasValue)
             {
                 jobs = jobs.Where(j => j.Status == status.Value);
             }
 
-            // Lọc theo danh mục công việc
             if (categoryId.HasValue)
             {
                 jobs = jobs.Where(j => j.CategoryId == categoryId.Value);
             }
 
-            // Lọc theo công việc có hạn hoàn thành hôm nay
             if (dueToday)
             {
                 jobs = jobs.Where(j => j.Time.HasValue && j.Time.Value.Date == DateTime.Today);
             }
+
             if (showCompletedZeroReview)
             {
                 jobs = jobs.Where(x => (x.Status == 1 || x.Status == 3) && x.SummaryOfReviews == 0);
             }
-            // Lọc theo tháng được chọn
+
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
                 jobs = jobs.Where(j => j.Time.HasValue &&
                                       j.Time.Value.Year == selectedMonth.Year &&
                                       j.Time.Value.Month == selectedMonth.Month);
             }
-            // Sắp xếp dữ liệu
+
             switch (sortOrder)
             {
                 case "due_asc":
@@ -115,17 +114,18 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     jobs = jobs.OrderByDescending(j => j.SummaryOfReviews);
                     break;
                 default:
-                    jobs = jobs.OrderByDescending(j => j.Id); // Sắp xếp công việc mới nhất lên đầu
+                    jobs = jobs.OrderByDescending(j => j.Id);
                     break;
             }
+
             ViewData["TotalCompleted"] = await jobs.CountAsync(j => j.Status == 1);
             ViewData["TotalNotCompleted"] = await jobs.CountAsync(j => j.Status == 2);
             ViewData["TotalLate"] = await jobs.CountAsync(j => j.Status == 3);
             ViewData["TotalProcessing"] = await jobs.CountAsync(j => j.Status == 4);
-            ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
+
+            ViewData["Categories"] = await _context.Categories.ToListAsync();
             return View(await jobs.ToListAsync());
         }
-
         public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -309,107 +309,73 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             var employeesInManagedDepartments = _context.Employees
                 .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
-                .Select(e => new
-                {
-                    Id = e.Id,
-                    FullName = e.Code + "-" + e.FirstName + " " + e.LastName
-                })
-                .ToList();
+                .ToList(); // Lấy danh sách nhân viên đầy đủ
+
+            ViewBag.Employees = employeesInManagedDepartments;
 
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-            ViewData["EmployeeId"] = new SelectList(employeesInManagedDepartments, "Id", "FullName");
-            ViewData["Employees"] = new MultiSelectList(employeesInManagedDepartments, "Id", "FullName");
 
             var newJob = new Job
             {
                 Time = DateTime.Now,
-                Status = 5 // Đặt mặc định là "Đang xử lý"
+                Status = 0 // Mặc định "Đang xử lý"
             };
+
             return View(newJob);
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-    [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job,
-    List<int> SelectedEmployees,
-    int? SingleEmployeeId,
-    List<Job> Jobs)
+        public async Task<IActionResult> Create(List<int> EmployeeIds, long? CategoryId, string Name, string Deadline1, string Deadline2, string Deadline3, string CompletionDate)
         {
-            if (ModelState.IsValid)
+            if (EmployeeIds == null || !EmployeeIds.Any())
             {
-                // Logic hiện tại giữ nguyên
-                if (SelectedEmployees != null && SelectedEmployees.Count > 0)
-                {
-                    // Nhiều nhân viên - Một công việc
-                    foreach (var empId in SelectedEmployees)
-                    {
-                        var newJob = new Job
-                        {
-                            EmployeeId = empId,
-                            CategoryId = job.CategoryId,
-                            Name = job.Name,
-                            Description = job.Description,
-                            Deadline1 = job.Deadline1,
-                            Deadline2 = job.Deadline2,
-                            Deadline3 = job.Deadline3,
-                            CompletionDate = job.CompletionDate,
-                            Status = 5,
-                            Time = DateTime.Now,
-                            IsActive = true,
-                            IsDelete = false,
-                            CreateDate = DateTime.Now,
-                            CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
-                        };
-                        _context.Jobs.Add(newJob);
-                        await _context.SaveChangesAsync();
-                        await UpdateAnalysis(empId);
-                    }
-                }
-                else if (SingleEmployeeId.HasValue && Jobs != null && Jobs.Count > 0)
-                {
-                    // Một nhân viên - Nhiều công việc
-                    foreach (var j in Jobs)
-                    {
-                        j.EmployeeId = SingleEmployeeId.Value;
-                        j.Status = 5;
-                        j.Time = DateTime.Now;
-                        j.IsActive = true;
-                        j.IsDelete = false;
-                        j.CreateDate = DateTime.Now;
-                        j.CreateBy = HttpContext.Session.GetString("ProjectManagerLogin");
-                        _context.Jobs.Add(j);
-                        await _context.SaveChangesAsync();
-                        await UpdateAnalysis(j.EmployeeId.Value);
-                    }
-                }
-                else
-                {
-                    // Một nhân viên - Một công việc (mặc định)
-
-                    job.Status = 5;
-                    job.Time = DateTime.Now;
-                    job.IsActive = true;
-                    job.IsDelete = false;
-                    job.CreateDate = DateTime.Now;
-                    job.CreateBy = HttpContext.Session.GetString("ProjectManagerLogin");
-                    _context.Jobs.Add(job);
-                    await _context.SaveChangesAsync();
-                    await UpdateAnalysis(job.EmployeeId.Value);
-                }
+                TempData["Error"] = "Vui lòng chọn ít nhất một nhân viên.";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Cập nhật ViewBag ngay cả khi ModelState không hợp lệ
-            var employees = _context.Employees
-                .Select(e => new { Id = e.Id, FullName = e.FirstName + " " + e.LastName })
-                .ToList();
-            ViewBag.CategoryId = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
-            ViewBag.EmployeeId = new SelectList(employees, "Id", "FullName", job.EmployeeId); // Đảm bảo giá trị được giữ
-            ViewBag.Employees = new MultiSelectList(employees, "Id", "FullName", SelectedEmployees);
-            return View(job);
-        }
+            if (string.IsNullOrEmpty(Name))
+            {
+                TempData["Error"] = "Tên công việc không được để trống.";
+                return RedirectToAction(nameof(Index));
+            }
 
+            try
+            {
+                foreach (var empId in EmployeeIds)
+                {
+                    var newJob = new Job
+                    {
+                        EmployeeId = empId,
+                        CategoryId = CategoryId,
+                        Name = Name,
+                        Deadline1 = !string.IsNullOrEmpty(Deadline1) ? DateOnly.Parse(Deadline1) : null,
+                        Deadline2 = !string.IsNullOrEmpty(Deadline2) ? DateOnly.Parse(Deadline2) : null,
+                        Deadline3 = !string.IsNullOrEmpty(Deadline3) ? DateOnly.Parse(Deadline3) : null,
+                        CompletionDate = !string.IsNullOrEmpty(CompletionDate) ? DateOnly.Parse(CompletionDate) : null,
+                        Status = 5, // Chưa bắt đầu
+                        Time = DateTime.Now,
+                        IsActive = true,
+                        IsDelete = false,
+                        CreateDate = DateTime.Now,
+                        CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
+                    };
+
+                    _context.Jobs.Add(newJob);
+                    await _context.SaveChangesAsync();
+                    await UpdateAnalysis(empId); // Cập nhật phân tích (nếu có)
+                }
+
+                TempData["Success"] = "Thêm công việc thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Lỗi khi thêm công việc: {ex.Message}";
+                return RedirectToAction(nameof(Index));
+            }
+        }
 
 
         // GET: ProjectManager/Jobs/Edit/5
@@ -651,4 +617,20 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return _context.Jobs.Any(e => e.Id == id);
         }
     }
+}
+
+public class JobViewModel
+{
+    public List<int> EmployeeIds { get; set; }
+    public long? CategoryId { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string Deadline1 { get; set; }
+    public string Deadline2 { get; set; }
+    public string Deadline3 { get; set; }
+    public string CompletionDate { get; set; }
+    public byte? Status { get; set; }
+    public bool? IsActive { get; set; }
+    public bool? IsDelete { get; set; }
+    public string CreateBy { get; set; }
 }
