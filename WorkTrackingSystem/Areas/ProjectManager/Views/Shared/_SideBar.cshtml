@@ -71,90 +71,40 @@
                         <i class="nav-icon fas fa-list-alt"></i>
                         <p>
                             Quản lý d.mục c.việc
-                            <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Categories" asp-action="Index" class="nav-link">
-                                <p>Danh sách danh mục</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Categories" asp-action="Create" class="nav-link">
-                                <p>Thêm danh mục</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Jobs" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-list-alt"></i>
                         <p>
                             Quản lý công việc
-                            <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Jobs" asp-action="Index" class="nav-link">
-                                <p>Danh sách công việc</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Jobs" asp-action="Create" class="nav-link">
-                                <p>Thêm công việc</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Employees" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-user-cog"></i>
                         <p>
                             Quản lý nhân viên
-                            <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Employees" asp-action="Index" class="nav-link">
-                                <p>Danh sách nhân viên</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
                         <p>
                             Quản lý đánh giá
-                            <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
-                                <p>Danh sách đánh giá</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
                         <p>
                             Quản lý phân tích
-                            <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a asp-controller="Analyses" asp-action="Index" class="nav-link">
-                                <p>Danh sách phân tích</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
                 @if (HttpContextAccessor.HttpContext.Session.GetString("ProjectManagerLogin") != null)
                 {

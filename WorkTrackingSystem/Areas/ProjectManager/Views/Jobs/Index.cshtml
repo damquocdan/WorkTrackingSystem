@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.Job>
+﻿ @model IEnumerable<WorkTrackingSystem.Models.Job>
 
 @{
     ViewData["Title"] = "Danh sách công việc";
@@ -13,66 +13,66 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 <div class="row">
-    <div class="col-md-12" id="list-section">
-        <h1 class="mb-4"><i class="bi bi-briefcase"></i> Danh sách công việc</h1>
-        <form asp-action="Index" method="get">
-            <!-- Giữ nguyên phần form tìm kiếm -->
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên / công việc" value="@Context.Request.Query["searchText"]">
-                </div>
-                <div class="col-md-2">
-                    <input type="month" name="month" class="form-control" value="@Context.Request.Query["month"]" />
-                </div>
-                <div class="col-md-2">
-                    <select name="status" class="form-control">
-                        <option value="">-- Trạng thái --</option>
-                        <option value="1">Hoàn thành</option>
-                        <option value="2">Chưa hoàn thành</option>
-                        <option value="3">Hoàn thành muộn</option>
-                        <option value="4">Đang xử lý</option>
-                        <option value="5">Chưa bắt đầu</option>
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <select name="categoryId" class="form-control">
-                        <option value="">-- Danh mục --</option>
-                        @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
-                        {
-                            <option value="@category.Id">@category.Name</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <select name="sortOrder" class="form-control">
-                        <option value="">-- Sắp xếp --</option>
-                        <option value="due_asc">Hạn hoàn thành tăng dần</option>
-                        <option value="due_desc">Hạn hoàn thành giảm dần</option>
-                        <option value="review_asc">Đánh giá tăng dần</option>
-                        <option value="review_desc">Đánh giá giảm dần</option>
-                    </select>
-                </div>
-                <div class="col-md-1">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="showCompletedZeroReview" id="showCompletedZeroReview" value="true" @(Context.Request.Query["showCompletedZeroReview"] == "true" ? "checked" : "")>
-                        <label class="form-check-label" for="showCompletedZeroReview">Chưa Đ.giá</label>
-                    </div>
-                </div>
-                <div class="col-md-1">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="dueToday" id="dueToday" value="true" @(Context.Request.Query["dueToday"] == "true" ? "checked" : "")>
-                        <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
-                    </div>
-                </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
-                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
+    <h1 class="mb-4"><i class="bi bi-briefcase"></i> Danh sách công việc</h1>
+    <form asp-action="Index" method="get">
+        <!-- Giữ nguyên phần form tìm kiếm -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên / công việc" value="@Context.Request.Query["searchText"]">
+            </div>
+            <div class="col-md-2">
+                <input type="month" name="month" class="form-control" value="@Context.Request.Query["month"]" />
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-control">
+                    <option value="">-- Trạng thái --</option>
+                    <option value="1">Hoàn thành</option>
+                    <option value="2">Chưa hoàn thành</option>
+                    <option value="3">Hoàn thành muộn</option>
+                    <option value="4">Đang xử lý</option>
+                    <option value="5">Chưa bắt đầu</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <select name="categoryId" class="form-control">
+                    <option value="">-- Danh mục --</option>
+                    @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-1">
+                <select name="sortOrder" class="form-control">
+                    <option value="">-- Sắp xếp --</option>
+                    <option value="due_asc">Hạn hoàn thành tăng dần</option>
+                    <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                    <option value="review_asc">Đánh giá tăng dần</option>
+                    <option value="review_desc">Đánh giá giảm dần</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="showCompletedZeroReview" id="showCompletedZeroReview" value="true" @(Context.Request.Query["showCompletedZeroReview"] == "true" ? "checked" : "")>
+                    <label class="form-check-label" for="showCompletedZeroReview">Chưa Đ.giá</label>
                 </div>
             </div>
-        </form>
+            <div class="col-md-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="dueToday" id="dueToday" value="true" @(Context.Request.Query["dueToday"] == "true" ? "checked" : "")>
+                    <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
+                </div>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
+            </div>
+        </div>
+    </form>
 
+    <div class="col-md-12" id="list-section">
         <p>
-            <a id="btn-create-job" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo mới công việc</a>
+            <a id="btn-create-job" class="btn btn-primary"><i class="bi bi-plus-circle"></i>Giao công việc mới</a>
             
         </p>
 
@@ -88,7 +88,6 @@
                         <th><i class="bi bi-clock"></i> Hạn chót 3</th>
                         <th><i class="bi bi-clock"></i> Hạn hoàn thành</th>
                         <th>
-                            Hành động 
                             <form asp-action="ExportToExcel" method="get">
                                 <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
                                 <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
@@ -135,7 +134,10 @@
                         </td>
                         <td>
                             <input type="text" class="form-control" id="jobName" name="Name" placeholder="Nhập tên công việc">
+                            <h6>Mô Tả:</h6>
+                            <textarea class="form-control" id="description" name="DescriptionName" placeholder="Nhập mô tả công việc" rows="5"></textarea>
                         </td>
+
                         <td>
                             <input type="date" class="form-control" id="deadline1" name="Deadline1">
                         </td>
@@ -169,7 +171,7 @@
                             <td>@Html.DisplayFor(modelItem => item.Deadline3)</td>
                             <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> Sửa</a>
+                                <a class="btn btn-sm btn-warning ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i> Sửa</a>
                                 <a class="btn btn-sm btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
                                 <a class="btn btn-sm btn-danger ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i> Xóa</a>
                             </td>

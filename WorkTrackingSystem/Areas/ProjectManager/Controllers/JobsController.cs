@@ -327,7 +327,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(List<int> EmployeeIds, long? CategoryId, string Name, string Deadline1, string Deadline2, string Deadline3, string CompletionDate)
+        public async Task<IActionResult> Create(List<int> EmployeeIds, long? CategoryId, string Name,string DescriptionName, string Deadline1, string Deadline2, string Deadline3, string CompletionDate)
         {
             if (EmployeeIds == null || !EmployeeIds.Any())
             {
@@ -350,6 +350,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         EmployeeId = empId,
                         CategoryId = CategoryId,
                         Name = Name,
+                        Description = DescriptionName,
                         Deadline1 = !string.IsNullOrEmpty(Deadline1) ? DateOnly.Parse(Deadline1) : null,
                         Deadline2 = !string.IsNullOrEmpty(Deadline2) ? DateOnly.Parse(Deadline2) : null,
                         Deadline3 = !string.IsNullOrEmpty(Deadline3) ? DateOnly.Parse(Deadline3) : null,
@@ -401,6 +402,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 _context.Employees.Select(e => new { e.Id, Display = e.Code + " - " + e.FirstName + " " + e.LastName }),
                 "Id", "Display", job.EmployeeId
             );
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Edit", job);
+            }
             return View(job);
         }
 
@@ -425,7 +430,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     _context.Update(job);
                     await _context.SaveChangesAsync();
                     await UpdateBaselineAssessment(job.EmployeeId);
-                    // 🔹 Cập nhật bảng Analysis sau khi chỉnh sửa Job
                     await UpdateAnalysis(job.EmployeeId);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -444,6 +448,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                await UpdateAnalysis(job.EmployeeId);
+                return PartialView("_Edit", job);
+            }
             return View(job);
         }
         private async Task UpdateBaselineAssessment(long? employeeId)
@@ -527,12 +536,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                             j.Time.Value.Month == currentMonth && j.Time.Value.Year == currentYear)
                 .ToListAsync();
 
-            int total = jobs.Count;
+            
             int ontime = jobs.Count(j => j.Status == 1);
             int late = jobs.Count(j => j.Status == 2);
             int overdue = jobs.Count(j => j.Status == 3);
             int processing = jobs.Count(j => j.Status == 4);
-
+            int total = ontime+late+overdue+processing;
             // Tính trung bình đánh giá của nhân viên
             var averageReview = jobs.Any()
                 ? jobs.Average(j => j.SummaryOfReviews ?? 0)
