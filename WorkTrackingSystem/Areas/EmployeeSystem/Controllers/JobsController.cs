@@ -84,38 +84,38 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			var jobList = await jobs.OrderBy(j => j.Deadline1).ToListAsync();
 			var today = DateOnly.FromDateTime(DateTime.Today);
 
-			foreach (var job in jobList)
-			{
-				bool isPastDeadline = today > job.Deadline1;
-				job.Progress ??= 0;
-				job.Status ??= 5;
+			//foreach (var job in jobList)
+			//{
+			//	bool isPastDeadline = today > job.Deadline1;
+			//	job.Progress ??= 0;
+			//	job.Status ??= 5;
 
-				if (job.Progress == 100 && !isPastDeadline)
-				{
-					job.Status = 1; // Hoàn thành đúng hạn
-					job.CompletionDate = today;
-				}
-				else if (isPastDeadline && job.Progress < 100)
-				{
-					job.Status = 2; // Chưa hoàn thành (quá hạn)
-					job.CompletionDate = null;
-				}
-				else if (isPastDeadline && job.Progress == 100)
-				{
-					job.Status = 3; // Hoàn thành muộn
-					job.CompletionDate = today;
-				}
-				else if (!isPastDeadline && job.Progress > 0 && job.Progress < 100)
-				{
-					job.Status = 4; // Đang xử lý
-					job.CompletionDate = null;
-				}
-				else if (job.Progress == 0)
-				{
-					job.Status = 0; // Chưa bắt đầu
-					job.CompletionDate = null;
-				}
-			}
+			//	if (job.Progress == 100 && !isPastDeadline)
+			//	{
+			//		job.Status = 1; // Hoàn thành đúng hạn
+			//		//job.CompletionDate = today;
+			//	}
+			//	else if (isPastDeadline && job.Progress < 100)
+			//	{
+			//		job.Status = 2; // Chưa hoàn thành (quá hạn)
+			//		//job.CompletionDate = null;
+			//	}
+			//	else if (isPastDeadline && job.Progress == 100)
+			//	{
+			//		job.Status = 3; // Hoàn thành muộn
+			//		//job.CompletionDate = today;
+			//	}
+			//	else if (!isPastDeadline && job.Progress > 0 && job.Progress < 100)
+			//	{
+			//		job.Status = 4; // Đang xử lý
+			//		//job.CompletionDate = null;
+			//	}
+			//	else if (job.Progress == 0)
+			//	{
+			//		job.Status = 0; // Chưa bắt đầu
+			//		//job.CompletionDate = null;
+			//	}
+			//}
 
 			var pagedJobs = jobList.ToPagedList(page, limit);
 
@@ -164,7 +164,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 
 			// Nếu Progress là null, gán thành 0
 			job.Progress ??= 0;
-			job.Status ??= 5;
+			job.Status ??= 0;
 			// Lấy thời gian hiện tại để so sánh với deadline
 			var today = DateOnly.FromDateTime(DateTime.Now);
 			bool isPastDeadline = job.Deadline1.HasValue && job.Deadline1.Value < today;
@@ -195,7 +195,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			}
 			else if (job.Progress == 0)
 			{
-				job.Status = 5; // Chưa bắt đầu
+				job.Status = 0; // Chưa bắt đầu
 				job.CompletionDate = null;
 
 			}
