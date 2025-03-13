@@ -25,7 +25,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         public async Task<IActionResult> Index( string search,int? DepartmentId,int page = 1)
         {
             var limit = 5;
-			var query = _context.Employees.Include(e => e.Department).Include(e => e.Position).AsQueryable();
+			var query = _context.Employees.Where(e=>e.IsActive==true).Include(e => e.Department).Include(e => e.Position).AsQueryable();
 
 			if (DepartmentId > 0)
 			{
@@ -200,6 +200,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             }
 
             var employee = await _context.Employees
+               
                 .Include(e => e.Department)
                 .Include(e => e.Position)
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -222,7 +223,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             var employee = await _context.Employees.FindAsync(id);
             if (employee != null)
             {
-                _context.Employees.Remove(employee);
+                employee.IsActive = false;
+                employee.IsDelete = true;
+                _context.Employees.Update(employee);
+                //_context.Employees.Remove(employee);
             }
 
             await _context.SaveChangesAsync();

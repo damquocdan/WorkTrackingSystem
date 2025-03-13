@@ -169,7 +169,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 department.IsDelete = true;
                 department.IsActive = false;
-                _context.Update(department);
+                _context.Departments.Update(department);
                 //_context.Departments.Remove(department);
             }
 

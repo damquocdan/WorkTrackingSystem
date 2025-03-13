@@ -23,7 +23,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         // GET: HRManager/Departments
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Departments.ToListAsync());
+            return View(await _context.Departments.Where(d=>d.IsActive==true).ToListAsync());
         }
 
         // GET: HRManager/Departments/Details/5
@@ -195,7 +195,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             var department = await _context.Departments.FindAsync(id);
             if (department != null)
             {
-                _context.Departments.Remove(department);
+                department.IsActive = false;
+                department.IsDelete = true;
+                _context.Departments.Update(department);
+                //_context.Departments.Remove(department);
             }
 
             await _context.SaveChangesAsync();
