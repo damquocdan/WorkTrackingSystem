@@ -81,8 +81,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return NotFound();
             }
 
-            // Xác định tháng (mặc định là tháng hiện tại)
-            DateTime selectedMonth = DateTime.Now;
+            // Xác định tháng, chỉ sử dụng nếu month được truyền vào
+            DateTime? selectedMonth = null;
             if (!string.IsNullOrEmpty(month))
             {
                 if (DateTime.TryParseExact(month, "yyyy-MM", null, System.Globalization.DateTimeStyles.None, out DateTime parsedMonth))
@@ -94,10 +94,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             // Lấy danh sách công việc của nhân viên
             var jobsQuery = _context.Jobs.Where(j => j.EmployeeId == id);
 
-            // Lọc theo tháng
-            jobsQuery = jobsQuery.Where(j => j.Time.HasValue
-                && j.Time.Value.Year == selectedMonth.Year
-                && j.Time.Value.Month == selectedMonth.Month);
+            // Lọc theo tháng chỉ khi selectedMonth có giá trị
+            if (selectedMonth.HasValue)
+            {
+                jobsQuery = jobsQuery.Where(j => j.Time.HasValue
+                    && j.Time.Value.Year == selectedMonth.Value.Year
+                    && j.Time.Value.Month == selectedMonth.Value.Month);
+            }
 
             // Áp dụng các bộ lọc khác
             if (!string.IsNullOrEmpty(searchText))
@@ -148,18 +151,39 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             var jobs = jobsQuery.ToList();
 
-            // Lấy đánh giá và phân tích của nhân viên theo tháng
-            var baseline = _context.Baselineassessments
-                .FirstOrDefault(b => b.EmployeeId == id
-                    && b.Time.HasValue
-                    && b.Time.Value.Year == selectedMonth.Year
-                    && b.Time.Value.Month == selectedMonth.Month);
+            // Lấy đánh giá và phân tích của nhân viên theo tháng (nếu có tháng được chọn)
+            Baselineassessment baseline = null;
+            Analysis analysis = null;
+            if (selectedMonth.HasValue)
+            {
+                baseline = _context.Baselineassessments
+                    .FirstOrDefault(b => b.EmployeeId == id
+                        && b.Time.HasValue
+                        && b.Time.Value.Year == selectedMonth.Value.Year
+                        && b.Time.Value.Month == selectedMonth.Value.Month)
+                    ?? new Baselineassessment(); // Khởi tạo mặc định nếu null
 
-            var analysis = _context.Analyses
-                .FirstOrDefault(a => a.EmployeeId == id
-                    && a.Time.HasValue
-                    && a.Time.Value.Year == selectedMonth.Year
-                    && a.Time.Value.Month == selectedMonth.Month);
+                analysis = _context.Analyses
+                    .FirstOrDefault(a => a.EmployeeId == id
+                        && a.Time.HasValue
+                        && a.Time.Value.Year == selectedMonth.Value.Year
+                        && a.Time.Value.Month == selectedMonth.Value.Month)
+                    ?? new Analysis(); // Khởi tạo mặc định nếu null
+            }
+            else
+            {
+                baseline = _context.Baselineassessments
+                    .Where(b => b.EmployeeId == id)
+                    .OrderByDescending(b => b.Time)
+                    .FirstOrDefault()
+                    ?? new Baselineassessment(); // Khởi tạo mặc định nếu null
+
+                analysis = _context.Analyses
+                    .Where(a => a.EmployeeId == id)
+                    .OrderByDescending(a => a.Time)
+                    .FirstOrDefault()
+                    ?? new Analysis(); // Khởi tạo mặc định nếu null
+            }
 
             // Chuẩn bị dữ liệu cho view
             ViewData["Categories"] = new SelectList(_context.Categories, "Id", "Name");
@@ -180,7 +204,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 Jobs = jobs,
                 BaselineAssessment = baseline,
                 Analysis = analysis,
-                SelectedMonth = selectedMonth
+                SelectedMonth = selectedMonth ?? DateTime.Now // Nếu không chọn tháng, có thể để mặc định hoặc null
             };
 
             return View(viewModel);
