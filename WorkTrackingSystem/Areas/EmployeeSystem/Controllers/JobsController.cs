@@ -23,7 +23,10 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 		}
 
 		// GET: EmployeeSystem/Jobs
-		public async Task<IActionResult> Index(int? page , string? selectedMonth = null, DateTime? startDate = null, DateTime? endDate = null, string? searchTerm= null,string? filterStatus = null)
+		public async Task<IActionResult> Index(int? page , string? selectedMonth = null
+			, DateTime? startDate = null, DateTime? endDate = null,
+			string? searchTerm= null,string? filterStatus = null
+            , DateTime? deadlineStartDate = null, DateTime? deadlineEndDate = null)
 		{
 			Console.WriteLine("SearchTerm: " + searchTerm);
 			int limit = 9;
@@ -91,51 +94,25 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 									  (!startDate.HasValue || j.CompletionDate.Value >= DateOnly.FromDateTime(startDate.Value)) &&
 									  (!endDate.HasValue || j.CompletionDate.Value <= DateOnly.FromDateTime(endDate.Value)));
 			}
+            if (deadlineStartDate.HasValue || deadlineEndDate.HasValue)
+            {
+                jobs = jobs.Where(j => j.Deadline1.HasValue &&
+                                      (!deadlineStartDate.HasValue || j.Deadline1.Value >= DateOnly.FromDateTime(deadlineStartDate.Value)) &&
+                                      (!deadlineEndDate.HasValue || j.Deadline1.Value <= DateOnly.FromDateTime(deadlineEndDate.Value)));
+            }
+
+            var jobList = await jobs.OrderBy(j => j.Deadline1).ToListAsync();
 			
-			var jobList = await jobs.OrderBy(j => j.Deadline1).ToListAsync();
-			var today = DateOnly.FromDateTime(DateTime.Today);
-
-			//foreach (var job in jobList)
-			//{
-			//	bool isPastDeadline = today > job.Deadline1;
-			//	job.Progress ??= 0;
-			//	job.Status ??= 5;
-
-			//	if (job.Progress == 100 && !isPastDeadline)
-			//	{
-			//		job.Status = 1; // Hoàn thành đúng hạn
-			//		//job.CompletionDate = today;
-			//	}
-			//	else if (isPastDeadline && job.Progress < 100)
-			//	{
-			//		job.Status = 2; // Chưa hoàn thành (quá hạn)
-			//		//job.CompletionDate = null;
-			//	}
-			//	else if (isPastDeadline && job.Progress == 100)
-			//	{
-			//		job.Status = 3; // Hoàn thành muộn
-			//		//job.CompletionDate = today;
-			//	}
-			//	else if (!isPastDeadline && job.Progress > 0 && job.Progress < 100)
-			//	{
-			//		job.Status = 4; // Đang xử lý
-			//		//job.CompletionDate = null;
-			//	}
-			//	else if (job.Progress == 0)
-			//	{
-			//		job.Status = 0; // Chưa bắt đầu
-			//		//job.CompletionDate = null;
-			//	}
-			//}
 
 			var pagedJobs = jobList.ToPagedList(pageIndex, limit);
 
 			// Lưu lại giá trị để hiển thị lại trên View
 			ViewBag.SelectedMonth = selectedMonth;
-			//ViewBag.SelectedStatus = filterStatus;
 			ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
 			ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
-			ViewBag.SearchTerm = searchTerm;
+            ViewBag.deadlineStartDate = deadlineStartDate?.ToString("yyyy-MM-dd");
+            ViewBag.deadlineEndDate = deadlineEndDate?.ToString("yyyy-MM-dd");
+            ViewBag.SearchTerm = searchTerm;
 			ViewBag.FilterStatus = filterStatus;
 			return View(pagedJobs);
 		}

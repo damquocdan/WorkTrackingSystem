@@ -25,7 +25,7 @@
             <th>Đánh giá chất lượng</th>
             <th>Tóm tắt đánh giá</th>
             <th>Thời gian</th>
-            <th>Danh mục</th>
+            <th>Hạng mục</th>
             <th>Nhân viên</th>
             <th></th>
         </tr>
@@ -82,9 +82,8 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.SummaryOfReviews)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Time)
-                </td>
+                <td>@(item.Time.HasValue ? item.Time.Value.ToString("dd/MM/yyyy") : "-")</td>
+
                 <td>
                     @Html.DisplayFor(modelItem => item.Category.Name)  @* Display Category Name *@
                 </td>
