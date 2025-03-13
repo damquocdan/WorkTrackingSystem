@@ -16,6 +16,7 @@
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
+                    <th>STT</th>
                     <th><i class="bi bi-code-square"></i> Mã</th>
                     <th><i class="bi bi-fonts"></i> Tên</th>
                     <th><i class="bi bi-file-text"></i> Mô tả</th>
@@ -24,9 +25,11 @@
                 </tr>
             </thead>
             <tbody>
+                @{ int index = 0; }
                 @foreach (var item in Model)
-                {
+                {index++;
                     <tr>
+                        <td>@index</td>
                         <td>@Html.DisplayFor(modelItem => item.Code)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Description)</td>

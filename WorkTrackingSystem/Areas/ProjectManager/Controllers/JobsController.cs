@@ -144,7 +144,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 {
                     return Json(new { success = false, message = "Không tìm thấy nhân viên với ID: " + employeeId });
                 }
-
+                job.Status = 0;
                 job.EmployeeId = employeeId;
                 await _context.SaveChangesAsync();
 
@@ -233,6 +233,45 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+        [HttpPost]
+        [HttpPost]
+        public IActionResult UpdateJobDate(long jobId, string field, string date)
+        {
+            try
+            {
+                var job = _context.Jobs.FirstOrDefault(j => j.Id == jobId);
+                if (job == null)
+                {
+                    return Json(new { success = false, message = "Công việc không tồn tại" });
+                }
+
+                DateTime parsedDate;
+                if (!DateTime.TryParse(date, out parsedDate))
+                {
+                    return Json(new { success = false, message = "Định dạng ngày không hợp lệ" });
+                }
+
+                if (field == "time")
+                {
+                    job.Time = parsedDate;
+                }
+                else if (field == "deadline1")
+                {
+                    job.Deadline1 = DateOnly.FromDateTime(parsedDate);
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Trường không hợp lệ" });
+                }
+
+                _context.SaveChanges();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
         public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
@@ -614,6 +653,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
         {
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (id != job.Id)
             {
                 return NotFound();
@@ -624,6 +664,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 try
                 {
                     _context.Update(job);
+                    job.Status = 4;
+                    job.CreateBy = managerUsername;
                     await _context.SaveChangesAsync();
                     await UpdateBaselineAssessment(job.EmployeeId);
                     await UpdateAnalysis(job.EmployeeId);
