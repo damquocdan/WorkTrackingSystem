@@ -1,8 +1,8 @@
 ﻿@using X.PagedList.Mvc.Core
 @model X.PagedList.IPagedList<WorkTrackingSystem.Models.Employee>
 @{
-    ViewData["Title"] = "Nhân viên"; // Vietnamese title
-    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+	ViewData["Title"] = "Nhân viên"; // Vietnamese title
+	Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
 
 <div class="row">
@@ -10,7 +10,7 @@
 		<h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1>
 
 
-		<div class="row mb-2">
+	@* 	<div class="row mb-2">
 			<div class="col-lg-9 col-md-9 col-sm-12">
 				<form asp-controller="Employees" asp-action="Index" method="get" class="row">
 					<div class="col-md-5">
@@ -29,21 +29,15 @@
 				</form>
 			</div>
 
-		</div>
+		</div> *@
 		<table class="table table-striped table-bordered ">
 			<thead>
 				<tr>
 					<th><i class="bi bi-code-square"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Code)</th>
 					<th><i class="bi bi-person"></i> Họ và tên</th>
-					<th><i class="bi bi-gender-ambiguous"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Gender)</th>
-					<th><i class="bi bi-calendar-date"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Birthday)</th>
-					@* <th><i class="bi bi-phone"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Phone)</th> *@
-					<th><i class="bi bi-envelope"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
-					<th><i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().HireDate)</th>
-					<th><i class="bi bi-house"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Address)</th>
-					<th><i class="bi bi-image"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Avatar)</th>
-					@* <th><i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Department)</th> *@
-					<th><i class="bi bi-briefcase"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Position)</th>
+					<th><i class="bi bi-building"></i> Phòng ban</th> 
+					<th><i class="bi bi-briefcase"></i>Chức vụ</th>
+					<th class="w-10"><i class="bi bi-briefcase">Tổng số công việc</i></th>
 					<th><i class="bi bi-gear"></i> Hành động</th>
 				</tr>
 			</thead>
@@ -53,19 +47,12 @@
 					<tr>
 						<td>@Html.DisplayFor(modelItem => item.Code)</td>
 						<td>@(item.FirstName + " " + item.LastName)</td>
-						<td>@Html.DisplayFor(modelItem => item.Gender)</td>
-						<td>@Html.DisplayFor(modelItem => item.Birthday)</td>
-						@* <td>@Html.DisplayFor(modelItem => item.Phone)</td> *@
-						<td>@Html.DisplayFor(modelItem => item.Email)</td>
-						<td>@Html.DisplayFor(modelItem => item.HireDate)</td>
-						<td>@Html.DisplayFor(modelItem => item.Address)</td>
-						<td><img src="@item.Avatar" class="img-fluid rounded" /></td>
-						@* <td>@Html.DisplayFor(modelItem => item.Department.Name)</td> *@
+						
+						<td>@Html.DisplayFor(modelItem => item.Department.Name)</td>
 						<td>@Html.DisplayFor(modelItem => item.Position.Name)</td>
+						<td class="w-10">@(ViewBag.JobCounts.ContainsKey(item.Id) ? ViewBag.JobCounts[item.Id] : 0)</td>
 						<td>
-							<a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i> Sửa</a>
-							<a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
-							<a class="btn btn-danger btn-sm ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i> Xóa</a>
+							<a class="btn btn-info btn-sm " asp-controller="Jobs" asp-action="EmployeeWork" asp-route-id="@item.Id"><i class="bi bi-info-circle"></i> Chi tiết</a>
 						</td>
 					</tr>
 				}
@@ -77,7 +64,7 @@
 	</div>
 </div>
 
-@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+@Html.PagedListPager(Model, page => Url.Action("JobOfEmployee", new { page = page }), new PagedListRenderOptions
 {
 	LiElementClasses = new string[] { "page-item" },
 	PageClasses = new string[] { "page-link" },
@@ -89,7 +76,7 @@
 	MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
 })
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+@* <script>
 	$(document).ready(function () {
 		$(".ajax-action").click(function (e) {
 			e.preventDefault();
@@ -114,4 +101,4 @@
 		$("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
 		$("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
 	}
-</script>
+</script> *@

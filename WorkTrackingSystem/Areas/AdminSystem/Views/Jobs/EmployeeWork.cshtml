@@ -1,0 +1,172 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Job>
+@{
+	ViewData["Title"] = "Danh sách công việc";
+	Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
+}
+
+<h2 class="text-primary text-center py-4">Danh sách Công Việc</h2>
+
+<!-- Thanh công cụ tìm kiếm và bộ lọc -->
+<div class="mb-2"><a class="btn btn-success" asp-action="JobOfEmployee" >Quay lại danh sách</a></div>
+<div class="row   mb-3">
+	<!-- Ô tìm kiếm -->
+	<div class="col-md-2">
+		<input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm kiếm công việc..." value="@Html.Raw(ViewBag.SearchTerm)">
+	</div>
+	<!-- Lọc theo tháng -->
+@* 	<div class="col-md-3">
+		<form method="get">
+			<div class="input-group">
+				<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
+				<button type="submit" class="btn btn-primary">📅 Deadline theo tháng</button>
+			</div>
+		</form>
+	</div>
+ *@
+	<!-- Bộ lọc trạng thái -->
+	<div class="col-md-2">
+		<select id="filterStatus" class="form-select">
+			<option value="">📌 Tất cả trạng thái</option>
+			<option value="1">✔️ Hoàn thành</option>
+			<option value="2">⏳ Chưa hoàn thành</option>
+			<option value="3">⚠️ Hoàn thành muộn</option>
+			<option value="4">🔄 Đang xử lý</option>
+			<option value="0">❌ Chưa bắt đầu</option>
+		</select>
+	</div>
+
+
+	<!-- Lọc theo khoảng thời gian -->
+	@* <div class="col-md-4">
+		<form method="get">
+			<div class="input-group">
+				<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" placeholder="Từ ngày">
+				<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" placeholder="Đến ngày">
+				<button type="submit" class="btn btn-success">🔍 Hoàn thành từ</button>
+			</div>
+		</form>
+	</div> *@
+</div>
+<table class="table table-bordered table-hover shadow">
+	<thead class="table-primary text-center">
+		<tr>
+			<th>Hạng mục</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Name)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Deadline1)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().CompletionDate)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Status)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Progress) </th>
+
+		</tr>
+	</thead>
+	<tbody id="jobTable">
+		@foreach (var item in Model)
+		{
+			<tr class="job-row" data-status="@item.Status">
+				<td>@item.Category.Name</td>
+				<td class="job-name">@item.Name</td>
+				<td>@item.Deadline1?.ToString("dd/MM/yyyy")</td>
+				<td class="text-center">
+					@if (item.Progress == 100 && item.CompletionDate.HasValue)
+					{
+						@item.CompletionDate.Value.ToString("dd/MM/yyyy")
+					}
+					else
+					{
+						<text>-</text> <!-- Hiển thị dấu "-" nếu công việc chưa hoàn thành -->
+					}
+				</td>
+				<td class="text-center">
+					<span>
+						@if (item.Status == 1)
+						{
+							<text>Hoàn thành</text>
+						}
+						else if (item.Status == 2)
+						{
+							<text>Chưa hoàn thành</text>
+						}
+						else if (item.Status == 3)
+						{
+							<text>Hoàn thành muộn</text>
+						}
+						else if (item.Status == 4)
+						{
+							<text>Đang xử lý</text>
+						}
+						else
+						{
+							<text>Chưa bắt đầu</text>
+						}
+					</span>
+				</td>
+				<td class="text-center">
+					@* <input  class="progress-slider" data-job-id="@item.Id"> *@
+					<p class="progress-value">@item.Progress%</p>
+				</td>
+			
+			</tr>
+		}
+	</tbody>
+</table>
+@if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
+{
+	@Html.PagedListPager(Model, page => Url.Action("EmployeeWork", new
+		{
+			page = page,
+			searchTerm = ViewBag.SearchTerm,
+			filterStatus = ViewBag.FilterStatus
+		}), new PagedListRenderOptions
+{
+	LiElementClasses = new string[] { "page-item" },
+	PageClasses = new string[] { "page-link" },
+	DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+	DisplayLinkToLastPage = PagedListDisplayMode.Always,
+	DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+	DisplayLinkToNextPage = PagedListDisplayMode.Always,
+	DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+	MaximumPageNumbersToDisplay = 5
+})
+}
+@section Scripts {
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			let searchBox = document.getElementById('searchBox');
+			let filterStatus = document.getElementById('filterStatus');
+
+			// Lấy giá trị searchTerm từ ViewBag và kiểm tra null
+			let searchTermFromViewBag = "@(ViewBag.SearchTerm ?? "")";
+			let filterStatusFromViewBag = "@(ViewBag.FilterStatus ?? "")";
+
+			searchBox.value = searchTermFromViewBag;
+			filterStatus.value = filterStatusFromViewBag;
+
+			function applyFilters() {
+				let searchTerm = searchBox.value.trim();
+				let selectedStatus = filterStatus.value;
+				let url = new URL(window.location.href);
+				url.searchParams.set("searchTerm", searchTerm);
+				url.searchParams.set("filterStatus", selectedStatus);
+				url.searchParams.set("page", 1); // Reset về trang 1 sau khi lọc
+				window.location.href = url.toString();
+			}
+
+			// Gửi request khi nhập từ khóa và nhấn Enter
+			searchBox.addEventListener("keypress", function (event) {
+				if (event.key === "Enter") {
+					event.preventDefault(); // Ngăn chặn reload trang không cần thiết
+					applyFilters();
+				}
+			});
+
+			// Gửi request khi thay đổi trạng thái
+			filterStatus.addEventListener("change", applyFilters);
+		});
+	</script>
+
+
+}
+
+

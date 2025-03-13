@@ -179,5 +179,55 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             return _context.Jobs.Any(e => e.Id == id);
         }
-    }
+		public IActionResult JobOfEmployee(int page = 1)
+		{
+			var limit = 10;
+			var employees = _context.Employees
+				.Include(e => e.Department)
+				.Include(e => e.Position)
+				.Select(e => new
+				{
+					Employee = e,
+					JobCount = _context.Jobs.Count(j => j.EmployeeId == e.Id) // Đếm công việc của từng nhân viên
+				})
+				.ToList();
+
+			// Chuyển đổi danh sách sang kiểu IPagedList
+			var pagedEmployees = employees.Select(e => e.Employee).ToPagedList(page, limit);
+
+			// Gán danh sách số lượng công việc vào ViewBag
+			ViewBag.JobCounts = employees.ToDictionary(e => e.Employee.Id, e => e.JobCount);
+
+			return View(pagedEmployees);
+		}
+
+        public IActionResult EmployeeWork(long id, int? page, string searchTerm, string filterStatus)
+		{
+			int pageSize = 10;
+			int pageNumber = page ?? 1;
+			searchTerm = searchTerm != null ? Uri.UnescapeDataString(searchTerm) : "";
+
+			var jobs = _context.Jobs.Include(j => j.Category).Include(j => j.Employee).Where(j=> j.EmployeeId== id).AsQueryable();
+
+			if (!string.IsNullOrEmpty(searchTerm))
+			{
+				jobs = jobs.Where(j => j.Name.Contains(searchTerm));
+			}
+
+			if (!string.IsNullOrEmpty(filterStatus))
+			{
+				int statusValue;
+				if (int.TryParse(filterStatus, out statusValue))
+				{
+					jobs = jobs.Where(j => j.Status == statusValue);
+				}
+			}
+
+			ViewBag.SearchTerm = searchTerm;
+			ViewBag.FilterStatus = filterStatus;
+
+			return View(jobs.ToPagedList(pageNumber, pageSize));
+		}
+
+	}
 }

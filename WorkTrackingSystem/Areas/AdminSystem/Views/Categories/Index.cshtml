@@ -21,7 +21,7 @@
                     <th><i class="bi bi-code-slash"></i> @Html.DisplayNameFor(model => model.Code)</th>
                     <th><i class="bi bi-tag"></i> @Html.DisplayNameFor(model => model.Name)</th>
                     <th><i class="bi bi-file-text"></i> @Html.DisplayNameFor(model => model.Description)</th>
-                    <th><i class="bi bi-diagram-2"></i> @Html.DisplayNameFor(model=>model.IdParent)</th>
+                    @* <th><i class="bi bi-diagram-2"></i> @Html.DisplayNameFor(model=>model.IdParent)</th> *@
                     <th></th>
                 </tr>
             </thead>
@@ -32,7 +32,7 @@
                         <td>@Html.DisplayFor(modelItem => item.Code)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                        <td>@Html.DisplayFor(modelItem => item.IdParent)</td>
+                        @* <td>@Html.DisplayFor(modelItem => item.IdParent)</td> *@
                         <td>
                             <a class="btn btn-sm btn-warning ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })">
                                 <i class="bi bi-pencil"></i> Sửa

@@ -23,36 +23,42 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             _context = context;
         }
 
-        // GET: AdminSystem/Employees
-        //public async Task<IActionResult> Index(int page = 1)
-        //{
-        //    var limit = 12;
-        //    var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-        //    return View( workTrackingSystemContext.ToPagedList(page,limit));
-        //}
-        public async Task<IActionResult> Index(string search, int? DepartmentId, int page = 1)
-        {
-            var limit = 5;
-            var employees = _context.Employees.Include(e => e.Department).Include(e => e.Position).ToPagedList(page, limit);
-            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
-            if (DepartmentId > 0)
-            {
-                employees = employees.Where(e => e.DepartmentId == DepartmentId).ToPagedList(page, limit);
-            }
-            if (!string.IsNullOrEmpty(search))
-            {
-                var searchLower = search.ToLower();
-                employees = _context.Employees
-                   .Where(e =>
-                   (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower))
-                   .Include(e => e.Department)
-                   .ToPagedList(page, limit);
-                return View(employees);
-            }
-            return View(employees);
-        }
-            // GET: AdminSystem/Employees/Details/5
-            public async Task<IActionResult> Details(long? id)
+		// GET: AdminSystem/Employees
+		//public async Task<IActionResult> Index(int page = 1)
+		//{
+		//    var limit = 12;
+		//    var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
+		//    return View( workTrackingSystemContext.ToPagedList(page,limit));
+		//}
+		public async Task<IActionResult> Index(string search, int? DepartmentId, int page = 1)
+		{
+			var limit = 5;
+			var query = _context.Employees.Include(e => e.Department).Include(e => e.Position).AsQueryable();
+
+			if (DepartmentId > 0)
+			{
+				query = query.Where(e => e.DepartmentId == DepartmentId);
+			}
+
+			if (!string.IsNullOrEmpty(search))
+			{
+				var searchLower = search.ToLower();
+				query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower));
+			}
+			if (!string.IsNullOrEmpty(search) && DepartmentId > 0)
+			{
+
+				query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(search.ToLower()) && e.DepartmentId == DepartmentId);
+			}
+			var employees = query.ToPagedList(page, limit);
+			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+
+			return View(employees);
+
+
+		}
+		// GET: AdminSystem/Employees/Details/5
+		public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
             {
