@@ -23,9 +23,16 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 		}
 
 		// GET: EmployeeSystem/Jobs
-		public async Task<IActionResult> Index(int page = 1, string? selectedMonth = null, string? selectedStatus = null, DateTime? startDate = null, DateTime? endDate = null)
+		public async Task<IActionResult> Index(int? page , string? selectedMonth = null, DateTime? startDate = null, DateTime? endDate = null, string? searchTerm= null,string? filterStatus = null)
 		{
+			Console.WriteLine("SearchTerm: " + searchTerm);
 			int limit = 9;
+			if(page == null)
+			{
+				page = 1;
+			}
+			
+			var pageIndex= page.HasValue ? Convert.ToInt32(page) : 1;
 			var sessionUserId = HttpContext.Session.GetString("UserId");
 
 			if (string.IsNullOrEmpty(sessionUserId))
@@ -49,7 +56,18 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				.Include(j => j.Category)
 				.Include(j => j.Employee)
 				.Where(j => j.EmployeeId == user.EmployeeId);
-
+			if (!string.IsNullOrEmpty(searchTerm))
+			{
+				jobs = jobs.Where(j => j.Name.Contains(searchTerm));
+			}
+			if (!string.IsNullOrEmpty(filterStatus))
+			{
+				int statusValue;
+				if (int.TryParse(filterStatus, out statusValue))
+				{
+					jobs = jobs.Where(j => j.Status == statusValue);
+				}
+			}
 			// Nếu có giá trị tháng, lọc theo tháng
 			if (!string.IsNullOrEmpty(selectedMonth))
 			{
@@ -61,7 +79,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			}
 
 			// Nếu có bộ lọc trạng thái, lọc theo trạng thái
-			if (!string.IsNullOrEmpty(selectedStatus) && int.TryParse(selectedStatus, out int status))
+			if (!string.IsNullOrEmpty(filterStatus) && int.TryParse(filterStatus, out int status))
 			{
 				jobs = jobs.Where(j => j.Status == status);
 			}
@@ -73,14 +91,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 									  (!startDate.HasValue || j.CompletionDate.Value >= DateOnly.FromDateTime(startDate.Value)) &&
 									  (!endDate.HasValue || j.CompletionDate.Value <= DateOnly.FromDateTime(endDate.Value)));
 			}
-			//if (!string.IsNullOrEmpty(selectedMonth)&&!string.IsNullOrEmpty(selectedStatus) && int.TryParse(selectedStatus, out int status))
-			//{
-			//	if (DateOnly.TryParseExact(selectedMonth + "-01", "yyyy-MM-dd", out var startOfMonth))
-			//	{
-			//		var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
-			//		jobs = jobs.Where(j => j.Deadline1 >= startOfMonth && j.Deadline1 <= endOfMonth && j.Status == status);
-			//	}
-			//}
+			
 			var jobList = await jobs.OrderBy(j => j.Deadline1).ToListAsync();
 			var today = DateOnly.FromDateTime(DateTime.Today);
 
@@ -117,37 +128,17 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			//	}
 			//}
 
-			var pagedJobs = jobList.ToPagedList(page, limit);
+			var pagedJobs = jobList.ToPagedList(pageIndex, limit);
 
 			// Lưu lại giá trị để hiển thị lại trên View
 			ViewBag.SelectedMonth = selectedMonth;
-			ViewBag.SelectedStatus = selectedStatus;
+			//ViewBag.SelectedStatus = filterStatus;
 			ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
 			ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
-
+			ViewBag.SearchTerm = searchTerm;
+			ViewBag.FilterStatus = filterStatus;
 			return View(pagedJobs);
 		}
-
-		//[HttpPost]
-		//public IActionResult UpdateCompletionDate([FromBody] UpdateCompletionDateModel model)
-		//{
-		//	var job = _context.Jobs.Find(model.JobId);
-		//	if (job == null)
-		//	{
-		//		return Json(new { success = false, message = "Không tìm thấy công việc" });
-		//	}
-
-		//	if (DateOnly.TryParse(model.CompletionDate, out DateOnly completionDate))
-		//	{
-		//		job.CompletionDate = completionDate;
-		//		_context.SaveChanges();
-		//		return Json(new { success = true });
-		//	}
-		//	else
-		//	{
-		//		return Json(new { success = false, message = "Ngày không hợp lệ" });
-		//	}
-		//}
 		[HttpPost]
 		public async Task<IActionResult> UpdateProgress([FromBody] UpdateProgressRequest request)
 		{
@@ -202,12 +193,72 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 
 
 			_context.Entry(job).State = EntityState.Modified;
+			await UpdateAnalysis(job.EmployeeId);
 			await _context.SaveChangesAsync();
 
 			return Ok(new { success = true, newStatus = job.Status, completionDate = job.CompletionDate?.ToString("dd/MM/yyyy") });
 		}
 
+		private async Task UpdateAnalysis(long? employeeId)
+		{
+			if (employeeId == null)
+				return;
 
+			var currentMonth = DateTime.Now.Month;
+			var currentYear = DateTime.Now.Year;
+
+			// Lấy danh sách công việc của nhân viên trong tháng hiện tại
+			var jobs = await _context.Jobs
+				.Where(j => j.EmployeeId == employeeId && j.Time.HasValue &&
+							j.Time.Value.Month == currentMonth && j.Time.Value.Year == currentYear)
+				.ToListAsync();
+
+
+			int ontime = jobs.Count(j => j.Status == 1);
+			int late = jobs.Count(j => j.Status == 2);
+			int overdue = jobs.Count(j => j.Status == 3);
+			int processing = jobs.Count(j => j.Status == 4);
+			int total = ontime + late + overdue + processing;
+			// Tính trung bình đánh giá của nhân viên
+			var averageReview = jobs.Any()
+				? jobs.Average(j => j.SummaryOfReviews ?? 0)
+				: 0;
+
+			// Tìm bản ghi Analysis của nhân viên trong tháng hiện tại
+			var analysis = await _context.Analyses
+				.FirstOrDefaultAsync(a => a.EmployeeId == employeeId && a.Time.HasValue &&
+										  a.Time.Value.Month == currentMonth && a.Time.Value.Year == currentYear);
+
+			if (analysis == null)
+			{
+				// Nếu chưa có bản ghi trong tháng, tạo mới
+				analysis = new Analysis
+				{
+					EmployeeId = employeeId,
+					Total = total,
+					Ontime = ontime,
+					Late = late,
+					Overdue = overdue,
+					Processing = processing,
+					Time = new DateTime(currentYear, currentMonth, 1),
+					CreateDate = DateTime.Now,
+					UpdateDate = DateTime.Now
+				};
+				_context.Analyses.Add(analysis);
+			}
+			else
+			{
+				// Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
+				analysis.Total = total;
+				analysis.Ontime = ontime;
+				analysis.Late = late;
+				analysis.Overdue = overdue;
+				analysis.Processing = processing;
+				analysis.UpdateDate = DateTime.Now;
+			}
+
+			await _context.SaveChangesAsync();
+		}
 		private bool JobExists(long id)
 		{
 			return _context.Jobs.Any(e => e.Id == id);

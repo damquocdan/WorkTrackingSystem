@@ -12,7 +12,7 @@
 <div class="row   mb-3">
 	<!-- Ô tìm kiếm -->
 	<div class="col-md-2">
-		<input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm kiếm công việc...">
+		<input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm kiếm công việc..." value="@ViewBag.SearchTerm">
 	</div>
 	<!-- Lọc theo tháng -->
 	<div class="col-md-3">
@@ -51,7 +51,7 @@
 <table class="table table-bordered table-hover shadow">
 	<thead class="table-primary text-center">
 		<tr>
-			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Category.Name)</th>
+			<th>Hạng mục</th>
 			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Name)</th>
 			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Deadline1)</th>
 			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().CompletionDate)</th>
@@ -116,7 +116,16 @@
 </table>
 @if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
 {
-	@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
+	@Html.PagedListPager(Model, page => Url.Action("Index", new
+		{
+			page = page,
+			filterStatus = ViewBag.FilterStatus,
+			searchTerm = ViewBag.SearchTerm,
+			selectedMonth = ViewBag.SelectedMonth,
+			// selectedStatus = ViewBag.SelectedStatus,
+			startDate = ViewBag.StartDate,
+			endDate = ViewBag.EndDate
+		}), new PagedListRenderOptions
 {
 	LiElementClasses = new string[] { "page-item" },
 	PageClasses = new string[] { "page-link" },
@@ -127,6 +136,7 @@
 	DisplayEllipsesWhenNotShowingAllPageNumbers = true,
 	MaximumPageNumbersToDisplay = 5
 })
+
 }
 @section Scripts {
 	<script>
@@ -134,49 +144,35 @@
 			let searchBox = document.getElementById('searchBox');
 			let filterStatus = document.getElementById('filterStatus');
 
-			// Chức năng tìm kiếm
-			searchBox.addEventListener('input', function () {
-				let searchTerm = this.value.toLowerCase();
-				document.querySelectorAll('.job-row').forEach(row => {
-					let jobName = row.querySelector('.job-name').textContent.toLowerCase();
-					row.style.display = jobName.includes(searchTerm) ? '' : 'none';
-				});
+			// Lấy giá trị searchTerm từ ViewBag và kiểm tra null
+			let searchTermFromViewBag = "@(ViewBag.SearchTerm ?? "")";
+			let filterStatusFromViewBag = "@(ViewBag.FilterStatus ?? "")";
+
+			searchBox.value = searchTermFromViewBag;
+			filterStatus.value = filterStatusFromViewBag;
+
+			function applyFilters() {
+				let searchTerm = searchBox.value.trim();
+				let selectedStatus = filterStatus.value;
+				let url = new URL(window.location.href);
+				url.searchParams.set("searchTerm", searchTerm);
+				url.searchParams.set("filterStatus", selectedStatus);
+				console.log("fiter", selectedStatus)
+				url.searchParams.set("page", 1); // Reset về trang 1 sau khi lọc
+				window.location.href = url.toString();
+			}
+
+			// Gửi request khi nhập từ khóa và nhấn Enter
+			searchBox.addEventListener("keypress", function (event) {
+				if (event.key === "Enter") {
+					event.preventDefault(); // Ngăn chặn reload trang không cần thiết
+					applyFilters();
+				}
 			});
 
-			// Chức năng lọc công việc theo trạng thái
-			filterStatus.addEventListener('change', function () {
-				let selectedStatus = this.value;
-				document.querySelectorAll('.job-row').forEach(row => {
-					let jobStatus = row.getAttribute('data-status');
-					row.style.display = (selectedStatus === "" || jobStatus === selectedStatus) ? '' : 'none';
-				});
-			});
-
-			// Cập nhật ngày hoàn thành thực tế
-			// document.querySelectorAll('.completion-date').forEach(input => {
-			// 	input.addEventListener('change', function () {
-			// 		let jobId = parseInt(this.dataset.jobId);
-			// 		let completionDate = this.value;
-
-			// 		if (!completionDate) return;
-
-			// 		fetch('/EmployeeSystem/Jobs/UpdateCompletionDate', {
-			// 			method: 'POST',
-			// 			headers: { 'Content-Type': 'application/json' },
-			// 			body: JSON.stringify({ jobId: jobId, completionDate: completionDate })
-			// 		})
-			// 			.then(response => response.json())
-			// 			.then(data => {
-			// 				if (data.success) {
-			// 					console.log("Cập nhật ngày hoàn thành thành công!");
-			// 				} else {
-			// 					console.error("Lỗi cập nhật:", data.message);
-			// 				}
-			// 			})
-			// 			.catch(error => console.error('Lỗi:', error));
-			// 	});
-			// });
-
+			// Gửi request khi thay đổi trạng thái
+			filterStatus.addEventListener("change", applyFilters);
+		
 			// Cập nhật tiến độ và trạng thái
 			document.querySelectorAll('.progress-slider').forEach(slider => {
 				slider.addEventListener('input', function () {
