@@ -1,151 +1,141 @@
 ﻿@model WorkTrackingSystem.Models.Job
 
 @{
-    ViewData["Title"] = "Tạo mới công việc";
+    ViewData["Title"] = "Create";
 }
 
-<h1 class="mb-4">Tạo mới công việc</h1>
+<!-- Thêm jQuery và jQuery UI -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-<div class="row">
-    <div class="col-md-6">
-        <label class="form-label"><i class="bi bi-list-check"></i> Chọn loại chức năng:</label>
-        <select id="taskType" class="form-control">
-            <option value="oneToMany">1 Nhân viên - 1 Công việc hoặc nhiều Công việc</option>
-            <option value="multi">Nhiều Nhân viên - 1 Công việc</option>
-        </select>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-center">Tạo công việc</h1>
+        <button type="button" class="btn btn-outline-secondary" onclick="closeDetailSection()">
+            <i class="bi bi-x-lg"></i>
+        </button>
     </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-body">
+
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <!-- Chọn Danh mục -->
+                        <div class="form-group">
+                            <label for="categorySearch" class="control-label">Chọn công việc</label>
+                            <input type="text" id="categorySearch" class="form-control" placeholder="Nhập tên danh mục...">
+                            <input type="hidden" id="CategoryId" name="CategoryId">
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" id="Name" autocomplete="off" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label">Mô tả công việc</label>
+                            <input asp-for="Description" class="form-control" />
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Time" class="control-label">Ngày bắt đầu</label>
+                            <input asp-for="Time" class="form-control" type="date" />
+                            <span asp-validation-for="Time" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Deadline1" class="control-label">Hạn chót</label>
+                            <input asp-for="Deadline1" class="form-control" type="date" />
+                            <span asp-validation-for="Deadline1" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CreateBy" class="control-label"></label>
+                            <input asp-for="CreateBy" class="form-control" value="@ViewBag.CreateBy" readonly />
+                            <span asp-validation-for="CreateBy" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<br>
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <!-- Nhiều nhân viên - Một công việc -->
-            <div class="mb-3 task-type multi" style="display: none;">
-                <label class="form-label"><i class="bi bi-people"></i> Chọn nhân viên:</label>
-                @foreach (var employee in ViewBag.Employees)
-                {
-                    <div class="form-check">
-                        <input type="checkbox" name="SelectedEmployees" value="@employee.Value" class="form-check-input">
-                        <label class="form-check-label">@employee.Text</label>
-                    </div>
-                }
-                <!-- Thêm các trường cho job -->
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
-                    <select name="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
-                    <input name="Name" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
-                    <input name="Description" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 1:</label>
-                    <input name="Deadline1" type="date" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 2:</label>
-                    <input name="Deadline2" type="date" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 3:</label>
-                    <input name="Deadline3" type="date" class="form-control" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label"><i class="bi bi-calendar-check"></i> Hạn hoàn thành:</label>
-                    <input name="CompletionDate" type="date" class="form-control" />
-                </div>
-            </div>
 
-            <!-- Một nhân viên - Nhiều công việc -->
-            <div class="mb-3 task-type oneToMany">
-                <label class="form-label"><i class="bi bi-person"></i> Chọn Nhân viên:</label>
-                <select id="singleEmployee" name="SingleEmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
-            </div>
-
-            <div id="taskContainer" class="oneToMany">
-                <div class="task-group" data-index="0">
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-tag"></i> Danh mục:</label>
-                        <select name="Jobs[0].CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-card-heading"></i> Tên công việc:</label>
-                        <input name="Jobs[0].Name" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-file-text"></i> Mô tả:</label>
-                        <input name="Jobs[0].Description" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 1:</label>
-                        <input name="Jobs[0].Deadline1" type="date" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 2:</label>
-                        <input name="Jobs[0].Deadline2" type="date" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-calendar-event"></i> Hạn báo cáo lần 3:</label>
-                        <input name="Jobs[0].Deadline3" type="date" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label"><i class="bi bi-calendar-check"></i> Hạn hoàn thành:</label>
-                        <input name="Jobs[0].CompletionDate" type="date" class="form-control" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-3 oneToMany">
-                <button type="button" class="btn btn-success" id="addTask"><i class="bi bi-plus-circle"></i> Thêm công việc</button>
-            </div>
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo mới</button>
-                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
-            </div>
-        </form>
-    </div>
-</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-                document.getElementById("taskType").addEventListener("change", function () {
-            let selected = this.value;
-            document.querySelectorAll(".task-type").forEach(e => e.style.display = "none");
-            document.querySelectorAll(`.${selected}`).forEach(e => e.style.display = "block");
-            let taskContainer = document.getElementById("taskContainer");
-        let addTaskButton = document.getElementById("addTask");
-                if (selected === "oneToMany") {
-            taskContainer.style.display = "block";
-            addTaskButton.style.display = "inline-block"; // Hiển thị nút Thêm công việc
-        } else {
-            taskContainer.style.display = "none";
-            addTaskButton.style.display = "none"; // Ẩn nút Thêm công việc khi chọn "multi"
-            taskContainer.innerHTML = document.querySelector(".task-group").outerHTML; // Reset về 1 công việc
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Dữ liệu nhân viên
+        var employees = [
+    @if (ViewBag.EmployeeId != null)
+    {
+        foreach (var employee in (IEnumerable<SelectListItem>)ViewBag.EmployeeId)
+        {
+            @Html.Raw($"{{ label: '{employee.Text}', value: '{employee.Value}' }},")
         }
+    }
+        ];
+
+        // Dữ liệu danh mục
+        var categories = [
+    @if (ViewBag.CategoryId != null)
+    {
+        foreach (var category in (IEnumerable<SelectListItem>)ViewBag.CategoryId)
+        {
+            @Html.Raw($"{{ label: '{category.Text}', value: '{category.Value}' }},")
+        }
+    }
+        ];
+
+        // Autocomplete cho nhân viên
+        $("#employeeSearch").autocomplete({
+            source: employees,
+            select: function (event, ui) {
+                $("#employeeSearch").val(ui.item.label); // Hiển thị tên nhân viên
+                $("#EmployeeId").val(ui.item.value); // Lưu ID vào input ẩn
+                return false;
+            }
         });
 
-        document.getElementById("addTask").addEventListener("click", function () {
-            let taskContainer = document.getElementById("taskContainer");
-            let taskCount = taskContainer.children.length;
-            let newTask = document.querySelector(".task-group").cloneNode(true);
-            newTask.setAttribute("data-index", taskCount);
-            newTask.querySelectorAll("input, select").forEach(input => {
-                let name = input.name.replace("Jobs[0]", `Jobs[${taskCount}]`);
-                input.name = name;
-                input.value = ""; // Reset giá trị để tránh sao chép
-            });
-            taskContainer.appendChild(newTask);
+        // Autocomplete cho danh mục
+        $("#categorySearch").autocomplete({
+            source: categories,
+            select: function (event, ui) {
+                $("#categorySearch").val(ui.item.label); // Hiển thị tên danh mục
+                $("#CategoryId").val(ui.item.value); // Lưu ID vào input ẩn
+                return false;
+            }
         });
-    </script>
-}
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var jobNames = @Html.Raw(Json.Serialize(ViewBag.JobNames));
+
+        $("#Name").autocomplete({
+            source: jobNames
+        });
+    });
+</script>
