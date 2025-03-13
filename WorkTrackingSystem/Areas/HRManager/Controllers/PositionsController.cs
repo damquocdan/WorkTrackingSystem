@@ -22,7 +22,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         // GET: HRManager/Positions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Positions.ToListAsync());
+            return View(await _context.Positions.Where(p=>p.IsActive==true).ToListAsync());
         }
 
         // GET: HRManager/Positions/Details/5
@@ -192,7 +192,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             var position = await _context.Positions.FindAsync(id);
             if (position != null)
             {
-                _context.Positions.Remove(position);
+                position.IsDelete = true;
+                position.IsActive = false;
+                _context.Positions.Update(position);
+                //_context.Positions.Remove(position);
             }
 
             await _context.SaveChangesAsync();

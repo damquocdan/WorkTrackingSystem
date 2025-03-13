@@ -25,7 +25,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         public async Task<IActionResult> Index(int page= 1 )
         {
             var limit = 12;
-            var workTrackingSystemContext = _context.Users.Include(u => u.Employee).ThenInclude(e=>e.Position);
+            var workTrackingSystemContext = _context.Users.Where(u=>u.IsActive==true).Include(u => u.Employee).ThenInclude(e=>e.Position);
 
             return View( workTrackingSystemContext.ToPagedList(page,limit));
         }
@@ -198,7 +198,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
-                _context.Users.Remove(user);
+                user.IsActive = false;
+                user.IsDelete = true;
+                _context.Users.Update(user);
+                //_context.Users.Remove(user);
             }
 
             await _context.SaveChangesAsync();

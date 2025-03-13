@@ -23,7 +23,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            return View(await _context.Categories.Where(c=>c.IsActive==true).ToListAsync());
         }
 
         // GET: AdminSystem/Categories/Details/5
@@ -161,7 +161,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var category = await _context.Categories.FindAsync(id);
             if (category != null)
             {
-                _context.Categories.Remove(category);
+                category.IsDelete=true;
+                category.IsActive=false;
+                //_context.Categories.Remove(category);
+                _context.Categories.Update(category);
             }
 
             await _context.SaveChangesAsync();

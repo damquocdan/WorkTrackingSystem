@@ -27,7 +27,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         public async Task<IActionResult> Index()
         {
            
-            return View(await _context.Departments.ToListAsync());
+            return View(await _context.Departments.Where(d=>d.IsActive==true).ToListAsync());
         }
       
 
@@ -167,7 +167,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var department = await _context.Departments.FindAsync(id);
             if (department != null)
             {
-                _context.Departments.Remove(department);
+                department.IsDelete = true;
+                department.IsActive = false;
+                _context.Update(department);
+                //_context.Departments.Remove(department);
             }
 
             await _context.SaveChangesAsync();

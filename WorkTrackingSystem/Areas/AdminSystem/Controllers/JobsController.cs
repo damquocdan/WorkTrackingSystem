@@ -25,7 +25,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         public async Task<IActionResult> Index(int page=1)
         {
             var limit = 5;
-            var workTrackingSystemContext = _context.Jobs.Include(j => j.Category).Include(j => j.Employee);
+            var workTrackingSystemContext = _context.Jobs.Where(j=>j.IsActive==true).Include(j => j.Category).Include(j => j.Employee);
             return View( workTrackingSystemContext.ToPagedList(page,limit));
         }
 
@@ -168,7 +168,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var job = await _context.Jobs.FindAsync(id);
             if (job != null)
             {
-                _context.Jobs.Remove(job);
+                job.IsActive = false;
+                job.IsDelete = true;
+                _context.Jobs.Update(job);
+                //_context.Jobs.Remove(job);
             }
 
             await _context.SaveChangesAsync();

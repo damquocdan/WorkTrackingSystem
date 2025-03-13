@@ -23,7 +23,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Positions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Positions.ToListAsync());
+            return View(await _context.Positions.Where(p=>p.IsActive==true).ToListAsync());
         }
 
         // GET: AdminSystem/Positions/Details/5
@@ -162,7 +162,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var position = await _context.Positions.FindAsync(id);
             if (position != null)
             {
-                _context.Positions.Remove(position);
+                position.IsDelete=true;
+                position.IsActive = false;
+                _context.Positions.Update(position);
+                //_context.Positions.Remove(position);
             }
 
             await _context.SaveChangesAsync();

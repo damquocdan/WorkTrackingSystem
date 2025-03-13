@@ -29,7 +29,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 var searchLower = search.ToLower();
-                 workTrackingSystemContext = _context.Users.Where(u => u.UserName.ToLower().Contains(searchLower)).Include(u => u.Employee).Include(u=>u.Employee.Department);
+                 workTrackingSystemContext = _context.Users.Where(u => u.UserName.ToLower().Contains(searchLower) && u.IsActive==true).Include(u => u.Employee).Include(u=>u.Employee.Department);
                 return View(workTrackingSystemContext.ToPagedList(page, limit));
             }
             //ViewBag.Department= _context.Employees.Include(e=>e.Department).Where(e=>e.DepartmentId ==   )
@@ -212,7 +212,10 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user != null)
             {
-                _context.Users.Remove(user);
+                user.IsActive = false;
+                user.IsDelete=true;
+
+                _context.Users.Update(user);
             }
 
             await _context.SaveChangesAsync();
