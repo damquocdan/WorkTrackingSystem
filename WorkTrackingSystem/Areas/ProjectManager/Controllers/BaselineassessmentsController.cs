@@ -45,18 +45,17 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
+
             // Lấy danh sách phòng ban mà quản lý đang phụ trách
-            var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3)) // 2 = Quản lý
-                .Select(d => d.Id)
+            var managedDepartments = await _context.Employees
+                .Where(e => e.DepartmentId == manager.DepartmentId)
+                .Select(e => e.Id)
                 .ToListAsync();
 
             // Lọc danh sách đánh giá của nhân viên thuộc các phòng ban mà quản lý phụ trách
             var assessments = _context.Baselineassessments
                 .Include(b => b.Employee)
-                .Where(b => b.Employee != null &&
-                            b.Employee.DepartmentId.HasValue &&
-                            managedDepartments.Contains(b.Employee.DepartmentId.Value));
+                .Where(b => b.EmployeeId.HasValue != null && managedDepartments.Contains(b.EmployeeId.Value));
 
             // Lọc theo mã nhân viên
             if (!string.IsNullOrEmpty(employeeCode))

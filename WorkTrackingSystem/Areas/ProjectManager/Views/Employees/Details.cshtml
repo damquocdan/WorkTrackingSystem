@@ -194,19 +194,28 @@
         }
         else if (ViewBag.SelectedMonth != null)
         {
-            <h3><i class="fas fa-tasks"></i> Công việc tháng @(((DateTime)ViewBag.SelectedMonth).ToString("MM/yyyy"))</h3>
+            <h3><i class="fas fa-tasks"></i>Đánh giá công việc tháng @(((DateTime)ViewBag.SelectedMonth).ToString("MM/yyyy"))</h3>
         }
         else
         {
             <h3><i class="fas fa-chart-line"></i> Tất cả đánh giá</h3>
-        }
+            <p>Những tháng có trên cơ sở dữ liệu</p>
 
-        <div class="row">
-            <div class="col-md-3"><i class="fas fa-weight"></i> Khối lượng: @Model.BaselineAssessment?.VolumeAssessment?.ToString("F2")</div>
-            <div class="col-md-3"><i class="fas fa-tachometer-alt"></i> Tiến độ: @Model.BaselineAssessment?.ProgressAssessment?.ToString("F2")</div>
-            <div class="col-md-3"><i class="fas fa-certificate"></i> Chất lượng: @Model.BaselineAssessment?.QualityAssessment?.ToString("F2")</div>
-            <div class="col-md-3"><i class="fas fa-calculator"></i> Tổng hợp: @Model.BaselineAssessment?.SummaryOfReviews?.ToString("F2")</div>
-        </div>
+            @foreach (var baseline in Model.BaselineAssessments)
+            {
+                if (baseline.Time.HasValue)
+                {
+                    <h4>Tháng @(baseline.Time.Value.ToString("MM/yyyy"))</h4>
+                    <div class="row">
+                        <div class="col-md-3"><i class="fas fa-weight"></i> Khối lượng: @(baseline.VolumeAssessment?.ToString("F2") ?? "N/A")</div>
+                        <div class="col-md-3"><i class="fas fa-tachometer-alt"></i> Tiến độ: @(baseline.ProgressAssessment?.ToString("F2") ?? "N/A")</div>
+                        <div class="col-md-3"><i class="fas fa-certificate"></i> Chất lượng: @(baseline.QualityAssessment?.ToString("F2") ?? "N/A")</div>
+                        <div class="col-md-3"><i class="fas fa-calculator"></i> Tổng hợp: @(baseline.SummaryOfReviews?.ToString("F2") ?? "N/A")</div>
+                    </div>
+                    <hr />
+                }
+            }
+        }
 
         @if (ViewBag.StartDate != null && ViewBag.EndDate != null)
         {
@@ -222,20 +231,29 @@
         }
         else if (ViewBag.SelectedMonth != null)
         {
-            <h3><i class="fas fa-tasks"></i> Công việc tháng @(((DateTime)ViewBag.SelectedMonth).ToString("MM/yyyy"))</h3>
+            <h3><i class="fas fa-tasks"></i> Phân tích công việc tháng @(((DateTime)ViewBag.SelectedMonth).ToString("MM/yyyy"))</h3>
         }
         else
         {
             <h3><i class="fas fa-chart-pie"></i> Tất cả phân tích</h3>
-        }
+            <p>Những phân tích có trên cơ sở dữ liệu</p>
 
-        <div class="row">
-            <div class="col-md-2"><i class="fas fa-list-ol"></i> Tổng số: @Model.Analysis?.Total</div>
-            <div class="col-md-2"><i class="fas fa-calendar-check"></i> Đúng hạn: @Model.Analysis?.Ontime</div>
-            <div class="col-md-2"><i class="fas fa-calendar-times"></i> Trễ hạn: @Model.Analysis?.Late</div>
-            <div class="col-md-2"><i class="fas fa-calendar-exclamation"></i> Quá hạn: @Model.Analysis?.Overdue</div>
-            <div class="col-md-2"><i class="fas fa-sync-alt"></i> Đang xử lý: @Model.Analysis?.Processing</div>
-        </div>
+            @foreach (var analysis in Model.Analyses)
+            {
+                if (analysis.Time.HasValue)
+                {
+                    <h4>Tháng @(analysis.Time.Value.ToString("MM/yyyy"))</h4>
+                    <div class="row">
+                        <div class="col-md-2"><i class="fas fa-list-ol"></i> Tổng số: @(analysis.Total?.ToString() ?? "N/A")</div>
+                        <div class="col-md-2"><i class="fas fa-calendar-check"></i> Đúng hạn: @(analysis.Ontime?.ToString() ?? "N/A")</div>
+                        <div class="col-md-2"><i class="fas fa-calendar-times"></i> Trễ hạn: @(analysis.Late?.ToString() ?? "N/A")</div>
+                        <div class="col-md-2"><i class="fas fa-calendar-exclamation"></i> Quá hạn: @(analysis.Overdue?.ToString() ?? "N/A")</div>
+                        <div class="col-md-2"><i class="fas fa-sync-alt"></i> Đang xử lý: @(analysis.Processing?.ToString() ?? "N/A")</div>
+                    </div>
+                    <hr />
+                }
+            }
+        }
     </div>
 </div>
     
