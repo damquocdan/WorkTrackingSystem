@@ -24,9 +24,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
 
-   
+
         // GET: ProjectManager/Employees
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm, int? positionId)
         {
             // Lấy ManagerId từ session
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -49,18 +49,37 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             // Lấy danh sách phòng ban mà nhân viên này quản lý
             var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3)) // 2 = Quản lý
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3)) // 3 = Quản lý
                 .Select(d => d.Id)
                 .ToListAsync();
 
-            // Lọc danh sách nhân viên thuộc phòng ban mà quản lý này phụ trách
-            var employeesInManagedDepartments = _context.Employees
+            // Lọc danh sách nhân viên theo phòng ban mà quản lý này phụ trách
+            var employeesQuery = _context.Employees
                 .Include(e => e.Department)
                 .Include(e => e.Position)
                 .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value));
 
-            return View(await employeesInManagedDepartments.ToListAsync());
+            // Lọc theo chức vụ nếu có
+            if (positionId.HasValue && positionId > 0)
+            {
+                employeesQuery = employeesQuery.Where(e => e.PositionId == positionId.Value);
+            }
+
+            // Lọc theo mã nhân viên, họ và tên
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                employeesQuery = employeesQuery.Where(e =>
+                    e.Code.Contains(searchTerm) ||
+                    e.FirstName.Contains(searchTerm) ||
+                    e.LastName.Contains(searchTerm));
+            }
+
+            // Trả kết quả về View
+            var employees = await employeesQuery.ToListAsync();
+            ViewBag.Positions = await _context.Positions.ToListAsync(); // Gửi danh sách chức vụ để lọc
+            return View(employees);
         }
+
 
 
         // GET: ProjectManager/Employees/Details/5
