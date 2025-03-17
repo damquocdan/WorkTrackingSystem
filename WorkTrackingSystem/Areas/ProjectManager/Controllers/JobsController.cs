@@ -664,7 +664,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 try
                 {
                     _context.Update(job);
-                    job.Status = 4;
+                    job.Status = 5;
                     job.CreateBy = managerUsername;
                     await _context.SaveChangesAsync();
                     await UpdateBaselineAssessment(job.EmployeeId);
