@@ -15,38 +15,38 @@
 <style>
     /* Tùy chỉnh menu gợi ý của autocomplete */
     .ui-autocomplete {
-        max-height: 300px; /* Giới hạn chiều cao tối đa */
-        overflow-y: auto; /* Cho phép cuộn dọc nếu vượt quá chiều cao */
-        overflow-x: auto; /* Cho phép cuộn ngang nếu vượt quá chiều rộng */
-        white-space: nowrap; /* Ngăn các mục xuống dòng */
-        display: flex; /* Sử dụng flexbox để hiển thị ngang */
-        flex-direction: row; /* Hiển thị theo hàng ngang */
-        padding: 10px;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        z-index: 1000 !important; /* Đảm bảo menu hiển thị trên các phần tử khác */
+    max-height: 300px; /* Giới hạn chiều cao tối đa */
+    overflow-y: auto; /* Cho phép cuộn dọc nếu vượt quá chiều cao */
+    overflow-x: auto; /* Cho phép cuộn ngang nếu vượt quá chiều rộng */
+    white-space: nowrap; /* Ngăn các mục xuống dòng */
+    display: flex; /* Sử dụng flexbox để hiển thị ngang */
+    flex-direction: row; /* Hiển thị theo hàng ngang */
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000 !important; /* Đảm bảo menu hiển thị trên các phần tử khác */
     }
 
-        /* Tùy chỉnh từng mục trong danh sách gợi ý */
-        .ui-autocomplete li {
-            display: inline-flex; /* Hiển thị các mục theo hàng ngang */
-            margin-right: 10px; /* Khoảng cách giữa các mục */
-            margin-bottom: 10px; /* Khoảng cách dọc nếu có nhiều hàng */
-            flex: 0 0 auto; /* Không co giãn, giữ kích thước gốc */
-        }
+    /* Tùy chỉnh từng mục trong danh sách gợi ý */
+    .ui-autocomplete li {
+    display: inline-flex; /* Hiển thị các mục theo hàng ngang */
+    margin-right: 10px; /* Khoảng cách giữa các mục */
+    margin-bottom: 10px; /* Khoảng cách dọc nếu có nhiều hàng */
+    flex: 0 0 auto; /* Không co giãn, giữ kích thước gốc */
+    }
 
-        /* Tùy chỉnh card bên trong mỗi mục */
-        .ui-autocomplete .card {
-            width: 200px; /* Đảm bảo card có kích thước cố định */
-            flex: 0 0 auto;
-        }
+    /* Tùy chỉnh card bên trong mỗi mục */
+    .ui-autocomplete .card {
+    width: 200px; /* Đảm bảo card có kích thước cố định */
+    flex: 0 0 auto;
+    }
 
     /* Đảm bảo input tìm kiếm không bị ảnh hưởng */
     #employee-search {
-        width: 100%;
-        margin-bottom: 10px;
+    width: 100%;
+    margin-bottom: 10px;
     }
 </style>
 <div class="row">
@@ -169,26 +169,43 @@
         </form>
 
         <div class="table-responsive">
-            <table class="table table-bordered">
+            <table class="table table-bordered ">
                 <thead>
-                    <tr>
+                    <tr class="bg-primary">
+                        <th>STT</th>
                         <th><i class="bi bi-person"></i> Nhân viên</th>
                         <th><i class="bi bi-tag"></i> Danh mục</th>
-                        <th><i class="bi bi-card-heading"></i> Tên công việc</th>
+                        <th width="20%"><i class="bi bi-card-heading"></i> Tên công việc</th>
                         <th><i class="bi bi-clock"></i> Ngày bắt đầu</th>
                         <th><i class="bi bi-clock"></i> Hạn chót</th>
                         <th>Trạng thái</th>
                         <th><i class="bi bi-clock"></i> Ngày hoàn thành</th>
-                        <th>Hành động</th>
+                        <th>
+                            <form asp-action="ExportToExcel" method="get">
+                                <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
+                                <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
+                                <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
+                                <input type="hidden" name="dueToday" value="@Context.Request.Query["dueToday"]" />
+                                <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
+                                <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
+                                <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+                            </form>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
+                    @{
+                        int index = 0;
+                    }
                     @foreach (var item in Model.OrderBy(j => j.EmployeeId == null ? 0 : 1))
                     {
+                        index++;
                         <tr class="@(item.Status == 1 ? "table-success" :
                                item.Status == 2 ? "table-warning" :
                                item.Status == 3 ? "table-danger" :
-                               "table-primary")">
+                               item.Status == 4 ? "table-primary" :
+                               "table-secondary")">
+                            <td>@index</td>
                             <td>
                                 @if (item.EmployeeId == null)
                                 {
@@ -219,7 +236,7 @@
                                     case 4:
                                         <span class="text-bold">Đang xử lý</span>
                                         break;
-                                    case 5:
+                                    case 0:
                                         <span class="text-bold">Chưa bắt đầu</span>
                                         break;
                                     default:
@@ -300,12 +317,13 @@
         }).autocomplete("instance")._renderItem = function (ul, item) {
             return $("<li>")
                 .append(`
-                    <div class="card mb-2" style="width: 200px;">
-                        <div class="card-body d-flex align-items-center">
-                            <img src="${item.avatar}" class="rounded-circle" width="40" height="40" />
-                            <span class="ms-2">${item.name}</span>
+                        <div class="card mb-2" style="width: 200px; text-align: center;">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <img src="${item.avatar}" class="mb-2" style="width: 100px; height: 100px; border-radius: 50%;">
+                                <p class="mt-2">${item.name}</p>
+                            </div>
                         </div>
-                    </div>
+
                 `)
                 .appendTo(ul);
         };
@@ -350,54 +368,103 @@
         }
 
         // Hiển thị danh sách công việc
-        function displayJobs(unassignedJobs, assignedJobs) {
-            var unassignedTableBody = $("#unassigned-jobs-table tbody");
-            var assignedTableBody = $("#assigned-jobs-table tbody");
+            function displayJobs(unassignedJobs, assignedJobs) {
+        var unassignedTableBody = $("#unassigned-jobs-table tbody");
+        var assignedTableBody = $("#assigned-jobs-table tbody");
 
-            // Xóa nội dung cũ
-            unassignedTableBody.empty();
-            assignedTableBody.empty();
+        // Xóa nội dung cũ
+        unassignedTableBody.empty();
+        assignedTableBody.empty();
 
-            // Hiển thị công việc chưa được giao
-            unassignedJobs.forEach(function (job) {
-                var statusText = getStatusText(job.status);
-                var rowClass = getStatusClass(job.status);
-                unassignedTableBody.append(`
-                    <tr class="${rowClass}">
-                        <td>${job.categoryName}</td>
-                        <td>${job.name}</td>
-                        <td>${job.time ? new Date(job.time).toLocaleDateString() : ''}</td>
-                        <td>${job.deadline1 ? new Date(job.deadline1).toLocaleDateString() : ''}</td>
-                        <td><span class="text-bold">${statusText}</span></td>
-                        <td>${job.completionDate ? new Date(job.completionDate).toLocaleDateString() : ''}</td>
-                        <td>
-                            <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
-                        </td>
-                    </tr>
-                `);
-            });
+        // Hiển thị công việc chưa được giao
+        unassignedJobs.forEach(function (job) {
+            var statusText = getStatusText(job.status);
+            var rowClass = getStatusClass(job.status);
+            unassignedTableBody.append(`
+                <tr class="${rowClass}" data-job-id="${job.id}">
+                    <td>${job.categoryName}</td>
+                    <td>${job.name}</td>
+                    <td><input type="text" class="datepicker-time form-control" value="${job.time ? new Date(job.time).toLocaleDateString() : ''}" /></td>
+                    <td><input type="text" class="datepicker-deadline form-control" value="${job.deadline1 ? new Date(job.deadline1).toLocaleDateString() : ''}" /></td>
+                    <td><span class="text-bold">${statusText}</span></td>
+                    <td>${job.completionDate ? new Date(job.completionDate).toLocaleDateString() : ''}</td>
+                    <td>
+                        <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
+                    </td>
+                </tr>
+            `);
+        });
 
-            // Hiển thị công việc của nhân viên
-            assignedJobs.forEach(function (job) {
-                var statusText = getStatusText(job.status);
-                var rowClass = getStatusClass(job.status);
-                assignedTableBody.append(`
-                    <tr class="${rowClass}">
-                        <td>${job.categoryName}</td>
-                        <td>${job.name}</td>
-                        <td>${job.time ? new Date(job.time).toLocaleDateString() : ''}</td>
-                        <td>${job.deadline1 ? new Date(job.deadline1).toLocaleDateString() : ''}</td>
-                        <td><span class="text-bold">${statusText}</span></td>
-                        <td>${job.completionDate ? new Date(job.completionDate).toLocaleDateString() : ''}</td>
-                    </tr>
-                `);
-            });
+        // Hiển thị công việc của nhân viên
+        assignedJobs.forEach(function (job) {
+            var statusText = getStatusText(job.status);
+            var rowClass = getStatusClass(job.status);
+            assignedTableBody.append(`
+                <tr class="${rowClass}" data-job-id="${job.id}">
+                    <td>${job.categoryName}</td>
+                    <td>${job.name}</td>
+                    <td>${job.time ? new Date(job.time).toLocaleDateString() : ''}</td>
+                         <td>${job.deadline1 ? new Date(job.deadline1).toLocaleDateString() : ''}</td>
+                    <td><span class="text-bold">${statusText}</span></td>
+                    <td>${job.completionDate ? new Date(job.completionDate).toLocaleDateString() : ''}</td>
+                </tr>
+            `);
+        });
 
-            // Gắn lại sự kiện cho checkbox
-            bindCheckboxEvents();
-            // Gắn lại sự kiện cho các nút hành động
-            bindAjaxActions();
-        }
+        // Khởi tạo Datepicker cho các trường ngày tháng
+        initializeDatepickers();
+
+        // Gắn lại sự kiện cho checkbox
+        bindCheckboxEvents();
+        // Gắn lại sự kiện cho các nút hành động
+        bindAjaxActions();
+    }
+
+    // Hàm khởi tạo Datepicker
+    function initializeDatepickers() {
+        $(".datepicker-time").datepicker({
+            dateFormat: "mm/dd/yy", // Định dạng ngày tháng
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (dateText, inst) {
+                var jobId = $(this).closest("tr").data("job-id");
+                updateJobDate(jobId, "time", dateText);
+            }
+        });
+
+        $(".datepicker-deadline").datepicker({
+            dateFormat: "mm/dd/yy", // Định dạng ngày tháng
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (dateText, inst) {
+                var jobId = $(this).closest("tr").data("job-id");
+                updateJobDate(jobId, "deadline1", dateText);
+            }
+        });
+    }
+
+    // Hàm gửi dữ liệu ngày tháng cập nhật về server
+        function updateJobDate(jobId, field, date) {
+        $.ajax({
+            url: '@Url.Action("UpdateJobDate", "Jobs")',
+            type: 'POST',
+            data: {
+                jobId: jobId, // Giá trị này sẽ được tự động ép kiểu sang long ở phía server
+                field: field,
+                date: date
+            },
+            success: function (result) {
+                if (result.success) {
+                    console.log("Cập nhật ngày tháng thành công!");
+                } else {
+                    alert("Lỗi: " + result.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Lỗi khi cập nhật ngày tháng: " + xhr.responseText);
+            }
+        });
+    }
 
         // Hàm lấy văn bản trạng thái
         function getStatusText(status) {

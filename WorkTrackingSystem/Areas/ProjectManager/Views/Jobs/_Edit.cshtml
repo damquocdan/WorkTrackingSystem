@@ -23,8 +23,11 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label asp-for="EmployeeId" class="form-label">Nhân viên</label>
-                                    <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId" disabled></select>
+                                    <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId">
+                                        <option value="">-- Không có nhân viên --</option>  <!-- Add this empty option -->
+                                    </select>
                                 </div>
+
 
                                 <div class="mb-3">
                                     <label asp-for="CategoryId" class="form-label">Danh mục</label>
