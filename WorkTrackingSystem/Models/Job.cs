@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WorkTrackingSystem.Models;
+namespace WorkTrackingSystem.Models​;
 
 public partial class Job
 {
     public long Id { get; set; }
-
-    public long? EmployeeId { get; set; }
 
     public long? CategoryId { get; set; }
 
@@ -20,22 +18,6 @@ public partial class Job
     public DateOnly? Deadline2 { get; set; }
 
     public DateOnly? Deadline3 { get; set; }
-
-    public DateOnly? CompletionDate { get; set; }
-
-    public byte? Status { get; set; }
-
-    public double? VolumeAssessment { get; set; }
-
-    public double? ProgressAssessment { get; set; }
-
-    public double? QualityAssessment { get; set; }
-
-    public double? SummaryOfReviews { get; set; }
-
-    public double? Progress { get; set; }
-
-    public DateTime? Time { get; set; }
 
     public bool? IsDelete { get; set; }
 
@@ -51,5 +33,5 @@ public partial class Job
 
     public virtual Category? Category { get; set; }
 
-    public virtual Employee? Employee { get; set; }
+    public virtual ICollection<Jobmapemployee> Jobmapemployees { get; set; } = new List<Jobmapemployee>();
 }

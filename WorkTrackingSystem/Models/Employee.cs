@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WorkTrackingSystem.Models;
+namespace WorkTrackingSystem.Models​;
 
 public partial class Employee
 {
@@ -49,7 +49,7 @@ public partial class Employee
 
     public virtual Department? Department { get; set; }
 
-    public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+    public virtual ICollection<Jobmapemployee> Jobmapemployees { get; set; } = new List<Jobmapemployee>();
 
     public virtual Position? Position { get; set; }
 

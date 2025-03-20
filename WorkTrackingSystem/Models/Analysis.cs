@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WorkTrackingSystem.Models;
+namespace WorkTrackingSystem.Models​;
 
 public partial class Analysis
 {

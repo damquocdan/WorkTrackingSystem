@@ -1,3 +1,4 @@
+wwwroot\css\pagination.css
 wwwroot\css\site.css
 wwwroot\dist\css\adminlte.css
 wwwroot\dist\css\adminlte.css.map
@@ -71,6 +72,23 @@ wwwroot\dist\js\pages\dashboard2.js
 wwwroot\dist\js\pages\dashboard3.js
 wwwroot\favicon.ico
 wwwroot\images\avatar.png
+wwwroot\images\employees\avatar1 - Copy - Copy (15).png
+wwwroot\images\employees\avatar1.png
+wwwroot\images\employees\avatar10.png
+wwwroot\images\employees\avatar11.png
+wwwroot\images\employees\avatar12.png
+wwwroot\images\employees\avatar13.png
+wwwroot\images\employees\avatar14.png
+wwwroot\images\employees\avatar15.png
+wwwroot\images\employees\avatar16.png
+wwwroot\images\employees\avatar2.png
+wwwroot\images\employees\avatar3.png
+wwwroot\images\employees\avatar4.png
+wwwroot\images\employees\avatar5.png
+wwwroot\images\employees\avatar6.png
+wwwroot\images\employees\avatar7.png
+wwwroot\images\employees\avatar8.png
+wwwroot\images\employees\avatar9.png
 wwwroot\images\job.jpg
 wwwroot\images\logo.png
 wwwroot\js\site.js

@@ -106,6 +106,22 @@
                         </p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a asp-controller="Scores" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-star"></i>
+                        <p>
+                            scores
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Jobmapemployees" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-star"></i>
+                        <p>
+                            Jobmapemployees
+                        </p>
+                    </a>
+                </li>
                 @if (HttpContextAccessor.HttpContext.Session.GetString("ProjectManagerLogin") != null)
                 {
                     <li class="nav-item">
