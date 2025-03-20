@@ -215,7 +215,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId)
+        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline)
         {
             var job = await _context.Jobs.FindAsync(jobId);
             if (job == null)
@@ -229,6 +229,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return Json(new { success = false, message = "Employee not found" });
             }
 
+            // Tạo JobMapEmployee
             var jobMapEmployee = new Jobmapemployee
             {
                 JobId = jobId,
@@ -242,10 +243,27 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             _context.Jobmapemployees.Add(jobMapEmployee);
             await _context.SaveChangesAsync();
 
+            // Xử lý ngày bắt đầu và ngày kết thúc
+            DateTime? parsedTime = null;
+            DateOnly? parsedDeadline = null;
+
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
+            {
+                parsedTime = startDate;
+            }
+
+            if (!string.IsNullOrEmpty(deadline) && DateOnly.TryParseExact(deadline, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateOnly endDate))
+            {
+                parsedDeadline = endDate;
+                job.Deadline1 = parsedDeadline;
+                _context.Jobs.Update(job);
+            }
+
+            // Tạo Score
             var score = new Score
             {
                 JobMapEmployeeId = jobMapEmployee.Id,
-                Time = DateTime.Now,
+                Time = parsedTime ?? DateTime.Now,
                 Status = 0,
                 CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
             };
