@@ -334,7 +334,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 {
                     JobMapEmployeeId = jobMapEmployee.Id,
                     Status = 0, // Mặc định trạng thái chưa bat dau
-                    Time = DateTime.Now,
                     IsDelete = false,
                     IsActive = true,
                     CreateDate = DateTime.Now,

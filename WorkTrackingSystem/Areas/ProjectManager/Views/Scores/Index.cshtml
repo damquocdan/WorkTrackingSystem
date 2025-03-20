@@ -63,7 +63,7 @@
 </form>
 <p>
     <a id="btn-create-job" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Giao C.việc</a>
-    <a class="ajax-action" data-url="@Url.Action("Createjob")">Tạo công việc</a>
+    <a class=" btn btn-success ajax-action" data-url="@Url.Action("Createjob")">Tạo công việc</a>
 </p>
 <div id="search-employee-section" class="d-none">
     <input type="text" id="employee-search" class="form-control" placeholder="Tìm kiếm nhân viên...">
@@ -122,7 +122,7 @@
 <div class="row">
     <div class="col-md-12" id="list-section">
         <table class="table">
-            <thead>
+            <thead class="bg-primary">
                 <tr>
                     <th>Nhân viên</th>
                     <th>Công việc</th>
@@ -139,12 +139,17 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
+                    <tr class="@(item.Status == 1 ? "table-success" :
+                                item.Status == 2 ? "table-warning" :
+                                item.Status == 3 ? "table-danger" :
+                                item.Status == 4 ? "table-primary" :
+                                item.Status == 0 ? "table-secondary" :
+                                "")">
                         <td>
                             @if (item.JobMapEmployee?.Employee != null)
                             {
                                 @Html.DisplayFor(modelItem => item.JobMapEmployee.Employee.Code)
-                               
+
                                 @Html.DisplayFor(modelItem => item.JobMapEmployee.Employee.FirstName)
                                 @Html.DisplayFor(modelItem => item.JobMapEmployee.Employee.LastName)
                             }
