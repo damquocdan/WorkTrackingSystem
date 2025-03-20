@@ -1,0 +1,82 @@
+﻿@model WorkTrackingSystem.Models.Department
+
+@{
+    ViewData["Title"] = "Xóa Phòng Ban";
+    
+}
+
+<div class=" ">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-trash"></i> Xóa Phòng Ban</h1>
+        <a asp-action="Index" class="btn btn-close" aria-label="Đóng"></a>
+    </div>
+
+    <h3>Bạn có chắc chắn muốn xóa phòng ban này?</h3>
+    <div>
+        <h4>Phòng Ban</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                <i class="bi bi-code-slash"></i> @Html.DisplayNameFor(model => model.Code)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Code)
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-file-text"></i> @Html.DisplayNameFor(model => model.Description)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Description)
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-trash"></i> @Html.DisplayNameFor(model => model.IsDelete)
+            </dt>
+            <dd class="col-sm-10">
+                @(Model.IsDelete ?? false ? "Đã xóa" : "Chưa xóa")
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-check-circle"></i> @Html.DisplayNameFor(model => model.IsActive)
+            </dt>
+            <dd class="col-sm-10">
+                @(Model.IsActive ?? false ? "Đã kích hoạt" : "Chưa kích hoạt")
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.CreateDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.CreateDate)
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-calendar-check"></i> @Html.DisplayNameFor(model => model.UpdateDate)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.UpdateDate)
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-person-plus"></i> @Html.DisplayNameFor(model => model.CreateBy)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.CreateBy)
+            </dd>
+            <dt class="col-sm-2">
+                <i class="bi bi-person-check"></i> @Html.DisplayNameFor(model => model.UpdateBy)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.UpdateBy)
+            </dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Xóa" class="btn btn-danger" />
+        </form>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
