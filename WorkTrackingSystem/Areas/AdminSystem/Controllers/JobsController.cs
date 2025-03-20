@@ -162,7 +162,90 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             return View(jobs.ToPagedList(pageIndex, limit));
         }
+        public IActionResult JobOfEmployee(string search, int? DepartmentId,int page = 1)
+        {
+            var limit = 10;
+           
+            var employees = _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .Include(e => e.Jobmapemployees)
+                .Select(e => new
+                {
+                    Employee = e,
+                    JobCount = _context.Jobmapemployees.Count(j => j.EmployeeId == e.Id) // Đếm công việc của từng nhân viên
+                })
+                .ToList();
+			
+			if (!string.IsNullOrEmpty(search))
+            {
+				var searchLower = search.ToLower();
+				employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)).ToList();
+            }
+			if (DepartmentId > 0)
+			{
+				employees = employees.Where(e => e.Employee.DepartmentId == DepartmentId).ToList();
+			}
+            if(!string.IsNullOrEmpty(search) && DepartmentId > 0)
+            {
+				var searchLower = search.ToLower();
+				employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)&& e.Employee.DepartmentId == DepartmentId).ToList();
+			}
+			// Chuyển danh sách nhân viên về dạng List<Employee>
+			var filteredEmployees = employees.Select(e => e.Employee).ToList();
 
+            // Chuyển đổi danh sách sang kiểu IPagedList
+            var pagedEmployees = filteredEmployees.ToPagedList(page, limit);
+
+            // Gán danh sách số lượng công việc vào ViewBag
+            ViewBag.JobCounts = employees.ToDictionary(e => e.Employee.Id, e => e.JobCount);
+			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+			return View(pagedEmployees);
+        }
+
+        public IActionResult EmployeeWork(long id, int? page, string searchTerm, string filterStatus)
+        {
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+            searchTerm = searchTerm != null ? Uri.UnescapeDataString(searchTerm) : "";
+
+            var jobs = _context.Jobmapemployees
+                
+                .Include(jm => jm.Job)
+                    .ThenInclude(j => j.Category)
+                    
+                .Include(jm => jm.Scores) // Lấy danh sách điểm đánh giá của công việc
+                .Where(jm => jm.EmployeeId == id && jm.IsActive == true && jm.IsDelete == false);
+
+            // Tìm kiếm theo tên công việc
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                jobs = jobs.Where(jm => jm.Job.Name.Contains(searchTerm));
+            }
+
+            // Lọc theo trạng thái công việc dựa trên Score.Status
+            if (!string.IsNullOrEmpty(filterStatus) && int.TryParse(filterStatus, out int statusValue))
+            {
+                jobs = jobs.Where(jm => jm.Scores.Any(s => s.Status == statusValue));
+            }
+
+            // Map dữ liệu sang JobViewModel
+            var jobList = jobs.Select(jm => new JobViewModel
+            {
+                JobId = jm.Job.Id,
+                JobName = jm.Job.Name,
+                CategoryName = jm.Job.Category.Name,
+                Deadline = jm.Job.Deadline1,
+                CompletionDate = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.CompletionDate).FirstOrDefault(),
+                ScoreStatus = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Status).FirstOrDefault(),
+                Progress = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Progress).FirstOrDefault() // Lấy progress từ Score
+            }).ToPagedList(pageNumber, pageSize);
+
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.FilterStatus = filterStatus;
+
+            return View(jobList);
+        }
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> AssignEmployee(long jobId, long employeeId)
@@ -554,49 +637,49 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         //    return View(job);
         //}
 
-        public async Task<IActionResult> Edit(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Edit(long? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var job = await _context.Jobs
-                .Include(j => j.Jobmapemployees) // Load bảng trung gian
-                    .ThenInclude(jme => jme.Scores) // Load danh sách Score từ JobMapEmployee
-                .FirstOrDefaultAsync(j => j.Id == id);
+        //    var job = await _context.Jobs
+        //        .Include(j => j.Jobmapemployees) // Load bảng trung gian
+        //            .ThenInclude(jme => jme.Scores) // Load danh sách Score từ JobMapEmployee
+        //        .FirstOrDefaultAsync(j => j.Id == id);
 
-            if (job == null)
-            {
-                return NotFound();
-            }
+        //    if (job == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            // Lấy JobMapEmployee đầu tiên (vì có thể có nhiều)
-            var jobMapEmployee = job.Jobmapemployees.FirstOrDefault();
+        //    // Lấy JobMapEmployee đầu tiên (vì có thể có nhiều)
+        //    var jobMapEmployee = job.Jobmapemployees.FirstOrDefault();
 
-            // Lấy Score mới nhất nếu có
-            var latestScore = jobMapEmployee?.Scores?.OrderByDescending(s => s.Time).FirstOrDefault();
+        //    // Lấy Score mới nhất nếu có
+        //    var latestScore = jobMapEmployee?.Scores?.OrderByDescending(s => s.Time).FirstOrDefault();
 
-            // Gán dữ liệu vào ViewBag để hiển thị trong View
-            ViewBag.LatestStatus = latestScore?.Status ?? 0;
-            ViewBag.CompletionDate = latestScore?.CompletionDate?.ToString("yyyy-MM-dd");
-            ViewBag.LastUpdated = latestScore?.Time?.ToString("yyyy-MM-dd HH:mm:ss");
+        //    // Gán dữ liệu vào ViewBag để hiển thị trong View
+        //    ViewBag.LatestStatus = latestScore?.Status ?? 0;
+        //    ViewBag.CompletionDate = latestScore?.CompletionDate?.ToString("yyyy-MM-dd");
+        //    ViewBag.LastUpdated = latestScore?.Time?.ToString("yyyy-MM-dd HH:mm:ss");
 
-            ViewData["CategoryId"] = new SelectList(
-                _context.Categories.Select(c => new { c.Id, Display = c.Code + " - " + c.Name }),
-                "Id", "Display", job.CategoryId
-            );
+        //    ViewData["CategoryId"] = new SelectList(
+        //        _context.Categories.Select(c => new { c.Id, Display = c.Code + " - " + c.Name }),
+        //        "Id", "Display", job.CategoryId
+        //    );
 
-            ViewData["EmployeeId"] = new SelectList(
-                _context.Employees.Select(e => new { e.Id, Display = e.Code + " - " + e.FirstName + " " + e.LastName }),
-                "Id", "Display", jobMapEmployee.EmployeeId
-            );
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_Edit", job);
-            }
-            return View(job);
-        }
+        //    ViewData["EmployeeId"] = new SelectList(
+        //        _context.Employees.Select(e => new { e.Id, Display = e.Code + " - " + e.FirstName + " " + e.LastName }),
+        //        "Id", "Display", jobMapEmployee.EmployeeId
+        //    );
+        //    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        //    {
+        //        return PartialView("_Edit", job);
+        //    }
+        //    return View(job);
+        //}
         // POST: ProjectManager/Jobs/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -812,75 +895,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         //    return RedirectToAction(nameof(Index));
         //}
 
-        //private bool JobExists(long id)
-        //{
-        //    return _context.Jobs.Any(e => e.Id == id);
-        //}
-        public IActionResult JobOfEmployee(int page = 1)
+     
+        
+        private bool JobExists(long id)
         {
-            var limit = 10;
-            var employees = _context.Employees
-                .Include(e => e.Department)
-                .Include(e => e.Position)
-                .Include(e => e.Jobmapemployees)
-                .Select(e => new
-                {
-                    Employee = e,
-                    JobCount = _context.Jobmapemployees.Count(j => j.EmployeeId == e.Id) // Đếm công việc của từng nhân viên
-                })
-                .ToList();
-
-            // Chuyển đổi danh sách sang kiểu IPagedList
-            var pagedEmployees = employees.Select(e => e.Employee).ToPagedList(page, limit);
-
-            // Gán danh sách số lượng công việc vào ViewBag
-            ViewBag.JobCounts = employees.ToDictionary(e => e.Employee.Id, e => e.JobCount);
-
-            return View(pagedEmployees);
+            return _context.Jobs.Any(e => e.Id == id);
         }
-
-        public IActionResult EmployeeWork(long id, int? page, string searchTerm, string filterStatus)
-        {
-            int pageSize = 10;
-            int pageNumber = page ?? 1;
-            searchTerm = searchTerm != null ? Uri.UnescapeDataString(searchTerm) : "";
-
-            var jobs = _context.Jobmapemployees
-                .Include(jm => jm.Job)
-                    .ThenInclude(j => j.Category)
-                .Include(jm => jm.Scores) // Lấy danh sách điểm đánh giá của công việc
-                .Where(jm => jm.EmployeeId == id && jm.IsActive == true && jm.IsDelete == false);
-
-            // Tìm kiếm theo tên công việc
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                jobs = jobs.Where(jm => jm.Job.Name.Contains(searchTerm));
-            }
-
-            // Lọc theo trạng thái công việc dựa trên Score.Status
-            if (!string.IsNullOrEmpty(filterStatus) && int.TryParse(filterStatus, out int statusValue))
-            {
-                jobs = jobs.Where(jm => jm.Scores.Any(s => s.Status == statusValue));
-            }
-
-            // Map dữ liệu sang JobViewModel
-            var jobList = jobs.Select(jm => new JobViewModel
-            {
-                JobId = jm.Job.Id,
-                JobName = jm.Job.Name,
-                CategoryName = jm.Job.Category.Name,
-                Deadline = jm.Job.Deadline1,
-                CompletionDate = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.CompletionDate).FirstOrDefault(),
-                ScoreStatus = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Status).FirstOrDefault(),
-                Progress = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Progress).FirstOrDefault() // Lấy progress từ Score
-            }).ToPagedList(pageNumber, pageSize);
-
-            ViewBag.SearchTerm = searchTerm;
-            ViewBag.FilterStatus = filterStatus;
-
-            return View(jobList);
-        }
-
 
     }
     //public class JobViewModel

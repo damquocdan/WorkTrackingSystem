@@ -10,9 +10,9 @@
 		<h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1>
 
 
-	@* 	<div class="row mb-2">
+		<div class="row mb-2">
 			<div class="col-lg-9 col-md-9 col-sm-12">
-				<form asp-controller="Employees" asp-action="Index" method="get" class="row">
+				<form asp-controller="Jobs" asp-action="JobOfEmployee" method="get" class="row">
 					<div class="col-md-5">
 						<div class="input-group">
 							<input type="text" class="form-control" name="search" placeholder="Nhập tên nhân viên" value="@Context.Request.Query["search"]" />
@@ -29,7 +29,7 @@
 				</form>
 			</div>
 
-		</div> *@
+		</div>
 		<table class="table table-striped table-bordered ">
 			<thead>
 				<tr>
@@ -76,7 +76,7 @@
 	MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
 })
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-@* <script>
+<script>
 	$(document).ready(function () {
 		$(".ajax-action").click(function (e) {
 			e.preventDefault();
@@ -101,4 +101,4 @@
 		$("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
 		$("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
 	}
-</script> *@
+</script>
