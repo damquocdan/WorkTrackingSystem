@@ -241,444 +241,450 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             return View(jobList);
         }
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> AssignEmployee(long jobId, long employeeId)
-        //{
-        //    try
-        //    {
-        //        var job = await _context.Jobs.FindAsync(jobId);
-        //        if (job == null)
-        //        {
-        //            return Json(new { success = false, message = "Không tìm thấy công việc với ID: " + jobId });
-        //        }
+		//[HttpPost]
+		//[ValidateAntiForgeryToken]
+		//public async Task<IActionResult> AssignEmployee(long jobId, long employeeId)
+		//{
+		//    try
+		//    {
+		//        var job = await _context.Jobs.FindAsync(jobId);
+		//        if (job == null)
+		//        {
+		//            return Json(new { success = false, message = "Không tìm thấy công việc với ID: " + jobId });
+		//        }
 
-        //        var employee = await _context.Employees.FindAsync(employeeId);
-        //        if (employee == null)
-        //        {
-        //            return Json(new { success = false, message = "Không tìm thấy nhân viên với ID: " + employeeId });
-        //        }
-        //        job.Status = 0;
-        //        job.EmployeeId = employeeId;
-        //        await _context.SaveChangesAsync();
+		//        var employee = await _context.Employees.FindAsync(employeeId);
+		//        if (employee == null)
+		//        {
+		//            return Json(new { success = false, message = "Không tìm thấy nhân viên với ID: " + employeeId });
+		//        }
+		//        job.Status = 0;
+		//        job.EmployeeId = employeeId;
+		//        await _context.SaveChangesAsync();
 
-        //        Trả về thông tin nhân viên để cập nhật giao diện(nếu cần)
-        //        return Json(new
-        //        {
-        //            success = true,
-        //            message = "Đã gán công việc thành công!",
-        //            employee = new
-        //            {
-        //                Id = employee.Id,
-        //                Name = $"{employee.Code} {employee.FirstName} {employee.LastName}",
-        //                Avatar = employee.Avatar ?? "/images/default-avatar.png"
-        //            }
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "Lỗi khi gán công việc: " + ex.Message });
-        //    }
-        //}
-        //public async Task<IActionResult> GetJobsByEmployee(long employeeId)
-        //{
-        //    try
-        //    {
-        //        var managerUsername = HttpContext.Session.GetString("AdminLogin");
-        //        if (string.IsNullOrEmpty(managerUsername))
-        //        {
-        //            return Json(new { success = false, message = "Vui lòng đăng nhập." });
-        //        }
+		//        Trả về thông tin nhân viên để cập nhật giao diện(nếu cần)
+		//        return Json(new
+		//        {
+		//            success = true,
+		//            message = "Đã gán công việc thành công!",
+		//            employee = new
+		//            {
+		//                Id = employee.Id,
+		//                Name = $"{employee.Code} {employee.FirstName} {employee.LastName}",
+		//                Avatar = employee.Avatar ?? "/images/default-avatar.png"
+		//            }
+		//        });
+		//    }
+		//    catch (Exception ex)
+		//    {
+		//        return Json(new { success = false, message = "Lỗi khi gán công việc: " + ex.Message });
+		//    }
+		//}
+		//public async Task<IActionResult> GetJobsByEmployee(long employeeId)
+		//{
+		//    try
+		//    {
+		//        var managerUsername = HttpContext.Session.GetString("AdminLogin");
+		//        if (string.IsNullOrEmpty(managerUsername))
+		//        {
+		//            return Json(new { success = false, message = "Vui lòng đăng nhập." });
+		//        }
 
-        //        var manager = await _context.Users
-        //            .Where(u => u.UserName == managerUsername)
-        //            .Select(u => u.Employee)
-        //            .FirstOrDefaultAsync();
+		//        var manager = await _context.Users
+		//            .Where(u => u.UserName == managerUsername)
+		//            .Select(u => u.Employee)
+		//            .FirstOrDefaultAsync();
 
-        //        if (manager == null)
-        //        {
-        //            return Json(new { success = false, message = "Không tìm thấy thông tin quản lý." });
-        //        }
+		//        if (manager == null)
+		//        {
+		//            return Json(new { success = false, message = "Không tìm thấy thông tin quản lý." });
+		//        }
 
-        //        var managedDepartments = await _context.Departments
-        //            .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-        //            .Select(d => d.Id)
-        //            .ToListAsync();
+		//        var managedDepartments = await _context.Departments
+		//            .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+		//            .Select(d => d.Id)
+		//            .ToListAsync();
 
-        //        Lấy danh sách công việc chưa được giao(EmployeeId == null)
-        //        var unassignedJobs = await _context.Jobs
-        //            .Include(j => j.Category)
-        //            .Where(j => j.EmployeeId == null && j.CreateBy == managerUsername)
-        //            .Select(j => new
-        //            {
-        //                j.Id,
-        //                j.Name,
-        //                CategoryName = j.Category.Name,
-        //                j.Time,
-        //                j.Deadline1,
-        //                j.Status,
-        //                j.CompletionDate
-        //            })
-        //            .ToListAsync();
+		//        Lấy danh sách công việc chưa được giao(EmployeeId == null)
+		//        var unassignedJobs = await _context.Jobs
+		//            .Include(j => j.Category)
+		//            .Where(j => j.EmployeeId == null && j.CreateBy == managerUsername)
+		//            .Select(j => new
+		//            {
+		//                j.Id,
+		//                j.Name,
+		//                CategoryName = j.Category.Name,
+		//                j.Time,
+		//                j.Deadline1,
+		//                j.Status,
+		//                j.CompletionDate
+		//            })
+		//            .ToListAsync();
 
-        //        Lấy danh sách công việc của nhân viên đã chọn
-        //        var assignedJobs = await _context.Jobs
-        //            .Include(j => j.Category)
-        //            .Where(j => j.EmployeeId == employeeId)
-        //            .Select(j => new
-        //            {
-        //                j.Id,
-        //                j.Name,
-        //                CategoryName = j.Category.Name,
-        //                j.Time,
-        //                j.Deadline1,
-        //                j.Status,
-        //                j.CompletionDate
-        //            })
-        //            .ToListAsync();
+		//        Lấy danh sách công việc của nhân viên đã chọn
+		//        var assignedJobs = await _context.Jobs
+		//            .Include(j => j.Category)
+		//            .Where(j => j.EmployeeId == employeeId)
+		//            .Select(j => new
+		//            {
+		//                j.Id,
+		//                j.Name,
+		//                CategoryName = j.Category.Name,
+		//                j.Time,
+		//                j.Deadline1,
+		//                j.Status,
+		//                j.CompletionDate
+		//            })
+		//            .ToListAsync();
 
-        //        return Json(new
-        //        {
-        //            success = true,
-        //            unassignedJobs = unassignedJobs,
-        //            assignedJobs = assignedJobs
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = "Lỗi: " + ex.Message });
-        //    }
-        //}
-        //[HttpPost]
+		//        return Json(new
+		//        {
+		//            success = true,
+		//            unassignedJobs = unassignedJobs,
+		//            assignedJobs = assignedJobs
+		//        });
+		//    }
+		//    catch (Exception ex)
+		//    {
+		//        return Json(new { success = false, message = "Lỗi: " + ex.Message });
+		//    }
+		//}
+		//[HttpPost]
 
-        //public IActionResult UpdateJobDate(long jobId, string field, string date)
-        //{
-        //    try
-        //    {
-        //        var job = _context.Jobs.FirstOrDefault(j => j.Id == jobId);
-        //        if (job == null)
-        //        {
-        //            return Json(new { success = false, message = "Công việc không tồn tại" });
-        //        }
+		//public IActionResult UpdateJobDate(long jobId, string field, string date)
+		//{
+		//    try
+		//    {
+		//        var job = _context.Jobs.FirstOrDefault(j => j.Id == jobId);
+		//        if (job == null)
+		//        {
+		//            return Json(new { success = false, message = "Công việc không tồn tại" });
+		//        }
 
-        //        DateTime parsedDate;
-        //        if (!DateTime.TryParse(date, out parsedDate))
-        //        {
-        //            return Json(new { success = false, message = "Định dạng ngày không hợp lệ" });
-        //        }
+		//        DateTime parsedDate;
+		//        if (!DateTime.TryParse(date, out parsedDate))
+		//        {
+		//            return Json(new { success = false, message = "Định dạng ngày không hợp lệ" });
+		//        }
 
-        //        if (field == "time")
-        //        {
-        //            job.Time = parsedDate;
-        //        }
-        //        else if (field == "deadline1")
-        //        {
-        //            job.Deadline1 = DateOnly.FromDateTime(parsedDate);
-        //        }
-        //        else
-        //        {
-        //            return Json(new { success = false, message = "Trường không hợp lệ" });
-        //        }
+		//        if (field == "time")
+		//        {
+		//            job.Time = parsedDate;
+		//        }
+		//        else if (field == "deadline1")
+		//        {
+		//            job.Deadline1 = DateOnly.FromDateTime(parsedDate);
+		//        }
+		//        else
+		//        {
+		//            return Json(new { success = false, message = "Trường không hợp lệ" });
+		//        }
 
-        //        _context.SaveChanges();
-        //        return Json(new { success = true });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { success = false, message = ex.Message });
-        //    }
-        //}
-        //public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
-        //{
-        //    var managerUsername = HttpContext.Session.GetString("AdminLogin");
-        //    if (string.IsNullOrEmpty(managerUsername))
-        //    {
-        //        return RedirectToAction("Index", "Login");
-        //    }
+		//        _context.SaveChanges();
+		//        return Json(new { success = true });
+		//    }
+		//    catch (Exception ex)
+		//    {
+		//        return Json(new { success = false, message = ex.Message });
+		//    }
+		//}
+		//public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
+		//{
+		//	var managerUsername = HttpContext.Session.GetString("AdminLogin");
+		//	if (string.IsNullOrEmpty(managerUsername))
+		//	{
+		//		return RedirectToAction("Index", "Login");
+		//	}
 
-        //    var manager = await _context.Users
-        //        .Where(u => u.UserName == managerUsername)
-        //        .Select(u => u.Employee)
-        //        .FirstOrDefaultAsync();
+		//	var manager = await _context.Users
+		//		.Where(u => u.UserName == managerUsername)
+		//		.Select(u => u.Employee)
+		//		.FirstOrDefaultAsync();
 
-        //    if (manager == null)
-        //    {
-        //        return RedirectToAction("Index", "Login");
-        //    }
+		//	if (manager == null)
+		//	{
+		//		return RedirectToAction("Index", "Login");
+		//	}
 
-        //    var managedDepartments = await _context.Departments
-        //        .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-        //        .Select(d => d.Id)
-        //        .ToListAsync();
+		//	var managedDepartments = await _context.Departments
+		//		.Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+		//		.Select(d => d.Id)
+		//		.ToListAsync();
 
-        //    var employeesInManagedDepartments = await _context.Employees
-        //        .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
-        //        .Select(e => e.Id)
-        //        .ToListAsync();
+		//	var employeesInManagedDepartments = await _context.Employees
+		//		.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
+		//		.Select(e => e.Id)
+		//		.ToListAsync();
 
-        //    var jobs = _context.Jobs
-        //        .Include(j => j.Category)
-        //        .Include(j => j.Employee)
-        //        .Where(j => j.EmployeeId.HasValue && employeesInManagedDepartments.Contains(j.EmployeeId.Value));
+		//	var jobs = _context.Jobmapemployees
+		//		.Include(jm => jm.Employee)
+		//		.Include(jm => jm.Job)
+		//		.ThenInclude(j => j.Category)
+		//		.Include(jm => jm.Job)
+		//		.Include(jm=>jm.Scores) // Lấy dữ liệu từ bảng SCORE
+		//		.Where(jm => employeesInManagedDepartments.Contains(jm.EmployeeId));
 
-        //    // Áp dụng các bộ lọc giống như trong Index
-        //    if (!string.IsNullOrEmpty(searchText))
-        //    {
-        //        jobs = jobs.Where(j =>
-        //            j.Employee.Code.Contains(searchText) ||
-        //            j.Employee.FirstName.Contains(searchText) ||
-        //            j.Employee.LastName.Contains(searchText) ||
-        //            j.Name.Contains(searchText));
-        //    }
+		//	// Áp dụng bộ lọc tìm kiếm
+		//	if (!string.IsNullOrEmpty(searchText))
+		//	{
+		//		jobs = jobs.Where(jm =>
+		//			jm.Employee.Code.Contains(searchText) ||
+		//			jm.Employee.FirstName.Contains(searchText) ||
+		//			jm.Employee.LastName.Contains(searchText) ||
+		//			jm.Job.Name.Contains(searchText));
+		//	}
 
-        //    if (status.HasValue)
-        //    {
-        //        jobs = jobs.Where(j => j.Status == status.Value);
-        //    }
+		//	if (status.HasValue)
+		//	{
+		//		jobs = jobs.Where(jm => jm.Job.Scores.Any(s => s.Status == status.Value));
+		//	}
 
-        //    if (categoryId.HasValue)
-        //    {
-        //        jobs = jobs.Where(j => j.CategoryId == categoryId.Value);
-        //    }
+		//	if (categoryId.HasValue)
+		//	{
+		//		jobs = jobs.Where(jm => jm.Job.CategoryId == categoryId.Value);
+		//	}
 
-        //    if (dueToday)
-        //    {
-        //        jobs = jobs.Where(j => j.Time.HasValue && j.Time.Value.Date == DateTime.Today);
-        //    }
+		//	if (dueToday)
+		//	{
+		//		jobs = jobs.Where(jm => jm.Job.Scores.Any(s => s.CompletionDate.HasValue && s.CompletionDate.Value.Date == DateTime.Today));
+		//	}
 
-        //    if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
-        //    {
-        //        jobs = jobs.Where(j => j.Time.HasValue &&
-        //                              j.Time.Value.Year == selectedMonth.Year &&
-        //                              j.Time.Value.Month == selectedMonth.Month);
-        //    }
+		//	if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+		//	{
+		//		jobs = jobs.Where(jm => jm.Job.Scores.Any(s => s.CompletionDate.HasValue &&
+		//													s.CompletionDate.Value.Year == selectedMonth.Year &&
+		//													s.CompletionDate.Value.Month == selectedMonth.Month));
+		//	}
 
-        //    switch (sortOrder)
-        //    {
-        //        case "due_asc":
-        //            jobs = jobs.OrderBy(j => j.Time);
-        //            break;
-        //        case "due_desc":
-        //            jobs = jobs.OrderByDescending(j => j.Time);
-        //            break;
-        //        case "review_asc":
-        //            jobs = jobs.OrderBy(j => j.SummaryOfReviews);
-        //            break;
-        //        case "review_desc":
-        //            jobs = jobs.OrderByDescending(j => j.SummaryOfReviews);
-        //            break;
-        //    }
+		//	switch (sortOrder)
+		//	{
+		//		case "due_asc":
+		//			jobs = jobs.OrderBy(jm => jm.Job.Deadline1);
+		//			break;
+		//		case "due_desc":
+		//			jobs = jobs.OrderByDescending(jm => jm.Job.Deadline1);
+		//			break;
+		//		case "review_asc":
+		//			jobs = jobs.OrderBy(jm => jm.Job.Scores.FirstOrDefault().SummaryOfReviews);
+		//			break;
+		//		case "review_desc":
+		//			jobs = jobs.OrderByDescending(jm => jm.Job.Scores.FirstOrDefault().SummaryOfReviews);
+		//			break;
+		//	}
 
-        //    var jobList = await jobs.ToListAsync();
+		//	var jobList = await jobs.ToListAsync();
 
-        //    // Tạo file Excel bằng EPPlus
-        //    using (var package = new ExcelPackage())
-        //    {
-        //        var worksheet = package.Workbook.Worksheets.Add("Jobs");
-        //        worksheet.Cells[1, 1].Value = "STT";
-        //        worksheet.Cells[1, 2].Value = "Nhân viên";
-        //        worksheet.Cells[1, 3].Value = "Hạng mục";
-        //        worksheet.Cells[1, 4].Value = "Công việc";
-        //        worksheet.Cells[1, 5].Value = "Deadline";
-        //        worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
-        //        worksheet.Cells[1, 7].Value = "Trạng thái";
-        //        worksheet.Cells[1, 8].Value = "Đánh giá khối lượng";
-        //        worksheet.Cells[1, 9].Value = "Đánh giá tiến độ";
-        //        worksheet.Cells[1, 10].Value = "Đánh giá chất lượng";
-        //        worksheet.Cells[1, 11].Value = "Đánh giá tổng hợp";
+		//	// Tạo file Excel bằng EPPlus
+		//	using (var package = new ExcelPackage())
+		//	{
+		//		var worksheet = package.Workbook.Worksheets.Add("Jobs");
+		//		worksheet.Cells[1, 1].Value = "STT";
+		//		worksheet.Cells[1, 2].Value = "Nhân viên";
+		//		worksheet.Cells[1, 3].Value = "Hạng mục";
+		//		worksheet.Cells[1, 4].Value = "Công việc";
+		//		worksheet.Cells[1, 5].Value = "Deadline";
+		//		worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
+		//		worksheet.Cells[1, 7].Value = "Trạng thái";
+		//		worksheet.Cells[1, 8].Value = "Đánh giá khối lượng";
+		//		worksheet.Cells[1, 9].Value = "Đánh giá tiến độ";
+		//		worksheet.Cells[1, 10].Value = "Đánh giá chất lượng";
+		//		worksheet.Cells[1, 11].Value = "Đánh giá tổng hợp";
 
-        //        // Điền dữ liệu
-        //        for (int i = 0; i < jobList.Count; i++)
-        //        {
-        //            var job = jobList[i];
-        //            worksheet.Cells[i + 2, 1].Value = i + 1; // STT
-        //            worksheet.Cells[i + 2, 2].Value = $"{job.Employee.Code} {job.Employee.FirstName} {job.Employee.LastName}";
-        //            worksheet.Cells[i + 2, 3].Value = job.Category.Name;
-        //            worksheet.Cells[i + 2, 4].Value = job.Name;
-        //            worksheet.Cells[i + 2, 5].Value = job.Time?.ToString("dd/MM/yyyy");
-        //            worksheet.Cells[i + 2, 6].Value = job.Time?.ToString("dd/MM/yyyy"); // Giả sử ngày hoàn thành bằng Deadline
-        //            worksheet.Cells[i + 2, 7].Value = job.Status switch
-        //            {
-        //                1 => "Hoàn thành",
-        //                2 => "Chưa hoàn thành",
-        //                3 => "Hoàn thành muộn",
-        //                4 => "Đang xử lý",
-        //                _ => "Chưa bắt đầu"
-        //            };
-        //            worksheet.Cells[i + 2, 8].Value = job.VolumeAssessment;
-        //            worksheet.Cells[i + 2, 9].Value = job.ProgressAssessment;
-        //            worksheet.Cells[i + 2, 10].Value = job.QualityAssessment;
-        //            worksheet.Cells[i + 2, 11].Value = job.SummaryOfReviews;
-        //        }
+		//		// Điền dữ liệu
+		//		for (int i = 0; i < jobList.Count; i++)
+		//		{
+		//			var jobMap = jobList[i];
+		//			var job = jobMap.Job;
+		//			var score = job.Scores.FirstOrDefault(); // Lấy bản ghi đánh giá đầu tiên nếu có
 
-        //        // Định dạng cột
-        //        worksheet.Cells[1, 1, 1, 11].Style.Font.Bold = true;
-        //        worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+		//			worksheet.Cells[i + 2, 1].Value = i + 1; // STT
+		//			worksheet.Cells[i + 2, 2].Value = $"{jobMap.Employee.Code} {jobMap.Employee.FirstName} {jobMap.Employee.LastName}";
+		//			worksheet.Cells[i + 2, 3].Value = job.Category.Name;
+		//			worksheet.Cells[i + 2, 4].Value = job.Name;
+		//			worksheet.Cells[i + 2, 5].Value = job.Deadline1?.ToString("dd/MM/yyyy");
+		//			worksheet.Cells[i + 2, 6].Value = score?.CompletionDate?.ToString("dd/MM/yyyy");
+		//			worksheet.Cells[i + 2, 7].Value = score?.Status switch
+		//			{
+		//				1 => "Hoàn thành",
+		//				2 => "Chưa hoàn thành",
+		//				3 => "Hoàn thành muộn",
+		//				4 => "Đang xử lý",
+		//				_ => "Chưa bắt đầu"
+		//			};
+		//			worksheet.Cells[i + 2, 8].Value = score?.VolumeAssessment;
+		//			worksheet.Cells[i + 2, 9].Value = score?.ProgressAssessment;
+		//			worksheet.Cells[i + 2, 10].Value = score?.QualityAssessment;
+		//			worksheet.Cells[i + 2, 11].Value = score?.SummaryOfReviews;
+		//		}
 
-        //        // Xuất file Excel
-        //        var stream = new MemoryStream(package.GetAsByteArray());
-        //        return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
-        //    }
-        //}
+		//		// Định dạng cột
+		//		worksheet.Cells[1, 1, 1, 11].Style.Font.Bold = true;
+		//		worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
-        //// GET: ProjectManager/Jobs/Details/5
-        //public async Task<IActionResult> Details(long? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+		//		// Xuất file Excel
+		//		var stream = new MemoryStream(package.GetAsByteArray());
+		//		return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
+		//	}
+		//}
 
-        //    var job = await _context.Jobs
-        //        .Include(j => j.Category)
-        //        .Include(j => j.Employee) // Include Employee nếu có
-        //        .FirstOrDefaultAsync(m => m.Id == id);
+		//// GET: ProjectManager/Jobs/Details/5
+		//public async Task<IActionResult> Details(long? id)
+		//{
+		//    if (id == null)
+		//    {
+		//        return NotFound();
+		//    }
 
-        //    if (job == null)
-        //    {
-        //        return NotFound();
-        //    }
+		//    var job = await _context.Jobs
+		//        .Include(j => j.Category)
+		//        .Include(j => j.Employee) // Include Employee nếu có
+		//        .FirstOrDefaultAsync(m => m.Id == id);
 
-        //    // Kiểm tra nếu EmployeeId là null
-        //    if (job.EmployeeId == null)
-        //    {
-        //        ViewBag.JobStatus = "Công việc chưa được giao";
-        //    }
+		//    if (job == null)
+		//    {
+		//        return NotFound();
+		//    }
 
-        //    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-        //    {
-        //        return PartialView("_Details", job);
-        //    }
+		//    // Kiểm tra nếu EmployeeId là null
+		//    if (job.EmployeeId == null)
+		//    {
+		//        ViewBag.JobStatus = "Công việc chưa được giao";
+		//    }
 
-        //    return View(job);
-        //}
+		//    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+		//    {
+		//        return PartialView("_Details", job);
+		//    }
 
-
-
-        //public async Task<IActionResult> Create()
-        //{
-        //    var managerUsername = HttpContext.Session.GetString("AdminLogin");
-        //    if (string.IsNullOrEmpty(managerUsername))
-        //    {
-        //        return RedirectToAction("Index", "Login");
-        //    }
-
-        //    var manager = await _context.Users
-        //        .Where(u => u.UserName == managerUsername)
-        //        .Select(u => u.Employee)
-        //        .FirstOrDefaultAsync();
-
-        //    if (manager == null)
-        //    {
-        //        return RedirectToAction("Index", "Login");
-        //    }
-        //    ViewBag.CreateBy = managerUsername;
-        //    // Lấy danh sách phòng ban mà người quản lý này quản lý (dựa trên PositionId == 3)
-        //    var managedDepartments = await _context.Departments
-        //        .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-        //        .Select(d => d.Id)
-        //        .ToListAsync();
-
-        //    // Lấy danh sách nhân viên thuộc các phòng ban mà người quản lý đang quản lý
-        //    var employeesInManagedDepartments = await _context.Employees
-        //        .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
-        //        .Select(e => new
-        //        {
-        //            Id = e.Id,
-        //            FullName = e.Code + " " + e.FirstName + " " + e.LastName
-        //        })
-        //        .ToListAsync();
-
-        //    // Gán danh sách nhân viên vào ViewBag để hiển thị trong dropdown
-        //    ViewData["EmployeeId"] = new SelectList(employeesInManagedDepartments, "Id", "FullName");
-        //    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-        //    ViewBag.JobNames = await _context.Jobs
-        //.Where(j => !string.IsNullOrEmpty(j.Name)) // Lọc bỏ các job không có tên
-        //.Select(j => j.Name)
-        //.Distinct()
-        //.ToListAsync();
-        //    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-        //    {
-        //        return PartialView("_Create");
-        //    }
-        //    return View();
-        //}
+		//    return View(job);
+		//}
 
 
-        //// POST: AdminSystem/Jobs/Create
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
-        //{
-        //    var managerUsername = HttpContext.Session.GetString("AdminLogin");
-        //    if (string.IsNullOrEmpty(managerUsername))
-        //    {
-        //        return RedirectToAction("Index", "Login");
-        //    }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        job.CreateBy = managerUsername; // Gán giá trị CreateBy
+		public async Task<IActionResult> Create()
+		{
+			var managerUsername = HttpContext.Session.GetString("AdminLogin");
+			if (string.IsNullOrEmpty(managerUsername))
+			{
+				return RedirectToAction("Index", "Login");
+			}
 
-        //        _context.Add(job);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
+			var manager = await _context.Users
+				.Where(u => u.UserName == managerUsername)
+				.Select(u => u.Employee)
+				.FirstOrDefaultAsync();
 
-        //    ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
-        //    ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
-        //    return View(job);
-        //}
+			if (manager == null)
+			{
+				return RedirectToAction("Index", "Login");
+			}
+			ViewBag.CreateBy = managerUsername;
+			// Lấy danh sách phòng ban mà người quản lý này quản lý (dựa trên PositionId == 3)
+			var managedDepartments = await _context.Departments
+				.Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+				.Select(d => d.Id)
+				.ToListAsync();
 
-        //public async Task<IActionResult> Edit(long? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+			// Lấy danh sách nhân viên thuộc các phòng ban mà người quản lý đang quản lý
+			var employeesInManagedDepartments = await _context.Employees
+				.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
+				.Select(e => new
+				{
+					Id = e.Id,
+					FullName = e.Code + " " + e.FirstName + " " + e.LastName
+				})
+				.ToListAsync();
 
-        //    var job = await _context.Jobs
-        //        .Include(j => j.Jobmapemployees) // Load bảng trung gian
-        //            .ThenInclude(jme => jme.Scores) // Load danh sách Score từ JobMapEmployee
-        //        .FirstOrDefaultAsync(j => j.Id == id);
+			// Gán danh sách nhân viên vào ViewBag để hiển thị trong dropdown
+			//ViewData["EmployeeId"] = new SelectList(employeesInManagedDepartments, "Id", "FullName");
+			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+			ViewBag.JobNames = await _context.Jobs
+		.Where(j => !string.IsNullOrEmpty(j.Name)) // Lọc bỏ các job không có tên
+		.Select(j => j.Name)
+		.Distinct()
+		.ToListAsync();
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Create");
+			}
+			return View();
+		}
 
-        //    if (job == null)
-        //    {
-        //        return NotFound();
-        //    }
 
-        //    // Lấy JobMapEmployee đầu tiên (vì có thể có nhiều)
-        //    var jobMapEmployee = job.Jobmapemployees.FirstOrDefault();
+		//// POST: AdminSystem/Jobs/Create
+		//// To protect from overposting attacks, enable the specific properties you want to bind to.
+		//// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Create([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
+		{
+			var managerUsername = HttpContext.Session.GetString("AdminLogin");
+			if (string.IsNullOrEmpty(managerUsername))
+			{
+				return RedirectToAction("Index", "Login");
+			}
 
-        //    // Lấy Score mới nhất nếu có
-        //    var latestScore = jobMapEmployee?.Scores?.OrderByDescending(s => s.Time).FirstOrDefault();
+			if (ModelState.IsValid)
+			{
+				job.CreateBy = managerUsername; // Gán giá trị CreateBy
 
-        //    // Gán dữ liệu vào ViewBag để hiển thị trong View
-        //    ViewBag.LatestStatus = latestScore?.Status ?? 0;
-        //    ViewBag.CompletionDate = latestScore?.CompletionDate?.ToString("yyyy-MM-dd");
-        //    ViewBag.LastUpdated = latestScore?.Time?.ToString("yyyy-MM-dd HH:mm:ss");
+				_context.Add(job);
+				await _context.SaveChangesAsync();
+				return RedirectToAction(nameof(Index));
+			}
 
-        //    ViewData["CategoryId"] = new SelectList(
-        //        _context.Categories.Select(c => new { c.Id, Display = c.Code + " - " + c.Name }),
-        //        "Id", "Display", job.CategoryId
-        //    );
+			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
+			//ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+			return View(job);
+		}
 
-        //    ViewData["EmployeeId"] = new SelectList(
-        //        _context.Employees.Select(e => new { e.Id, Display = e.Code + " - " + e.FirstName + " " + e.LastName }),
-        //        "Id", "Display", jobMapEmployee.EmployeeId
-        //    );
-        //    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-        //    {
-        //        return PartialView("_Edit", job);
-        //    }
-        //    return View(job);
-        //}
-        // POST: ProjectManager/Jobs/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+		//public async Task<IActionResult> Edit(long? id)
+		//{
+		//    if (id == null)
+		//    {
+		//        return NotFound();
+		//    }
+
+		//    var job = await _context.Jobs
+		//        .Include(j => j.Jobmapemployees) // Load bảng trung gian
+		//            .ThenInclude(jme => jme.Scores) // Load danh sách Score từ JobMapEmployee
+		//        .FirstOrDefaultAsync(j => j.Id == id);
+
+		//    if (job == null)
+		//    {
+		//        return NotFound();
+		//    }
+
+		//    // Lấy JobMapEmployee đầu tiên (vì có thể có nhiều)
+		//    var jobMapEmployee = job.Jobmapemployees.FirstOrDefault();
+
+		//    // Lấy Score mới nhất nếu có
+		//    var latestScore = jobMapEmployee?.Scores?.OrderByDescending(s => s.Time).FirstOrDefault();
+
+		//    // Gán dữ liệu vào ViewBag để hiển thị trong View
+		//    ViewBag.LatestStatus = latestScore?.Status ?? 0;
+		//    ViewBag.CompletionDate = latestScore?.CompletionDate?.ToString("yyyy-MM-dd");
+		//    ViewBag.LastUpdated = latestScore?.Time?.ToString("yyyy-MM-dd HH:mm:ss");
+
+		//    ViewData["CategoryId"] = new SelectList(
+		//        _context.Categories.Select(c => new { c.Id, Display = c.Code + " - " + c.Name }),
+		//        "Id", "Display", job.CategoryId
+		//    );
+
+		//    ViewData["EmployeeId"] = new SelectList(
+		//        _context.Employees.Select(e => new { e.Id, Display = e.Code + " - " + e.FirstName + " " + e.LastName }),
+		//        "Id", "Display", jobMapEmployee.EmployeeId
+		//    );
+		//    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+		//    {
+		//        return PartialView("_Edit", job);
+		//    }
+		//    return View(job);
+		//}
+		// POST: ProjectManager/Jobs/Edit/5
+		// To protect from overposting attacks, enable the specific properties you want to bind to.
+		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+		[HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Edit(long id, [Bind("Id,EmployeeId,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
         //{
