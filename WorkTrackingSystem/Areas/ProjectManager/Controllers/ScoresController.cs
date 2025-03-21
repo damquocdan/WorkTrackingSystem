@@ -27,7 +27,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string categoryId = "",
     string sortOrder = "",
     bool showCompletedZeroReview = false,
-    bool dueToday = false)
+    bool dueToday = false,
+    long? jobId = null)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
@@ -56,10 +57,15 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .ToListAsync();
             ViewBag.EmployeeList = employeesInManagedDepartments;
 
-            // Lấy danh sách danh mục để hiển thị trong form
             ViewData["Categories"] = await _context.Categories.ToListAsync();
 
-            // Truy vấn cơ bản từ Scores
+            // Lấy danh sách JobId đã được gán cho bất kỳ nhân viên nào (EmployeeId không null)
+            var assignedJobIds = await _context.Jobmapemployees
+                .Where(jme => jme.EmployeeId != null)
+                .Select(jme => jme.JobId)
+                .Distinct()
+                .ToListAsync();
+
             var scoresQuery = _context.Scores
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Employee)
@@ -69,16 +75,21 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
                 .Where(s =>
                     (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value))
-                    || (s.JobMapEmployee.EmployeeId == null && s.CreateBy == managerUsername));
+                    || (s.JobMapEmployee.EmployeeId == null && s.CreateBy == managerUsername && !assignedJobIds.Contains(s.JobMapEmployee.JobId)));
 
-            // Lấy công việc chưa giao từ Jobs
-            var unassignedJobsQuery = _context.Jobs
-                .Include(j => j.Category)
-                .Where(j => j.CreateBy == managerUsername
-                    && !_context.Jobmapemployees.Any(jme => jme.JobId == j.Id) // Chưa có JobMapEmployee
-                    && !_context.Scores.Any(s => s.JobMapEmployee != null && s.JobMapEmployee.JobId == j.Id)); // Chưa có Score
+            // Apply the filter only if jobId is provided (keeping the original jobId-specific logic)
+            if (jobId.HasValue)
+            {
+                bool hasAssignedJob = await _context.Jobmapemployees
+                    .Where(jme => jme.JobId == jobId.Value && jme.EmployeeId.HasValue)
+                    .AnyAsync();
 
-            // Áp dụng bộ lọc từ form
+                if (hasAssignedJob)
+                {
+                    scoresQuery = scoresQuery.Where(s =>
+                        !(s.JobMapEmployee.JobId == jobId.Value && s.JobMapEmployee.EmployeeId == null));
+                }
+            }
 
             // 1. Tìm kiếm theo mã / tên nhân viên / công việc
             if (!string.IsNullOrEmpty(searchText))
@@ -89,88 +100,35 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.FirstName.ToLower().Contains(searchText)) ||
                     (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.LastName.ToLower().Contains(searchText)) ||
                     s.JobMapEmployee.Job.Name.ToLower().Contains(searchText));
-
-                unassignedJobsQuery = unassignedJobsQuery.Where(j =>
-                    j.Name.ToLower().Contains(searchText));
             }
 
             // 2. Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
                 scoresQuery = scoresQuery.Where(s => s.Time.HasValue && s.Time.Value.Year == selectedMonth.Year && s.Time.Value.Month == selectedMonth.Month);
-                unassignedJobsQuery = unassignedJobsQuery.Where(j => j.CreateDate.HasValue && j.CreateDate.Value.Year == selectedMonth.Year && j.CreateDate.Value.Month == selectedMonth.Month);
             }
 
             // 3. Lọc theo trạng thái
             if (!string.IsNullOrEmpty(status) && byte.TryParse(status, out byte statusValue))
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == statusValue);
-                // Công việc chưa giao không có trạng thái, nên không cần lọc unassignedJobsQuery
             }
 
             // 4. Lọc theo danh mục
             if (!string.IsNullOrEmpty(categoryId) && long.TryParse(categoryId, out long catId))
             {
                 scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == catId);
-                unassignedJobsQuery = unassignedJobsQuery.Where(j => j.CategoryId == catId);
             }
 
             // 5. Hiển thị công việc hoàn thành nhưng chưa đánh giá
             if (showCompletedZeroReview)
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == 1 && (!s.SummaryOfReviews.HasValue || s.SummaryOfReviews == 0));
-                // Công việc chưa giao không áp dụng điều kiện này
             }
 
-            // Thực thi truy vấn Scores
             var scores = await scoresQuery.ToListAsync();
 
-            // Thực thi truy vấn Jobs và tạo Score giả
-            var unassignedJobs = await unassignedJobsQuery.ToListAsync();
-            var fakeScores = unassignedJobs.Select(j => new Score
-            {
-                Id = 0, // ID giả
-                JobMapEmployee = new Jobmapemployee
-                {
-                    JobId = j.Id,
-                    Job = j,
-                    EmployeeId = null,
-                    Employee = null
-                },
-                Time = j.CreateDate ?? DateTime.Now,
-                Status = null,
-                CompletionDate = null,
-                VolumeAssessment = null,
-                ProgressAssessment = null,
-                QualityAssessment = null,
-                SummaryOfReviews = null,
-                CreateBy = managerUsername
-            }).ToList();
-
-            // Kết hợp danh sách
-            var combinedScores = scores.Concat(fakeScores);
-
-            // 7. Sắp xếp
-            switch (sortOrder.ToLower())
-            {
-                case "due_asc":
-                    combinedScores = combinedScores.OrderBy(s => s.JobMapEmployee.Job.Deadline1);
-                    break;
-                case "due_desc":
-                    combinedScores = combinedScores.OrderByDescending(s => s.JobMapEmployee.Job.Deadline1);
-                    break;
-                case "review_asc":
-                    combinedScores = combinedScores.OrderBy(s => s.SummaryOfReviews ?? double.MaxValue); // Đưa null xuống cuối
-                    break;
-                case "review_desc":
-                    combinedScores = combinedScores.OrderByDescending(s => s.SummaryOfReviews ?? double.MinValue); // Đưa null lên đầu
-                    break;
-                default:
-                    combinedScores = combinedScores.OrderByDescending(s => s.Time);
-                    break;
-            }
-
-            return View(combinedScores.ToList());
+            return View(scores);
         }
         [HttpGet]
         public async Task<IActionResult> GetJobsByEmployee(long employeeId)
@@ -198,24 +156,34 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     .Select(d => d.Id)
                     .ToListAsync();
 
-                // Công việc chưa giao
-                var unassignedJobs = await _context.Jobs
-                    .Include(j => j.Category)
-                    .Where(j => j.CreateBy == managerUsername
-                        && !_context.Jobmapemployees.Any(jme => jme.JobId == j.Id))
-                    .Select(j => new
+                // Lấy danh sách JobId đã được gán cho bất kỳ nhân viên nào (Employee_Id không null)
+                var assignedJobIds = await _context.Jobmapemployees // Truy cập trực tiếp bảng JOBMAPEMPLOYEE
+                    .Where(jme => jme.EmployeeId != null)
+                    .Select(jme => jme.JobId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Công việc chưa giao và không nằm trong danh sách JobId đã gán
+                var unassignedJobs = await _context.Scores
+                    .Include(s => s.JobMapEmployee)
+                        .ThenInclude(jme => jme.Job)
+                            .ThenInclude(j => j.Category)
+                    .Where(s => s.JobMapEmployee.EmployeeId == null
+                             && s.CreateBy == managerUsername
+                             && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
+                    .Select(s => new
                     {
-                        Id = j.Id,
-                        Name = j.Name,
-                        CategoryName = j.Category != null ? j.Category.Name : "N/A",
-                        Time = j.CreateDate,
-                        Deadline1 = j.Deadline1,
-                        Status = (byte?)null,
-                        CompletionDate = (DateTime?)null
+                        Id = s.JobMapEmployee.JobId,
+                        Name = s.JobMapEmployee.Job.Name,
+                        CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
+                        Time = s.Time,
+                        Deadline1 = s.JobMapEmployee.Job.Deadline1,
+                        Status = s.Status,
+                        CompletionDate = s.CompletionDate
                     })
                     .ToListAsync();
 
-                // Công việc đã giao cho nhân viên
+                // Công việc đã giao cho nhân viên cụ thể
                 var assignedJobs = await _context.Scores
                     .Include(s => s.JobMapEmployee)
                         .ThenInclude(jme => jme.Job)
@@ -245,10 +213,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return Json(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId)
+        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline)
         {
             var job = await _context.Jobs.FindAsync(jobId);
             if (job == null)
@@ -262,6 +229,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return Json(new { success = false, message = "Employee not found" });
             }
 
+            // Tạo JobMapEmployee
             var jobMapEmployee = new Jobmapemployee
             {
                 JobId = jobId,
@@ -275,10 +243,27 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             _context.Jobmapemployees.Add(jobMapEmployee);
             await _context.SaveChangesAsync();
 
+            // Xử lý ngày bắt đầu và ngày kết thúc
+            DateTime? parsedTime = null;
+            DateOnly? parsedDeadline = null;
+
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
+            {
+                parsedTime = startDate;
+            }
+
+            if (!string.IsNullOrEmpty(deadline) && DateOnly.TryParseExact(deadline, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateOnly endDate))
+            {
+                parsedDeadline = endDate;
+                job.Deadline1 = parsedDeadline;
+                _context.Jobs.Update(job);
+            }
+
+            // Tạo Score
             var score = new Score
             {
                 JobMapEmployeeId = jobMapEmployee.Id,
-                Time = DateTime.Now,
+                Time = parsedTime ?? DateTime.Now,
                 Status = 0,
                 CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
             };
@@ -367,7 +352,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 {
                     JobMapEmployeeId = jobMapEmployee.Id,
                     Status = 0, // Mặc định trạng thái chưa bat dau
-                    Time = DateTime.Now,
                     IsDelete = false,
                     IsActive = true,
                     CreateDate = DateTime.Now,
