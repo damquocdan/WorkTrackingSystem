@@ -278,14 +278,14 @@
                         var deadline = latestScore.JobMapEmployee.Job.Deadline1;
 
                         <tr class="@(status == 1 ? "table-success" :
-                    status == 2 ? "table-warning" :
-                    status == 3 ? "table-danger" :
-                    status == 4 ? "table-primary" :
-                    status == 0 ? "table-secondary" : "")">
+                                        status == 2 ? "table-warning" :
+                                        status == 3 ? "table-danger" :
+                                        status == 4 ? "table-primary" :
+                                        status == 0 ? "table-secondary" : "")">
                             <td>@index</td>
                             <td>
                                 @{
-                                    var assignedEmployees = ViewBag.EmployeeList as List<dynamic>;
+                                    var assignedEmployees = (ViewBag.EmployeeList as IEnumerable<dynamic>)?.ToList();
                                     var employee = assignedEmployees?.FirstOrDefault(e => e.Value == item.EmployeeId);
                                 }
                                 @if (employee == null)

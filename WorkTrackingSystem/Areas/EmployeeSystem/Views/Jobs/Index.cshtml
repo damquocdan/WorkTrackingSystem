@@ -8,58 +8,81 @@
 }
 
 <h2 class="text-primary text-center py-4">Danh sách Công Việc</h2>
-<div class="row mb-3">
+<div class=" mb-3">
 	<!-- Lọc theo khoảng thời gian Deadline -->
-	<div class="col-md-4">
-		<form method="get">
+
+	<form method="get" class="row gx-3 align-items-end">
+		<!-- Lọc theo Deadline -->
+		<div class="col-md-4">
+			<label class="form-label fw-bold">Deadline từ</label>
 			<div class="input-group">
-				<input type="date" name="deadlineStartDate" class="form-control" value="@ViewBag.DeadlineStartDate" placeholder="Deadline từ">
-				<input type="date" name="deadlineEndDate" class="form-control" value="@ViewBag.DeadlineEndDate" placeholder="Deadline đến">
-				<button type="submit" class="btn btn-warning">📅 Lọc Deadline</button>
+				<input type="date" name="deadlineStartDate" class="form-control" value="@ViewBag.DeadlineStartDate">
+				<span class="input-group-text">→</span>
+				<input type="date" name="deadlineEndDate" class="form-control" value="@ViewBag.DeadlineEndDate">
 			</div>
-		</form>
-	</div>
-	<!-- Lọc theo khoảng thời gian -->
-	<div class="col-md-4">
-		<form method="get">
+		</div>
+
+		<!-- Lọc theo Ngày hoàn thành -->
+		<div class="col-md-4">
+			<label class="form-label fw-bold">Hoàn thành từ</label>
 			<div class="input-group">
-				<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" placeholder="Từ ngày">
-				<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" placeholder="Đến ngày">
-				<button type="submit" class="btn btn-success">🔍 Hoàn thành từ</button>
+				<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
+				<span class="input-group-text">→</span>
+				<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
 			</div>
-		</form>
-	</div>
+		</div>
+
+		<!-- Nút Lọc -->
+		<div class="col-md-2 d-flex justify-content-center">
+			<button type="submit" class="btn btn-warning w-100">
+				<i class="fa-solid fa-filter"></i> Lọc
+			</button>
+		</div>
+	</form>
+
 </div>
 
 <!-- Thanh công cụ tìm kiếm và bộ lọc -->
 
-<div class="row   mb-3">
-	<!-- Ô tìm kiếm -->
-	<div class="col-md-2">
-		<input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm kiếm công việc..." value="@ViewBag.SearchTerm">
-	</div>
-	<!-- Lọc theo tháng -->
-	<div class="col-md-3">
-		<form method="get">
+<div class="row gx-3 align-items-end mb-3">
+	<!-- Form tìm kiếm và lọc theo Deadline -->
+	<form asp-controller="Jobs" asp-action="Index" method="get" class="col-md-10 row gx-3">
+		<!-- Ô tìm kiếm -->
+		<div class="col-md-5">
 			<div class="input-group">
-				<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
-				<button type="submit" class="btn btn-primary">📅 Deadline theo tháng</button>
+				<input type="text" class="form-control" name="search" placeholder="Nhập tên công việc / Code" value="@Context.Request.Query["search"]" />
 			</div>
-		</form>
-	</div>
+		</div>
 
-	<!-- Bộ lọc trạng thái -->
+		<!-- Lọc theo Deadline -->
+		<div class="col-md-4">
+			<div class="input-group">
+				<label class="input-group-text">Deadline</label>
+				<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
+			</div>
+		</div>
+
+		<!-- Nút tìm kiếm -->
+		<div class="col-md-3">
+			<button type="submit" class="btn btn-primary w-100">
+				<i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+			</button>
+		</div>
+	</form>
+
+	<!-- Bộ lọc trạng thái (nằm ngoài form) -->
 	<div class="col-md-2">
 		<select id="filterStatus" class="form-select">
 			<option value="">Tất cả trạng thái</option>
-			<option value="1"> Hoàn thành</option>
+			<option value="1">Hoàn thành</option>
 			<option value="2">Chưa hoàn thành</option>
-			<option value="3"> Hoàn thành muộn</option>
+			<option value="3">Hoàn thành muộn</option>
 			<option value="4">Đang xử lý</option>
-			<option value="0"> Chưa bắt đầu</option>
+			<option value="0">Chưa bắt đầu</option>
 		</select>
 	</div>
 </div>
+
 <table class="table table-bordered table-hover shadow">
 	<thead class="table-primary text-center">
 		<tr>
@@ -127,7 +150,7 @@
 		{
 			page = page,
 			filterStatus = ViewBag.FilterStatus,
-			searchTerm = ViewBag.SearchTerm,
+			search = ViewBag.Search,
 			selectedMonth = ViewBag.SelectedMonth,
 			startDate = ViewBag.StartDate,
 			endDate = ViewBag.EndDate,
@@ -159,10 +182,10 @@
 			filterStatus.value = filterStatusFromViewBag;
 
 			function applyFilters() {
-				let searchTerm = searchBox.value.trim();
+				let search = searchBox.value.trim();
 				let selectedStatus = filterStatus.value;
 				let url = new URL(window.location.href);
-				url.searchParams.set("searchTerm", searchTerm);
+				url.searchParams.set("search", search);
 				url.searchParams.set("filterStatus", selectedStatus);
 				console.log("fiter", selectedStatus)
 				url.searchParams.set("page", 1); // Reset về trang 1 sau khi lọc

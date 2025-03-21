@@ -29,40 +29,29 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
         // GET: AdminSystem/Jobs
         public async Task<IActionResult> Index(
-     int? page,
-     string searchText = null,
-     int? status = null,
-     int? categoryId = null,
-     bool dueToday = false,
-     string sortOrder = null,
-     string month = null,
-     bool showCompletedZeroReview = false)
-        {
+                 int? page,
+                 string searchText = null,
+                 int? status = null,
+                 int? categoryId = null,
+                 bool dueToday = false,
+                 string sortOrder = null,
+                 string month = null,
+                 bool showCompletedZeroReview = false)
+                    {
             int limit = 10;
             int pageIndex = page ?? 1;
             var assignedEmployees = await _context.Jobmapemployees
-     .Where(j => j.EmployeeId.HasValue)
-     .Select(j => new
-     {
-         Value = j.EmployeeId,
-         Text = $"{j.Employee.Code} - {j.Employee.FirstName} {j.Employee.LastName}", // Sửa lại định dạng
-         Avatar = j.Employee.Avatar ?? "/images/default-avatar.png"
-     })
-     .Distinct()
-     .ToListAsync();
+                                     .Where(j => j.EmployeeId.HasValue)
+                                     .Select(j => new
+                                     {
+                                         Value = j.EmployeeId,
+                                         Text = $"{j.Employee.Code} - {j.Employee.FirstName} {j.Employee.LastName}", 
+                                         Avatar = j.Employee.Avatar ?? "/images/default-avatar.png"
+                                     })
+                                     .Distinct()
+                                     .ToListAsync();
 
             ViewBag.EmployeeList = assignedEmployees;
-
-
-            //        var jobs = _context.Jobmapemployees
-            //.Include(j => j.Job)
-            //.ThenInclude(js => js.Category)
-            //.Include(j => j.Scores)
-            //.Where(j => j.IsActive == true &&
-            //			((j.EmployeeId.HasValue && assignedEmployees
-            //                            .Select(e => e.Value)
-            //				.Contains(j.EmployeeId.Value))
-            //			 || (j.EmployeeId == null)));
             var jobs = _context.Jobmapemployees
                 .Include(j => j.Job)
                 .ThenInclude(js => js.Category)
@@ -180,7 +169,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 			if (!string.IsNullOrEmpty(search))
             {
 				var searchLower = search.ToLower();
-				employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)).ToList();
+				employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)|| e.Employee.Code.ToLower().Contains(searchLower)).ToList();
             }
 			if (DepartmentId > 0)
 			{
@@ -203,11 +192,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 			return View(pagedEmployees);
         }
 
-        public IActionResult EmployeeWork(long id, int? page, string searchTerm, string filterStatus)
+        public IActionResult EmployeeWork(long id, int? page, string search, string filterStatus)
         {
             int pageSize = 10;
             int pageNumber = page ?? 1;
-            searchTerm = searchTerm != null ? Uri.UnescapeDataString(searchTerm) : "";
+            search = search != null ? Uri.UnescapeDataString(search) : "";
 
             var jobs = _context.Jobmapemployees
                 
@@ -218,10 +207,12 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 .Where(jm => jm.EmployeeId == id && jm.IsActive == true && jm.IsDelete == false);
 
             // Tìm kiếm theo tên công việc
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (!string.IsNullOrEmpty(search))
             {
-                jobs = jobs.Where(jm => jm.Job.Name.Contains(searchTerm));
-            }
+				var searchLower = search.ToLower();
+				jobs = jobs.Where(jm => jm.Job.Name.ToLower().Contains(search) );
+				//employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)).ToList();
+			}
 
             // Lọc theo trạng thái công việc dựa trên Score.Status
             if (!string.IsNullOrEmpty(filterStatus) && int.TryParse(filterStatus, out int statusValue))
@@ -238,10 +229,14 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 Deadline = jm.Job.Deadline1,
                 CompletionDate = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.CompletionDate).FirstOrDefault(),
                 ScoreStatus = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Status).FirstOrDefault(),
-                Progress = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Progress).FirstOrDefault() // Lấy progress từ Score
-            }).ToPagedList(pageNumber, pageSize);
+                Progress = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.Progress).FirstOrDefault(), 
+				VolumeAssessment= jm.Scores.OrderByDescending(s => s.Id).Select(s => s.VolumeAssessment).FirstOrDefault(),
+				ProgressAssessment= jm.Scores.OrderByDescending(s => s.Id).Select(s => s.ProgressAssessment).FirstOrDefault(),
+				QualityAssessment = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.QualityAssessment).FirstOrDefault(),
+				SummaryOfReviews = jm.Scores.OrderByDescending(s => s.Id).Select(s => s.SummaryOfReviews).FirstOrDefault()
+			}).ToPagedList(pageNumber, pageSize);
 
-            ViewBag.SearchTerm = searchTerm;
+            ViewBag.Search = search;
             ViewBag.FilterStatus = filterStatus;
 
             return View(jobList);

@@ -10,5 +10,6 @@
 		public DateOnly? CompletionDate { get; set; }
 		public DateOnly? Deadline { get; set; }
 		public double? Progress { get; set; }
+	
 	}
 }

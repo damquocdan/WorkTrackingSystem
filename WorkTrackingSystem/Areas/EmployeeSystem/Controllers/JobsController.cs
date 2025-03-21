@@ -26,7 +26,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 		// GET: EmployeeSystem/Jobs
 		public async Task<IActionResult> Index(int? page, string? selectedMonth = null,
 	DateTime? startDate = null, DateTime? endDate = null,
-	string? searchTerm = null, string? filterStatus = null,
+	string? search=null, string? filterStatus = null,
 	DateTime? deadlineStartDate = null, DateTime? deadlineEndDate = null)
 		{
 			int limit = 9;
@@ -51,14 +51,14 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			//	.Include(jm => jm.Scores)
 			//	.Where(jm => jm.EmployeeId == user.EmployeeId && jm.IsActive == true && jm.IsDelete == false);
 			var jobs = _context.Scores
-	.Include(s => s.JobMapEmployee)
-		.ThenInclude(jm => jm.Job)
-			.ThenInclude(j => j.Category)
-	.Include(s => s.JobMapEmployee.Employee)
-	.Where(s => s.JobMapEmployee.EmployeeId == user.EmployeeId && s.IsActive == true && s.IsDelete == false);
-			if (!string.IsNullOrEmpty(searchTerm))
+								.Include(s => s.JobMapEmployee)
+									.ThenInclude(jm => jm.Job)
+										.ThenInclude(j => j.Category)
+								.Include(s => s.JobMapEmployee.Employee)
+								.Where(s => s.JobMapEmployee.EmployeeId == user.EmployeeId && s.IsActive == true && s.IsDelete == false);
+			if (!string.IsNullOrEmpty(search))
 			{
-				jobs = jobs.Where(jm => jm.JobMapEmployee.Job.Name.Contains(searchTerm));
+				jobs = jobs.Where(jm => jm.JobMapEmployee.Job.Name.Contains(search));
 			}
 
 			if (!string.IsNullOrEmpty(filterStatus) && int.TryParse(filterStatus, out int statusValue))
@@ -75,27 +75,41 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 														   s.CompletionDate.Value >= startOfMonthDateOnly &&
 														   s.CompletionDate.Value <= endOfMonthDateOnly);
 			}
-
+			if (startDate.HasValue || endDate.HasValue)
+			{
+				jobs = jobs.Where(j => j.CompletionDate.HasValue &&
+									  (!startDate.HasValue || j.CompletionDate.Value >= DateOnly.FromDateTime(startDate.Value)) &&
+									  (!endDate.HasValue || j.CompletionDate.Value <= DateOnly.FromDateTime(endDate.Value)));
+			}
+			if (deadlineStartDate.HasValue || deadlineEndDate.HasValue)
+			{
+				jobs = jobs.Where(j => j.JobMapEmployee.Job.Deadline1.HasValue &&
+									  (!deadlineStartDate.HasValue || j.JobMapEmployee.Job.Deadline1.Value >= DateOnly.FromDateTime(deadlineStartDate.Value)) &&
+									  (!deadlineEndDate.HasValue || j.JobMapEmployee.Job.Deadline1.Value <= DateOnly.FromDateTime(deadlineEndDate.Value)));
+			}
 			var jobList = await jobs.OrderBy(s => s.JobMapEmployee.Job.Deadline1)
-	.Select(s => new JobViewModel
-	{
-		JobId = s.JobMapEmployee.Job.Id,
-		JobName = s.JobMapEmployee.Job.Name,
-		CategoryName = s.JobMapEmployee.Job.Category.Name,
-		EmployeeName = s.JobMapEmployee.Employee.FirstName + " " + s.JobMapEmployee.Employee.LastName,
-		ScoreStatus = s.Status,
-		CompletionDate = s.CompletionDate,
-		Deadline = s.JobMapEmployee.Job.Deadline1,
-		Progress = s.Progress
-	})
-	.ToListAsync();
+									.Select(s => new JobViewModel
+									{
+										JobId = s.JobMapEmployee.Job.Id,
+										JobName = s.JobMapEmployee.Job.Name,
+										CategoryName = s.JobMapEmployee.Job.Category.Name,
+										EmployeeName = s.JobMapEmployee.Employee.FirstName + " " + s.JobMapEmployee.Employee.LastName,
+										ScoreStatus = s.Status,
+										CompletionDate = s.CompletionDate,
+										Deadline = s.JobMapEmployee.Job.Deadline1,
+										Progress = s.Progress
+									})
+									.ToListAsync();
 
 			var pagedJobs = jobList.Any() ? jobList.ToPagedList(pageIndex, limit) : new PagedList<JobViewModel>(new List<JobViewModel>(), pageIndex, limit);
 
 			ViewBag.SelectedMonth = selectedMonth;
-			ViewBag.SearchTerm = searchTerm;
+			ViewBag.Search = search;
 			ViewBag.FilterStatus = filterStatus;
-
+			ViewBag.deadlineStartDate = deadlineStartDate?.ToString("yyyy-MM-dd");
+			ViewBag.deadlineEndDate = deadlineEndDate?.ToString("yyyy-MM-dd");
+			ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
+			ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
 			return View(pagedJobs);
 		}
 
