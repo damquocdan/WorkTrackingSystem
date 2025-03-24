@@ -124,16 +124,26 @@
         <table class="table">
             <thead class="bg-primary">
                 <tr>
-                    <th>Nhân viên</th>
-                    <th>Danh mục công việc</th>
-                    <th>Công việc</th>
-                    <th>Trạng thái</th>
-                    <th>Bắt đầu</th>
-                    <th>Hạn chót</th>
-                    <th>Hạn chót 2</th>
-                    <th>Hạn chót 3</th>
+                    <th class="text-center">Nhân viên</th>
+                    <th class="text-center">D.mục C.việc</th>
+                    <th class="text-center">Công việc</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Bắt đầu</th>
+                    <th class="text-center">Hạn chót</th>
+                    <th class="text-center">Ngày h.thành</th>
+                    <th class="text-center">Tổng đ.giá</th>
 
-                    <th>Hành động</th>
+                    <th>
+                        <form asp-action="ExportToExcel" method="get">
+                            <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
+                            <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
+                            <input type="hidden" name="categoryId" value="@Context.Request.Query["categoryId"]" />
+                            <input type="hidden" name="dueToday" value="@Context.Request.Query["dueToday"]" />
+                            <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
+                            <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
+                            <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+                        </form>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -183,20 +193,28 @@
                             }
                         </td>
                         <td>@Html.DisplayFor(modelItem => item.Time)</td>
-                        <td>@Html.DisplayFor(modelItem => item.JobMapEmployee.Job.Deadline1)</td>
-                        <td>@Html.DisplayFor(modelItem => item.JobMapEmployee.Job.Deadline2)</td>
-                        <td>@Html.DisplayFor(modelItem => item.JobMapEmployee.Job.Deadline3)</td>
+                        <td>@Html.DisplayFor(modelItem => item.CreateDate)</td>
+                        <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                        <td>@Html.DisplayFor(modelItem => item.SummaryOfReviews)</td>
                         <td>
-                            
-                            <a class="btn btn-warning ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })">Đánh giá</a>
-                            <a class="btn btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })">Chi tiết</a>
-                            <a class="btn btn-danger ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })">Xoá</a>
-                            @if (item.JobMapEmployee?.Employee != null) // Chỉ hiển thị khi đã có nhân viên
-                            {
-                                <a class="btn btn-success ajax-action" data-url="@Url.Action("Create", new { currentJobMapEmployeeId = item.JobMapEmployee.Id })">
-                                    Giao cho người khác
+                            <div class="d-flex flex-column gap-2">
+                                @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                {
+                                    <a class="btn btn-success ajax-action" data-url="@Url.Action("Create", new { currentJobMapEmployeeId = item.JobMapEmployee.Id })" title="Giao cho người khác">
+                                        <i class="fas fa-user me-1"></i>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                }
+                                <a class="btn btn-warning ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Đánh giá">
+                                    <i class="fas fa-star"></i>
                                 </a>
-                            }
+                                <a class="btn btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a class="btn btn-danger ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })" title="Xoá">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
 
                     </tr>
