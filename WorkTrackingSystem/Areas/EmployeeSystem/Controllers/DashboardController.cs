@@ -38,11 +38,11 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 
 			//Thống kê công việc theo tháng/ năm cho biểu đồ cột(client-side)
 			var jobsByMonth = _context.Jobmapemployees.Include(x => x.Job).Where(x => x.EmployeeId == user.EmployeeId)
-				.Where(x => x.Scores.Any(s => s.Time.HasValue) && x.IsActive == true && x.IsDelete == false)
+				.Where(x => x.Scores.Any(s => s.CreateDate.HasValue) && x.IsActive == true && x.IsDelete == false)
 				.ToList() // Chuyển sang client-side
 				 .SelectMany(x => x.Scores) // Lấy từng Score từ Jobmapemployees
-			   .Where(s => s.Time.HasValue) // Chỉ lấy những Score có Time
-				.GroupBy(s => s.Time.Value.ToString("MM/yyyy")) // Nhóm theo tháng/năm
+			   .Where(s => s.CreateDate.HasValue) // Chỉ lấy những Score có Time
+				.GroupBy(s => s.CreateDate.Value.ToString("MM/yyyy")) // Nhóm theo tháng/năm
 				.Select(g => new
 				{
 					MonthYear = g.Key,

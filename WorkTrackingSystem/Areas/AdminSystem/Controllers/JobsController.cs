@@ -388,144 +388,144 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 		//        return Json(new { success = false, message = ex.Message });
 		//    }
 		//}
-		//public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
-		//{
-		//	var managerUsername = HttpContext.Session.GetString("AdminLogin");
-		//	if (string.IsNullOrEmpty(managerUsername))
-		//	{
-		//		return RedirectToAction("Index", "Login");
-		//	}
+		public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
+		{
+			//var managerUsername = HttpContext.Session.GetString("AdminLogin");
+			//if (string.IsNullOrEmpty(managerUsername))
+			//{
+			//	return RedirectToAction("Index", "Login");
+			//}
 
-		//	var manager = await _context.Users
-		//		.Where(u => u.UserName == managerUsername)
-		//		.Select(u => u.Employee)
-		//		.FirstOrDefaultAsync();
+			//var manager = await _context.Users
+			//	.Where(u => u.UserName == managerUsername)
+			//	.Select(u => u.Employee)
+			//	.FirstOrDefaultAsync();
 
-		//	if (manager == null)
-		//	{
-		//		return RedirectToAction("Index", "Login");
-		//	}
+			//if (manager == null)
+			//{
+			//	return RedirectToAction("Index", "Login");
+			//}
 
-		//	var managedDepartments = await _context.Departments
-		//		.Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-		//		.Select(d => d.Id)
-		//		.ToListAsync();
+			//var managedDepartments = await _context.Departments
+			//	.Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+			//	.Select(d => d.Id)
+			//	.ToListAsync();
 
-		//	var employeesInManagedDepartments = await _context.Employees
-		//		.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
-		//		.Select(e => e.Id)
-		//		.ToListAsync();
+			var employeesInManagedDepartments = await _context.Employees
+				.Where(e => e.DepartmentId.HasValue )
+				.Select(e => e.Id)
+				.ToListAsync();
 
-		//	var jobs = _context.Jobmapemployees
-		//		.Include(jm => jm.Employee)
-		//		.Include(jm => jm.Job)
-		//		.ThenInclude(j => j.Category)
-		//		.Include(jm => jm.Job)
-		//		.Include(jm=>jm.Scores) // Lấy dữ liệu từ bảng SCORE
-		//		.Where(jm => employeesInManagedDepartments.Contains(jm.EmployeeId));
+			var jobs = _context.Jobmapemployees
+				.Include(jm => jm.Employee)
+				.Include(jm => jm.Job)
+				.ThenInclude(j => j.Category)
+				.Include(jm => jm.Job)
+				.Include(jm => jm.Scores) // Lấy dữ liệu từ bảng SCORE
+				.Where(jm => employeesInManagedDepartments.Contains((long)jm.EmployeeId));
 
-		//	// Áp dụng bộ lọc tìm kiếm
-		//	if (!string.IsNullOrEmpty(searchText))
-		//	{
-		//		jobs = jobs.Where(jm =>
-		//			jm.Employee.Code.Contains(searchText) ||
-		//			jm.Employee.FirstName.Contains(searchText) ||
-		//			jm.Employee.LastName.Contains(searchText) ||
-		//			jm.Job.Name.Contains(searchText));
-		//	}
+			// Áp dụng bộ lọc tìm kiếm
+			if (!string.IsNullOrEmpty(searchText))
+			{
+				jobs = jobs.Where(jm =>
+					jm.Employee.Code.Contains(searchText) ||
+					jm.Employee.FirstName.Contains(searchText) ||
+					jm.Employee.LastName.Contains(searchText) ||
+					jm.Job.Name.Contains(searchText));
+			}
 
-		//	if (status.HasValue)
-		//	{
-		//		jobs = jobs.Where(jm => jm.Job.Scores.Any(s => s.Status == status.Value));
-		//	}
+			if (status.HasValue)
+			{
+				jobs = jobs.Where(jm => jm.Scores.Any(s => s.Status == status.Value));
+			}
 
-		//	if (categoryId.HasValue)
-		//	{
-		//		jobs = jobs.Where(jm => jm.Job.CategoryId == categoryId.Value);
-		//	}
+			if (categoryId.HasValue)
+			{
+				jobs = jobs.Where(jm => jm.Job.CategoryId == categoryId.Value);
+			}
 
-		//	if (dueToday)
-		//	{
-		//		jobs = jobs.Where(jm => jm.Job.Scores.Any(s => s.CompletionDate.HasValue && s.CompletionDate.Value.Date == DateTime.Today));
-		//	}
+			if (dueToday)
+			{
+				jobs = jobs.Where(jm => jm.Scores.Any(s => s.CompletionDate.HasValue && s.CompletionDate.Value == DateOnly.FromDateTime(DateTime.Today)));
+			}
 
-		//	if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
-		//	{
-		//		jobs = jobs.Where(jm => jm.Job.Scores.Any(s => s.CompletionDate.HasValue &&
-		//													s.CompletionDate.Value.Year == selectedMonth.Year &&
-		//													s.CompletionDate.Value.Month == selectedMonth.Month));
-		//	}
+			if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+			{
+				jobs = jobs.Where(jm => jm.Scores.Any(s => s.CompletionDate.HasValue &&
+															s.CompletionDate.Value.Year == selectedMonth.Year &&
+															s.CompletionDate.Value.Month == selectedMonth.Month));
+			}
 
-		//	switch (sortOrder)
-		//	{
-		//		case "due_asc":
-		//			jobs = jobs.OrderBy(jm => jm.Job.Deadline1);
-		//			break;
-		//		case "due_desc":
-		//			jobs = jobs.OrderByDescending(jm => jm.Job.Deadline1);
-		//			break;
-		//		case "review_asc":
-		//			jobs = jobs.OrderBy(jm => jm.Job.Scores.FirstOrDefault().SummaryOfReviews);
-		//			break;
-		//		case "review_desc":
-		//			jobs = jobs.OrderByDescending(jm => jm.Job.Scores.FirstOrDefault().SummaryOfReviews);
-		//			break;
-		//	}
+			switch (sortOrder)
+			{
+				case "due_asc":
+					jobs = jobs.OrderBy(jm => jm.Job.Deadline1);
+					break;
+				case "due_desc":
+					jobs = jobs.OrderByDescending(jm => jm.Job.Deadline1);
+					break;
+				case "review_asc":
+					jobs = jobs.OrderBy(jm => jm.Scores.FirstOrDefault().SummaryOfReviews);
+					break;
+				case "review_desc":
+					jobs = jobs.OrderByDescending(jm => jm.Scores.FirstOrDefault().SummaryOfReviews);
+					break;
+			}
 
-		//	var jobList = await jobs.ToListAsync();
+			var jobList = await jobs.ToListAsync();
 
-		//	// Tạo file Excel bằng EPPlus
-		//	using (var package = new ExcelPackage())
-		//	{
-		//		var worksheet = package.Workbook.Worksheets.Add("Jobs");
-		//		worksheet.Cells[1, 1].Value = "STT";
-		//		worksheet.Cells[1, 2].Value = "Nhân viên";
-		//		worksheet.Cells[1, 3].Value = "Hạng mục";
-		//		worksheet.Cells[1, 4].Value = "Công việc";
-		//		worksheet.Cells[1, 5].Value = "Deadline";
-		//		worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
-		//		worksheet.Cells[1, 7].Value = "Trạng thái";
-		//		worksheet.Cells[1, 8].Value = "Đánh giá khối lượng";
-		//		worksheet.Cells[1, 9].Value = "Đánh giá tiến độ";
-		//		worksheet.Cells[1, 10].Value = "Đánh giá chất lượng";
-		//		worksheet.Cells[1, 11].Value = "Đánh giá tổng hợp";
+			// Tạo file Excel bằng EPPlus
+			using (var package = new ExcelPackage())
+			{
+				var worksheet = package.Workbook.Worksheets.Add("Jobs");
+				worksheet.Cells[1, 1].Value = "STT";
+				worksheet.Cells[1, 2].Value = "Nhân viên";
+				worksheet.Cells[1, 3].Value = "Hạng mục";
+				worksheet.Cells[1, 4].Value = "Công việc";
+				worksheet.Cells[1, 5].Value = "Deadline";
+				worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
+				worksheet.Cells[1, 7].Value = "Trạng thái";
+				worksheet.Cells[1, 8].Value = "Đánh giá khối lượng";
+				worksheet.Cells[1, 9].Value = "Đánh giá tiến độ";
+				worksheet.Cells[1, 10].Value = "Đánh giá chất lượng";
+				worksheet.Cells[1, 11].Value = "Đánh giá tổng hợp";
 
-		//		// Điền dữ liệu
-		//		for (int i = 0; i < jobList.Count; i++)
-		//		{
-		//			var jobMap = jobList[i];
-		//			var job = jobMap.Job;
-		//			var score = job.Scores.FirstOrDefault(); // Lấy bản ghi đánh giá đầu tiên nếu có
+				// Điền dữ liệu
+				for (int i = 0; i < jobList.Count; i++)
+				{
+					var jobMap = jobList[i];
+					var job = jobMap.Job;
+					var score = jobMap.Scores.FirstOrDefault();
 
-		//			worksheet.Cells[i + 2, 1].Value = i + 1; // STT
-		//			worksheet.Cells[i + 2, 2].Value = $"{jobMap.Employee.Code} {jobMap.Employee.FirstName} {jobMap.Employee.LastName}";
-		//			worksheet.Cells[i + 2, 3].Value = job.Category.Name;
-		//			worksheet.Cells[i + 2, 4].Value = job.Name;
-		//			worksheet.Cells[i + 2, 5].Value = job.Deadline1?.ToString("dd/MM/yyyy");
-		//			worksheet.Cells[i + 2, 6].Value = score?.CompletionDate?.ToString("dd/MM/yyyy");
-		//			worksheet.Cells[i + 2, 7].Value = score?.Status switch
-		//			{
-		//				1 => "Hoàn thành",
-		//				2 => "Chưa hoàn thành",
-		//				3 => "Hoàn thành muộn",
-		//				4 => "Đang xử lý",
-		//				_ => "Chưa bắt đầu"
-		//			};
-		//			worksheet.Cells[i + 2, 8].Value = score?.VolumeAssessment;
-		//			worksheet.Cells[i + 2, 9].Value = score?.ProgressAssessment;
-		//			worksheet.Cells[i + 2, 10].Value = score?.QualityAssessment;
-		//			worksheet.Cells[i + 2, 11].Value = score?.SummaryOfReviews;
-		//		}
+					worksheet.Cells[i + 2, 1].Value = i + 1; // STT
+					worksheet.Cells[i + 2, 2].Value = $"{jobMap.Employee.Code} {jobMap.Employee.FirstName} {jobMap.Employee.LastName}";
+					worksheet.Cells[i + 2, 3].Value = job.Category.Name;
+					worksheet.Cells[i + 2, 4].Value = job.Name;
+					worksheet.Cells[i + 2, 5].Value = job.Deadline1?.ToString("dd/MM/yyyy");
+					worksheet.Cells[i + 2, 6].Value = score?.CompletionDate?.ToString("dd/MM/yyyy");
+					worksheet.Cells[i + 2, 7].Value = score?.Status switch
+					{
+						1 => "Hoàn thành",
+						2 => "Chưa hoàn thành",
+						3 => "Hoàn thành muộn",
+						4 => "Đang xử lý",
+						_ => "Chưa bắt đầu"
+					};
+					worksheet.Cells[i + 2, 8].Value = score?.VolumeAssessment;
+					worksheet.Cells[i + 2, 9].Value = score?.ProgressAssessment;
+					worksheet.Cells[i + 2, 10].Value = score?.QualityAssessment;
+					worksheet.Cells[i + 2, 11].Value = score?.SummaryOfReviews;
+				}
 
-		//		// Định dạng cột
-		//		worksheet.Cells[1, 1, 1, 11].Style.Font.Bold = true;
-		//		worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+				// Định dạng cột
+				worksheet.Cells[1, 1, 1, 11].Style.Font.Bold = true;
+				worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
-		//		// Xuất file Excel
-		//		var stream = new MemoryStream(package.GetAsByteArray());
-		//		return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
-		//	}
-		//}
+				// Xuất file Excel
+				var stream = new MemoryStream(package.GetAsByteArray());
+				return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
+			}
+		}
 
 		//// GET: ProjectManager/Jobs/Details/5
 		//public async Task<IActionResult> Details(long? id)
@@ -728,133 +728,143 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         //	}
         //	return View(job);
         //}
-        //private async Task UpdateBaselineAssessment(long? employeeId)
-        //{
-        //    if (employeeId == null)
-        //        return;
+        private async Task UpdateBaselineAssessment(long? employeeId)
+        {
+            if (employeeId == null)
+                return;
 
-        //    var currentMonth = DateTime.Now.Month;
-        //    var currentYear = DateTime.Now.Year;
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
 
-        //    // Lấy danh sách công việc của nhân viên trong tháng hiện tại có đánh giá
-        //    var jobs = await _context.Jobs
-        //        .Where(j => j.EmployeeId == employeeId
-        //                 && j.Time.HasValue
-        //                 && j.Time.Value.Month == currentMonth
-        //                 && j.Time.Value.Year == currentYear
-        //                 && (j.Status == 1 || j.Status == 3)) // Chỉ tính các công việc "Hoàn thành" hoặc "Hoàn thành muộn"
-        //        .ToListAsync();
+            // Lấy danh sách công việc của nhân viên trong tháng hiện tại có đánh giá
+            var jobMaps = await _context.Jobmapemployees
+                .Include(jm => jm.Scores) // Bao gồm bảng Score để lấy dữ liệu đánh giá
+                .Where(jm => jm.EmployeeId == employeeId
+                          && jm.Scores.Any(s => s.CompletionDate.HasValue
+                                                && s.CompletionDate.Value.Month == currentMonth
+                                                && s.CompletionDate.Value.Year == currentYear
+                                                && (s.Status == 1 || s.Status == 3))) // Hoàn thành hoặc Hoàn thành muộn
+                .ToListAsync();
 
-        //    if (!jobs.Any())
-        //        return;
+            if (!jobMaps.Any())
+                return;
 
-        //    // Tính tổng các đánh giá
-        //    double sumVolume = jobs.Sum(j => j.VolumeAssessment ?? 0);
-        //    double sumProgress = jobs.Sum(j => j.ProgressAssessment ?? 0);
-        //    double sumQuality = jobs.Sum(j => j.QualityAssessment ?? 0);
-        //    double sumSummary = jobs.Sum(j => j.SummaryOfReviews ?? 0);
+            // Tính tổng các đánh giá từ bảng Score
+            double sumVolume = jobMaps.Sum(jm => jm.Scores.Sum(s => s.VolumeAssessment ?? 0));
+            double sumProgress = jobMaps.Sum(jm => jm.Scores.Sum(s => s.ProgressAssessment ?? 0));
+            double sumQuality = jobMaps.Sum(jm => jm.Scores.Sum(s => s.QualityAssessment ?? 0));
+            double sumSummary = jobMaps.Sum(jm => jm.Scores.Sum(s => s.SummaryOfReviews ?? 0));
 
-        //    // Xác định trạng thái Evaluate (giả sử tổng Summary >= 6 là đạt, bạn có thể điều chỉnh ngưỡng)
-        //    bool evaluate = sumSummary >= 45;
+            // Xác định trạng thái Evaluate (giả sử tổng Summary >= 45 là đạt)
+            bool evaluate = sumSummary >= 45;
 
-        //    // Tìm bản ghi BaselineAssessment của nhân viên trong tháng hiện tại
-        //    var baseline = await _context.Baselineassessments
-        //        .FirstOrDefaultAsync(b => b.EmployeeId == employeeId
-        //                               && b.Time.HasValue
-        //                               && b.Time.Value.Month == currentMonth
-        //                               && b.Time.Value.Year == currentYear);
+            // Tìm bản ghi BaselineAssessment của nhân viên trong tháng hiện tại
+            var baseline = await _context.Baselineassessments
+                .FirstOrDefaultAsync(b => b.EmployeeId == employeeId
+                                       && b.Time.HasValue
+                                       && b.Time.Value.Month == currentMonth
+                                       && b.Time.Value.Year == currentYear);
 
-        //    if (baseline == null)
-        //    {
-        //        // Nếu chưa có bản ghi trong tháng, tạo mới
-        //        baseline = new Baselineassessment
-        //        {
-        //            EmployeeId = employeeId,
-        //            VolumeAssessment = sumVolume,
-        //            ProgressAssessment = sumProgress,
-        //            QualityAssessment = sumQuality,
-        //            SummaryOfReviews = sumSummary,
-        //            Time = new DateTime(currentYear, currentMonth, 1),
-        //            Evaluate = evaluate,
-        //            CreateDate = DateTime.Now,
-        //            UpdateDate = DateTime.Now
-        //        };
-        //        _context.Baselineassessments.Add(baseline);
-        //    }
-        //    else
-        //    {
-        //        // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
-        //        baseline.VolumeAssessment = sumVolume;
-        //        baseline.ProgressAssessment = sumProgress;
-        //        baseline.QualityAssessment = sumQuality;
-        //        baseline.SummaryOfReviews = sumSummary;
-        //        baseline.Evaluate = evaluate;
-        //        baseline.UpdateDate = DateTime.Now;
-        //    }
+            if (baseline == null)
+            {
+                // Nếu chưa có bản ghi trong tháng, tạo mới
+                baseline = new Baselineassessment
+                {
+                    EmployeeId = employeeId,
+                    VolumeAssessment = sumVolume,
+                    ProgressAssessment = sumProgress,
+                    QualityAssessment = sumQuality,
+                    SummaryOfReviews = sumSummary,
+                    Time = new DateTime(currentYear, currentMonth, 1),
+                    Evaluate = evaluate,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+                _context.Baselineassessments.Add(baseline);
+            }
+            else
+            {
+                // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
+                baseline.VolumeAssessment = sumVolume;
+                baseline.ProgressAssessment = sumProgress;
+                baseline.QualityAssessment = sumQuality;
+                baseline.SummaryOfReviews = sumSummary;
+                baseline.Evaluate = evaluate;
+                baseline.UpdateDate = DateTime.Now;
+            }
 
-        //    await _context.SaveChangesAsync();
-        //}
+            await _context.SaveChangesAsync();
+        }
 
-        //private async Task UpdateAnalysis(long? employeeId)
-        //{
-        //    if (employeeId == null)
-        //        return;
+        private async Task UpdateAnalysis(long? employeeId)
+        {
+            if (employeeId == null)
+                return;
 
-        //    var currentMonth = DateTime.Now.Month;
-        //    var currentYear = DateTime.Now.Year;
+            var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
 
-        //    // Lấy danh sách công việc của nhân viên trong tháng hiện tại
-        //    var jobs = await _context.Jobs
-        //        .Where(j => j.EmployeeId == employeeId && j.Time.HasValue &&
-        //                    j.Time.Value.Month == currentMonth && j.Time.Value.Year == currentYear)
-        //        .ToListAsync();
+            // Lấy danh sách công việc của nhân viên trong tháng hiện tại
+            var jobMaps = await _context.Jobmapemployees
+                .Include(jm => jm.Scores) // Lấy dữ liệu từ bảng Score
+                .Where(jm => jm.EmployeeId == employeeId
+                          && jm.Scores.Any(s => s.CompletionDate.HasValue
+                                                && s.CompletionDate.Value.Month == currentMonth
+                                                && s.CompletionDate.Value.Year == currentYear))
+                .ToListAsync();
 
+            // Tính số lượng công việc theo trạng thái từ bảng Score
+            int ontime = jobMaps.Count(jm => jm.Scores.Any(s => s.Status == 1));    // Hoàn thành đúng hạn
+            int late = jobMaps.Count(jm => jm.Scores.Any(s => s.Status == 2));      // Hoàn thành muộn
+            int overdue = jobMaps.Count(jm => jm.Scores.Any(s => s.Status == 3));   // Quá hạn chưa hoàn thành
+            int processing = jobMaps.Count(jm => jm.Scores.Any(s => s.Status == 4));// Đang xử lý
+            int total = ontime + late + overdue + processing;
 
-        //    int ontime = jobs.Count(j => j.Status == 1);
-        //    int late = jobs.Count(j => j.Status == 2);
-        //    int overdue = jobs.Count(j => j.Status == 3);
-        //    int processing = jobs.Count(j => j.Status == 4);
-        //    int total = ontime + late + overdue + processing;
-        //    // Tính trung bình đánh giá của nhân viên
-        //    var averageReview = jobs.Any()
-        //        ? jobs.Average(j => j.SummaryOfReviews ?? 0)
-        //        : 0;
+            // Tính trung bình đánh giá của nhân viên
+            var averageReview = jobMaps.Any()
+                ? jobMaps.Average(jm => jm.Scores.Average(s => s.SummaryOfReviews ?? 0))
+                : 0;
 
-        //    // Tìm bản ghi Analysis của nhân viên trong tháng hiện tại
-        //    var analysis = await _context.Analyses
-        //        .FirstOrDefaultAsync(a => a.EmployeeId == employeeId && a.Time.HasValue &&
-        //                                  a.Time.Value.Month == currentMonth && a.Time.Value.Year == currentYear);
+            // Tìm bản ghi Analysis của nhân viên trong tháng hiện tại
+            var analysis = await _context.Analyses
+                .FirstOrDefaultAsync(a => a.EmployeeId == employeeId
+                                          && a.Time.HasValue
+                                          && a.Time.Value.Month == currentMonth
+                                          && a.Time.Value.Year == currentYear);
 
-        //    if (analysis == null)
-        //    {
-        //        // Nếu chưa có bản ghi trong tháng, tạo mới
-        //        analysis = new Analysis
-        //        {
-        //            EmployeeId = employeeId,
-        //            Total = total,
-        //            Ontime = ontime,
-        //            Late = late,
-        //            Overdue = overdue,
-        //            Processing = processing,
-        //            Time = new DateTime(currentYear, currentMonth, 1),
-        //            CreateDate = DateTime.Now,
-        //            UpdateDate = DateTime.Now
-        //        };
-        //        _context.Analyses.Add(analysis);
-        //    }
-        //    else
-        //    {
-        //        // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
-        //        analysis.Total = total;
-        //        analysis.Ontime = ontime;
-        //        analysis.Late = late;
-        //        analysis.Overdue = overdue;
-        //        analysis.Processing = processing;
-        //        analysis.UpdateDate = DateTime.Now;
-        //    }
+            if (analysis == null)
+            {
+                // Nếu chưa có bản ghi trong tháng, tạo mới
+                analysis = new Analysis
+                {
+                    EmployeeId = employeeId,
+                    Total = total,
+                    Ontime = ontime,
+                    Late = late,
+                    Overdue = overdue,
+                    Processing = processing,
+                    //AverageReview = averageReview,
+                    Time = new DateTime(currentYear, currentMonth, 1),
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+                _context.Analyses.Add(analysis);
+            }
+            else
+            {
+                // Nếu đã có bản ghi trong tháng, cập nhật dữ liệu
+                analysis.Total = total;
+                analysis.Ontime = ontime;
+                analysis.Late = late;
+                analysis.Overdue = overdue;
+                analysis.Processing = processing;
+                //analysis.AverageReview = averageReview;
+                analysis.UpdateDate = DateTime.Now;
+            }
 
-        //    await _context.SaveChangesAsync();
-        //}
+            await _context.SaveChangesAsync();
+        }
+
 
         //// GET: ProjectManager/Jobs/Delete/5
         //public async Task<IActionResult> Delete(long? id)
@@ -896,8 +906,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         //    return RedirectToAction(nameof(Index));
         //}
 
-     
-        
+
+
         private bool JobExists(long id)
         {
             return _context.Jobs.Any(e => e.Id == id);
