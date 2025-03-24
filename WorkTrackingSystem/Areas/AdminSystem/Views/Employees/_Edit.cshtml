@@ -13,7 +13,7 @@
     <hr />
     <div class="row">
         <div class="col-md-12">
-            <form asp-action="Edit">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="Id" />
                 <div class="mb-3">
@@ -72,9 +72,15 @@
                     <span asp-validation-for="Address" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Avatar" class="form-label"><i class="bi bi-image"></i> Ảnh đại diện</label>
+                 @*    <label asp-for="Avatar" class="form-label"><i class="bi bi-image"></i> Ảnh đại diện</label>
                     <input asp-for="Avatar" class="form-control" />
-                    <span asp-validation-for="Avatar" class="text-danger"></span>
+                    <span asp-validation-for="Avatar" class="text-danger"></span> *@
+                  
+                        <img src="@Model.Avatar" alt="Avatar" class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;" />
+                        <input type="file" class="form-control mt-3" asp-for="Avatar" />
+                        <span asp-validation-for="Avatar" class="text-danger"></span>
+                        <input type="hidden" value="@Model.Avatar" name="img" class="form-control" />
+                  
                 </div>
                @*  <div class="mb-3" hidden>
                     <label asp-for="IsDelete" class="form-label">IsDelete</label>
