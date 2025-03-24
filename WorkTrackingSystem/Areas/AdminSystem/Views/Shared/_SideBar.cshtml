@@ -1,0 +1,193 @@
+﻿@using Microsoft.AspNetCore.Http;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+   
+    <a asp-controller="Dashboard" asp-action="Index" class="brand-link">
+        <img src="~/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text font-weight-light">Quản lý công việc</span>
+    </a>
+
+    <div class="sidebar">
+        @{
+            if (HttpContextAccessor.HttpContext.Session.GetString("AdminLogin") != null)
+            {
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="~/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a asp-controller="UserInfor" asp-action="UserInfor" class="d-block">@HttpContextAccessor.HttpContext.Session.GetString("AdminLogin")</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="~/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a asp-controller="Dashboard" asp-action="Index" class="d-block">AdminLogin</a>
+                    </div>
+                </div>
+            }
+        }
+        
+
+        @* <div class="form-inline">
+            <div class="input-group" data-widget="sidebar-search">
+                <input class="form-control form-control-sidebar" type="search" placeholder="Tìm kiếm" aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-sidebar">
+                        <i class="fas fa-search fa-fw"></i>
+                    </button>
+                </div>
+            </div>
+        </div> *@
+
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+				@* <li class="nav-item menu-open">
+                    <a asp-controller="Dashboard" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <p>
+                            Bảng điều khiển
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Dashboard" asp-action="Index" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bảng điều khiển</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="./index2.html" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bảng điều khiển v2</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="./index3.html" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bảng điều khiển v3</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li> *@
+                <li class="nav-item">
+                    <a asp-controller="Employees" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-users"></i>
+
+                        <p>
+                            Quản lý nhân sự
+                           
+                        </p>
+                    </a>
+                   
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Departments" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-building"></i>
+
+                        <p>
+                            Quản lý phòng ban
+                            
+                        </p>
+                    </a>
+                  
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Positions" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-briefcase"></i>
+
+                        <p>
+                            Quản lý chức vụ
+                           
+                        </p>
+                    </a>
+                   
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Jobs" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-tasks"></i>
+
+                        <p>
+                            Quản lý công việc
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Jobs" asp-action="Index" class="nav-link">
+                                <p>Danh sách công việc</p>
+                            </a>
+                        </li>
+                       
+                        <li class="nav-item">
+                            <a asp-controller="Jobs" asp-action="JobOfEmployee" class="nav-link">
+                                <p>Công việc của nhân viên</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Systemsws" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+
+                        <p>
+                            Quản lý hệ thống
+                            
+                        </p>
+                    </a>
+                   
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Categories" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-list-alt"></i>
+
+                        <p>
+                            Quản lý hạng mục
+                          
+                        </p>
+                    </a>
+                  
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Users" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-user-cog"></i>
+
+                        <p>
+                            Quản lý tài khoản
+                            
+                        </p>
+                    </a>
+                   
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-star"></i>
+
+                        <p>
+                            Quản lý dánh giá
+                            
+                        </p>
+                    </a>
+                    
+                </li>
+                <li class="nav-item">
+                    <a asp-controller="Analyses" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-star"></i>
+
+                        <p>
+                            Quản lý phân tích
+                           
+                        </p>
+                    </a>
+                    
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>

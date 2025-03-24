@@ -1,0 +1,225 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/HRManager/Views/Shared/_HRManager.cshtml";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Dashboard</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3>@ViewBag.TotalEmployees</h3>
+                        <p>Tổng số nhân viên</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-person"></i>
+                    </div>
+                    <a asp-controller="Employees" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3>@ViewBag.TotalDepartments</h3>
+                        <p>Tổng số phòng ban</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-home"></i>
+                    </div>
+                    <a asp-controller="Departments" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3>@ViewBag.TotalCompletedJobs</h3>
+                        <p>Công việc hoàn thành</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-checkmark"></i>
+                    </div>
+                    <a asp-controller="Jobs" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3>@ViewBag.TotalEvaluated</h3>
+                        <p>Đánh giá đạt</p>
+                    </div>
+                    <div class="icon">
+                        <i class="ion ion-star"></i>
+                    </div>
+                    <a asp-controller="Baselineassessments" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+        <!-- Main row -->
+        <div class="row">
+            <!-- Left col -->
+            <section class="col-lg-7 connectedSortable">
+                <!-- Chart: Job Status -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar mr-1"></i>
+                            Thống kê trạng thái công việc
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="jobStatusChart" style="min-height: 300px; height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card -->
+                <!-- Chart: Baseline Assessment -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            Đánh giá cơ bản theo tháng
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart">
+                            <canvas id="assessmentChart" style="min-height: 300px; height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </section>
+            <!-- /.Left col -->
+            <!-- Right col -->
+            <section class="col-lg-5 connectedSortable">
+                <!-- Department List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="ion ion-home mr-1"></i>
+                            Danh sách phòng ban
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            @foreach (var dept in ViewBag.Departments)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    @dept.Name (@dept.Code)
+                                    <span class="badge badge-primary">@dept.Employees.Count nhân viên</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <!-- /.card -->
+                <!-- Recent Employees -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="ion ion-person mr-1"></i>
+                            Nhân viên gần đây
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            @foreach (var emp in ViewBag.RecentEmployees)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    @emp.FirstName @emp.LastName (@emp.Code)
+                                    <small>@emp.CreateDate?.ToString("dd/MM/yyyy")</small>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+                <!-- /.card -->
+            </section>
+            <!-- /.Right col -->
+        </div>
+        <!-- /.row (main row) -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Biểu đồ trạng thái công việc
+            var jobStatusCtx = document.getElementById('jobStatusChart').getContext('2d');
+            var jobStatusChart = new Chart(jobStatusCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Hoàn thành', 'Chưa hoàn thành', 'Hoàn thành muộn', 'Đang xử lý'],
+                    datasets: [{
+                        label: 'Số lượng công việc',
+                        data: [@ViewBag.JobStatusOntime, @ViewBag.JobStatusOverdue, @ViewBag.JobStatusLate, @ViewBag.JobStatusProcessing],
+                        backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Biểu đồ đánh giá cơ bản
+            var assessmentCtx = document.getElementById('assessmentChart').getContext('2d');
+            var assessmentChart = new Chart(assessmentCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(ViewBag.AssessmentMonths)),
+                    datasets: [
+                        {
+                            label: 'Khối lượng',
+                            data: @Html.Raw(Json.Serialize(ViewBag.AssessmentVolumes)),
+                            borderColor: '#007bff',
+                            fill: false
+                        },
+                        {
+                            label: 'Tiến độ',
+                            data: @Html.Raw(Json.Serialize(ViewBag.AssessmentProgress)),
+                            borderColor: '#28a745',
+                            fill: false
+                        },
+                        {
+                            label: 'Chất lượng',
+                            data: @Html.Raw(Json.Serialize(ViewBag.AssessmentQualities)),
+                            borderColor: '#dc3545',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Điểm trung bình' } }
+                    }
+                }
+            });
+        });
+    </script>
+}

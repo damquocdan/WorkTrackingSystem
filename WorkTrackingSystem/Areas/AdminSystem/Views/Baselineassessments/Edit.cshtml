@@ -1,0 +1,105 @@
+﻿@model WorkTrackingSystem.Models.Baselineassessment
+
+@{
+    ViewData["Title"] = "Chỉnh sửa đánh giá cơ bản";
+    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+}
+
+<div class="">
+    <h1 class="mb-4">Chỉnh sửa đánh giá cơ bản</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit" id="assessmentForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-person"></i> Nhân viên:</label>
+                    <input type="text" class="form-control" value="@ViewBag.EmployeeName" readonly />
+                </div>
+
+                <!-- Hidden field để giữ giá trị EmployeeId khi submit -->
+                <input type="hidden" asp-for="EmployeeId" />
+
+
+                <div class="mb-3">
+                    <label asp-for="VolumeAssessment" class="form-label"><i class="bi bi-bar-chart-line"></i> Đánh giá khối lượng (1 - 100):</label>
+                    <input asp-for="VolumeAssessment" type="range" class="form-range" min="1" max="100" id="VolumeAssessment" oninput="updateValue('VolumeAssessmentValue', this.value); calculateSummary()" />
+                    <span id="VolumeAssessmentValue" class="">@Model.VolumeAssessment</span>
+                    <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProgressAssessment" class="form-label"><i class="bi bi-graph-up"></i> Đánh giá tiến độ (1 - 100):</label>
+                    <input asp-for="ProgressAssessment" type="range" class="form-range" min="1" max="100" id="ProgressAssessment" oninput="updateValue('ProgressAssessmentValue', this.value); calculateSummary()" />
+                    <span id="ProgressAssessmentValue" class="">@Model.ProgressAssessment</span>
+                    <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="QualityAssessment" class="form-label"><i class="bi bi-star"></i> Đánh giá chất lượng (1 - 100):</label>
+                    <input asp-for="QualityAssessment" type="range" class="form-range" min="1" max="100" id="QualityAssessment" oninput="updateValue('QualityAssessmentValue', this.value); calculateSummary()" />
+                    <span id="QualityAssessmentValue" class="">@Model.QualityAssessment</span>
+                    <span asp-validation-for="QualityAssessment" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SummaryOfReviews" class="form-label"><i class="bi bi-chat-left-text"></i> Tóm tắt đánh giá:</label>
+                    <input asp-for="SummaryOfReviews" type="number" class="form-control" id="SummaryOfReviews" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Evaluate" class="form-label"><i class="bi bi-clipboard-check"></i> Đánh giá:</label>
+                    <input type="text" class="form-control" id="Evaluate" readonly
+                           value="@(Model.SummaryOfReviews > 50 ? "Đạt" : "Chưa đạt")" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-clock"></i> Tháng:</label>
+                    <input class="form-control" value="@(Model.Time.HasValue ? Model.Time.Value.ToString("MM/yyyy") : "")" readonly />
+                    <input type="hidden" name="Time" value="@(Model.Time.HasValue ? Model.Time.Value.ToString("yyyy-MM-dd") : "")" />
+                </div>
+
+
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu</button>
+                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Quay lại danh sách</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script>
+            function calculateSummary() {
+                let volume = parseFloat(document.getElementById("VolumeAssessment").value) || 0;
+                let progress = parseFloat(document.getElementById("ProgressAssessment").value) || 0;
+                let quality = parseFloat(document.getElementById("QualityAssessment").value) || 0;
+
+                // Tính toán tổng điểm
+                let summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.25);
+                document.getElementById("SummaryOfReviews").value = summary.toFixed(2);
+
+                // Hiển thị Đạt/Chưa đạt
+                let evaluate = summary > 50 ? "Đạt" : "Chưa đạt";
+                document.getElementById("Evaluate").value = evaluate;
+            }
+
+            // Hàm cập nhật giá trị khi kéo thanh range
+            function updateValue(spanId, value) {
+                document.getElementById(spanId).innerText = value;
+            }
+
+            // Gọi hàm tính toán khi trang load để hiển thị giá trị mặc định
+            window.onload = function() {
+                calculateSummary();
+            };
+        </script>
+    }
+}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

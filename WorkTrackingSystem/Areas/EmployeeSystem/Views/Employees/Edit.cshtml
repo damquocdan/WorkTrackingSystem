@@ -1,0 +1,113 @@
+﻿@model WorkTrackingSystem.Models.Employee
+
+@{
+    ViewData["Title"] = "Chỉnh sửa nhân viên";
+    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+}
+
+<h2 class="mb-4 text-primary text-center">Chỉnh sửa thông tin nhân viên</h2>
+
+
+<div class="card shadow p-4">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div class="row">
+        <!-- Cột bên trái: Hiển thị avatar -->
+        <div class="col-md-4 text-center">
+            <img src="@Model.Avatar" alt="Avatar" class="img-fluid rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover;" />
+            <input type="file" class="form-control mt-3" asp-for="Avatar" />
+            <span asp-validation-for="Avatar" class="text-danger"></span>
+            <input type="hidden" value="@Model.Avatar" name="img" class="form-control" />
+        </div>
+
+        <!-- Cột bên phải: Form nhập thông tin -->
+        <div class="col-md-8">
+           @*  <form asp-action="Edit" method="post" enctype="multipart/form-data"> *@
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="DepartmentId" />
+                <input type="hidden"  asp-for="PositionId"/>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Code" class="form-label fw-bold"></label>
+                            <p>@Model.Code</p>
+                            <input type="hidden" asp-for="Code" />
+                            @* <input asp-for="Code" class="form-control" />
+                            <span asp-validation-for="Code" class="text-danger"></span> *@
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="FirstName" class="form-label fw-bold"></label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="LastName" class="form-label fw-bold"></label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Gender" class="form-label fw-bold"></label>
+                            <select asp-for="Gender" class="form-select">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Birthday" class="form-label fw-bold"></label>
+                            <input asp-for="Birthday" type="date" class="form-control" />
+                            <span asp-validation-for="Birthday" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Phone" class="form-label fw-bold"></label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="form-label fw-bold"></label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Address" class="form-label fw-bold"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="HireDate" class="form-label fw-bold"></label>
+                       
+                        <p class="form-control-plaintext">
+                        @(Model.CreateDate.HasValue ? Model.CreateDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "Chưa có dữ liệu")
+                        </p>
+                         <input type="hidden" asp-for="HireDate" />
+                        </div>
+                       
+
+                        <div class="form-group mb-3">
+                            <label asp-for="CreateDate" class="form-label fw-bold"></label>
+                            <p class="form-control-plaintext">@Model.CreateDate?.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                            <input type="hidden" asp-for="CreateDate" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end mt-3">
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            @* </form> *@
+        </div>
+    </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

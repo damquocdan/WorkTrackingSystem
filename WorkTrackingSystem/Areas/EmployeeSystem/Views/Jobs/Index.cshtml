@@ -1,0 +1,255 @@
+﻿@using WorkTrackingSystem.Areas.EmployeeSystem.Models
+@using X.PagedList.Mvc.Core
+@* @model X.PagedList.IPagedList<WorkTrackingSystem.Models.Score> *@
+	@model X.PagedList.IPagedList<WorkTrackingSystem.Areas.EmployeeSystem.Models.JobViewModel>
+@{
+	ViewData["Title"] = "Danh sách công việc";
+	Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
+}
+
+<h2 class="text-primary text-center py-4">Danh sách Công Việc</h2>
+<div class="row mb-3">
+	<!-- Lọc theo khoảng thời gian Deadline -->
+	<div class="col-md-4">
+		<form method="get">
+			<div class="input-group">
+				<input type="date" name="deadlineStartDate" class="form-control" value="@ViewBag.DeadlineStartDate" placeholder="Deadline từ">
+				<input type="date" name="deadlineEndDate" class="form-control" value="@ViewBag.DeadlineEndDate" placeholder="Deadline đến">
+				<button type="submit" class="btn btn-warning">📅 Lọc Deadline</button>
+			</div>
+		</form>
+	</div>
+	<!-- Lọc theo khoảng thời gian -->
+	<div class="col-md-4">
+		<form method="get">
+			<div class="input-group">
+				<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" placeholder="Từ ngày">
+				<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" placeholder="Đến ngày">
+				<button type="submit" class="btn btn-success">🔍 Hoàn thành từ</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Thanh công cụ tìm kiếm và bộ lọc -->
+
+<div class="row   mb-3">
+	<!-- Ô tìm kiếm -->
+	<div class="col-md-2">
+		<input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm kiếm công việc..." value="@ViewBag.SearchTerm">
+	</div>
+	<!-- Lọc theo tháng -->
+	<div class="col-md-3">
+		<form method="get">
+			<div class="input-group">
+				<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
+				<button type="submit" class="btn btn-primary">📅 Deadline theo tháng</button>
+			</div>
+		</form>
+	</div>
+
+	<!-- Bộ lọc trạng thái -->
+	<div class="col-md-2">
+		<select id="filterStatus" class="form-select">
+			<option value="">Tất cả trạng thái</option>
+			<option value="1"> Hoàn thành</option>
+			<option value="2">Chưa hoàn thành</option>
+			<option value="3"> Hoàn thành muộn</option>
+			<option value="4">Đang xử lý</option>
+			<option value="0"> Chưa bắt đầu</option>
+		</select>
+	</div>
+</div>
+<table class="table table-bordered table-hover shadow">
+	<thead class="table-primary text-center">
+		<tr>
+			<th>Hạng mục</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().JobName)</th>
+			<th>@Html.DisplayNameFor(Model => Model.FirstOrDefault().Deadline)</th>
+			<th>Ngày hoàn thiện</th>
+			<th>Trạng thái</th>
+			<th>Tiến độ </th>
+
+		</tr>
+	</thead>
+	<tbody id="jobTable">
+		@foreach (var item in Model)
+		{
+			<tr class="job-row" data-status="@item.ScoreStatus">
+				<td>@item.CategoryName</td>
+				<td class="job-name">@item.JobName</td>
+				<td>@item.Deadline?.ToString("dd/MM/yyyy")</td>
+				<td class="text-center">
+					@if (item.Progress == 100 && item.CompletionDate.HasValue)
+					{
+						@item.CompletionDate.Value.ToString("dd/MM/yyyy")
+					}
+					else
+					{
+						<text>-</text> <!-- Hiển thị dấu "-" nếu công việc chưa hoàn thành -->
+					}
+				</td>
+				<td class="text-center">
+					<span>
+						@if (item.ScoreStatus == 1)
+						{
+							<text>Hoàn thành</text>
+						}
+						else if (item.ScoreStatus == 2)
+						{
+							<text>Chưa hoàn thành</text>
+						}
+						else if (item.ScoreStatus == 3)
+						{
+							<text>Hoàn thành muộn</text>
+						}
+						else if (item.ScoreStatus == 4)
+						{
+							<text>Đang xử lý</text>
+						}
+						else
+						{
+							<text>Chưa bắt đầu</text>
+						}
+					</span>
+				</td>
+				<td class="text-center">
+					<input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
+					<span class="progress-value">@item.Progress%</span>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+@if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
+{
+	@Html.PagedListPager(Model, page => Url.Action("Index", new
+		{
+			page = page,
+			filterStatus = ViewBag.FilterStatus,
+			searchTerm = ViewBag.SearchTerm,
+			selectedMonth = ViewBag.SelectedMonth,
+			startDate = ViewBag.StartDate,
+			endDate = ViewBag.EndDate,
+			deadlineStartDate = ViewBag.deadlineStartDate,
+			deadlineEndDate = ViewBag.deadlineEndDate
+		}), new PagedListRenderOptions
+{
+	LiElementClasses = new string[] { "page-item" },
+	PageClasses = new string[] { "page-link" },
+	DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+	DisplayLinkToLastPage = PagedListDisplayMode.Always,
+	DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+	DisplayLinkToNextPage = PagedListDisplayMode.Always,
+	DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+	MaximumPageNumbersToDisplay = 5
+})
+}
+@section Scripts {
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			let searchBox = document.getElementById('searchBox');
+			let filterStatus = document.getElementById('filterStatus');
+
+			// Lấy giá trị searchTerm từ ViewBag và kiểm tra null
+			let searchTermFromViewBag = "@(ViewBag.SearchTerm ?? "")";
+			let filterStatusFromViewBag = "@(ViewBag.FilterStatus ?? "")";
+
+			searchBox.value = searchTermFromViewBag;
+			filterStatus.value = filterStatusFromViewBag;
+
+			function applyFilters() {
+				let searchTerm = searchBox.value.trim();
+				let selectedStatus = filterStatus.value;
+				let url = new URL(window.location.href);
+				url.searchParams.set("searchTerm", searchTerm);
+				url.searchParams.set("filterStatus", selectedStatus);
+				console.log("fiter", selectedStatus)
+				url.searchParams.set("page", 1); // Reset về trang 1 sau khi lọc
+				window.location.href = url.toString();
+			}
+
+			// Gửi request khi nhập từ khóa và nhấn Enter
+			searchBox.addEventListener("keypress", function (event) {
+				if (event.key === "Enter") {
+					event.preventDefault(); // Ngăn chặn reload trang không cần thiết
+					applyFilters();
+				}
+			});
+
+			// Gửi request khi thay đổi trạng thái
+			filterStatus.addEventListener("change", applyFilters);
+			document.addEventListener('DOMContentLoaded', function () {
+				let deadlineStart = document.querySelector('input[name="deadlineStartDate"]');
+				let deadlineEnd = document.querySelector('input[name="deadlineEndDate"]');
+
+				function applyDeadlineFilter() {
+					let url = new URL(window.location.href);
+					url.searchParams.set("deadlineStartDate", deadlineStart.value);
+					url.searchParams.set("deadlineEndDate", deadlineEnd.value);
+					url.searchParams.set("page", 1);
+					window.location.href = url.toString();
+				}
+
+				deadlineStart.addEventListener("change", applyDeadlineFilter);
+				deadlineEnd.addEventListener("change", applyDeadlineFilter);
+			});
+
+			// Cập nhật tiến độ và trạng thái
+			document.querySelectorAll('.progress-slider').forEach(slider => {
+				slider.addEventListener('input', function () {
+					let jobId = parseInt(this.dataset.jobId);
+					let progress = parseFloat(this.value);
+					this.nextElementSibling.textContent = progress + '%';
+
+					fetch('/EmployeeSystem/Jobs/UpdateProgress', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ id: jobId, progress: progress })
+					})
+						.then(response => response.json())
+						.then(data => {
+							if (data.success) {
+								console.log("Cập nhật tiến độ thành công!");
+
+								// 🔥 Tìm hàng công việc đúng cách 🔥
+								let slider = document.querySelector(`.progress-slider[data-job-id="${jobId}"]`);
+								let row = slider ? slider.closest('.job-row') : null;  // Tìm thẻ <tr> cha
+								if (row) {
+									let statusSpan = row.querySelector("td:nth-child(5) span");
+									if (statusSpan) {
+										let newStatus = data.newStatus;
+										statusSpan.textContent = newStatus === 1 ? "Hoàn thành"
+											: newStatus === 2 ? "Chưa hoàn thành"
+												: newStatus === 3 ? "Hoàn thành muộn"
+													: newStatus === 4 ? "Đang xử lý"
+														: "Chưa bắt đầu";
+										// Cập nhật `data-status`
+										row.setAttribute('data-status', newStatus);
+
+									} else {
+										console.warn(`Không tìm thấy phần tử trạng thái trong hàng có jobId = ${jobId}`);
+									}
+									let completionDateCell = row.querySelector("td:nth-child(4)");
+									if (completionDateCell) {
+										if (progress === 100 && data.completionDate) {
+											completionDateCell.textContent = data.completionDate;
+										} else {
+											completionDateCell.textContent = "-";
+										}
+									}
+								} else {
+									console.warn(`Không tìm thấy hàng công việc cho jobId = ${jobId}`);
+								}
+							} else {
+								console.error("Lỗi cập nhật:", data.message);
+							}
+						})
+						.catch(error => console.error('Lỗi:', error));
+				});
+			});
+		});
+	</script>
+}
+
+

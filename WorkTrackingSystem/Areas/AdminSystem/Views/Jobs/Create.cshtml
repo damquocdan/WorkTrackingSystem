@@ -1,0 +1,83 @@
+﻿@model WorkTrackingSystem.Models.Job
+
+@{
+    ViewData["Title"] = "Tạo công việc";
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+}
+
+<h1 class="text-center mb-4 text-primary">🚀 Tạo công việc mới</h1>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Thông tin công việc</h5>
+                </div>
+              @*   <div class="card-body">
+                    <form asp-action="Create">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="EmployeeId" class="form-label"><i class="fas fa-user-tie me-2"></i>Nhân viên</label>
+                            <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.EmployeeId">
+                                <option value="">-- Chọn nhân viên --</option>
+                            </select>
+                            <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CategoryId" class="form-label"><i class="fas fa-list-ul me-2"></i>Danh mục</label>
+                            <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                                <option value="">-- Chọn danh mục --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"><i class="fas fa-briefcase me-2"></i>Tên công việc</label>
+                            <input asp-for="Name" class="form-control" placeholder="Nhập tên công việc..." />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"><i class="fas fa-align-left me-2"></i>Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Mô tả công việc..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label"><i class="fas fa-info-circle me-2"></i>Trạng thái</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="0"> Mới</option>
+                                <option value="1">Đang thực hiện</option>
+                                <option value="2"> Hoàn thành</option>
+                                <option value="3"> Tạm dừng</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Time" class="form-label"><i class="far fa-calendar-alt me-2"></i>Thời gian hoàn thành</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="far fa-clock"></i></span>
+                                <input asp-for="Time" class="form-control" type="datetime-local" />
+                            </div>
+                            <span asp-validation-for="Time" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>Lưu công việc</button>
+                            <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Quay lại danh sách</a>
+                        </div>
+                    </form>
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script> @* Thay YOUR_KIT_CODE bằng mã FontAwesome Kit của bạn *@
+}
