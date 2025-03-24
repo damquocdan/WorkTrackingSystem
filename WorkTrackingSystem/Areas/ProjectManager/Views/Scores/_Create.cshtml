@@ -1,52 +1,92 @@
 ﻿@model WorkTrackingSystem.Models.Score
 
-@{
-    ViewData["Title"] = "Create";
-}
+<div class="modal-content">
+    <form asp-action="Create" method="post" id="createScoreForm">
+        <div class="modal-header">
+            <h2 class="text-center">Giao công việc cho người khác</h2>
+            <button type="button" class="close" onclick="closeDetailSection()">×</button>
+        </div>
 
-<h1>Create</h1>
-
-<h4>Score</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+        <div class="modal-body">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Id" class="control-label"></label>
-                <input asp-for="Id" class="form-control" />
-                <span asp-validation-for="Id" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="JobMapEmployeeId" class="control-label"></label>
-                <select asp-for="JobMapEmployeeId" class ="form-control" asp-items="ViewBag.JobMapEmployeeId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Progress" class="control-label"></label>
-                <input asp-for="Progress" class="form-control" />
-                <span asp-validation-for="Progress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Time" class="control-label"></label>
-                <input asp-for="Time" class="form-control" />
-                <span asp-validation-for="Time" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+            <input asp-for="Id" hidden />
+            <input asp-for="Status" value="0" hidden />
+            <input name="currentJobMapEmployeeId" value="@ViewBag.CurrentJobMapEmployeeId" hidden />
+
+            <div class="form-group">
+                <label class="control-label">Chọn nhân viên</label>
+                <select class="form-control" name="employeeId" id="employeeSelect" required>
+                    <option value="">-- Chọn nhân viên --</option>
+                    @foreach (var employee in ViewBag.EmployeeList)
+                    {
+                        <option value="@employee.Value">@employee.Text</option>
+                    }
+                </select>
+                <span class="text-danger" id="employeeSelectValidation"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Deadline 2</label>
+                <input type="date" class="form-control" name="deadline" id="deadlineInput" required />
+                <span class="text-danger" id="deadlineValidation"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Giao việc</button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            $('#createScoreForm').submit(function(e) {
+                e.preventDefault();
+
+                let isValid = true;
+                if (!$('#employeeSelect').val()) {
+                    $('#employeeSelectValidation').text('Vui lòng chọn nhân viên');
+                    isValid = false;
+                } else {
+                    $('#employeeSelectValidation').text('');
+                }
+
+                if (!$('#deadlineInput').val()) {
+                    $('#deadlineValidation').text('Vui lòng chọn deadline');
+                    isValid = false;
+                } else {
+                    $('#deadlineValidation').text('');
+                }
+
+                if (!isValid) return;
+
+                var formData = {
+                    employeeId: $('#employeeSelect').val(),
+                    deadline: $('#deadlineInput').val(),
+                    currentJobMapEmployeeId: $('input[name="currentJobMapEmployeeId"]').val()
+                };
+
+                $.ajax({
+                    url: '@Url.Action("Create")',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            $('#modalContainer .modal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(response.message || 'Có lỗi xảy ra');
+                        }
+                    },
+                    error: function() {
+                        alert('Có lỗi xảy ra khi giao việc');
+                    }
+                });
+            });
+        });
+    </script>
 }

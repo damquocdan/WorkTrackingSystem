@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
@@ -378,7 +379,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var score = await _context.Scores
-                .Include(s => s.JobMapEmployee)
+                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (score == null)
             {
@@ -392,30 +393,123 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Scores/Create
-        public IActionResult Create()
+        public IActionResult Create(int? currentJobMapEmployeeId)
         {
-            ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id");
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
 
+            var manager = _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Include(u => u.Employee)
+                .Select(u => u.Employee)
+                .FirstOrDefault();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var currentJobMapEmployee = _context.Jobmapemployees
+                .Include(j => j.Job)
+                .FirstOrDefault(j => j.Id == currentJobMapEmployeeId);
+
+            if (currentJobMapEmployee == null)
+            {
+                return BadRequest("Không tìm thấy công việc hiện tại");
+            }
+
+            var managedDepartments = _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+                .Select(d => d.Id)
+                .ToList();
+
+            var currentEmployeeId = currentJobMapEmployee.EmployeeId;
+            var employeesInManagedDepartments = _context.Employees
+                .Where(e => e.DepartmentId.HasValue &&
+                           managedDepartments.Contains(e.DepartmentId.Value) &&
+                           e.Id != currentEmployeeId)
+                .Select(e => new {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Code} {e.FirstName} {e.LastName}",
+                    Avatar = e.Avatar ?? "/images/default-avatar.png"
+                })
+                .ToList();
+
+            ViewBag.EmployeeList = employeesInManagedDepartments;
+            ViewBag.CurrentJobMapEmployeeId = currentJobMapEmployeeId;
+            // Truyền thêm Job để sử dụng Deadline1 trong view nếu cần
+            ViewBag.Job = currentJobMapEmployee.Job;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create");
+            }
             return View();
         }
 
-        // POST: ProjectManager/Scores/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,JobMapEmployeeId,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Progress,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Score score)
+        public async Task<IActionResult> Create(int employeeId, DateOnly deadline, int currentJobMapEmployeeId)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(score);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id", score.JobMapEmployeeId);
-            return View(score);
-        }
+            var currentJobMapEmployee = await _context.Jobmapemployees
+                .Include(j => j.Job)
+                .FirstOrDefaultAsync(j => j.Id == currentJobMapEmployeeId);
 
+            if (currentJobMapEmployee == null)
+            {
+                return BadRequest("Không tìm thấy công việc hiện tại");
+            }
+
+            // Tạo JobMapEmployee mới
+            var newJobMapEmployee = new Jobmapemployee
+            {
+                JobId = currentJobMapEmployee.JobId,
+                EmployeeId = employeeId,
+            };
+
+            _context.Jobmapemployees.Add(newJobMapEmployee);
+            await _context.SaveChangesAsync();
+
+            // Cập nhật deadline cho Job (gán vào Deadline2)
+            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == currentJobMapEmployee.JobId);
+            if (job != null)
+            {
+                if (job.Deadline2 == null)
+                {
+                    job.Deadline2 = deadline;
+                }
+                else if (job.Deadline3 == null)
+                {
+                    job.Deadline3 = deadline;
+                }
+                _context.Jobs.Update(job);
+            }
+
+            // Tạo Score mới với Time = Deadline1 của Job
+            var score = new Score
+            {
+                JobMapEmployeeId = newJobMapEmployee.Id,
+                Status = 0,
+                Time = job.Deadline1.HasValue ? DateTime.Parse(job.Deadline1.Value.ToString("yyyy-MM-dd")) : DateTime.Now, // Sử dụng Deadline1
+                CreateDate = DateTime.Now,
+                IsActive = true,
+                IsDelete = false
+            };
+
+            _context.Add(score);
+            await _context.SaveChangesAsync();
+
+            // Trả về JSON để AJAX xử lý
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true });
+            }
+
+            return RedirectToAction("Index");
+        }
         // GET: ProjectManager/Scores/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
@@ -482,7 +576,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var score = await _context.Scores
-                .Include(s => s.JobMapEmployee)
+                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (score == null)
             {
