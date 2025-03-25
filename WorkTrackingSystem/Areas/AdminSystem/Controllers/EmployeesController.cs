@@ -43,7 +43,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 			if (!string.IsNullOrEmpty(search))
 			{
 				var searchLower = search.ToLower();
-				query = query.Where(e => (e.FirstName + " " + e.LastName).ToLower().Contains(searchLower));
+				query = query.Where(e => (e.Code + " " + e.FirstName + " " + e.LastName).ToLower().Contains(searchLower));
 			}
 			if (!string.IsNullOrEmpty(search) && DepartmentId > 0)
 			{

@@ -4,81 +4,93 @@
     ViewData["Title"] = "Tạo Mới Nhân Viên";
 }
 
-<div class=" ">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="bi bi-person-plus"></i> Tạo Mới Nhân Viên</h1>
-        <a asp-action="Index" class="btn btn-close" aria-label="Đóng"></a>
-    </div>
+<div class="container py-4">
+    <div class="card shadow-lg rounded-4 border-0 position-relative p-4">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Đóng" onclick="window.location.href='@Url.Action("Index")'"></button>
+        <h4 class="text-primary text-center mb-4"><i class="bi bi-person-plus"></i> Tạo Mới Nhân Viên</h4>
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <h4>Nhân Viên</h4>
-    <hr />
-    <div class="row">
-        <div class="col-md-6">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="DepartmentId" class="control-label"><i class="bi bi-building"></i> Phòng Ban</label>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="DepartmentId" class="form-label"><i class="bi bi-building"></i> Phòng Ban</label>
                     <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.DepartmentId"></select>
                 </div>
-                <div class="form-group">
-                    <label asp-for="PositionId" class="control-label"><i class="bi bi-briefcase"></i> Chức Vụ</label>
+                <div class="col-md-6">
+                    <label asp-for="PositionId" class="form-label"><i class="bi bi-briefcase"></i> Chức Vụ</label>
                     <select asp-for="PositionId" class="form-control" asp-items="ViewBag.PositionId"></select>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Code" class="control-label"><i class="bi bi-code-slash"></i> Mã Nhân Viên</label>
+            </div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <label asp-for="Code" class="form-label"><i class="bi bi-code-slash"></i> Mã Nhân Viên</label>
                     <input asp-for="Code" class="form-control" />
                     <span asp-validation-for="Code" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="FirstName" class="control-label"><i class="bi bi-person"></i> Tên</label>
+                <div class="col-md-6">
+                    <label asp-for="FirstName" class="form-label"><i class="bi bi-person"></i> Tên</label>
                     <input asp-for="FirstName" class="form-control" />
                     <span asp-validation-for="FirstName" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="LastName" class="control-label"><i class="bi bi-person"></i> Họ</label>
+            </div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <label asp-for="LastName" class="form-label"><i class="bi bi-person"></i> Họ</label>
                     <input asp-for="LastName" class="form-control" />
                     <span asp-validation-for="LastName" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Gender" class="control-label"><i class="bi bi-gender-ambiguous"></i> Giới Tính</label>
+                <div class="col-md-6">
+                    <label asp-for="Gender" class="form-label"><i class="bi bi-gender-ambiguous"></i> Giới Tính</label>
                     <input asp-for="Gender" class="form-control" />
                     <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Birthday" class="control-label"><i class="bi bi-calendar-date"></i> Ngày Sinh</label>
+            </div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <label asp-for="Birthday" class="form-label"><i class="bi bi-calendar-date"></i> Ngày Sinh</label>
                     <input asp-for="Birthday" class="form-control" type="date" />
                     <span asp-validation-for="Birthday" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Phone" class="control-label"><i class="bi bi-telephone"></i> Số Điện Thoại</label>
+                <div class="col-md-6">
+                    <label asp-for="Phone" class="form-label"><i class="bi bi-telephone"></i> Số Điện Thoại</label>
                     <input asp-for="Phone" class="form-control" />
                     <span asp-validation-for="Phone" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Email" class="control-label"><i class="bi bi-envelope"></i> Email</label>
+            </div>
+
+            <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"><i class="bi bi-envelope"></i> Email</label>
                     <input asp-for="Email" class="form-control" />
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="HireDate" class="control-label"><i class="bi bi-calendar-check"></i> Ngày Tuyển Dụng</label>
+                <div class="col-md-6">
+                    <label asp-for="HireDate" class="form-label"><i class="bi bi-calendar-check"></i> Ngày Tuyển Dụng</label>
                     <input asp-for="HireDate" class="form-control" type="date" />
                     <span asp-validation-for="HireDate" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Address" class="control-label"><i class="bi bi-house"></i> Địa Chỉ</label>
-                    <input asp-for="Address" class="form-control" />
-                    <span asp-validation-for="Address" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Avatar" class="control-label"><i class="bi bi-image"></i> Ảnh Đại Diện</label>
-                    <input asp-for="Avatar" class="form-control" />
-                    <span asp-validation-for="Avatar" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Tạo Mới" class="btn btn-primary" />
-                </div>
-            </form>
-        </div>
+            </div>
+
+            <div class="mt-3">
+                <label asp-for="Address" class="form-label"><i class="bi bi-house"></i> Địa Chỉ</label>
+                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="mt-3">
+                <label asp-for="Avatar" class="form-label"><i class="bi bi-image"></i> Ảnh Đại Diện</label>
+                <input asp-for="Avatar" class="form-control" />
+                <span asp-validation-for="Avatar" class="text-danger"></span>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-save"></i> Tạo Mới</button>
+                <a asp-action="Index" class="btn btn-secondary mt-2 w-100 py-2"><i class="bi bi-arrow-left"></i> Quay lại</a>
+            </div>
+        </form>
     </div>
 </div>
 

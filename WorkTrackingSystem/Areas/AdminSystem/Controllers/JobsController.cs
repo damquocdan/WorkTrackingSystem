@@ -210,7 +210,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             if (!string.IsNullOrEmpty(search))
             {
 				var searchLower = search.ToLower();
-				jobs = jobs.Where(jm => jm.Job.Name.ToLower().Contains(search) );
+				jobs = jobs.Where(jm => jm.Job.Name.ToLower().Contains(search) || jm.Job.Category.Name.ToLower().Contains(search));
 				//employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)).ToList();
 			}
 

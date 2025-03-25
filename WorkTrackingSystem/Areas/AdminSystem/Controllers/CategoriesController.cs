@@ -113,6 +113,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 try
                 {
+
                     _context.Update(category);
                     await _context.SaveChangesAsync();
                 }
