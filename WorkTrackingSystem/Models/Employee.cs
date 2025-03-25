@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace WorkTrackingSystem.Models​;
 
@@ -7,43 +8,60 @@ public partial class Employee
 {
     public long Id { get; set; }
 
-    public long? DepartmentId { get; set; }
+	[Display(Name = "Mã phòng ban")]
+	public long? DepartmentId { get; set; }
 
-    public long? PositionId { get; set; }
+	[Display(Name = "Mã vị trí")]
+	public long? PositionId { get; set; }
 
-    public string Code { get; set; } = null!;
+	[Display(Name = "Mã nhân viên")]
+	public string Code { get; set; } = null!;
 
-    public string? FirstName { get; set; }
+	[Display(Name = "Họ")]
+	public string? FirstName { get; set; }
 
-    public string? LastName { get; set; }
+	[Display(Name = "Tên")]
+	public string? LastName { get; set; }
 
-    public string? Gender { get; set; }
+	[Display(Name = "Giới tính")]
+	public string? Gender { get; set; }
 
-    public DateOnly? Birthday { get; set; }
+	[Display(Name = "Ngày sinh")]
+	public DateOnly? Birthday { get; set; }
 
-    public string? Phone { get; set; }
+	[Display(Name = "Số điện thoại")]
+	public string? Phone { get; set; }
 
-    public string? Email { get; set; }
+	[Display(Name = "Email")]
+	public string? Email { get; set; }
 
-    public DateOnly? HireDate { get; set; }
+	[Display(Name = "Ngày vào làm")]
+	public DateOnly? HireDate { get; set; }
 
-    public string? Address { get; set; }
+	[Display(Name = "Địa chỉ")]
+	public string? Address { get; set; }
 
-    public string? Avatar { get; set; }
+	[Display(Name = "Ảnh đại diện")]
+	public string? Avatar { get; set; }
 
-    public bool? IsDelete { get; set; }
+	[Display(Name = "Đã xóa?")]
+	public bool? IsDelete { get; set; }
 
-    public bool? IsActive { get; set; }
+	[Display(Name = "Hoạt động?")]
+	public bool? IsActive { get; set; }
 
-    public DateTime? CreateDate { get; set; }
+	[Display(Name = "Ngày tạo")]
+	public DateTime? CreateDate { get; set; }
 
-    public DateTime? UpdateDate { get; set; }
+	[Display(Name = "Ngày cập nhật")]
+	public DateTime? UpdateDate { get; set; }
 
-    public string? CreateBy { get; set; }
+	[Display(Name = "Người tạo")]
+	public string? CreateBy { get; set; }
 
-    public string? UpdateBy { get; set; }
-
-    public virtual ICollection<Analysis> Analyses { get; set; } = new List<Analysis>();
+	[Display(Name = "Người cập nhật")]
+	public string? UpdateBy { get; set; }
+	public virtual ICollection<Analysis> Analyses { get; set; } = new List<Analysis>();
 
     public virtual ICollection<Baselineassessment> Baselineassessments { get; set; } = new List<Baselineassessment>();
 
