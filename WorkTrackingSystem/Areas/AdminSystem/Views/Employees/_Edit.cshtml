@@ -6,9 +6,11 @@
 
 <div class="container mt-4">
     <div class="card p-3 shadow-lg">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Đóng" onclick="window.location.href='@Url.Action("Index")'"></button>
+               
         <h4 class="text-primary text-center">Chỉnh sửa nhân viên</h4>
-        
+        <button class="btn btn-danger" onclick="closeDetailSection()" style="width: 11%; position: absolute; right: 15;">
+            <i class="bi bi-x-circle"></i>
+        </button>
         <div class="text-center">
             <img src="@Model.Avatar" class="rounded-circle shadow"
                  style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #007bff;" alt="Avatar" />

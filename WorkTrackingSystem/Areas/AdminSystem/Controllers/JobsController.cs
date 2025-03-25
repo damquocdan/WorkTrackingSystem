@@ -527,37 +527,34 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 			}
 		}
 
-		//// GET: ProjectManager/Jobs/Details/5
-		//public async Task<IActionResult> Details(long? id)
-		//{
-		//    if (id == null)
-		//    {
-		//        return NotFound();
-		//    }
+		// GET: ProjectManager/Jobs/Details/5
+		public async Task<IActionResult> Details(long? id)
+		{
+			if (id == null)
+			{
+				return NotFound();
+			}
 
-		//    var job = await _context.Jobs
-		//        .Include(j => j.Category)
-		//        .Include(j => j.Employee) // Include Employee nếu có
-		//        .FirstOrDefaultAsync(m => m.Id == id);
+			var job = await _context.Jobs
+				.Include(j => j.Category)
+				// Include Employee nếu có
+				.FirstOrDefaultAsync(m => m.Id == id);
 
-		//    if (job == null)
-		//    {
-		//        return NotFound();
-		//    }
+			if (job == null)
+			{
+				return NotFound();
+			}
 
-		//    // Kiểm tra nếu EmployeeId là null
-		//    if (job.EmployeeId == null)
-		//    {
-		//        ViewBag.JobStatus = "Công việc chưa được giao";
-		//    }
+			// Kiểm tra nếu EmployeeId là null
+			
 
-		//    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-		//    {
-		//        return PartialView("_Details", job);
-		//    }
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_Details", job);
+			}
 
-		//    return View(job);
-		//}
+			return View(job);
+		}
 
 
 

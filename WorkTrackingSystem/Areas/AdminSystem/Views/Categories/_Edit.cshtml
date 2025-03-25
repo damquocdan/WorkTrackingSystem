@@ -6,7 +6,9 @@
 
 <div class="container py-4">
     <div class="card shadow-lg rounded-4 border-0 position-relative p-3">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Đóng" onclick="window.location.href='@Url.Action("Index")'"></button>
+        <button class="btn btn-danger" onclick="closeDetailSection()" style="width: 11%; position: absolute; right: 15;">
+            <i class="bi bi-x-circle"></i>
+        </button>
         <h4 class="text-primary text-center"><i class="bi bi-pencil-square"></i> Chỉnh sửa Hạng Mục</h4>
         <hr />
         <form asp-action="Edit" method="post" asp-area="AdminSystem" asp-controller="Categories">
