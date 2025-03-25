@@ -12,20 +12,20 @@
         <button class="btn btn-danger" onclick="closeDetailSection()">Đóng</button>
     </div>
     <hr />
-    <div class="text-center mb-3">
-        <img src="@Model.Avatar" alt="Avatar" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #ddd;">
-    </div>
+
     <div class="row">
-        <div class="col-md-6">
-            <p><strong>Mã nhân viên:</strong> @Model.Code</p>
-            <p><strong>Họ:</strong> @Model.LastName</p>
-            <p><strong>Tên:</strong> @Model.FirstName</p>
+        <div class="col-md-4">
+            <div class="text-center mb-3">
+                <img src="@Model.Avatar" alt="Avatar" class="rounded-circle" style="width: 100%; border: 3px solid #ddd;">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <p><strong>Nhân viên:</strong> @Model.Code - @Model.LastName @Model.FirstName</p>
             <p><strong>Giới tính:</strong> @Model.Gender</p>
             <p><strong>Ngày sinh:</strong> @Model.Birthday</p>
+            <p><strong>TT liên lạc:</strong> @Model.Phone - @Model.Email</p>
         </div>
-        <div class="col-md-6">
-            <p><strong>Số điện thoại:</strong> @Model.Phone</p>
-            <p><strong>Email:</strong> @Model.Email</p>
+        <div class="col-md-4">
             <p><strong>Ngày vào làm:</strong> @Model.HireDate</p>
             <p><strong>Địa chỉ:</strong> @Model.Address</p>
             <p><strong>Phòng ban:</strong> @Model.Department?.Name</p>
