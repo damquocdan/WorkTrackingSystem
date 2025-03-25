@@ -134,7 +134,7 @@
                             <th>Thời gian làm việc</th>
                             <th>Ngày h.thành</th>
                             <th>Tổng đ.giá</th>
-                            <th>
+                            <th width="100px">
                                 <form asp-action="ExportToExcel" method="get">
                                     <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
                                     <input type="hidden" name="status" value="@Context.Request.Query["status"]" />
@@ -143,7 +143,7 @@
                                     <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
                                     <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
                                     <button type="submit" class="btn btn-success">
-                                        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                                        <i class="bi bi-file-earmark-excel"></i> Excel
                                     </button>
                                 </form>
                             </th>
@@ -175,12 +175,12 @@
                                 <td>@item.JobMapEmployee.Job.Category.Name</td>
                                 <td>@item.JobMapEmployee.Job.Name</td>
                                 <td>
-                                    <span class="badge
+                                    <span class=" badge
                                         @(item.Status == 1 ? "bg-success" :
                                         item.Status == 2 ? "bg-warning" :
                                         item.Status == 3 ? "bg-danger" :
                                         item.Status == 4 ? "bg-primary" :
-                                        "bg-secondary")">
+                                        "bg-secondary") " style="padding:10px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
