@@ -20,12 +20,58 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Employees
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm, int? positionId)
         {
-            var workTrackingSystemContext = _context.Employees.Include(e => e.Department).Include(e => e.Position);
-            return View(await workTrackingSystemContext.ToListAsync());
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            var employeesQuery = _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value)
+                            && (e.IsDelete == false || e.IsDelete == null));
+
+            if (positionId.HasValue && positionId > 0)
+            {
+                employeesQuery = employeesQuery.Where(e => e.PositionId == positionId.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                searchTerm = searchTerm.Trim().ToLower();
+                employeesQuery = employeesQuery.Where(e =>
+                    e.Code.ToLower().Contains(searchTerm) ||
+                    (e.FirstName != null && e.FirstName.ToLower().Contains(searchTerm)) ||
+                    (e.LastName != null && e.LastName.ToLower().Contains(searchTerm)));
+            }
+
+            var employees = await employeesQuery.ToListAsync();
+            ViewBag.Positions = await _context.Positions.ToListAsync();
+            return View(employees);
         }
 
+        // GET: ProjectManager/Employees/Details/5
+        // GET: ProjectManager/Employees/Details/5
+        // GET: ProjectManager/Employees/Details/5
         // GET: ProjectManager/Employees/Details/5
         public async Task<IActionResult> Details(long? id)
         {
@@ -38,9 +84,25 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Include(e => e.Department)
                 .Include(e => e.Position)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (employee == null)
             {
                 return NotFound();
+            }
+
+            // Lấy danh sách công việc liên quan đến nhân viên và lưu vào ViewBag
+            var jobMaps = await _context.Jobmapemployees
+                .Where(jm => jm.EmployeeId == id && jm.IsDelete != true)
+                .Include(jm => jm.Job)
+                    .ThenInclude(j => j.Category)
+                .Include(jm => jm.Scores)
+                .ToListAsync();
+
+            ViewBag.JobMaps = jobMaps;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", employee);
             }
 
             return View(employee);

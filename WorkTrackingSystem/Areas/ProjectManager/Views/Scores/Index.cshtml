@@ -141,7 +141,7 @@
                             <input type="hidden" name="dueToday" value="@Context.Request.Query["dueToday"]" />
                             <input type="hidden" name="sortOrder" value="@Context.Request.Query["sortOrder"]" />
                             <input type="hidden" name="month" value="@Context.Request.Query["month"]" />
-                            <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</button>
+                            <button type="submit" class="btn btn-success"><i class="bi bi-file-earmark-excel"></i>Excel</button>
                         </form>
                     </th>
                 </tr>
@@ -173,13 +173,13 @@
                             @switch (item.Status)
                             {
                                 case 1:
-                                    <span class="text-bold">Hoàn thành</span> @Html.DisplayFor(modelItem => item.CompletionDate)
+                                    <span class="text-bold">Hoàn thành</span>
                                     break;
                                 case 2:
                                     <span class="text-bold">Chưa hoàn thành</span>
                                     break;
                                 case 3:
-                                    <span class="text-bold">Hoàn thành muộn</span> @Html.DisplayFor(modelItem => item.CompletionDate)
+                                    <span class="text-bold">Hoàn thành muộn</span>
                                     break;
                                 case 4:
                                     <span class="text-bold">Đang xử lý</span>
