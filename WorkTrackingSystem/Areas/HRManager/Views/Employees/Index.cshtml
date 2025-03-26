@@ -8,6 +8,9 @@
 <div class="row">
 	<div class="col-md-12" id="list-section">
 		<h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1>
+		<p>
+			<a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>
+		</p>
 		<div class="row mb-2">
 			<div class="col-lg-9 col-md-9 col-sm-12">
 				<form asp-controller="Employees" asp-action="Index" method="get" class="row">
