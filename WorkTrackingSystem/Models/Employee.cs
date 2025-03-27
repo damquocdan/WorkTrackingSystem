@@ -11,7 +11,7 @@ public partial class Employee
 	[Display(Name = "Mã phòng ban")]
 	public long? DepartmentId { get; set; }
 
-	[Display(Name = "Mã vị trí")]
+	[Display(Name = "Mã chức vụ")]
 	public long? PositionId { get; set; }
 
 	[Display(Name = "Mã nhân viên")]
