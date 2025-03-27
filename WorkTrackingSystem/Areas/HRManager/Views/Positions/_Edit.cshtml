@@ -1,7 +1,7 @@
 ﻿@model WorkTrackingSystem.Models.Position
 
 @{
-    ViewData["Title"] = "Chỉnh sửa vị trí";
+    ViewData["Title"] = "Chỉnh sửa chức vụ";
  
 }
 
@@ -10,14 +10,14 @@
         <button class="close" onclick="closeDetailSection()" style=" position: absolute; right: 20px;">
             ×
         </button>
-        <h4 class="text-primary text-center"><i class="bi bi-pencil-square"></i> Chỉnh sửa Vị Trí</h4>
+        <h4 class="text-primary text-center"><i class="bi bi-pencil-square"></i> Chỉnh sửa chức vụ</h4>
         <hr />
         <form asp-action="Edit" method="post" asp-area="HRManager" asp-controller="Positions">
             <input type="hidden" asp-for="Id" />
 
             <div class="row mt-3">
                 <div class="col-md-6">
-                    <label asp-for="Name" class="form-label"><i class="bi bi-tag"></i> Tên Vị Trí</label>
+                    <label asp-for="Name" class="form-label"><i class="bi bi-tag"></i> Tên chức vụ</label>
                     <input asp-for="Name" class="form-control" />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>

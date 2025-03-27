@@ -28,128 +28,240 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // GET: AdminSystem/Jobs
+        //public async Task<IActionResult> Index(
+        //         int? page,
+        //         string searchText = null,
+        //         int? status = null,
+        //         int? categoryId = null,
+        //         bool dueToday = false,
+        //         string sortOrder = null,
+        //         string month = null,
+        //         bool showCompletedZeroReview = false)
+        //            {
+        //    int limit = 10;
+        //    int pageIndex = page ?? 1;
+        //    var assignedEmployees = await _context.Jobmapemployees
+        //                             .Where(j => j.EmployeeId.HasValue)
+        //                             .Select(j => new
+        //                             {
+        //                                 Value = j.EmployeeId,
+        //                                 Text = $"{j.Employee.Code} - {j.Employee.FirstName} {j.Employee.LastName}", 
+        //                                 Avatar = j.Employee.Avatar ?? "/images/default-avatar.png"
+        //                             })
+        //                             .Distinct()
+        //                             .ToListAsync();
+
+        //    ViewBag.EmployeeList = assignedEmployees;
+        //    var jobs = _context.Jobmapemployees
+        //        .Include(j => j.Job)
+        //        .ThenInclude(js => js.Category)
+        //        .Include(j => j.Scores)
+        //        .Include(j => j.Employee)
+        //        .Where(j => j.IsActive == true &&
+        //        ((j.EmployeeId.HasValue && assignedEmployees.Select(e => e.Value).Contains(j.EmployeeId.Value))
+        //        || (j.EmployeeId == null)));
+
+        //    // Tìm kiếm theo từ khóa
+        //    if (!string.IsNullOrEmpty(searchText))
+        //    {
+        //        jobs = jobs.Where(j =>
+        //            j.Employee != null && j.IsDelete==false&& j.IsActive==true&&
+        //            (j.Employee.Code.Contains(searchText) ||
+        //             j.Employee.FirstName.Contains(searchText) ||
+        //             j.Employee.LastName.Contains(searchText) ||
+        //             j.Job.Name.Contains(searchText)));
+        //    }
+
+        //    // Lọc theo trạng thái công việc
+        //    if (status.HasValue)
+        //    {
+        //        jobs = jobs.Where(j => j.Scores.Any(s => s.Status == status.Value));
+        //    }
+
+        //    // Lọc theo danh mục công việc
+        //    if (categoryId.HasValue)
+        //    {
+        //        jobs = jobs.Where(j => j.Job.CategoryId == categoryId.Value);
+        //    }
+
+        //    // Lọc công việc có hạn chót là hôm nay
+        //    if (dueToday)
+        //    {
+        //        jobs = jobs.Where(j => j.Scores.Any(s => s.Time.HasValue && s.Time.Value.Date == DateTime.Today));
+        //    }
+
+        //    // Lọc công việc đã hoàn thành nhưng chưa có đánh giá
+        //    if (showCompletedZeroReview)
+        //    {
+        //        jobs = jobs.Where(j => j.Scores.Any(s => (s.Status == 1 || s.Status == 3) && s.SummaryOfReviews == 0));
+        //    }
+
+        //    // Lọc theo tháng
+        //    if (!string.IsNullOrEmpty(month))
+        //    {
+        //        if (DateTime.TryParse($"{month}-01", out DateTime selectedMonth))
+        //        {
+        //            jobs = jobs.Where(j => j.Scores.Any(s =>
+        //                s.Time.HasValue &&
+        //                s.Time.Value.Year == selectedMonth.Year &&
+        //                s.Time.Value.Month == selectedMonth.Month));
+        //        }
+        //        else
+        //        {
+        //            TempData["Error"] = "Định dạng tháng không hợp lệ.";
+        //        }
+        //    }
+
+        //    // Sắp xếp danh sách công việc
+        //    switch (sortOrder)
+        //    {
+        //        case "due_asc":
+        //            jobs = jobs.OrderBy(j => j.Scores.OrderBy(s => s.Time).FirstOrDefault().Time);
+        //            break;
+        //        case "due_desc":
+        //            jobs = jobs.OrderByDescending(j => j.Scores.OrderByDescending(s => s.Time).FirstOrDefault().Time);
+        //            break;
+        //        case "review_asc":
+        //            jobs = jobs.OrderBy(j => j.Scores.OrderBy(s => s.SummaryOfReviews).FirstOrDefault().SummaryOfReviews);
+        //            break;
+        //        case "review_desc":
+        //            jobs = jobs.OrderByDescending(j => j.Scores.OrderByDescending(s => s.SummaryOfReviews).FirstOrDefault().SummaryOfReviews);
+        //            break;
+        //        default:
+        //            jobs = jobs.OrderBy(j => j.EmployeeId == null ? 0 : 1).ThenByDescending(j => j.Id);
+        //            break;
+        //    }
+
+        //    // Đưa dữ liệu vào ViewBag
+        //    ViewBag.SearchText = searchText;
+        //    ViewBag.Status = status;
+        //    ViewBag.CategoryId = categoryId;
+        //    ViewBag.DueToday = dueToday;
+        //    ViewBag.SortOrder = sortOrder;
+        //    ViewBag.Month = month;
+        //    ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
+
+        //    // Tính tổng số lượng công việc theo trạng thái
+        //    ViewData["TotalCompleted"] = await _context.Scores.CountAsync(s => s.Status == 1);
+        //    ViewData["TotalNotCompleted"] = await _context.Scores.CountAsync(s => s.Status == 2);
+        //    ViewData["TotalLate"] = await _context.Scores.CountAsync(s => s.Status == 3);
+        //    ViewData["TotalProcessing"] = await _context.Scores.CountAsync(s => s.Status == 4);
+
+        //    ViewData["Categories"] = await _context.Categories.ToListAsync();
+
+        //    return View(jobs.ToPagedList(pageIndex, limit));
+        //}
         public async Task<IActionResult> Index(
-                 int? page,
-                 string searchText = null,
-                 int? status = null,
-                 int? categoryId = null,
-                 bool dueToday = false,
-                 string sortOrder = null,
-                 string month = null,
-                 bool showCompletedZeroReview = false)
-                    {
-            int limit = 10;
-            int pageIndex = page ?? 1;
-            var assignedEmployees = await _context.Jobmapemployees
-                                     .Where(j => j.EmployeeId.HasValue)
-                                     .Select(j => new
-                                     {
-                                         Value = j.EmployeeId,
-                                         Text = $"{j.Employee.Code} - {j.Employee.FirstName} {j.Employee.LastName}", 
-                                         Avatar = j.Employee.Avatar ?? "/images/default-avatar.png"
-                                     })
-                                     .Distinct()
-                                     .ToListAsync();
+            int? page,
+            string searchText = "",
+            string month = "",
+            string status = "",
+            string categoryId = "",
+            string sortOrder = "",
+            bool showCompletedZeroReview = false,
+            bool dueToday = false,
+            long? jobId = null)
+        {
+            int pageSize = 5; // Số lượng công việc mỗi trang
+            int pageIndex = page ?? 1; // Trang hiện tại
 
-            ViewBag.EmployeeList = assignedEmployees;
-            var jobs = _context.Jobmapemployees
-                .Include(j => j.Job)
-                .ThenInclude(js => js.Category)
-                .Include(j => j.Scores)
-                .Include(j => j.Employee)
-                .Where(j => j.IsActive == true &&
-                ((j.EmployeeId.HasValue && assignedEmployees.Select(e => e.Value).Contains(j.EmployeeId.Value))
-                || (j.EmployeeId == null)));
+            // Lấy toàn bộ nhân viên
+            var employees = await _context.Employees
+                .Select(e => new {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Code} {e.FirstName} {e.LastName}",
+                    Avatar = e.Avatar ?? "/images/default-avatar.png"
+                })
+                .ToListAsync();
 
-            // Tìm kiếm theo từ khóa
+            ViewBag.EmployeeList = employees;
+            ViewData["Categories"] = await _context.Categories.ToListAsync();
+
+            // Lưu các tham số lọc vào ViewBag
+            ViewBag.SearchText = searchText;
+            ViewBag.Month = month;
+            ViewBag.Status = status;
+            ViewBag.CategoryId = categoryId;
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
+            ViewBag.DueToday = dueToday;
+
+            // Lấy danh sách JobId đã được gán cho nhân viên
+            var assignedJobIds = await _context.Jobmapemployees
+                .Where(jme => jme.EmployeeId != null)
+                .Select(jme => jme.JobId)
+                .Distinct()
+                .ToListAsync();
+
+            var scoresQuery = _context.Scores
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Employee)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Job)
+                        .ThenInclude(j => j.Category)
+                .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null);
+
+            // 1. Tìm kiếm theo mã / tên nhân viên / công việc
             if (!string.IsNullOrEmpty(searchText))
             {
-                jobs = jobs.Where(j =>
-                    j.Employee != null &&
-                    (j.Employee.Code.Contains(searchText) ||
-                     j.Employee.FirstName.Contains(searchText) ||
-                     j.Employee.LastName.Contains(searchText) ||
-                     j.Job.Name.Contains(searchText)));
+                searchText = searchText.ToLower();
+                scoresQuery = scoresQuery.Where(s =>
+                    (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.Code.ToLower().Contains(searchText)) ||
+                    (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.FirstName.ToLower().Contains(searchText)) ||
+                    (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.LastName.ToLower().Contains(searchText)) ||
+                    s.JobMapEmployee.Job.Name.ToLower().Contains(searchText));
             }
 
-            // Lọc theo trạng thái công việc
-            if (status.HasValue)
+            // 2. Lọc theo tháng
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
-                jobs = jobs.Where(j => j.Scores.Any(s => s.Status == status.Value));
+                scoresQuery = scoresQuery.Where(s => s.Time.HasValue &&
+                                                     s.Time.Value.Year == selectedMonth.Year &&
+                                                     s.Time.Value.Month == selectedMonth.Month);
             }
 
-            // Lọc theo danh mục công việc
-            if (categoryId.HasValue)
+            // 3. Lọc theo trạng thái
+            if (!string.IsNullOrEmpty(status) && byte.TryParse(status, out byte statusValue))
             {
-                jobs = jobs.Where(j => j.Job.CategoryId == categoryId.Value);
+                scoresQuery = scoresQuery.Where(s => s.Status == statusValue);
             }
 
-            // Lọc công việc có hạn chót là hôm nay
-            if (dueToday)
+            // 4. Lọc theo danh mục
+            if (!string.IsNullOrEmpty(categoryId) && long.TryParse(categoryId, out long catId))
             {
-                jobs = jobs.Where(j => j.Scores.Any(s => s.Time.HasValue && s.Time.Value.Date == DateTime.Today));
+                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == catId);
             }
 
-            // Lọc công việc đã hoàn thành nhưng chưa có đánh giá
+            // 5. Hiển thị công việc hoàn thành nhưng chưa đánh giá
             if (showCompletedZeroReview)
             {
-                jobs = jobs.Where(j => j.Scores.Any(s => (s.Status == 1 || s.Status == 3) && s.SummaryOfReviews == 0));
+                scoresQuery = scoresQuery.Where(s => s.Status == 1 && (!s.SummaryOfReviews.HasValue || s.SummaryOfReviews == 0));
             }
 
-            // Lọc theo tháng
-            if (!string.IsNullOrEmpty(month))
-            {
-                if (DateTime.TryParse($"{month}-01", out DateTime selectedMonth))
-                {
-                    jobs = jobs.Where(j => j.Scores.Any(s =>
-                        s.Time.HasValue &&
-                        s.Time.Value.Year == selectedMonth.Year &&
-                        s.Time.Value.Month == selectedMonth.Month));
-                }
-                else
-                {
-                    TempData["Error"] = "Định dạng tháng không hợp lệ.";
-                }
-            }
-
-            // Sắp xếp danh sách công việc
+            // 6. Sắp xếp theo sortOrder (nếu cần)
             switch (sortOrder)
             {
                 case "due_asc":
-                    jobs = jobs.OrderBy(j => j.Scores.OrderBy(s => s.Time).FirstOrDefault().Time);
+                    scoresQuery = scoresQuery.OrderBy(s => s.JobMapEmployee.Job.Deadline1);
                     break;
                 case "due_desc":
-                    jobs = jobs.OrderByDescending(j => j.Scores.OrderByDescending(s => s.Time).FirstOrDefault().Time);
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.JobMapEmployee.Job.Deadline1);
                     break;
                 case "review_asc":
-                    jobs = jobs.OrderBy(j => j.Scores.OrderBy(s => s.SummaryOfReviews).FirstOrDefault().SummaryOfReviews);
+                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews ?? 0);
                     break;
                 case "review_desc":
-                    jobs = jobs.OrderByDescending(j => j.Scores.OrderByDescending(s => s.SummaryOfReviews).FirstOrDefault().SummaryOfReviews);
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews ?? 0);
                     break;
                 default:
-                    jobs = jobs.OrderBy(j => j.EmployeeId == null ? 0 : 1).ThenByDescending(j => j.Id);
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.Time);
                     break;
             }
 
-            // Đưa dữ liệu vào ViewBag
-            ViewBag.SearchText = searchText;
-            ViewBag.Status = status;
-            ViewBag.CategoryId = categoryId;
-            ViewBag.DueToday = dueToday;
-            ViewBag.SortOrder = sortOrder;
-            ViewBag.Month = month;
-            ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
+            // 7. Phân trang dữ liệu
+            var pagedScores = scoresQuery.ToPagedList(pageIndex, pageSize);
 
-            // Tính tổng số lượng công việc theo trạng thái
-            ViewData["TotalCompleted"] = await _context.Scores.CountAsync(s => s.Status == 1);
-            ViewData["TotalNotCompleted"] = await _context.Scores.CountAsync(s => s.Status == 2);
-            ViewData["TotalLate"] = await _context.Scores.CountAsync(s => s.Status == 3);
-            ViewData["TotalProcessing"] = await _context.Scores.CountAsync(s => s.Status == 4);
-
-            ViewData["Categories"] = await _context.Categories.ToListAsync();
-
-            return View(jobs.ToPagedList(pageIndex, limit));
+            return View(pagedScores);
         }
         public IActionResult JobOfEmployee(string search, int? DepartmentId,int page = 1)
         {
@@ -527,38 +639,31 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 			}
 		}
 
-		// GET: ProjectManager/Jobs/Details/5
-		public async Task<IActionResult> Details(long? id)
-		{
-			if (id == null)
-			{
-				return NotFound();
-			}
+        // GET: ProjectManager/Jobs/Details/5
+        public async Task<IActionResult> Details(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-			var job = await _context.Jobs
-				.Include(j => j.Category)
-				// Include Employee nếu có
-				.FirstOrDefaultAsync(m => m.Id == id);
-
-			if (job == null)
-			{
-				return NotFound();
-			}
-
-			// Kiểm tra nếu EmployeeId là null
-			
-
-			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-			{
-				return PartialView("_Details", job);
-			}
-
-			return View(job);
-		}
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (score == null)
+            {
+                return NotFound();
+            }
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Details", score);
+            }
+            return View(score);
+        }
 
 
 
-		public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create()
 		{
 			var managerUsername = HttpContext.Session.GetString("AdminLogin");
 			if (string.IsNullOrEmpty(managerUsername))
