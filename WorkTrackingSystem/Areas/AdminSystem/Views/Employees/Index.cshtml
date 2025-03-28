@@ -48,7 +48,23 @@
 				{
 					<tr>
 						<td>@Html.DisplayFor(modelItem => item.Code) - @(item.FirstName + " " + item.LastName)</td>
-						<td>@Html.DisplayFor(modelItem => item.Gender)</td>
+						<td>
+							@switch (item.Gender)
+							{
+								case "Male":
+									<span>Nam</span>
+									break;
+								case "Female":
+									<span>Nữ</span>
+									break;
+								case "Other":
+									<span>Khác</span>
+									break;
+								default:
+									<span>Không xác định</span>
+									break;
+							}
+						</td>
 						<td class="birthday-column">@Html.DisplayFor(modelItem => item.Birthday)</td>
 						@* <td>@Html.DisplayFor(modelItem => item.Phone)</td> *@
 						<td class="email-column">@Html.DisplayFor(modelItem => item.Email)</td>

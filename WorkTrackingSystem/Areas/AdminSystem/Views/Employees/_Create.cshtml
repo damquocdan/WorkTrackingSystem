@@ -44,7 +44,11 @@
                 </div>
                 <div class="col-md-6">
                     <label asp-for="Gender" class="form-label"><i class="bi bi-gender-ambiguous"></i> Giới Tính</label>
-                    <input asp-for="Gender" class="form-control" />
+                    <select asp-for="Gender" class="form-control">
+                        <option value="Male">Nam</option>
+                        <option value="Female">Nữ</option>
+                        <option value="Other">Khác</option>
+                    </select>
                     <span asp-validation-for="Gender" class="text-danger"></span>
                 </div>
             </div>
