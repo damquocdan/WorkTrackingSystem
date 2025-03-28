@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
@@ -124,7 +125,138 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewData["Message"] = "Cập nhật thành công!";
             return View(model);
         }
+        public async Task<IActionResult> Edit(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+            ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
+            return View(employee);
+        }
 
+        // POST: EmployeeSystem/Employees/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(long id, [Bind("Id,DepartmentId,PositionId,Code,FirstName,LastName,Gender,Birthday,Phone,Email,HireDate,Address,Avatar,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Employee employee, string? img)
+        {
+            //employee.Department ??= new Department { Name = DepartmentName ?? "Chưa có dữ liệu" };
+            //employee.Position ??= new Position { Name = PositionName ?? "Chưa có dữ liệu" };
+            if (id != employee.Id)
+            {
+                return NotFound();
+            }
 
+            if (!ModelState.IsValid)
+            {
+                ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+                ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
+                return View(employee);
+            }
+
+            try
+            {
+                // Lấy UserId từ session
+                var userId = HttpContext.Session.GetString("AdminUserId");
+                if (string.IsNullOrEmpty(userId) || !long.TryParse(userId, out long idUser))
+                {
+                    return Unauthorized("User không hợp lệ.");
+                }
+
+                // Tìm user trong database
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == idUser);
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy thông tin người dùng.");
+                }
+
+                // Lấy nhân viên dựa vào UserId
+                var existingEmployee = await _context.Employees
+                    .Include(e => e.Department)
+                    .Include(e => e.Position)
+                    .FirstOrDefaultAsync(e => e.Id == id);
+
+                if (existingEmployee == null)
+                {
+                    return NotFound("Không tìm thấy thông tin nhân viên.");
+                }
+
+                // Cập nhật thông tin nhân viên
+                existingEmployee.FirstName = employee.FirstName;
+                existingEmployee.LastName = employee.LastName;
+                existingEmployee.Gender = employee.Gender;
+                existingEmployee.Birthday = employee.Birthday;
+                existingEmployee.Phone = employee.Phone;
+                existingEmployee.Email = employee.Email;
+                existingEmployee.HireDate = employee.HireDate;
+                existingEmployee.Address = employee.Address;
+                existingEmployee.DepartmentId = employee.DepartmentId;
+                existingEmployee.PositionId = employee.PositionId;
+                existingEmployee.IsActive = employee.IsActive;
+                existingEmployee.UpdateBy = employee.FirstName + " " + employee.LastName;
+                existingEmployee.UpdateDate = DateTime.Now;
+
+                // Xử lý avatar
+                var files = HttpContext.Request.Form.Files;
+                if (files.Count > 0 && files[0].Length > 0)
+                {
+                    var file = files[0];
+                    var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}"; // Đặt tên duy nhất
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+
+                    // Xóa ảnh cũ nếu có
+                    if (!string.IsNullOrEmpty(existingEmployee.Avatar))
+                    {
+                        var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", existingEmployee.Avatar.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath))
+                        {
+                            System.IO.File.Delete(oldPath);
+                        }
+                    }
+
+                    // Lưu ảnh mới
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    existingEmployee.Avatar = "/images/" + fileName;
+                }
+                else
+                {
+                    existingEmployee.Avatar = img;
+                }
+                //ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+                //ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
+                _context.Update(existingEmployee);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmployeeExists(employee.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        private bool EmployeeExists(long id)
+        {
+            return _context.Employees.Any(e => e.Id == id);
+        }
     }
 }

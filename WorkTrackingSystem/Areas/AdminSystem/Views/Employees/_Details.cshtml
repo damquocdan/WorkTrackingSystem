@@ -22,7 +22,24 @@
                 <div class="col-md-8">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><strong><i class="bi bi-code-square"></i> Mã nhân viên:</strong> @Model.Code</li>
-                        <li class="list-group-item"><strong><i class="bi bi-gender-ambiguous"></i> Giới tính:</strong> @Model.Gender</li>
+                        <li class="list-group-item">
+                            <strong><i class="bi bi-gender-ambiguous"></i> Giới tính:</strong>
+                            @switch (Model.Gender)
+                            {
+                                case "Male":
+                                    <text>Nam</text>
+                                    break;
+                                case "Female":
+                                    <text>Nữ</text>
+                                    break;
+                                case "Other":
+                                    <text>Khác</text>
+                                    break;
+                                default:
+                                    <text>Chưa cập nhật</text>
+                                    break;
+                            }
+                        </li>
                         <li class="list-group-item">
                             <strong><i class="bi bi-calendar-date"></i> Ngày sinh:</strong> @(Model.Birthday.HasValue ? Model.Birthday.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")
                         </li>

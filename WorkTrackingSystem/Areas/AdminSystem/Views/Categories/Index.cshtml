@@ -4,10 +4,17 @@
     ViewData["Title"] = "Quản lý Hạng Mục";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
-
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb float-sm-end bg-light">
+            <li class="breadcrumb-item">Admin</li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <h1 class="text-center"><i class="bi bi-list-ul"></i> Danh Sách Hạng Mục</h1>
+       
 
         <p>
             <a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")">
@@ -15,12 +22,12 @@
             </a>
         </p>
 
-        <table class="table table-striped table-bordered">
-            <thead>
+        <table class="table table-bordered table-hover ">
+            <thead class="table-dark text-white text-center">
                 <tr>
-                    <th><i class="bi bi-code-slash"></i> @Html.DisplayNameFor(model => model.Code)</th>
-                    <th><i class="bi bi-tag"></i> @Html.DisplayNameFor(model => model.Name)</th>
-                    <th><i class="bi bi-file-text"></i> @Html.DisplayNameFor(model => model.Description)</th>
+                    <th>@Html.DisplayNameFor(model => model.Code)</th>
+                    <th> @Html.DisplayNameFor(model => model.Name)</th>
+                    <th>@Html.DisplayNameFor(model => model.Description)</th>
                     @* <th><i class="bi bi-diagram-2"></i> @Html.DisplayNameFor(model=>model.IdParent)</th> *@
                     <th>Hành động</th>
                 </tr>
@@ -33,17 +40,11 @@
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
                         <td>@Html.DisplayFor(modelItem => item.Description)</td>
                         @* <td>@Html.DisplayFor(modelItem => item.IdParent)</td> *@
-                        <td>
-                            <a class="btn btn-sm btn-warning ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })">
-                                <i class="bi bi-pencil"></i> Sửa
-                            </a>
-                            <a class="btn btn-sm btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })">
-                                <i class="bi bi-info-circle"></i> Chi Tiết
-                            </a>
-                            <a class="btn btn-sm btn-danger ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })">
-                                <i class="bi bi-trash"></i> Xóa
-                            </a>
-                        </td>
+                       <td>
+							<a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
+							<a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+							<a class="btn btn-danger btn-sm ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a>
+						</td>
                     </tr>
                 }
             </tbody>

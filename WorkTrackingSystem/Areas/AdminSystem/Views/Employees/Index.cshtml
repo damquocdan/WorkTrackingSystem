@@ -1,13 +1,21 @@
 ﻿@using X.PagedList.Mvc.Core
 @model X.PagedList.IPagedList<WorkTrackingSystem.Models.Employee>
 @{
-    ViewData["Title"] = "Nhân viên"; // Vietnamese title
+    ViewData["Title"] = "Quản lý nhân viên"; // Vietnamese title
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
-}
 
+}
+<div class="row">
+	<div class="col-md-12">
+		<ol class="breadcrumb float-sm-end bg-light">
+			<li class="breadcrumb-item">Admin</li>
+			<li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+		</ol>
+	</div>
+</div>
 <div class="row">
 	<div class="col-md-12" id="list-section">
-		<h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1>
+		@* <h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1> *@
 		<div class="row mb-2">
 			<div class="col-lg-9 col-md-9 col-sm-12">
 				<form asp-controller="Employees" asp-action="Index" method="get" class="row">
@@ -27,20 +35,20 @@
 				</form>
 			</div>
 		</div>
-		<table class="table ">
-			<thead>
+		<table class="table table-bordered table-hover ">
+			<thead class="table-dark text-white text-center">
 				<tr>
-					<th><i class="bi bi-person"></i>Code - Họ và tên</th>
-					<th><i class="bi bi-gender-ambiguous"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Gender)</th>
-					<th class="birthday-column"><i class="bi bi-calendar-date"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Birthday)</th>
+					<th>Nhân viên</th>
+					<th> @Html.DisplayNameFor(model => model.FirstOrDefault().Gender)</th>
+					<th class="birthday-column"> @Html.DisplayNameFor(model => model.FirstOrDefault().Birthday)</th>
 					@* <th><i class="bi bi-phone"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Phone)</th> *@
-					<th class="email-column"><i class="bi bi-envelope"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
-					<th><i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().HireDate)</th>
-					<th class="address-column"><i class="bi bi-house"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Address)</th>
-					<th><i class="bi bi-image"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Avatar)</th>
+					<th class="email-column"> @Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
+					<th> @Html.DisplayNameFor(model => model.FirstOrDefault().HireDate)</th>
+					<th class="address-column"> @Html.DisplayNameFor(model => model.FirstOrDefault().Address)</th>
+					<th> @Html.DisplayNameFor(model => model.FirstOrDefault().Avatar)</th>
 					@* <th><i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Department)</th> *@
-					<th class="position-column"><i class="bi bi-briefcase"></i> Chức vụ</th>
-					<th><i class="bi bi-gear"></i> Hành động</th>
+					<th class="position-column"> Chức vụ</th>
+					<th> Hành động</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -70,7 +78,7 @@
 						<td class="email-column">@Html.DisplayFor(modelItem => item.Email)</td>
 						<td>@Html.DisplayFor(modelItem => item.HireDate)</td>
 						<td class="address-column">@Html.DisplayFor(modelItem => item.Address)</td>
-						<td>
+						<td class="text-center">
 							@if (!string.IsNullOrEmpty(item.Avatar))
 							{
 								<img src="@item.Avatar" class="img-fluid rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
@@ -79,9 +87,9 @@
 						@* <td>@Html.DisplayFor(modelItem => item.Department.Name)</td> *@
 						<td class="position-column">@Html.DisplayFor(modelItem => item.Position.Name)</td>
 						<td>
-							<a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i> Sửa</a>
-							<a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
-							<a class="btn btn-danger btn-sm ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i> Xóa</a>
+							<a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
+							<a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+							<a class="btn btn-danger btn-sm ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a>
 						</td>
 					</tr>
 				}

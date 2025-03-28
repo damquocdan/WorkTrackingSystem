@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Danh sách đánh giá cơ bản";
-    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
 @if (TempData["NoDataMessage"] != null)
 {
@@ -33,7 +33,14 @@
     var sumQuality = groupedData.Select(x => x.SumQuality).ToList();
     var sumSummary = groupedData.Select(x => x.SumSummary).ToList();
 }
-
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb float-sm-end bg-light">
+            <li class="breadcrumb-item">Admin</li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-6">
         <div class="">
@@ -104,17 +111,17 @@
         <div class="col-md-12" id="list-section">
             <div class="table-responsive">
                 <table class="table table-hover table-bordered">
-                    <thead class="table-dark">
+                    <thead class="table-dark text-white text-center">
                         <tr>
                             <th>STT</th>
-                            <th><i class="bi bi-bar-chart-line"></i> Tổng đánh giá khối lượng</th>
-                            <th><i class="bi bi-graph-up"></i> Tổng đánh giá tiến độ</th>
-                            <th><i class="bi bi-star"></i> Tổng đánh giá chất lượng</th>
-                            <th><i class="bi bi-chat-left-text"></i> Tổng đánh giá tổng hợp</th>
-                            <th><i class="bi bi-clock"></i> Tháng</th>
-                            <th><i class="bi bi-clipboard-check"></i> Đánh giá</th>
-                            <th><i class="bi bi-person"></i> Nhân viên</th>
-                            <th><i class="bi bi-gear"></i> Hành động</th>
+                            <th> Tổng đánh giá khối lượng</th>
+                            <th> Tổng đánh giá tiến độ</th>
+                            <th> Tổng đánh giá chất lượng</th>
+                            <th> Tổng đánh giá tổng hợp</th>
+                            <th>Tháng</th>
+                            <th> Đánh giá</th>
+                            <th> Nhân viên</th>
+                            <th> Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -143,7 +150,7 @@
                                 </td>
                                 <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
                                 <td>
-                                    <a class="btn btn-sm btn-info ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i> Chi tiết</a>
+                                    <a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
                                 </td>
                             </tr>
                         }
