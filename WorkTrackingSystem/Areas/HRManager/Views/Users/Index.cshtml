@@ -2,14 +2,21 @@
 @using X.PagedList.Mvc.Core
 @model X.PagedList.IPagedList<WorkTrackingSystem.Models.User>
 @{
-    ViewData["Title"] = "Danh Sách Người Dùng";
+    ViewData["Title"] = "Quản lý người dùng";
     Layout = "~/Areas/HRManager/Views/Shared/_HRManager.cshtml";
 }
 
-
+<div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb float-sm-end bg-light">
+            <li class="breadcrumb-item">HRManager</li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <h1 class="text-center" >Danh Sách Người Dùng</h1>
+        @* <h1 class="text-center" >Danh Sách Người Dùng</h1> *@
 
         <div class="row">
             <p class="col-md-6">

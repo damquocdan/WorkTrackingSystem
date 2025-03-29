@@ -1,13 +1,20 @@
 ﻿@using X.PagedList.Mvc.Core
 @model X.PagedList.IPagedList<WorkTrackingSystem.Models.Employee>
 @{
-	ViewData["Title"] = "Nhân viên"; // Vietnamese title
+	ViewData["Title"] = "Công việc của nhân viên"; // Vietnamese title
 	Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
-
+<div class="row">
+	<div class="col-md-12">
+		<ol class="breadcrumb float-sm-end bg-light">
+			<li class="breadcrumb-item">Admin</li>
+			<li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+		</ol>
+	</div>
+</div>
 <div class="row">
 	<div class="col-md-12" id="list-section">
-		<h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1>
+		
 
 
 		<div class="row mb-2">

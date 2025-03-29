@@ -239,7 +239,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 _context.Update(existingEmployee);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(UserInfor));
             }
             catch (DbUpdateConcurrencyException)
             {

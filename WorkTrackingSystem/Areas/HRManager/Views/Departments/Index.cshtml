@@ -1,12 +1,20 @@
 ﻿@model IEnumerable<WorkTrackingSystem.Models.Department>
 
 @{
-    ViewData["Title"] = "Danh Sách Phòng Ban";
+    ViewData["Title"] = "Quản lý phòng ban";
     Layout = "~/Areas/HRManager/Views/Shared/_HRManager.cshtml";
 }
 <div class="row">
+    <div class="col-md-12">
+        <ol class="breadcrumb float-sm-end bg-light">
+            <li class="breadcrumb-item">HRManager</li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </div>
+</div>
+<div class="row">
     <div class="col-md-12" id="list-section">
-        <h1 class="text-center">Danh Sách Phòng Ban</h1>
+       @*  <h1 class="text-center">Danh Sách Phòng Ban</h1> *@
 
         <p>
             <a  class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>

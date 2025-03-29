@@ -2,11 +2,19 @@
 @using X.PagedList.Mvc.Core
 @model X.PagedList.IPagedList<WorkTrackingSystem.Areas.AdminSystem.Models.JobViewModel>
 @{
-	ViewData["Title"] = "Danh sách công việc";
+	ViewData["Title"] = "Nhân viên - Công việc";
 	Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
 }
 
-<h2 class="text-primary text-center py-4">Danh sách Công Việc</h2>
+<div class="row">
+	<div class="col-md-12">
+		<ol class="breadcrumb float-sm-end bg-light">
+			<li class="breadcrumb-item">Nhân viên - Công việc</li>
+			<li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+		</ol>
+	</div>
+</div>
+@* <h2 class="text-primary text-center py-4">Danh sách Công Việc</h2> *@
 
 <!-- Thanh công cụ tìm kiếm và bộ lọc -->
 <div class="mb-2"><a class="btn btn-success" asp-action="JobOfEmployee" >Quay lại danh sách</a></div>

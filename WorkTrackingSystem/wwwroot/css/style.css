@@ -7,7 +7,7 @@ td:last-child {
    text-align:center;
 }
 table.table.table-bordered.table-hover {
-    border-collapse: separate;
+  /*  border-collapse: separate;*/
     border-spacing: 0;
     border-radius: 0.25rem;
     overflow: hidden;
