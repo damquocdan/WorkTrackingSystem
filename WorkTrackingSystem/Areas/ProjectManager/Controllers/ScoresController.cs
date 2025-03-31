@@ -358,7 +358,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     Status = 0, // Mặc định trạng thái chưa bat dau
                     IsDelete = false,
                     IsActive = true,
-                    CreateDate = DateTime.Now,
+                    CreateDate = null,
                     UpdateDate = DateTime.Now,
                     CreateBy = job.CreateBy,
                     UpdateBy = job.UpdateBy
@@ -753,26 +753,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Scores/Delete/5
-        public async Task<IActionResult> Delete(long? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var score = await _context.Scores
-                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (score == null)
-            {
-                return NotFound();
-            }
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_Delete", score);
-            }
-            return View(score);
-        }
         private async Task UpdateBaselineAssessment(long? employeeId)
         {
             if (employeeId == null)
@@ -909,15 +890,103 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             await _context.SaveChangesAsync();
         }
+        public async Task<IActionResult> Delete(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (score == null)
+            {
+                return NotFound();
+            }
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Delete", score);
+            }
+            return View(score);
+        }
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var score = await _context.Scores.FindAsync(id);
-            if (score != null)
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Job)
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Employee)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (score == null)
             {
+                return NotFound();
+            }
+
+            var jobMapEmployee = score.JobMapEmployee;
+            var job = jobMapEmployee?.Job;
+
+            if (jobMapEmployee == null || job == null)
+            {
+                return NotFound();
+            }
+
+            if (jobMapEmployee.EmployeeId == null)
+            {
+                // Lấy tất cả JobMapEmployee liên quan đến Job
+                var relatedJobMapEmployees = await _context.Jobmapemployees
+                    .Where(jme => jme.JobId == job.Id)
+                    .ToListAsync();
+
+                // Lấy tất cả Score liên quan đến bất kỳ JobMapEmployee nào trong danh sách
+                var jobMapEmployeeIds = relatedJobMapEmployees.Select(jme => jme.Id).ToList();
+                var relatedScores = await _context.Scores
+                    .Where(s => s.JobMapEmployeeId.HasValue && jobMapEmployeeIds.Contains(s.JobMapEmployeeId.Value))
+                    .ToListAsync();
+                _context.Scores.RemoveRange(relatedScores);
+
+                // Xóa tất cả JobMapEmployee liên quan đến Job
+                _context.Jobmapemployees.RemoveRange(relatedJobMapEmployees);
+
+                // Cuối cùng xóa Job
+                _context.Jobs.Remove(job);
+            }
+            else
+            {
+                // Xóa Score trước
                 _context.Scores.Remove(score);
+
+                // Xóa JobMapEmployee
+                _context.Jobmapemployees.Remove(jobMapEmployee);
+
+                // Kiểm tra và xóa Deadline nếu cần
+                if (score.CreateDate.HasValue) // Kiểm tra null cho DateTime?
+                {
+                    var scoreCreateDate = score.CreateDate.Value; // Lấy giá trị từ nullable DateTime
+
+                    if (job.Deadline1.HasValue && scoreCreateDate.Date == job.Deadline1.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        job.Deadline1 = null;
+                    }
+                    else if (job.Deadline2.HasValue && scoreCreateDate.Date == job.Deadline2.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        job.Deadline2 = null;
+                    }
+                    else if (job.Deadline3.HasValue && scoreCreateDate.Date == job.Deadline3.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        job.Deadline3 = null;
+                    }
+
+                    // Cập nhật Job nếu có thay đổi Deadline
+                    if (job.Deadline1 == null || job.Deadline2 == null || job.Deadline3 == null)
+                    {
+                        job.UpdateDate = DateTime.Now;
+                        _context.Jobs.Update(job);
+                    }
+                }
             }
 
             await _context.SaveChangesAsync();
