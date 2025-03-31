@@ -13,7 +13,9 @@
                 <small class="text-muted">(@Html.DisplayFor(model => model.Employee.Code))</small>
             </div>
         </div>
-        <button type="button" class="btn btn-danger btn-sm close-btn" onclick="closeDetailSection()">✖</button>
+        <button class="close" onclick="closeDetailSection()" style="position: absolute; right: 20px;top:15px;">
+            &times;
+        </button>
     </div>
 
     <div>
