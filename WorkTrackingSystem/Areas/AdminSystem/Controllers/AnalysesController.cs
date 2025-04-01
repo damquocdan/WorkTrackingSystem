@@ -12,6 +12,7 @@ using WorkTrackingSystem.Models;
 using System.Net.Mail;
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
@@ -26,12 +27,14 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // GET: AdminSystem/Analyses
-        public async Task<IActionResult> Index(
+        public async Task<IActionResult> Index(int? page,
     string searchText,
     string time, // Thay vì month và year riêng lẻ
     string sortOrder,
     string filterType)
         {
+            int pageSize = 5; // Số lượng bản ghi mỗi trang
+            int pageNumber = page ?? 1;
             var managerUsername = HttpContext.Session.GetString("AdminLogin");
 
             if (string.IsNullOrEmpty(managerUsername))
@@ -49,10 +52,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            var employeeIdsInManagedDepartment = await _context.Employees
+            var employeeIdsInManagedDepartment =  _context.Employees
                 //.Where(e => e.DepartmentId == manager.DepartmentId)
                 //.Select(e => e.Id)
-                .ToListAsync();
+               .ToPagedList(pageNumber, pageSize);
 
             var analyses = _context.Analyses
                 .Include(a => a.Employee)
@@ -122,12 +125,16 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                     analyses = analyses.OrderBy(a => a.Id);
                     break;
             }
-            var analysesList = await analyses.ToListAsync();
+            var analysesList =  analyses.ToPagedList(pageNumber, pageSize);
             if (!analysesList.Any())
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-            return View(await analyses.ToListAsync());
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_AnalysesTablePatial", analyses.ToPagedList(pageNumber, pageSize));
+            }
+            return View( analyses.ToPagedList(pageNumber, pageSize));
         }
 
 

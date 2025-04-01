@@ -25,8 +25,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             _context = context;
         }
         // GET: AdminSystem/Baselineassessments
-        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time)
+        public async Task<IActionResult> Index(int? page,string employeeCode, string employeeName, bool? evaluate, string time)
         {
+            int pageSize = 5; // Số lượng bản ghi mỗi trang
+            int pageNumber = page ?? 1;
             // Lấy ManagerId từ session
             var managerUsername = HttpContext.Session.GetString("AdminLogin");
 
@@ -86,12 +88,16 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                                                          b.Time.Value.Month == selectedTime.Month);
                 }
             }
-            var assessmentsList = await assessments.ToListAsync();
+            var assessmentsList =  assessments.ToPagedList(pageNumber, pageSize);
             if (!assessmentsList.Any())
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-            return View(await assessments.OrderByDescending(x => x.Time).ToListAsync());
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_BaselineTablePartial", assessments.OrderByDescending(x => x.Time).ToPagedList(pageNumber, pageSize));
+            }
+            return View( assessments.OrderByDescending(x => x.Time).ToPagedList(pageNumber, pageSize));
 
         }
 

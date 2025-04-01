@@ -1,0 +1,101 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Analysis>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover ">
+        <thead class="table-dark text-white text-center">
+            <tr>
+                <th>STT</th>
+                <th> Tổng số</th>
+                <th> Đúng hạn</th>
+                <th> Trễ hạn</th>
+                <th> Quá hạn</th>
+                <th> Đang xử lý</th>
+                <th>Thời gian</th>
+                <th> Nhân viên</th>
+                <th> Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int index = 0;
+            }
+            @foreach (var item in Model)
+            {
+                index++;
+                <tr>
+                    <td>@index</td>
+                    <td>
+                        <div class="progress" style="height: 40px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
+                                @item.Total
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 40px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;"
+                                 aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
+                                @item.Ontime
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 40px;">
+                            <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;"
+                                 aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
+                                @item.Late
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 40px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;"
+                                 aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
+                                @item.Overdue
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 40px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;"
+                                 aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
+                                @item.Processing
+                            </div>
+                        </div>
+                    </td>
+
+
+
+                    <td>@(item.Time?.ToString("MM/yyyy"))</td>
+
+                    <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
+                    <td>
+                        <a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalItemCount > Model.PageSize)
+{
+    @Html.PagedListPager(Model, page => Url.Action("Index", new
+        {
+            page = page,
+            employeeCode = ViewBag.EmployeeCode,
+            employeeName = ViewBag.EmployeeName,
+            evaluate = ViewBag.Evaluate,
+            time = ViewBag.Time
+        }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" },
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+    MaximumPageNumbersToDisplay = 5
+})
+}

@@ -1,0 +1,89 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Areas.AdminSystem.Models.JobViewModel>
+
+<table class="table table-bordered table-hover shadow" id="jobTable">
+    <thead class="table-primary text-center">
+        <tr>
+            <th>Hạng mục</th>
+            <th>Tên công việc</th>
+            <th>Hạn chót</th>
+            <th>Ngày hoàn thiện</th>
+            <th>Trạng thái</th>
+            <th>Tiến độ</th>
+            <th>Đánh giá khối lượng</th>
+            <th>Đánh giá tiến độ</th>
+            <th>Đánh giá chất lượng</th>
+            <th>Tổng hợp đánh giá</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="job-row" data-status="@item.ScoreStatus">
+                <td class="category-name">@item.CategoryName</td>
+                <td class="job-name">@item.JobName</td>
+                <td>@item.Deadline?.ToString("dd/MM/yyyy")</td>
+                <td class="text-center">
+                    @if (item.Progress == 100 && item.CompletionDate.HasValue)
+                    {
+                        @item.CompletionDate.Value.ToString("dd/MM/yyyy")
+                    }
+                    else
+                    {
+                        <text>-</text>
+                    }
+                </td>
+                <td class="text-center">
+                    <span>
+                        @if (item.ScoreStatus == 1)
+                        {
+                            <text>Hoàn thành</text>
+                        }
+                        else if (item.ScoreStatus == 2)
+                        {
+                            <text>Chưa hoàn thành</text>
+                        }
+                        else if (item.ScoreStatus == 3)
+                        {
+                            <text>Hoàn thành muộn</text>
+                        }
+                        else if (item.ScoreStatus == 4)
+                        {
+                            <text>Đang xử lý</text>
+                        }
+                        else
+                        {
+                            <text>Chưa bắt đầu</text>
+                        }
+                    </span>
+                </td>
+                <td class="text-center"><p class="progress-value">@item.Progress%</p></td>
+                <td class="text-center"><p class="progress-value">@item.VolumeAssessment</p></td>
+                <td class="text-center"><p class="progress-value">@item.ProgressAssessment</p></td>
+                <td class="text-center"><p class="progress-value">@item.QualityAssessment</p></td>
+                <td class="text-center"><p class="progress-value">@Math.Round(item.SummaryOfReviews ?? 0, 1)</p></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.TotalItemCount > Model.PageSize)
+{
+    @Html.PagedListPager(Model, page => Url.Action("EmployeeWork", new
+        {
+            id = ViewBag.EmployeeId,
+            page = page,
+            search = ViewBag.Search,
+            filterStatus = ViewBag.FilterStatus
+        }), new PagedListRenderOptions
+{
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" },
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+    MaximumPageNumbersToDisplay = 5
+})
+}

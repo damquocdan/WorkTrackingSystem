@@ -1,13 +1,10 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.Analysis>
+﻿@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Analysis>
 
 @{
     ViewData["Title"] = "Danh sách phân tích";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
-@if (TempData["NoDataMessage"] != null)
-{
-    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
-}
+
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb float-sm-end bg-light">
@@ -16,23 +13,24 @@
         </ol>
     </div>
 </div>
+
+@if (TempData["NoDataMessage"] != null)
+{
+    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
+}
+
 <div class="row">
     <div class="col-md-12" id="list-section">
         <div class="row">
             <div class="col-md-9">
-                <form method="get">
+                <form id="searchForm" method="get">
                     <div class="row">
-                        <!-- Tìm kiếm theo nhân viên -->
                         <div class="col-md-3">
                             <input type="text" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@Context.Request.Query["searchText"]" />
                         </div>
-
-                        <!-- Bộ lọc thời gian (Tháng) -->
                         <div class="col-md-2">
                             <input type="month" name="time" class="form-control" value="@Context.Request.Query["time"]">
                         </div>
-
-                        <!-- Sắp xếp -->
                         <div class="col-md-3">
                             <select name="sortOrder" class="form-control">
                                 <option value="">-- Sắp xếp theo --</option>
@@ -50,19 +48,14 @@
                                 <option value="time_desc" selected="@(Context.Request.Query["sortOrder"] == "time_desc")">Thời gian ↓</option>
                             </select>
                         </div>
-
-                        <!-- Nút tìm kiếm -->
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
-                        </div>
-
-                        <!-- Nút reset -->
+                       @*  <div class="col-md-3">
+                            <button type="button" class="btn btn-primary" id="searchButton"><i class="bi bi-search"></i> Tìm kiếm</button>
+                        </div> *@
                         <div class="col-md-1">
                             <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i></a>
                         </div>
                     </div>
                 </form>
-
             </div>
             <div class="col-md-3 text-end">
                 @if (Model.Any())
@@ -80,126 +73,81 @@
                 {
                     <p>Không có dữ liệu để xuất Excel.</p>
                 }
-                
-
-                @* <a href="@Url.Action("SendEmail")" class="btn btn-warning"><i class="bi bi-envelope"></i> Gửi Email</a> *@
             </div>
         </div>
-
-        <br />
-        <div class="">
-            @* <h1 class="mb-4">Danh sách phân tích</h1> *@
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover ">
-                    <thead class="table-dark text-white text-center">
-                        <tr>
-                            <th>STT</th>
-                            <th> Tổng số</th>
-                            <th> Đúng hạn</th>
-                            <th> Trễ hạn</th>
-                            <th> Quá hạn</th>
-                            <th> Đang xử lý</th>
-                            <th>Thời gian</th>
-                            <th> Nhân viên</th>
-                            <th> Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            int index = 0;
-                        }
-                        @foreach (var item in Model)
-                        {
-                            index++;
-                            <tr>
-                                <td>@index</td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
-                                            @item.Total
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;"
-                                             aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
-                                            @item.Ontime
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;"
-                                             aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
-                                            @item.Late
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;"
-                                             aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
-                                            @item.Overdue
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;"
-                                             aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
-                                            @item.Processing
-                                        </div>
-                                    </div>
-                                </td>
-
-
-
-                                <td>@(item.Time?.ToString("MM/yyyy"))</td>
-
-                                <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                                <td>
-                                    <a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+        <div class="row mt-2">
+            <div class="col-md-12" id="list-section">
+                <div id="tableContainer">
+                    @await Html.PartialAsync("_AnalysesTablePatial", Model)
+                </div>
+            </div>
+            <div class="col-md-4 d-none" id="detail-section">
+                <div class="actionCustomers"></div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4 d-none" id="detail-section">
-        
-        <div class="actionCustomers"></div>
     </div>
 </div>
 
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $(".ajax-action").click(function (e) {
-            e.preventDefault();
 
-            var url = $(this).data("url");
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Xử lý sự kiện thay đổi bộ lọc
+            $("#searchForm input, #searchForm select").on("change input", function () {
+                loadTable();
+            });
 
-            // Kiểm tra nếu phần chi tiết đang ẩn, thì thay đổi layout
-            if ($("#detail-section").hasClass("d-none")) {
-                $("#list-section").removeClass("col-md-12").addClass("col-md-8");
-                $("#detail-section").removeClass("d-none").addClass("col-md-4");
-            }
+            // Xử lý nút tìm kiếm
+            $("#searchButton").on("click", function () {
+                loadTable();
+            });
 
-            // Load nội dung vào phần chi tiết
-            $(".actionCustomers").load(url, function (response, status, xhr) {
-                if (status === "error") {
-                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+            // Xử lý phân trang bằng AJAX
+            $(document).on("click", ".page-link", function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                loadTable(url);
+            });
+
+            // Xử lý sự kiện AJAX cho nút chi tiết
+            $(document).on("click", ".ajax-action", function (e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                if ($("#detail-section").hasClass("d-none")) {
+                    $("#list-section").removeClass("col-md-12").addClass("col-md-8");
+                    $("#detail-section").removeClass("d-none").addClass("col-md-4");
                 }
+                $(".actionCustomers").load(url, function (response, status, xhr) {
+                    if (status === "error") {
+                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                    }
+                });
             });
         });
-    });
+
+        function loadTable(url) {
+            var formData = $("#searchForm").serialize();
+            var baseUrl = url || "@Url.Action("Index")";
+
+            $.ajax({
+                url: baseUrl,
+                type: "GET",
+                data: formData,
+                success: function (data) {
+                    $("#tableContainer").html(data);
+                },
+                error: function (xhr) {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.responseText);
+                }
+            });
+        }
+
         function closeDetailSection() {
-        $("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
-        $("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
-    }
-</script>
+            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+            $("#detail-section").addClass("d-none");
+            $(".actionCustomers").empty();
+        }
+    </script>
+}

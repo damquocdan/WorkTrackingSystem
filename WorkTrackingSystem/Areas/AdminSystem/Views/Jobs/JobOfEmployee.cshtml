@@ -14,30 +14,27 @@
 </div>
 <div class="row">
 	<div class="col-md-12" id="list-section">
-		
-
 
 		<div class="row mb-2">
 			<div class="col-lg-9 col-md-9 col-sm-12">
-				<form asp-controller="Jobs" asp-action="JobOfEmployee" method="get" class="row">
+				<div class="row">
 					<div class="col-md-5">
 						<div class="input-group">
-							<input type="text" class="form-control" name="search" placeholder="Nhập tên nhân viên" value="@Context.Request.Query["search"]" />
+							<input type="text" class="form-control" id="searchInput" placeholder="Nhập tên / mã nhân viên" />
 						</div>
 					</div>
 					<div class="col-md-4">
 						<select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="ViewBag.Department">
-							<option value="0" disabled selected>Chọn phòng ban</option>
+							<option value="" selected>Tất cả phòng ban</option>
 						</select>
 					</div>
-					<div class="col-md-3">
-						<button type="submit" class="btn btn-primary">Tìm kiếm & Lọc</button>
-					</div>
-				</form>
+					@*  <div class="col-md-3">
+					<button type="button" class="btn btn-primary" onclick="filterEmployees()">Tìm kiếm & Lọc</button>
+					</div> *@
+				</div>
 			</div>
-
 		</div>
-		<table class="table table-bordered table-hover ">
+		<table class="table table-bordered table-hover " id="employeeTable">
 			<thead class="table-dark text-white text-center">
 				<tr>
 					<th> Mã nhân viên</th>
@@ -51,9 +48,9 @@
 			<tbody>
 				@foreach (var item in Model)
 				{
-					<tr>
+					<tr data-department-id="@item.DepartmentId">
 						<td>@Html.DisplayFor(modelItem => item.Code)</td>
-						<td>@(item.FirstName + " " + item.LastName)</td>
+						<td class="employee-name" >@(item.FirstName + " " + item.LastName)</td>
 						
 						<td>@Html.DisplayFor(modelItem => item.Department.Name)</td>
 						<td>@Html.DisplayFor(modelItem => item.Position.Name)</td>
@@ -71,7 +68,7 @@
 	</div>
 </div>
 
-@Html.PagedListPager(Model, page => Url.Action("JobOfEmployee", new { page = page }), new PagedListRenderOptions
+@Html.PagedListPager(Model, page => Url.Action("JobOfEmployee", new { page = page, search = ViewBag.Search, DepartmentId = ViewBag.DepartmentId }), new PagedListRenderOptions
 {
 	LiElementClasses = new string[] { "page-item" },
 	PageClasses = new string[] { "page-link" },
@@ -91,27 +88,62 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <script>
 	$(document).ready(function () {
+		// Xử lý sự kiện click cho các nút AJAX
 		$(".ajax-action").click(function (e) {
 			e.preventDefault();
-
 			var url = $(this).data("url");
 
-			// Kiểm tra nếu phần chi tiết đang ẩn, thì thay đổi layout
 			if ($("#detail-section").hasClass("d-none")) {
 				$("#list-section").removeClass("col-md-12").addClass("col-md-8");
 				$("#detail-section").removeClass("d-none").addClass("col-md-4");
 			}
+			$(".email-column, .position-column, .address-column, .birthday-column").hide();
 
-			// Load nội dung vào phần chi tiết
 			$(".actionCustomers").load(url, function (response, status, xhr) {
 				if (status === "error") {
 					alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
 				}
 			});
 		});
+
+		// Xử lý tìm kiếm khi người dùng nhập
+		$("#searchInput").on("input", function () {
+			filterEmployees();
+		});
+
+		// Xử lý lọc khi thay đổi phòng ban
+		$("#DepartmentId").on("change", function () {
+			filterEmployees();
+		});
 	});
+
+	function filterEmployees() {
+		var searchText = $("#searchInput").val().toLowerCase();
+		var departmentId = $("#DepartmentId").val();
+		// console.log("check");
+		$("#employeeTable tbody tr").each(function () {
+			var row = $(this);
+			var employeeName = row.find(".employee-name").text().toLowerCase();
+			var rowDepartmentId = row.data("department-id");
+
+			// Kiểm tra điều kiện tìm kiếm
+			var matchesSearch = searchText === "" || employeeName.includes(searchText);
+
+			// Kiểm tra điều kiện lọc phòng ban
+			var matchesDepartment = departmentId === "" || rowDepartmentId == departmentId;
+
+			// Hiển thị hoặc ẩn hàng
+			if (matchesSearch && matchesDepartment) {
+				row.show();
+			} else {
+				row.hide();
+			}
+		});
+	}
+
 	function closeDetailSection() {
-		$("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
-		$("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
+		$("#list-section").removeClass("col-md-8").addClass("col-md-12");
+		$("#detail-section").addClass("d-none");
+		$(".email-column, .position-column, .address-column, .birthday-column").show();
 	}
 </script>

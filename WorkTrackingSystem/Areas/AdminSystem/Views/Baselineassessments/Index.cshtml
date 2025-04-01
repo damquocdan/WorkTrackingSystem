@@ -1,13 +1,10 @@
-﻿@model IEnumerable<WorkTrackingSystem.Models.Baselineassessment>
+﻿@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Baselineassessment>
 
 @{
     ViewData["Title"] = "Danh sách đánh giá cơ bản";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
-@if (TempData["NoDataMessage"] != null)
-{
-    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
-}
+
 @{
     var totalEvaluations = Model.Count();
     var passedEvaluations = Model.Count(x => x.Evaluate.GetValueOrDefault());
@@ -33,6 +30,7 @@
     var sumQuality = groupedData.Select(x => x.SumQuality).ToList();
     var sumSummary = groupedData.Select(x => x.SumSummary).ToList();
 }
+
 <div class="row">
     <div class="col-md-12">
         <ol class="breadcrumb float-sm-end bg-light">
@@ -41,21 +39,24 @@
         </ol>
     </div>
 </div>
+
+@if (TempData["NoDataMessage"] != null)
+{
+    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
+}
+
 <div class="row">
     <div class="col-md-6">
         <div class="">
-            @* <h1 class="mb-4 text-center">Danh sách đánh giá cơ bản</h1> *@
-            <form asp-action="Index" method="get" class="row g-3">
+            <form id="searchForm" method="get" class="row g-3">
                 <div class="col-md-3">
                     <label class="form-label">Mã nhân viên:</label>
                     <input type="text" name="employeeCode" class="form-control" value="@Context.Request.Query["employeeCode"]" placeholder="Nhập mã nhân viên">
                 </div>
-
                 <div class="col-md-3">
                     <label class="form-label">Tên nhân viên:</label>
                     <input type="text" name="employeeName" class="form-control" value="@Context.Request.Query["employeeName"]" placeholder="Nhập tên nhân viên">
                 </div>
-
                 <div class="col-md-3">
                     <label class="form-label">Trạng thái đánh giá:</label>
                     <select name="evaluate" class="form-select">
@@ -64,14 +65,12 @@
                         <option value="false" selected="@(Context.Request.Query["evaluate"] == "false")">Chưa đạt</option>
                     </select>
                 </div>
-
                 <div class="col-md-3">
                     <label class="form-label">Tháng/Năm:</label>
                     <input type="month" name="time" class="form-control" value="@Context.Request.Query["time"]">
                 </div>
-
                 <div class="col-md-12 text-end">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
+                    @* <button type="button" class="btn btn-primary" id="searchButton"><i class="bi bi-search"></i> Tìm kiếm</button> *@
                     <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i> Reset</a>
                     @if (Model.Any())
                     {
@@ -109,53 +108,8 @@
     </div>
     <div class="row">
         <div class="col-md-12" id="list-section">
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered">
-                    <thead class="table-dark text-white text-center">
-                        <tr>
-                            <th>STT</th>
-                            <th> Tổng đánh giá khối lượng</th>
-                            <th> Tổng đánh giá tiến độ</th>
-                            <th> Tổng đánh giá chất lượng</th>
-                            <th> Tổng đánh giá tổng hợp</th>
-                            <th>Tháng</th>
-                            <th> Đánh giá</th>
-                            <th> Nhân viên</th>
-                            <th> Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            int index = 0;
-                        }
-                        @foreach (var item in Model)
-                        {
-                            index++;
-                            <tr class="@(item.Evaluate.GetValueOrDefault() ? "table-success" : "table-danger")">
-                                <td>@index</td>
-                                <td>@item.VolumeAssessment</td>
-                                <td>@item.ProgressAssessment</td>
-                                <td>@item.QualityAssessment</td>
-                                <td>@(item.SummaryOfReviews != null ? Convert.ToDouble(item.SummaryOfReviews).ToString("F2") : "N/A")</td>
-                                <td>@(item.Time.HasValue ? item.Time.Value.ToString("MM/yyyy") : "")</td>
-                                <td>
-                                    @if (item.Evaluate.GetValueOrDefault())
-                                    {
-                                        <p>Đạt</p>
-                                    }
-                                    else
-                                    {
-                                        <p>Chưa đạt</p>
-                                    }
-                                </td>
-                                <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                                <td>
-                                    <a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div id="tableContainer">
+                @await Html.PartialAsync("_BaselineTablePartial", Model)
             </div>
         </div>
         <div class="col-md-4 d-none" id="detail-section">
@@ -165,100 +119,136 @@
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    var labels = @Html.Raw(Json.Serialize(labels));
-    var sumVolume = @Html.Raw(Json.Serialize(sumVolume));
-    var sumProgress = @Html.Raw(Json.Serialize(sumProgress));
-    var sumQuality = @Html.Raw(Json.Serialize(sumQuality));
-    var sumSummary = @Html.Raw(Json.Serialize(sumSummary));
-
-    var ctx1 = document.getElementById('evaluationChart').getContext('2d');
-    var evaluationChart = new Chart(ctx1, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Tổng DGKL',
-                    data: sumVolume,
-                    borderColor: 'blue',
-                    fill: false
-                },
-                {
-                    label: 'Tổng DGTĐ',
-                    data: sumProgress,
-                    borderColor: 'green',
-                    fill: false
-                },
-                {
-                    label: 'Tổng DGCL',
-                    data: sumQuality,
-                    borderColor: 'red',
-                    fill: false
-                }
-            ]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Tổng điểm'
-                    }
-                }
-            }
-        }
-    });
-
-    var ctx2 = document.getElementById('summaryChart').getContext('2d');
-    var summaryChart = new Chart(ctx2, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Tổng Đánh giá tổng hợp',
-                data: sumSummary,
-                backgroundColor: 'orange'
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Tổng điểm'
-                    }
-                }
-            }
-        }
-    });
-</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $(".ajax-action").click(function (e) {
-            e.preventDefault();
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            var url = $(this).data("url");
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Xử lý sự kiện thay đổi bộ lọc
+            $("#searchForm input, #searchForm select").on("change input", function () {
+                loadTable();
+            });
 
-            if ($("#detail-section").hasClass("d-none")) {
-                $("#list-section").removeClass("col-md-12").addClass("col-md-8");
-                $("#detail-section").removeClass("d-none").addClass("col-md-4");
-            }
+            // Xử lý nút tìm kiếm
+            $("#searchButton").on("click", function () {
+                loadTable();
+            });
 
-            $(".actionCustomers").load(url, function (response, status, xhr) {
-                if (status === "error") {
-                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+            // Xử lý phân trang bằng AJAX
+            $(document).on("click", ".page-link", function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                loadTable(url);
+            });
+
+            // Xử lý sự kiện AJAX cho nút chi tiết
+            $(document).on("click", ".ajax-action", function (e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                if ($("#detail-section").hasClass("d-none")) {
+                    $("#list-section").removeClass("col-md-12").addClass("col-md-8");
+                    $("#detail-section").removeClass("d-none").addClass("col-md-4");
                 }
+                $(".actionCustomers").load(url, function (response, status, xhr) {
+                    if (status === "error") {
+                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                    }
+                });
             });
         });
-    });
 
-    function closeDetailSection() {
-        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
-        $("#detail-section").addClass("d-none");
-    }
-</script>
+        function loadTable(url) {
+            var formData = $("#searchForm").serialize();
+            var baseUrl = url || "@Url.Action("Index")";
+
+            $.ajax({
+                url: baseUrl,
+                type: "GET",
+                data: formData,
+                success: function (data) {
+                    $("#tableContainer").html(data);
+                },
+                error: function (xhr) {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.responseText);
+                }
+            });
+        }
+
+        function closeDetailSection() {
+            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+            $("#detail-section").addClass("d-none");
+            $(".actionCustomers").empty();
+        }
+
+        // Biểu đồ
+        var labels = @Html.Raw(Json.Serialize(labels));
+        var sumVolume = @Html.Raw(Json.Serialize(sumVolume));
+        var sumProgress = @Html.Raw(Json.Serialize(sumProgress));
+        var sumQuality = @Html.Raw(Json.Serialize(sumQuality));
+        var sumSummary = @Html.Raw(Json.Serialize(sumSummary));
+
+        var ctx1 = document.getElementById('evaluationChart').getContext('2d');
+        var evaluationChart = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Tổng DGKL',
+                        data: sumVolume,
+                        borderColor: 'blue',
+                        fill: false
+                    },
+                    {
+                        label: 'Tổng DGTĐ',
+                        data: sumProgress,
+                        borderColor: 'green',
+                        fill: false
+                    },
+                    {
+                        label: 'Tổng DGCL',
+                        data: sumQuality,
+                        borderColor: 'red',
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tổng điểm'
+                        }
+                    }
+                }
+            }
+        });
+
+        var ctx2 = document.getElementById('summaryChart').getContext('2d');
+        var summaryChart = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Tổng Đánh giá tổng hợp',
+                    data: sumSummary,
+                    backgroundColor: 'orange'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tổng điểm'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
