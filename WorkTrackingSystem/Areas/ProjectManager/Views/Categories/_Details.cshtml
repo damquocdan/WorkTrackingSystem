@@ -1,87 +1,71 @@
 ﻿@model WorkTrackingSystem.Models.Category
 
 @{
-    ViewData["Title"] = "Chi tiết danh mục";
+    ViewData["Title"] = "Chi tiết hạng mục";
 }
 
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Chi tiết danh mục</h1>
-        <button type="button" class="btn btn-outline-secondary" onclick="closeDetailSection()">
-            <i class="bi bi-x-lg"></i>
-        </button>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div>
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-code-square"></i> Mã:</dt>
-                        <dd>@Html.DisplayFor(model => model.Code)</dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-fonts"></i> Tên:</dt>
-                        <dd>@Html.DisplayFor(model => model.Name)</dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-file-text"></i> Mô tả:</dt>
-                        <dd>@Html.DisplayFor(model => model.Description)</dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-folder-symlink"></i> Danh mục cha:</dt>
-                        <dd>@Html.DisplayFor(model => model.IdParent)</dd>
-                    </div>
+<div class="container py-4">
+    <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4">
+            <h4 class="mb-0"><i class="bi bi-diagram-2"></i> Chi tiết hạng mục</h4>
+            <button class="close" onclick="closeDetailSection()" style="position: absolute; right: 20px;">
+                &times;
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Mã hạng mục</label>
+                    <p class="form-control bg-light">@Model.Code</p>
                 </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-trash"></i> Đã xóa:</dt>
-                        <dd>
-                            @if (Model.IsDelete ?? false)
-                            {
-                                    <span>Đã xóa</span>
-                            }
-                            else
-                            {
-                                    <span>Chưa xóa</span>
-                            }
-                        </dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-check-circle"></i> Hoạt động:</dt>
-                        <dd>
-                            @if (@Model.IsActive ?? false)
-                            {
-                                    <span>Hoạt động</span>
-                            }
-                            else
-                            {
-                                    <span>Không hoạt động</span>
-                            }
-                        </dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-calendar-plus"></i> Ngày tạo:</dt>
-                        <dd>@Html.DisplayFor(model => model.CreateDate)</dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-calendar-check"></i> Ngày cập nhật:</dt>
-                        <dd>@Html.DisplayFor(model => model.UpdateDate)</dd>
-                    </div>
+                <div class="col-md-6">
+                    <label class="form-label">Tên hạng mục</label>
+                    <p class="form-control bg-light">@Model.Name</p>
                 </div>
+            </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-person-plus"></i> Người tạo:</dt>
-                        <dd>@Html.DisplayFor(model => model.CreateBy)</dd>
-                    </div>
-                    <div class="col-md-3">
-                        <dt><i class="bi bi-person-check"></i> Người cập nhật:</dt>
-                        <dd>@Html.DisplayFor(model => model.UpdateBy)</dd>
-                    </div>
-                    <div class="col-md-6">
-                    </div>
+            <div class="mt-2">
+                <label class="form-label">Mô tả</label>
+                <p class="form-control bg-light">@Model.Description</p>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label">Hạng mục cha</label>
+                    <p class="form-control bg-light">@Model.IdParent</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Trạng thái xóa</label>
+                    <p class="form-control bg-light">@(Model.IsDelete ?? false ? "Đã xóa" : "Chưa xóa")</p>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label">Hoạt động</label>
+                    <p class="form-control bg-light">@(Model.IsActive ?? false ? "Đã kích hoạt" : "Chưa kích hoạt")</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ngày tạo</label>
+                    <p class="form-control bg-light">@(Model.CreateDate?.ToString("dd/MM/yyyy"))</p>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label">Ngày cập nhật</label>
+                    <p class="form-control bg-light">@(Model.UpdateDate?.ToString("dd/MM/yyyy"))</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Người tạo</label>
+                    <p class="form-control bg-light">@Model.CreateBy</p>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label">Người cập nhật</label>
+                    <p class="form-control bg-light">@Model.UpdateBy</p>
                 </div>
             </div>
         </div>
@@ -89,11 +73,3 @@
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-@section Scripts {
-        <script>
-            function closeDetailSection() {
-                window.location.href = '@Url.Action("Index")';
-            }
-        </script>
-}

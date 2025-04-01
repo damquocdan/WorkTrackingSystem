@@ -13,7 +13,6 @@
     </div>
 </div>
 <form asp-action="Index" method="get">
-    <!-- Giữ nguyên phần form tìm kiếm -->
     <div class="row mb-3">
         <div class="col-md-3">
             <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên / công việc" value="@Context.Request.Query["searchText"]">
@@ -82,7 +81,6 @@
         <button id="clear-selection" class="btn btn-danger btn-sm ms-auto">Xóa</button>
     </div>
 </div>
-<!-- Khu vực hiển thị danh sách công việc -->
 <div id="job-lists" class="mt-3 d-none">
     <h4 class="text-center">Công việc chưa được giao</h4>
     <div class="table-responsive">
@@ -118,7 +116,6 @@
         </table>
     </div>
 </div>
-<!-- Form ẩn để gửi dữ liệu -->
 <form id="assign-job-form" action="@Url.Action("AssignEmployee", "Scores")" method="post" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="jobId" id="form-job-id" />
@@ -169,7 +166,6 @@
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <span class="fw-bold">@item.JobMapEmployee.Employee.Code</span>
-
                                         <br>
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
                                     }
@@ -241,7 +237,6 @@
                                         </a>
                                     </div>
                                 </td>
-
                             </tr>
                         }
                     </tbody>
@@ -259,8 +254,8 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
         var employees = [
@@ -271,9 +266,8 @@
             @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
         }
     }
-        ];
+            ];
 
-        // Hiển thị ô tìm kiếm khi bấm "Giao C.việc"
         $("#btn-create-job").click(function () {
             $("#search-employee-section").removeClass("d-none");
             if (sessionStorage.getItem('selectedEmployee')) {
@@ -281,7 +275,6 @@
             }
         });
 
-        // Autocomplete tìm kiếm nhân viên
         $("#employee-search").autocomplete({
             source: function (request, response) {
                 var results = $.map(employees, function (employee) {
@@ -309,17 +302,16 @@
         }).autocomplete("instance")._renderItem = function (ul, item) {
             return $("<li>")
                 .append(`
-                    <div class="card mb-2" style="width: 200px; text-align: center;">
-                        <div class="card-body d-flex flex-column align-items-center">
-                            <img src="${item.avatar}" class="mb-2" style="width: 100px; height: 100px; border-radius: 50%;">
-                            <p class="mt-2">${item.name}</p>
+                        <div class="card mb-2" style="width: 200px; text-align: center;">
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <img src="${item.avatar}" class="mb-2" style="width: 100px; height: 100px; border-radius: 50%;">
+                                <p class="mt-2">${item.name}</p>
+                            </div>
                         </div>
-                    </div>
-                `)
+                    `)
                 .appendTo(ul);
         };
 
-        // Hiển thị nhân viên đã chọn và lấy danh sách công việc
         function showSelectedEmployee(employee) {
             $("#selected-employee").removeClass("d-none");
             $("#selected-avatar").attr("src", employee.avatar);
@@ -334,7 +326,6 @@
             fetchJobs(employee.id);
         }
 
-        // Lấy danh sách công việc qua AJAX
         function fetchJobs(employeeId) {
             $.ajax({
                 url: '@Url.Action("GetJobsByEmployee", "Scores")',
@@ -345,74 +336,83 @@
                         displayJobs(result.unassignedJobs, result.assignedJobs);
                         $("#job-lists").removeClass("d-none");
                     } else {
-                        alert("Lỗi: " + result.message);
+                        Swal.fire({
+                            // position: "top-end",
+                            icon: "error",
+                            title: "Lỗi: " + result.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                         $("#job-lists").addClass("d-none");
                     }
                 },
                 error: function (xhr) {
-                    alert("Lỗi khi tải danh sách công việc: " + xhr.responseText);
+                    Swal.fire({
+                        // position: "top-end",
+                        icon: "error",
+                        title: "Lỗi khi tải danh sách công việc",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                     $("#job-lists").addClass("d-none");
                 }
             });
         }
 
-        // Hiển thị danh sách công việc
-            function displayJobs(unassignedJobs, assignedJobs) {
-        var unassignedTableBody = $("#unassigned-jobs-table tbody");
-        var assignedTableBody = $("#assigned-jobs-table tbody");
+        function displayJobs(unassignedJobs, assignedJobs) {
+            var unassignedTableBody = $("#unassigned-jobs-table tbody");
+            var assignedTableBody = $("#assigned-jobs-table tbody");
 
-        unassignedTableBody.empty();
-        assignedTableBody.empty();
+            unassignedTableBody.empty();
+            assignedTableBody.empty();
 
-        unassignedJobs.forEach(function (job) {
-            var statusText = getStatusText(job.status);
-            var rowClass = getStatusClass(job.status);
-            unassignedTableBody.append(`
-                <tr class="${rowClass}" data-job-id="${job.id}">
-                    <td>${job.categoryName || 'N/A'}</td>
-                    <td>${job.name || 'N/A'}</td>
-                    <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
-                    <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
-                    <td><span class="text-bold">${statusText}</span></td>
-                    <td>
-                        <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
-                    </td>
-                </tr>
-            `);
-        });
+            unassignedJobs.forEach(function (job) {
+                var statusText = getStatusText(job.status);
+                var rowClass = getStatusClass(job.status);
+                unassignedTableBody.append(`
+                        <tr class="${rowClass}" data-job-id="${job.id}">
+                            <td>${job.categoryName || 'N/A'}</td>
+                            <td>${job.name || 'N/A'}</td>
+                            <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
+                            <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
+                            <td><span class="text-bold">${statusText}</span></td>
+                            <td>
+                                <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
+                            </td>
+                        </tr>
+                    `);
+            });
 
-        assignedJobs.forEach(function (job) {
-            var statusText = getStatusText(job.status);
-            var rowClass = getStatusClass(job.status);
-            assignedTableBody.append(`
-                <tr class="${rowClass}" data-job-id="${job.id}">
-                    <td>${job.categoryName || 'N/A'}</td>
-                    <td>${job.name || 'N/A'}</td>
-                    <td>${formatDate(job.time)}</td>
-                    <td>${formatDate(job.deadline1)}</td>
-                    <td><span class="text-bold">${statusText}</span></td>
-                    <td>${formatDate(job.completionDate)}</td>
-                </tr>
-            `);
-        });
+            assignedJobs.forEach(function (job) {
+                var statusText = getStatusText(job.status);
+                var rowClass = getStatusClass(job.status);
+                assignedTableBody.append(`
+                        <tr class="${rowClass}" data-job-id="${job.id}">
+                            <td>${job.categoryName || 'N/A'}</td>
+                            <td>${job.name || 'N/A'}</td>
+                            <td>${formatDate(job.time)}</td>
+                            <td>${formatDate(job.deadline1)}</td>
+                            <td><span class="text-bold">${statusText}</span></td>
+                            <td>${formatDate(job.completionDate)}</td>
+                        </tr>
+                    `);
+            });
 
-        // Khởi tạo lại datepicker sau khi thêm các phần tử mới
-        $(".datepicker-time").datepicker({
-            dateFormat: 'dd/mm/yy',
-            changeMonth: true,
-            changeYear: true
-        });
-        $(".datepicker-deadline").datepicker({
-            dateFormat: 'dd/mm/yy',
-            changeMonth: true,
-            changeYear: true
-        });
+            $(".datepicker-time").datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
+            $(".datepicker-deadline").datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
 
-        bindCheckboxEvents();
-        bindAjaxActions();
-    }
+            bindCheckboxEvents();
+            bindAjaxActions();
+        }
 
-        // Lấy văn bản trạng thái
         function getStatusText(status) {
             switch (status) {
                 case 1: return "Hoàn thành";
@@ -424,7 +424,6 @@
             }
         }
 
-        // Lấy class trạng thái
         function getStatusClass(status) {
             switch (status) {
                 case 1: return "table-success";
@@ -435,83 +434,105 @@
                 default: return "";
             }
         }
-                $(document).ready(function () {
-        // Khởi tạo datepicker cho các trường ngày với định dạng dd/mm/yy
-        $(".datepicker-time").datepicker({
-            dateFormat: 'dd/mm/yy', // Định dạng ngày tháng năm
-            changeMonth: true,      // Cho phép chọn tháng
-            changeYear: true        // Cho phép chọn năm
+
+        $(document).ready(function () {
+            $(".datepicker-time").datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
+            $(".datepicker-deadline").datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
         });
-        $(".datepicker-deadline").datepicker({
-            dateFormat: 'dd/mm/yy', // Định dạng ngày tháng năm
-            changeMonth: true,      // Cho phép chọn tháng
-            changeYear: true        // Cho phép chọn năm
-        });
-    });
+
         function formatDate(date) {
-        if (!date) return '';
-        const d = new Date(date);
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
-        const year = d.getFullYear();
-        return `${day}/${month}/${year}`;
-    }
-        // Gắn sự kiện checkbox
-            function bindCheckboxEvents() {
-        $(".assign-job-checkbox").off("change").on("change", function () {
-            var checkbox = $(this);
-            var jobId = checkbox.data("job-id");
-            var employeeId = $("#selected-employee").data("employee-id");
-            var time = checkbox.closest("tr").find(".datepicker-time").val();
-            var deadline = checkbox.closest("tr").find(".datepicker-deadline").val();
+            if (!date) return '';
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
 
-            if (checkbox.is(":checked")) {
-                if (!employeeId) {
-                    alert("Vui lòng chọn nhân viên trước!");
-                    checkbox.prop("checked", false);
-                    return;
-                }
+        function bindCheckboxEvents() {
+            $(".assign-job-checkbox").off("change").on("change", function () {
+                var checkbox = $(this);
+                var jobId = checkbox.data("job-id");
+                var employeeId = $("#selected-employee").data("employee-id");
+                var time = checkbox.closest("tr").find(".datepicker-time").val();
+                var deadline = checkbox.closest("tr").find(".datepicker-deadline").val();
 
-                $("#form-job-id").val(jobId);
-                $("#form-employee-id").val(employeeId);
+                if (checkbox.is(":checked")) {
+                    if (!employeeId) {
+                        Swal.fire({
+                            // position: "top-end",
+                            icon: "warning",
+                            title: "Vui lòng chọn nhân viên trước!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        checkbox.prop("checked", false);
+                        return;
+                    }
 
-                // Gửi AJAX request để giao việc kèm ngày tháng
-                $.ajax({
-                    url: $("#assign-job-form").attr("action"),
-                    type: "POST",
-                    data: {
-                        jobId: jobId,
-                        employeeId: employeeId,
-                        time: time,
-                        deadline: deadline,
-                        "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (result) {
-                        if (result.success) {
-                            alert("Đã gán công việc thành công!");
-                            fetchJobs(employeeId);
-                        } else {
-                            alert("Lỗi: " + result.message);
+                    $("#form-job-id").val(jobId);
+                    $("#form-employee-id").val(employeeId);
+
+                    $.ajax({
+                        url: $("#assign-job-form").attr("action"),
+                        type: "POST",
+                        data: {
+                            jobId: jobId,
+                            employeeId: employeeId,
+                            time: time,
+                            deadline: deadline,
+                            "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (result) {
+                            if (result.success) {
+                                Swal.fire({
+                                    // position: "top-end",
+                                    icon: "success",
+                                    title: "Đã giao công việc thành công!",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                fetchJobs(employeeId);
+                            } else {
+                                Swal.fire({
+                                    // position: "top-end",
+                                    icon: "error",
+                                    title: "Lỗi: " + result.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                checkbox.prop("checked", false);
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                // position: "top-end",
+                                icon: "error",
+                                title: "Lỗi khi gán công việc",
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
                             checkbox.prop("checked", false);
                         }
-                    },
-                    error: function (xhr) {
-                        alert("Lỗi khi gán công việc: " + xhr.responseText);
-                        checkbox.prop("checked", false);
-                    }
-                });
-            }
-        });
-    }
+                    });
+                }
+            });
+        }
 
-        // Gắn sự kiện giao việc trực tiếp từ bảng chính
         $(".assign-job-btn").click(function () {
             var jobId = $(this).data("job-id");
             $("#search-employee-section").removeClass("d-none");
             $("#form-job-id").val(jobId);
         });
 
-        // Gắn sự kiện AJAX
         function bindAjaxActions() {
             $(".ajax-action").off("click").on("click", function (e) {
                 e.preventDefault();
@@ -522,27 +543,27 @@
                 }
                 $(".actionCustomers").load(url, function (response, status, xhr) {
                     if (status === "error") {
-                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                        Swal.fire({
+                            // position: "top-end",
+                            icon: "error",
+                            title: "Lỗi khi tải dữ liệu",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
                     }
                 });
             });
         }
 
-        // Xóa nhân viên đã chọn
-                $("#clear-selection").click(function () {
-        $("#selected-employee").addClass("d-none");
-        $("#search-employee-section").removeClass("d-none");
-        $("#selected-employee").removeData("employee-id");
-        sessionStorage.removeItem('selectedEmployee');
-        $("#job-lists").addClass("d-none");
+        $("#clear-selection").click(function () {
+            $("#selected-employee").addClass("d-none");
+            $("#search-employee-section").removeClass("d-none");
+            $("#selected-employee").removeData("employee-id");
+            sessionStorage.removeItem('selectedEmployee');
+            $("#job-lists").addClass("d-none");
+            location.reload();
+        });
 
-        // Tải lại trang
-        location.reload();
-    });
-
-
-
-        // Load nhân viên từ sessionStorage
         var previouslySelected = sessionStorage.getItem('selectedEmployee');
         if (previouslySelected) {
             var employee = JSON.parse(previouslySelected);
@@ -560,17 +581,20 @@
     $(document).ready(function () {
         $(".ajax-action").click(function (e) {
             e.preventDefault();
-
             var url = $(this).data("url");
-
             if ($("#detail-section").hasClass("d-none")) {
                 $("#list-section").removeClass("col-md-12").addClass("col-md-8");
                 $("#detail-section").removeClass("d-none").addClass("col-md-4");
             }
-
             $(".actionCustomers").load(url, function (response, status, xhr) {
                 if (status === "error") {
-                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                    Swal.fire({
+                        // position: "top-end",
+                        icon: "error",
+                        title: "Lỗi khi tải dữ liệu",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
                 }
             });
         });
@@ -580,4 +604,4 @@
         $("#list-section").removeClass("col-md-8").addClass("col-md-12");
         $("#detail-section").addClass("d-none");
     }
-</script>   
+</script>
