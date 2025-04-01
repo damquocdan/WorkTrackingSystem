@@ -16,3 +16,6 @@ table.table.table-bordered.table-hover {
     
     background-color: white;
 }
+.progress-bar {
+    font-size: 20px;
+}
