@@ -124,19 +124,19 @@
 <br />
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <div class="card-body">
+      
             <div class="table-responsive">
                 <h3 class="text-center">Danh sách công việc</h3>
                 <table class="table table-bordered table-hover">
                     <thead class="table-dark text-white text-center">
                         <tr>
                             <th>Nhân viên</th>
-                            <th>D.mục C.việc</th>
+                            <th>Hạng mục</th>
                             <th>Công việc</th>
                             <th>Trạng thái</th>
                             <th>Thời gian làm việc</th>
-                            <th>Ngày h.thành</th>
-                            <th>Tổng đ.giá</th>
+                            <th class="completion-colum">Ngày hoàn thành</th>
+                            <th class="sum-colum">Tổng đánh giá</th>
                             <th width="100px">
                                 <form asp-action="ExportToExcel" method="get">
                                     <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
@@ -216,8 +216,8 @@
                                         @Html.DisplayFor(modelItem => item.Time) <span>-</span> @Html.DisplayFor(modelItem => item.CreateDate)
                                     }
                                 </td>
-                                <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td>@(item.SummaryOfReviews?.ToString("F2") ?? "N/A")</td>
+                                <td class="completion-colum">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                <td class="sum-colum">@(item.SummaryOfReviews?.ToString("F2") ?? "N/A")</td>
                                 <td>
                                     <div class="d-flex gap-2">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
@@ -242,7 +242,7 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+     
     </div>
     <div class="col-md-4 d-none" id="detail-section">
         <div class="actionCustomers"></div>
@@ -540,6 +540,7 @@
                 if ($("#detail-section").hasClass("d-none")) {
                     $("#list-section").removeClass("col-md-12").addClass("col-md-8");
                     $("#detail-section").removeClass("d-none").addClass("col-md-4");
+                    $(".completion-colum, .sum-colum").hide();
                 }
                 $(".actionCustomers").load(url, function (response, status, xhr) {
                     if (status === "error") {
@@ -575,6 +576,7 @@
         $("#list-section").removeClass("col-md-8").addClass("col-md-12");
         $("#detail-section").addClass("d-none");
         $(".actionCustomers").empty();
+        $(".completion-colum, .sum-colum").show();
     }
 </script>
 <script>
@@ -585,6 +587,7 @@
             if ($("#detail-section").hasClass("d-none")) {
                 $("#list-section").removeClass("col-md-12").addClass("col-md-8");
                 $("#detail-section").removeClass("d-none").addClass("col-md-4");
+                $(".completion-colum, .sum-colum").hide();
             }
             $(".actionCustomers").load(url, function (response, status, xhr) {
                 if (status === "error") {
@@ -603,5 +606,6 @@
     function closeDetailSection() {
         $("#list-section").removeClass("col-md-8").addClass("col-md-12");
         $("#detail-section").addClass("d-none");
+        $(".completion-colum, .sum-colum").show();
     }
 </script>

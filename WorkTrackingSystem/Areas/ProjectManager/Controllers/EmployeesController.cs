@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
@@ -22,6 +23,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Employees
         public async Task<IActionResult> Index(string searchTerm, int? positionId)
         {
+           
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
 
             if (string.IsNullOrEmpty(managerUsername))
@@ -69,12 +71,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return View(employees);
         }
 
-        // GET: ProjectManager/Employees/Details/5
-        // GET: ProjectManager/Employees/Details/5
-        // GET: ProjectManager/Employees/Details/5
-        // GET: ProjectManager/Employees/Details/5
-        public async Task<IActionResult> Details(long? id)
+
+        public async Task<IActionResult> Details(int? page, long? id)
         {
+            int pageSize = 5;
+            int pageNumber = page ?? 1;
             if (id == null)
             {
                 return NotFound();
@@ -92,13 +93,15 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             // Lấy danh sách công việc liên quan đến nhân viên và lưu vào ViewBag
             var jobMaps = await _context.Jobmapemployees
-                .Where(jm => jm.EmployeeId == id && jm.IsDelete != true)
-                .Include(jm => jm.Job)
-                    .ThenInclude(j => j.Category)
-                .Include(jm => jm.Scores)
-                .ToListAsync();
+                         .Where(jm => jm.EmployeeId == id && jm.IsDelete != true)
+                         .Include(jm => jm.Job)
+                             .ThenInclude(j => j.Category)
+                         .Include(jm => jm.Scores)
+                         .ToListAsync(); // Tải danh sách trước
 
-            ViewBag.JobMaps = jobMaps;
+            var pagedJobMaps = jobMaps.ToPagedList(pageNumber, pageSize); // Sau đó mới phân trang
+
+            ViewBag.JobMaps = pagedJobMaps;
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {

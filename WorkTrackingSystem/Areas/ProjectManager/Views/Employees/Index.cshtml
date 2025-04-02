@@ -13,7 +13,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-12" id="list-section">
+    <div class="col-md-12 hide-on-detail" id="list-section">
       @*   <h1 class="mb-4">Danh sách nhân viên</h1>
  *@
         <!-- Form tìm kiếm -->
@@ -97,7 +97,7 @@
             $(".hide-on-detail").hide();
             if ($("#detail-section").hasClass("d-none")) {
                 $("#list-section").removeClass("col-md-12").addClass("col-md-2");
-                $("#detail-section").removeClass("d-none").addClass("col-md-10");
+                $("#detail-section").removeClass("d-none").addClass("col-md-12");
             }
 
             $(".actionCustomers").load(url, function (response, status, xhr) {
@@ -105,6 +105,18 @@
                     alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
                 }
             });
+            $("#detail-section").attr("data-employee-id", $(this).data("id"));
+        });
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault();
+            var pageUrl = $(this).attr("href");
+            var employeeId = $("#detail-section").attr("data-employee-id");
+
+            if (employeeId) {
+                pageUrl += "&id=" + employeeId;
+            }
+
+            $(".actionCustomers").load(pageUrl);
         });
     });
 
