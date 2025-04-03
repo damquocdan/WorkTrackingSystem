@@ -38,7 +38,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             bool showCompletedZeroReview = false,
             bool dueToday = false,
             long? jobId = null)
-        {
+         {
             int pageSize = 5; // Số lượng công việc mỗi trang
             int pageIndex = page ?? 1; // Trang hiện tại
 
@@ -148,50 +148,58 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
             return View(pagedScores);
         }
-        public IActionResult JobOfEmployee(string search, int? DepartmentId,int page = 1)
-        {
-            var limit = 10;
-           
-            var employees = _context.Employees
-                .Include(e => e.Department)
-                .Include(e => e.Position)
-                .Include(e => e.Jobmapemployees)
-                .Select(e => new
-                {
-                    Employee = e,
-                    JobCount = _context.Jobmapemployees.Count(j => j.EmployeeId == e.Id) // Đếm công việc của từng nhân viên
-                })
-                .ToList();
-			
+		public IActionResult JobOfEmployee(string search, int? DepartmentId, int page = 1)
+		{
+			int limit = 5;
+
+			// Lấy danh sách nhân viên + số công việc của từng nhân viên
+			var query = _context.Employees
+				.Include(e => e.Department)
+				.Include(e => e.Position)
+				.Include(e => e.Jobmapemployees)
+				.AsQueryable(); // Chưa thực thi, giúp tối ưu truy vấn SQL
+
+			// Lọc theo từ khóa tìm kiếm (mã nhân viên hoặc tên nhân viên)
 			if (!string.IsNullOrEmpty(search))
-            {
-				var searchLower = search.ToLower();
-				employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)|| e.Employee.Code.ToLower().Contains(searchLower)).ToList();
-            }
-			if (DepartmentId > 0)
 			{
-				employees = employees.Where(e => e.Employee.DepartmentId == DepartmentId).ToList();
+				string searchLower = search.ToLower();
+				query = query.Where(e =>
+					(e.FirstName + " " + e.LastName).ToLower().Contains(searchLower) ||
+					e.Code.ToLower().Contains(searchLower));
 			}
-            if(!string.IsNullOrEmpty(search) && DepartmentId > 0)
-            {
-				var searchLower = search.ToLower();
-				employees = employees.Where(e => (e.Employee.FirstName + " " + e.Employee.LastName).ToLower().Contains(searchLower)&& e.Employee.DepartmentId == DepartmentId).ToList();
+
+			// Lọc theo phòng ban (chỉ áp dụng nếu có chọn phòng ban)
+			if (DepartmentId.HasValue && DepartmentId > 0)
+			{
+				query = query.Where(e => e.DepartmentId == DepartmentId);
 			}
-			// Chuyển danh sách nhân viên về dạng List<Employee>
+
+			// Chuyển danh sách sang dạng danh sách cần thiết, đồng thời đếm công việc
+			var employees = query
+				.Select(e => new
+				{
+					Employee = e,
+					JobCount = e.Jobmapemployees.Count() // Sử dụng Count() trực tiếp từ Include để tối ưu
+				})
+				.ToList(); // Chỉ lấy danh sách nhân viên cần thiết
+
+			// Chuyển danh sách nhân viên về List<Employee>
 			var filteredEmployees = employees.Select(e => e.Employee).ToList();
 
-            // Chuyển đổi danh sách sang kiểu IPagedList
-            var pagedEmployees = filteredEmployees.ToPagedList(page, limit);
+			// Chuyển đổi danh sách sang kiểu IPagedList
+			var pagedEmployees = filteredEmployees.ToPagedList(page, limit);
 
-            // Gán danh sách số lượng công việc vào ViewBag
-            ViewBag.JobCounts = employees.ToDictionary(e => e.Employee.Id, e => e.JobCount);
+			// Gán danh sách số lượng công việc vào ViewBag
+			ViewBag.JobCounts = employees.ToDictionary(e => e.Employee.Id, e => e.JobCount);
+			ViewBag.Search = search;
 			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
-			return View(pagedEmployees);
-        }
 
-        public IActionResult EmployeeWork(long id, int? page, string search, string filterStatus)
+			return View(pagedEmployees);
+		}
+
+		public IActionResult EmployeeWork(long id, int? page, string search, string filterStatus)
         {
-            int pageSize = 10;
+            int pageSize = 5;
             int pageNumber = page ?? 1;
 
             // Xử lý search

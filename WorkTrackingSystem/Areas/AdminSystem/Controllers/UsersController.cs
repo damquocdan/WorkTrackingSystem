@@ -29,7 +29,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             if (!string.IsNullOrEmpty(search))
             {
                 var searchLower = search.ToLower();
-                WorkTrackingSystemContext = _context.Users.Where(u => u.UserName.ToLower().Contains(searchLower) && u.IsActive == true).Include(u => u.Employee).Include(u => u.Employee.Department);
+                WorkTrackingSystemContext = _context.Users
+                    .Where(u => u.UserName.ToLower().Contains(searchLower)|| u.Employee.FirstName.ToLower().Contains(searchLower)|| u.Employee.LastName.ToLower().Contains(searchLower) && u.IsActive == true)
+                    .Include(u => u.Employee)
+                    .Include(u => u.Employee.Department);
                 return View(WorkTrackingSystemContext.ToPagedList(page, limit));
             }
             //ViewBag.Department= _context.Employees.Include(e=>e.Department).Where(e=>e.DepartmentId ==   )

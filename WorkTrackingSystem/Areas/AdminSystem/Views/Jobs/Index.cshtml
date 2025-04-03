@@ -15,18 +15,27 @@
 
 <br />
 <div class="row">
-    <div class="col-md-12" id="list-section">
+    <div class="col-md-12">
+    <div class="card shadow-sm p-3 mb-3">
         <form id="searchForm" method="get">
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <input type="text" name="searchText" class="form-control" placeholder="Tìm kiếm theo mã / tên nhân viên" value="@ViewBag.SearchText">
+            <div class="row gx-2 gy-2 align-items-end">
+                <!-- Tìm kiếm -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Tìm kiếm</label>
+                    <input type="text" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên" value="@ViewBag.SearchText">
                 </div>
+
+                <!-- Tháng -->
                 <div class="col-md-2">
+                    <label class="form-label fw-bold">Tháng</label>
                     <input type="month" name="month" class="form-control" value="@ViewBag.Month" />
                 </div>
+
+                <!-- Trạng thái -->
                 <div class="col-md-2">
-                    <select name="status" class="form-control">
-                        <option value="">-- Trạng thái --</option>
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    <select name="status" class="form-select">
+                        <option value="">-- Tất cả --</option>
                         <option value="1">Hoàn thành</option>
                         <option value="2">Chưa hoàn thành</option>
                         <option value="3">Hoàn thành muộn</option>
@@ -34,51 +43,69 @@
                         <option value="0">Chưa bắt đầu</option>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <select name="categoryId" class="form-control">
-                        <option value="">-- Danh mục --</option>
+
+                <!-- Danh mục -->
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Danh mục</label>
+                    <select name="categoryId" class="form-select">
+                        <option value="">-- Chọn danh mục --</option>
                         @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
                         {
                             <option value="@category.Id">@category.Name</option>
                         }
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <select name="sortOrder" class="form-control">
-                        <option value="">-- Sắp xếp --</option>
+
+                <!-- Sắp xếp -->
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Sắp xếp</label>
+                    <select name="sortOrder" class="form-select">
+                        <option value="">-- Mặc định --</option>
                         <option value="due_asc">Hạn hoàn thành tăng dần</option>
                         <option value="due_desc">Hạn hoàn thành giảm dần</option>
                         <option value="review_asc">Đánh giá tăng dần</option>
                         <option value="review_desc">Đánh giá giảm dần</option>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <div class="form-check">
+
+                <!-- Chưa đánh giá -->
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
                         <input class="form-check-input" type="checkbox" name="showCompletedZeroReview" id="showCompletedZeroReview" value="true" @(Context.Request.Query["showCompletedZeroReview"] == "true" ? "checked" : "")>
-                        <label class="form-check-label" for="showCompletedZeroReview">Chưa Đ.giá</label>
+                        <label class="form-check-label" for="showCompletedZeroReview">Chưa đánh giá</label>
                     </div>
                 </div>
-                <div class="col-md-1">
-                    <div class="form-check">
+
+                <!-- Hạn hôm nay -->
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
                         <input class="form-check-input" type="checkbox" name="dueToday" id="dueToday" value="true" @(Context.Request.Query["dueToday"] == "true" ? "checked" : "")>
                         <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
                     </div>
                 </div>
-                <div class="col-md-1">
-                   
-                    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
+
+                <!-- Nút Lọc & Reset -->
+                <div class="col-md-4 d-flex justify-content-between mt-4">
+                    
+                    <a href="#" id="resetButton" class="btn btn-secondary">
+                        <i class="bi bi-arrow-repeat"></i> Reset
+                    </a>
                 </div>
             </div>
         </form>
-        <div id="tableContainer">
-            @await Html.PartialAsync("_ScoreTablePartial", Model)
-        </div>
     </div>
+
+    <!-- Danh sách kết quả -->
+    <div id="tableContainer">
+        @await Html.PartialAsync("_ScoreTablePartial", Model)
+    </div>
+
     <div class="col-md-4 d-none" id="detail-section">
         <div class="actionCustomers"></div>
     </div>
+    @* </div> *@
 </div>
-
+</div>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -120,6 +147,20 @@
                         alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
                     }
                 });
+            });
+            $("#resetButton").click(function (e) {
+                e.preventDefault();
+
+                // Reset tất cả các giá trị trong form về mặc định
+                $("#searchForm").find("input[type=text], input[type=month], select").val('');
+                $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+
+                // Xóa các tham số trên URL
+                let url = new URL(window.location.href);
+                url.search = ''; // Xóa toàn bộ query params
+
+                // Gửi AJAX để tải lại danh sách công việc
+                loadJobs(url.toString());
             });
         });
 

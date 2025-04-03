@@ -111,6 +111,10 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			ViewBag.deadlineEndDate = deadlineEndDate?.ToString("yyyy-MM-dd");
 			ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
 			ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+			{
+				return PartialView("_JobListPartial", pagedJobs);
+			}
 			return View(pagedJobs);
 		}
 

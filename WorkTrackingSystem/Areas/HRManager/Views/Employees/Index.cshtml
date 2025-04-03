@@ -13,117 +13,180 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-md-12" id="list-section">
-		@* <h1 class="mb-4 text-center"><i class="bi bi-people"></i> Danh sách nhân viên</h1> *@
-		<p>
-			<a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>
-		</p>
-		<div class="row mb-2">
-			<div class="col-lg-9 col-md-9 col-sm-12">
-				<form asp-controller="Employees" asp-action="Index" method="get" class="row">
-					<div class="col-md-5">
-						<div class="input-group">
-							<input type="text" class="form-control" name="search" placeholder="Nhập tên / mã nhân viên" value="@Context.Request.Query["search"]" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="ViewBag.Department">
-							<option value="" disabled selected>Chọn phòng ban</option>
-						</select>
-					</div>
-					<div class="col-md-3">
-						<button type="submit" class="btn btn-primary">Tìm kiếm & Lọc</button>
-					</div>
-				</form>
-			</div>
-		</div>
-		<table class="table table-bordered table-hover  ">
-			<thead class="table-dark text-white text-center">
-				<tr>
-					<th><i class="bi bi-person"></i>Code - Họ và tên</th>
-					<th><i class="bi bi-gender-ambiguous"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Gender)</th>
-					<th class="birthday-column"><i class="bi bi-calendar-date"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Birthday)</th>
-					@* <th><i class="bi bi-phone"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Phone)</th> *@
-					<th class="email-column"><i class="bi bi-envelope"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
-					<th><i class="bi bi-calendar-plus"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().HireDate)</th>
-					<th class="address-column"><i class="bi bi-house"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Address)</th>
-					<th><i class="bi bi-image"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Avatar)</th>
-					@* <th><i class="bi bi-building"></i> @Html.DisplayNameFor(model => model.FirstOrDefault().Department)</th> *@
-					<th class="position-column"><i class="bi bi-briefcase"></i> Chức vụ</th>
-					<th><i class="bi bi-gear"></i> Hành động</th>
-				</tr>
-			</thead>
-			<tbody>
-				@foreach (var item in Model)
-				{
-					<tr>
-						<td>@Html.DisplayFor(modelItem => item.Code) - @(item.FirstName + " " + item.LastName)</td>
-						<td>@Html.DisplayFor(modelItem => item.Gender)</td>
-						<td class="birthday-column">@Html.DisplayFor(modelItem => item.Birthday)</td>
-						@* <td>@Html.DisplayFor(modelItem => item.Phone)</td> *@
-						<td class="email-column">@Html.DisplayFor(modelItem => item.Email)</td>
-						<td>@Html.DisplayFor(modelItem => item.HireDate)</td>
-						<td class="address-column">@Html.DisplayFor(modelItem => item.Address)</td>
-						<td>
-							@if (!string.IsNullOrEmpty(item.Avatar))
-							{
-								<img src="@item.Avatar" class="img-fluid rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-							}
-						</td>
-						@* <td>@Html.DisplayFor(modelItem => item.Department.Name)</td> *@
-						<td class="position-column">@Html.DisplayFor(modelItem => item.Position.Name)</td>
-						<td>
-							<a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
-							<a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-							<a class="btn btn-danger btn-sm ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a>
-						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-	<div class="col-md-4 d-none" id="detail-section">
-		<div class="actionCustomers"></div>
-	</div>
+    <div class="col-md-12" id="list-section">
+        <div class="row mb-2">
+            <div class="col-lg-9 col-md-9 col-sm-12">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Nhập tên / mã nhân viên" value="@ViewBag.Search" />
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="@ViewBag.Department">
+                            <option value="" selected>Tất cả phòng ban</option>
+                            @foreach (var department in ViewBag.Department)
+                            {
+                                <option value="@department.Value">
+                                    @department.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng nhân viên -->
+        <table class="table table-bordered table-hover" id="employeeTable">
+            <thead class="table-dark text-white text-center">
+                <tr>
+                    <th>Nhân viên</th>
+                    <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Gender)</th>
+                    <th class="birthday-column">@Html.DisplayNameFor(model => model.FirstOrDefault().Birthday)</th>
+                    <th class="email-column">@Html.DisplayNameFor(model => model.FirstOrDefault().Email)</th>
+                    <th>@Html.DisplayNameFor(model => model.FirstOrDefault().HireDate)</th>
+                    <th class="address-column">@Html.DisplayNameFor(model => model.FirstOrDefault().Address)</th>
+                    <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Avatar)</th>
+                    <th class="position-column">Chức vụ</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-department-id="@item.DepartmentId">
+                        <td class="employee-name">@Html.DisplayFor(modelItem => item.Code) - @(item.FirstName + " " + item.LastName)</td>
+                        <td>
+                            @switch (item.Gender)
+                            {
+                                case "Male":
+                                    <span>Nam</span>
+                                    break;
+                                case "Female":
+                                    <span>Nữ</span>
+                                    break;
+                                case "Other":
+                                    <span>Khác</span>
+                                    break;
+                                default:
+                                    <span>Không xác định</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="birthday-column">@Html.DisplayFor(modelItem => item.Birthday)</td>
+                        <td class="email-column">@Html.DisplayFor(modelItem => item.Email)</td>
+                        <td>@Html.DisplayFor(modelItem => item.HireDate)</td>
+                        <td class="address-column">@Html.DisplayFor(modelItem => item.Address)</td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(item.Avatar))
+                            {
+                                <img src="@item.Avatar" class="img-fluid rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            }
+                        </td>
+                        <td class="position-column">@Html.DisplayFor(modelItem => item.Position.Name)</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
+                            <a class="btn btn-info btn-sm ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+                            <a class="btn btn-danger btn-sm ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="pagination">
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, search = ViewBag.Search, DepartmentId = ViewBag.DepartmentId }), new PagedListRenderOptions
+       {
+           LiElementClasses = new string[] { "page-item" },
+           PageClasses = new string[] { "page-link" },
+           DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+           DisplayLinkToLastPage = PagedListDisplayMode.Always,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+           DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+           MaximumPageNumbersToDisplay = 5
+       })
+        </div>
+    </div>
+    <div class="col-md-4 d-none" id="detail-section">
+        <div class="actionCustomers"></div>
+    </div>
 </div>
 
-@Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
-{
-	LiElementClasses = new string[] { "page-item" },
-	PageClasses = new string[] { "page-link" },
-	DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
-	DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
-	DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
-	DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
-	DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
-	MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
-})
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-	$(document).ready(function () {
-		$(".ajax-action").click(function (e) {
-			e.preventDefault();
+    $(document).ready(function () {
+        // Xử lý sự kiện click cho các nút AJAX
+        $(".ajax-action").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+            console.log("oke");
+            if ($("#detail-section").hasClass("d-none")) {
+                $("#list-section").removeClass("col-md-12").addClass("col-md-8");
+                $("#detail-section").removeClass("d-none").addClass("col-md-4");
+                $(".email-column, .position-column, .address-column, .birthday-column").hide();
+            }
 
-			var url = $(this).data("url");
 
-			// Kiểm tra nếu phần chi tiết đang ẩn, thì thay đổi layout
-			if ($("#detail-section").hasClass("d-none")) {
-				$("#list-section").removeClass("col-md-12").addClass("col-md-8");
-				$("#detail-section").removeClass("d-none").addClass("col-md-4");
-			}
-			$(".email-column, .position-column,.address-column,.birthday-column").hide();
+            $(".actionCustomers").load(url, function (response, status, xhr) {
+                if (status === "error") {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        });
+        // Tìm kiếm và lọc phòng ban
+        $("#searchInput, #DepartmentId").on("input change", function () {
+            applyFilters();
+        });
 
-			// Load nội dung vào phần chi tiết
-			$(".actionCustomers").load(url, function (response, status, xhr) {
-				if (status === "error") {
-					alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
-				}
-			});
-		});
-	});
-	function closeDetailSection() {
-		$("#list-section").removeClass("col-md-8").addClass("col-md-12"); // Trở về full width
-		$("#detail-section").addClass("d-none"); // Ẩn phần chi tiết
-		$(".email-column, .position-column,.address-column,.birthday-column").show();
-	}
+        // Xử lý phân trang bằng AJAX
+        $(document).on("click", ".page-link", function (e) {
+            e.preventDefault();
+            var url = $(this).attr("href");
+            console.log("Paging URL:", url);  // Kiểm tra URL phân trang
+            loadTable(url);
+        });
+    });
+
+    // Hàm thực hiện tìm kiếm và lọc
+    function applyFilters() {
+        var searchText = $("#searchInput").val();
+        var departmentId = $("#DepartmentId").val();
+
+        var url = "@Url.Action("Index")" + "?search=" + encodeURIComponent(searchText) + "&DepartmentId=" + departmentId;
+        console.log("Request URL:", url); // Debug URL request
+
+        loadTable(url);
+    }
+
+    // Hàm AJAX tải lại bảng dữ liệu mà không load lại trang
+    function loadTable(url) {
+        $.ajax({
+            url: url,
+            type: "GET",
+            beforeSend: function () {
+                $("#employeeTable").html('<div class="text-center"><i class="spinner-border"></i> Đang tải...</div>');
+            },
+            success: function (data) {
+                // Chỉ cập nhật bảng nhân viên và phân trang, không load lại toàn bộ trang
+                var newTable = $(data).find("#employeeTable").html();
+                $("#employeeTable").html(newTable);
+
+                var newPagination = $(data).find(".pagination").html();
+                $(".pagination").html(newPagination);
+            },
+            error: function (xhr, status, error) {
+                console.error("Lỗi tải dữ liệu:", status, error);
+            }
+        });
+    }
+
+    function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
+        $(".email-column, .position-column, .address-column, .birthday-column").show();
+    }
 </script>

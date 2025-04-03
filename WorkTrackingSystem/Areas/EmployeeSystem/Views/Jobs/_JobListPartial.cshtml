@@ -1,0 +1,89 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Areas.EmployeeSystem.Models.JobViewModel>
+
+<table class="table table-bordered table-hover  shadow">
+	<thead class="table-dark text-white text-center">
+		<tr>
+			<th>Hạng mục</th>
+			<th>Tên công việc</th>
+			<th>Hạn chót</th>
+			<th>Ngày hoàn thiện</th>
+			<th>Trạng thái</th>
+			<th>Tiến độ </th>
+
+		</tr>
+	</thead>
+	<tbody id="jobTable">
+
+		@foreach (var item in Model)
+		{
+			<tr class="job-row" data-status="@item.ScoreStatus">
+				<td>@item.CategoryName</td>
+				<td class="job-name">@item.JobName</td>
+				<td>@item.Deadline?.ToString("dd/MM/yyyy")</td>
+				<td class="text-center">
+					@if (item.Progress == 100 && item.CompletionDate.HasValue)
+					{
+						@item.CompletionDate.Value.ToString("dd/MM/yyyy")
+					}
+					else
+					{
+						<text>-</text> <!-- Hiển thị dấu "-" nếu công việc chưa hoàn thành -->
+					}
+				</td>
+				<td class="text-center">
+					<span>
+						@if (item.ScoreStatus == 1)
+						{
+							<text>Hoàn thành</text>
+						}
+						else if (item.ScoreStatus == 2)
+						{
+							<text>Chưa hoàn thành</text>
+						}
+						else if (item.ScoreStatus == 3)
+						{
+							<text>Hoàn thành muộn</text>
+						}
+						else if (item.ScoreStatus == 4)
+						{
+							<text>Đang xử lý</text>
+						}
+						else if (item.ScoreStatus == 0)
+						{
+							<text>Chưa bắt đầu</text>
+						}
+					</span>
+				</td>
+				<td class="text-center">
+					<input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
+					<span class="progress-value">@item.Progress%</span>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+@if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
+{
+	@Html.PagedListPager(Model, page => Url.Action("Index", new
+		{
+			page = page,
+			filterStatus = ViewBag.FilterStatus,
+			search = ViewBag.Search,
+			selectedMonth = ViewBag.SelectedMonth,
+			startDate = ViewBag.StartDate,
+			endDate = ViewBag.EndDate,
+			deadlineStartDate = ViewBag.deadlineStartDate,
+			deadlineEndDate = ViewBag.deadlineEndDate
+		}), new PagedListRenderOptions
+{
+	LiElementClasses = new string[] { "page-item" },
+	PageClasses = new string[] { "page-link" },
+	DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+	DisplayLinkToLastPage = PagedListDisplayMode.Always,
+	DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+	DisplayLinkToNextPage = PagedListDisplayMode.Always,
+	DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+	MaximumPageNumbersToDisplay = 5
+})
+}
