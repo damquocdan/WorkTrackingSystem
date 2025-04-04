@@ -761,7 +761,62 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Scores/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAssessment(long id, string field, float value)
+        {
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee)
+                .FirstOrDefaultAsync(s => s.Id == id);
 
+            if (score == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy bản ghi." });
+            }
+
+            try
+            {
+                // Update the specified field
+                switch (field)
+                {
+                    case "VolumeAssessment":
+                        score.VolumeAssessment = value;
+                        break;
+                    case "ProgressAssessment":
+                        score.ProgressAssessment = value;
+                        break;
+                    case "QualityAssessment":
+                        score.QualityAssessment = value;
+                        break;
+                    default:
+                        return Json(new { success = false, message = "Trường không hợp lệ." });
+                }
+
+                // Update SummaryOfReviews automatically
+                score.SummaryOfReviews = (score.VolumeAssessment ?? 0) * 0.6f +
+                                         (score.ProgressAssessment ?? 0) * 0.15f +
+                                         (score.QualityAssessment ?? 0) * 0.2f;
+
+                score.UpdateDate = DateTime.Now;
+                score.UpdateBy = HttpContext.Session.GetString("ProjectManagerLogin");
+
+                // Update related assessments if EmployeeId exists
+                if (score.JobMapEmployee != null)
+                {
+                    await UpdateBaselineAssessment(score.JobMapEmployee.EmployeeId);
+                    await UpdateAnalysis(score.JobMapEmployee.EmployeeId);
+                }
+
+                _context.Update(score);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
         private async Task UpdateBaselineAssessment(long? employeeId)
         {
             if (employeeId == null)
