@@ -10,6 +10,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml;
 using WorkTrackingSystem.Models;
 using OfficeOpenXml.Drawing.Chart;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
@@ -24,8 +25,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Baselineassessments
-        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time)
+        public async Task<IActionResult> Index(string employeeCode, string employeeName, bool? evaluate, string time,int page=1)
         {
+            var limit = 8;
             // Lấy ManagerId từ session
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
 
@@ -90,7 +92,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-            return View(await assessments.OrderByDescending(x => x.Time).ToListAsync());
+            ViewBag.EmployeeCode = employeeCode;
+            ViewBag.EmployeeName = employeeName;
+            ViewBag.Evaluate = evaluate;
+            ViewBag.Time = time;
+            return View( assessments.OrderByDescending(x => x.Time).ToPagedList(page,limit));
 
         }
 

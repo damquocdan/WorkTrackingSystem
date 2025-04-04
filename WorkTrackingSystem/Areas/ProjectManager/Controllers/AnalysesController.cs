@@ -12,6 +12,7 @@ using WorkTrackingSystem.Models;
 using System.Net.Mail;
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
+using X.PagedList.Extensions;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
@@ -31,8 +32,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string searchText,
     string time, // Thay vì month và year riêng lẻ
     string sortOrder,
-    string filterType)
+    string filterType,int page=1)
         {
+            var limit = 8;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
 
             if (string.IsNullOrEmpty(managerUsername))
@@ -128,7 +130,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-            return View(await analyses.ToListAsync());
+            ViewBag.SearchText = searchText;
+            ViewBag.Time = time;
+            ViewBag.SortOrder = sortOrder;
+            return View(analyses.ToPagedList(page,limit));
         }
 
 
