@@ -4,8 +4,6 @@
     ViewData["Title"] = "Index";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
-
-<h1>Index</h1>
 <form asp-action="Index" method="get">
     <!-- Giữ nguyên phần form tìm kiếm -->
     <div class="row mb-3">
@@ -127,13 +125,17 @@
                 <table class="table table-bordered table-hover">
                     <thead class="bg-primary text-white text-center">
                         <tr>
-                            <th>Nhân viên</th>
-                            <th>D.mục C.việc</th>
+                            <th>STT</th>
+                            <th>Người triển khai</th>
+                            <th>Hạng mục</th>
                             <th>Công việc</th>
+                            <th>Deadline</th>
+                            <th>Ngày hoàn thành thực tế</th>
                             <th>Trạng thái</th>
-                            <th>Thời gian làm việc</th>
-                            <th>Ngày h.thành</th>
-                            <th>Tổng đ.giá</th>
+                            <th>Đánh giá khối lượng</th>
+                            <th>Đánh giá tiến độ</th>
+                            <th>Đánh giá chất lượng</th>
+                            <th>Tổng hợp đánh giá</th>
                             <th width="100px">
                                 <form asp-action="ExportToExcel" method="get">
                                     <input type="hidden" name="searchText" value="@Context.Request.Query["searchText"]" />
@@ -150,21 +152,22 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @{
+                            int index = 0;
+                        }
                         @foreach (var item in Model)
                         {
+                            index++;
                             <tr class="text-center
                                 @(item.Status == 1 ? "table-success" :
                                 item.Status == 2 ? "table-warning" :
                                 item.Status == 3 ? "table-danger" :
                                 item.Status == 4 ? "table-primary" :
                                 item.Status == 0 ? "table-secondary" : "")">
-
+                                <td>@index</td>
                                 <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
-                                        <span class="fw-bold">@item.JobMapEmployee.Employee.Code</span>
-
-                                        <br>
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
                                     }
                                     else
@@ -174,6 +177,18 @@
                                 </td>
                                 <td>@item.JobMapEmployee.Job.Category.Name</td>
                                 <td>@item.JobMapEmployee.Job.Name</td>
+                                <td>
+                                    @if (item.JobMapEmployee?.Employee != null)
+                                    {
+                                        @Html.DisplayFor(modelItem => item.CreateDate)
+                                    }
+                                    else
+                                    {
+                                        <span class=""></span>
+                                    }
+                                   
+                                </td>
+                                <td> @Html.DisplayFor(modelItem => item.CompletionDate)</td>
                                 <td>
                                     <span class=" badge
                                         @(item.Status == 1 ? "bg-success" :
@@ -205,17 +220,43 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @if (item.JobMapEmployee?.Employee == null)
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
                                     {
-                                        <span>Chưa có thời gian cụ thể</span>
-                                    }
-                                    else
-                                    {
-                                        @Html.DisplayFor(modelItem => item.Time) <span>-</span> @Html.DisplayFor(modelItem => item.CreateDate)
+                                        <input type="number" class="form-control assessment-input"
+                                               data-field="VolumeAssessment"
+                                               data-id="@item.Id"
+                                               value="@(item.VolumeAssessment?.ToString("F2") ?? "0.00")"
+                                               min="0" max="3" step="0.5" />
                                     }
                                 </td>
-                                <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td>@(item.SummaryOfReviews?.ToString("F2") ?? "N/A")</td>
+                                <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                        <input type="number" class="form-control assessment-input"
+                                               data-field="ProgressAssessment"
+                                               data-id="@item.Id"
+                                               value="@(item.ProgressAssessment?.ToString("F2") ?? "0.00")"
+                                               min="0" max="3" step="0.5" />
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                        <input type="number" class="form-control assessment-input"
+                                               data-field="QualityAssessment"
+                                               data-id="@item.Id"
+                                               value="@(item.QualityAssessment?.ToString("F2") ?? "0.00")"
+                                               min="0" max="3" step="0.5" />
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                        <span class="summary-display" data-id="@item.Id">
+                                            @(item.SummaryOfReviews?.ToString("F2") ?? "N/A")
+                                        </span>
+                                    }
+                                </td>
                                 <td>
                                     <div class="d-flex flex-column gap-2">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
@@ -266,7 +307,64 @@
         }
     }
         ];
+        $('.assessment-input').on('change keydown', function (e) {
+            if (e.type === 'keydown' && e.key !== 'Tab') return; // Only proceed on Tab or change
 
+            var $input = $(this);
+            var id = $input.data('id');
+            var field = $input.data('field');
+            var value = parseFloat($input.val());
+
+            // Validate input
+            if (isNaN(value) || value < 0 || value > 3) {
+                $input.val(value < 0 ? '0.00' : '3.00');
+                value = value < 0 ? 0 : 3;
+            }
+
+            // AJAX call to update the field
+            $.ajax({
+                url: '@Url.Action("UpdateAssessment", "Scores", new { area = "ProjectManager" })',
+                type: 'POST',
+                data: {
+                    id: id,
+                    field: field,
+                    value: value,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Update SummaryOfReviews
+                        updateSummary(id);
+                    } else {
+                        alert('Cập nhật thất bại: ' + response.message);
+                    }
+                },
+                error: function () {
+                    alert('Lỗi khi gửi yêu cầu.');
+                }
+            });
+
+            // Move to next input on Tab
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                var $nextInput = $input.closest('tr').find('.assessment-input').eq($input.index('.assessment-input') + 1);
+                if ($nextInput.length) {
+                    $nextInput.focus();
+                }
+            }
+        });
+
+        // Function to calculate and update SummaryOfReviews
+        function updateSummary(id) {
+            var $row = $('tr').find(`[data-id="${id}"]`).closest('tr');
+            var volume = parseFloat($row.find('[data-field="VolumeAssessment"]').val()) || 0;
+            var progress = parseFloat($row.find('[data-field="ProgressAssessment"]').val()) || 0;
+            var quality = parseFloat($row.find('[data-field="QualityAssessment"]').val()) || 0;
+
+            // Calculate SummaryOfReviews: Volume*60% + Progress*15% + Quality*20%
+            var summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.2);
+            $row.find('.summary-display').text(summary.toFixed(2));
+        }
         // Hiển thị ô tìm kiếm khi bấm "Giao C.việc"
         $("#btn-create-job").click(function () {
             $("#search-employee-section").removeClass("d-none");
