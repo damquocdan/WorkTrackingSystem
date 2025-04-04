@@ -21,9 +21,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Employees
-        public async Task<IActionResult> Index(string searchTerm, int? positionId)
+        public async Task<IActionResult> Index(string search, int? positionId, int page = 1)
         {
-           
+            var limit = 8;
+
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
 
             if (string.IsNullOrEmpty(managerUsername))
@@ -41,10 +42,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
+            // Tải dữ liệu từ database trước khi gọi ToPagedList
             var managedDepartments = await _context.Departments
                 .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
                 .Select(d => d.Id)
-                .ToListAsync();
+                .ToListAsync(); // Chuyển thành danh sách thực tế
 
             var employeesQuery = _context.Employees
                 .Include(e => e.Department)
@@ -57,18 +59,30 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 employeesQuery = employeesQuery.Where(e => e.PositionId == positionId.Value);
             }
 
-            if (!string.IsNullOrEmpty(searchTerm))
+            if (!string.IsNullOrEmpty(search))
             {
-                searchTerm = searchTerm.Trim().ToLower();
+                search = search.Trim().ToLower();
                 employeesQuery = employeesQuery.Where(e =>
-                    e.Code.ToLower().Contains(searchTerm) ||
-                    (e.FirstName != null && e.FirstName.ToLower().Contains(searchTerm)) ||
-                    (e.LastName != null && e.LastName.ToLower().Contains(searchTerm)));
+                    e.Code.ToLower().Contains(search) ||
+                    (e.FirstName != null && e.FirstName.ToLower().Contains(search)) ||
+                    (e.LastName != null && e.LastName.ToLower().Contains(search)));
             }
 
+            // Lấy danh sách nhân viên từ database trước khi phân trang
             var employees = await employeesQuery.ToListAsync();
-            ViewBag.Positions = await _context.Positions.ToListAsync();
-            return View(employees);
+            var pagedEmployees = employees.ToPagedList(page, limit); // Phân trang trên danh sách đã tải
+
+            //       ViewBag.Positions = _context.Positions
+            //.Select(p => new SelectListItem
+            //{
+            //    Value = p.Id.ToString(),
+            //    Text = p.Name
+            //})
+            //.ToList();
+            ViewBag.Search = search;
+            ViewBag.positionId = positionId;
+            ViewBag.Positions = new SelectList(_context.Positions, "Id", "Name");
+            return View(pagedEmployees); // Trả về IPagedList<Employee>
         }
 
 

@@ -3,19 +3,60 @@
     vertical-align: middle;
 }
 td:last-child {
-    width: 140px;
-   text-align:center;
+    width: 150px;
+    text-align: center;
 }
 table.table.table-bordered.table-hover {
   /*  border-collapse: separate;*/
     border-spacing: 0;
     border-radius: 0.25rem;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 .table > tbody {
     
     background-color: white;
 }
+.table > :not(:last-child) > :last-child > * {
+    border-bottom: 1px solid #dee2e6;
+}
 .progress-bar {
     font-size: 20px;
 }
+.btn-event {
+    padding: 6px 10px;
+    margin: 0 2px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease-in-out;
+}
+thead.table-dark.text-white.text-center {
+    background-color: #343A40;
+    color:grey !important;
+}
+.btn-green {
+    background-color: #26a69a;
+}
+
+    .btn-green:hover {
+        background-color: #218838;
+    }
+
+.btn-yellow {
+    background-color: #c49f47;
+    color: #212529;
+}
+
+    .btn-yellow:hover {
+        background-color: #e0a800;
+    }
+
+.btn-red {
+    background-color: #cb5a5e;
+}
+
+    .btn-red:hover {
+        background-color: #c82333;
+    }

@@ -14,13 +14,13 @@
 </div>
 <div class="row">
     <div class="col-md-12" id="list-section">
-        @* <h1 class="text-center">Danh Sách Phòng Ban</h1> *@
+      
 
         <p>
             <a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>
         </p>
-        <table class="table table-striped table-bordered text-left table-hover ">
-            <thead >
+        <table class="table table-bordered text-left table-hover  ">
+            <thead class="text-center" >
                 <tr>
                     <th>
                         @Html.DisplayNameFor(model => model.Code)
@@ -52,11 +52,7 @@
                             <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
                             <a class="btn-red btn-event ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a>
                         </td>
-                       @*  <div>
-                            <button class="btn-green btn-event" onclick="window.open('/cach-su-dung-tra-thao-duoc-mang-lai-hieu-qua-tot-cho-suc-khoe')"><i class="fas fa-info-circle"></i> </button>
-                            <button class="btn-yellow btn-event" onclick="btnEditClick(9)"><i class="far fa-edit"></i> </button>
-                            <button class="btn-red btn-event" role="button" onclick="deleteByID(9)"><i class="far fa-trash-alt"></i> </button>
-                        </div> *@
+                      
                     </tr>
                 }
             </tbody>
