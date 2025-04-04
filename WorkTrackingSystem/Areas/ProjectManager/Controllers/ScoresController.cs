@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using WorkTrackingSystem.Models;
+using X.PagedList.Extensions;
 using static System.Formats.Asn1.AsnWriter;
 
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
@@ -30,8 +31,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string sortOrder = "",
     bool showCompletedZeroReview = false,
     bool dueToday = false,
-    long? jobId = null)
+    long? jobId = null,int page=1)
         {
+            var limit = 8;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
             {
@@ -128,8 +130,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 scoresQuery = scoresQuery.Where(s => s.Status == 1 && (!s.SummaryOfReviews.HasValue || s.SummaryOfReviews == 0));
             }
 
-            var scores = await scoresQuery.ToListAsync();
-
+            var scores = scoresQuery.ToPagedList(page,limit);
+            ViewBag.SearchText = searchText;
+            ViewBag.Month = month;
+            ViewBag.Status = status?.ToString();
+            ViewBag.CategoryId = categoryId?.ToString();
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
+            ViewBag.DueToday = dueToday;
             return View(scores);
         }
         [HttpGet]

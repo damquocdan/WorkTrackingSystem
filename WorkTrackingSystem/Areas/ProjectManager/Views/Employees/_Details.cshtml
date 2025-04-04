@@ -35,18 +35,17 @@
     </div>
 </div>
 
-
 <!-- Danh sách công việc -->
 <div class="card shadow-lg mt-4 p-4">
     <h4 class="card-title">Công việc được giao</h4>
     <hr />
     @if (ViewBag.JobMaps != null && ((IEnumerable<WorkTrackingSystem.Models.Jobmapemployee>)ViewBag.JobMaps).Any())
     {
-        <table class="table table-bordered text-left table-hover ">
+        <table class="table table-bordered text-left table-hover" id="employeeTable">
             <thead class="text-center">
                 <tr>
                     <th class="text-center">Nhân viên</th>
-                    <th class="text-center">Danh mục công việc</th>
+                    <th class="text-center">Danh mục</th>
                     <th class="text-center">Công việc</th>
                     <th class="text-center">Trạng thái</th>
                     <th class="text-center">Bắt đầu</th>
@@ -67,8 +66,8 @@
                         <td>
                             @Model.Code - @Model.FirstName @Model.LastName
                         </td>
-                        <td>@(jobMap.Job?.Category?.Name)</td>
-                        <td>@(jobMap.Job?.Name)</td>
+                        <td>@(jobMap.Job?.Category?.Name ?? "N/A")</td>
+                        <td>@(jobMap.Job?.Name ?? "N/A")</td>
                         <td>
                             @switch (latestScore?.Status)
                             {
@@ -92,31 +91,33 @@
                                     break;
                             }
                         </td>
-                        <td>@(latestScore?.Time?.ToString("dd/MM/yyyy HH:mm"))</td>
-                        <td>@(jobMap.Job?.Deadline1?.ToString("dd/MM/yyyy"))</td>
-                        <td>@(latestScore?.CompletionDate?.ToString("dd/MM/yyyy"))</td>
-                        <td>@(latestScore?.SummaryOfReviews)</td>
+                        <td>@(latestScore?.Time?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                        <td>@(jobMap.Job?.Deadline1?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                        <td>@(latestScore?.CompletionDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                        <td>@(latestScore?.SummaryOfReviews?.ToString("F2") ?? "N/A")</td>
                     </tr>
                 }
             </tbody>
         </table>
-       
+
+        <!-- Phân trang -->
+        <div class="pagination">
             @Html.PagedListPager((X.PagedList.IPagedList<WorkTrackingSystem.Models.Jobmapemployee>)ViewBag.JobMaps, page => Url.Action("Details", new
                 {
-                id = Model.Id,
+                    id = Model.Id,
                     page = page
                 }), new PagedListRenderOptions
-                {
-                    LiElementClasses = new string[] { "page-item" },
-                    PageClasses = new string[] { "page-link" },
-                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                    MaximumPageNumbersToDisplay = 5
-                })
-             
+   {
+       LiElementClasses = new string[] { "page-item" },
+       PageClasses = new string[] { "page-link" },
+       DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+       DisplayLinkToLastPage = PagedListDisplayMode.Always,
+       DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+       DisplayLinkToNextPage = PagedListDisplayMode.Always,
+       DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+       MaximumPageNumbersToDisplay = 5
+   })
+        </div>
     }
     else
     {
@@ -125,6 +126,70 @@
 </div>
 
 <div class="mt-3">
-   @*  <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.Id">Chỉnh sửa</a> *@
     <button class="btn btn-secondary" onclick="closeDetailSection()">Quay lại danh sách</button>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Document ready");
+
+            // Xử lý phân trang
+            $(document).on("click", ".page-link", function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                console.log("Pagination clicked, URL:", url);
+                loadTable(url);
+            });
+        });
+
+        function loadTable(url) {
+            console.log("Loading table with URL:", url);
+            $.ajax({
+                url: url,
+                type: "GET",
+                beforeSend: function () {
+                    $("#employeeTable").html('<div class="text-center">Đang tải...</div>');
+                },
+                success: function (data) {
+                    console.log("AJAX success");
+                    var newTable = $(data).find("#employeeTable").html();
+                    var newPagination = $(data).find(".pagination").html();
+                    if (newTable) {
+                        $("#employeeTable").html(newTable);
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Không tìm thấy bảng công việc trong dữ liệu trả về.",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                    if (newPagination) {
+                        $(".pagination").html(newPagination);
+                    } else {
+                        $(".pagination").html('<p class="text-center">Không có phân trang.</p>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", status, error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Lỗi",
+                        text: "Không thể tải danh sách công việc. Vui lòng thử lại sau.",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            });
+        }
+
+        function closeDetailSection() {
+            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+            $("#detail-section").addClass("d-none");
+            $(".completion-colum, .sum-colum").show();
+        }
+    </script>
+}
