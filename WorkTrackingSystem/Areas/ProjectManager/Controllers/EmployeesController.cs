@@ -23,7 +23,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Employees
         public async Task<IActionResult> Index(string search, int? positionId, int page = 1)
         {
-            var limit = 8;
+            var limit = 10;
 
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
 

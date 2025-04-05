@@ -39,23 +39,24 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 @* <li class="nav-item menu-open">
                     <a href="#" class="nav-link active">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
-                        <p>
-                            Thống kê
+                <i class="nav-icon fas fa-star"></i>
+                <p>
+                Quản lý đánh giá
+               
                             <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a asp-controller="Dashboard" asp-action="Index1" class="nav-link active">
+                            <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Thống kê công việc</p>
+                                <p>Thống kê đánh giá</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a asp-controller="Dashboard" asp-action="Index2" class="nav-link">
+                <a asp-controller="Baselineassessments" asp-action="JobEaluation" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Thống kê đánh giá</p>
+                                <p>Đánh giá công việc</p>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -90,13 +91,29 @@
                         </p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
                         <i class="nav-icon fas fa-star"></i>
                         <p>
                             Quản lý đánh giá
+
+                            <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Thống kê đánh giá</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Baselineassessments" asp-action="JobEaluation" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Đánh giá công việc</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">

@@ -33,7 +33,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     bool dueToday = false,
     long? jobId = null,int page=1)
         {
-            var limit = 8;
+            var limit = 10;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
             {

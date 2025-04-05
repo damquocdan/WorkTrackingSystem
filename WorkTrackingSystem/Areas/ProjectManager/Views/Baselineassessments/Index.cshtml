@@ -49,7 +49,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="">
-            <h1 class="mb-4 text-center">Danh sách đánh giá cơ bản</h1>
+            @* <h1 class="mb-4 text-center">Danh sách đánh giá cơ bản</h1> *@
             <div class="row g-3">
                 <div class="col-md-3">
                     <label class="form-label">Mã nhân viên:</label>
@@ -90,13 +90,13 @@
     </div>
     <div class="col-md-6">
         <div class="row">
-            <div class="col-md-6" style="height: 300px;">
+            <div class="col-md-6" style="height: 200px;">
                 <div class="chart-container border p-3">
                     <h5 class="text-center">Biểu đồ đánh giá</h5>
                     <canvas id="evaluationChart" width="200" height="100"></canvas>
                 </div>
             </div>
-            <div class="col-md-6" style="height: 300px;">
+            <div class="col-md-6" style="height: 200px;">
                 <div class="chart-container border p-3">
                     <h5 class="text-center">Tóm tắt công việc</h5>
                     <canvas id="summaryChart" width="200" height="100"></canvas>
@@ -104,7 +104,9 @@
             </div>
         </div>
     </div>
-    <div class="row">
+   
+</div>
+ <div class="row">
         <div class="col-md-12" id="list-section">
             <div class="table-responsive">
                 <table class="table table-bordered text-left table-hover" id="assessmentTable">
@@ -177,8 +179,6 @@
             <div class="actionCustomers"></div>
         </div>
     </div>
-</div>
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 @section Scripts {
