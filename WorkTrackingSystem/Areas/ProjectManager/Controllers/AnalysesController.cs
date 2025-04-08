@@ -43,19 +43,19 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var manager = await _context.Users
-                .Where(u => u.UserName == managerUsername)
-                .Select(u => u.Employee)
-                .FirstOrDefaultAsync();
+        .Include(u => u.Employee)
+        .ThenInclude(e => e.Department)
+        .FirstOrDefaultAsync(u => u.UserName == managerUsername);
 
-            if (manager == null || manager.DepartmentId == null)
+            if (manager == null || manager.Employee?.DepartmentId == null)
             {
                 return RedirectToAction("Index", "Login");
             }
-
+            ViewBag.DepartmentName = manager.Employee.Department?.Name ?? "Không xác định";
             var employeeIdsInManagedDepartment = await _context.Employees
-                .Where(e => e.DepartmentId == manager.DepartmentId)
-                .Select(e => e.Id)
-                .ToListAsync();
+        .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+        .Select(e => e.Id)
+        .ToListAsync();
 
             var analyses = _context.Analyses
                 .Include(a => a.Employee)

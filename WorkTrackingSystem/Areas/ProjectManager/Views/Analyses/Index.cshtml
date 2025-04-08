@@ -21,167 +21,621 @@
 </div>
 
 <div class="row">
-    <div class="col-md-12" id="list-section">
+    <div class="col-md-6">
         <div class="row">
-            <div class="col-md-9">
+            <div class="col-md-12" id="list-section">
                 <div class="row">
-                    <!-- Tìm kiếm theo nhân viên -->
-                    <div class="col-md-3">
-                        <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@ViewBag.SearchText" />
-                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <!-- Tìm kiếm theo nhân viên -->
+                            <div class="col-md-3">
+                                <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@ViewBag.SearchText" />
+                            </div>
 
-                    <!-- Bộ lọc thời gian (Tháng) -->
-                    <div class="col-md-2">
-                        <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
-                    </div>
+                            <!-- Bộ lọc thời gian (Tháng) -->
+                            <div class="col-md-2">
+                                <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
+                            </div>
 
-                    <!-- Sắp xếp -->
-                    <div class="col-md-3">
-                        <select id="sortOrder" name="sortOrder" class="form-control">
-                            <option value="">-- Sắp xếp theo --</option>
-                            <option value="total_asc" >Tổng số ↑</option>
-                            <option value="total_desc" >Tổng số ↓</option>
-                            <option value="ontime_asc" >Đúng hạn ↑</option>
-                            <option value="ontime_desc">Đúng hạn ↓</option>
-                            <option value="late_asc" >Trễ hạn ↑</option>
-                            <option value="late_desc" >Trễ hạn ↓</option>
-                            <option value="overdue_asc" >Quá hạn ↑</option>
-                            <option value="overdue_desc" >Quá hạn ↓</option>
-                            <option value="processing_asc" >Đang xử lý ↑</option>
-                            <option value="processing_desc" >Đang xử lý ↓</option>
-                            <option value="time_asc" >Thời gian ↑</option>
-                            <option value="time_desc" >Thời gian ↓</option>
-                        </select>
-                    </div>
+                            <!-- Sắp xếp -->
+                            <div class="col-md-3">
+                                <select id="sortOrder" name="sortOrder" class="form-control">
+                                    <option value="">-- Sắp xếp theo --</option>
+                                    <option value="total_asc">Tổng số ↑</option>
+                                    <option value="total_desc">Tổng số ↓</option>
+                                    <option value="ontime_asc">Đúng hạn ↑</option>
+                                    <option value="ontime_desc">Đúng hạn ↓</option>
+                                    <option value="late_asc">Trễ hạn ↑</option>
+                                    <option value="late_desc">Trễ hạn ↓</option>
+                                    <option value="overdue_asc">Quá hạn ↑</option>
+                                    <option value="overdue_desc">Quá hạn ↓</option>
+                                    <option value="processing_asc">Đang xử lý ↑</option>
+                                    <option value="processing_desc">Đang xử lý ↓</option>
+                                    <option value="time_asc">Thời gian ↑</option>
+                                    <option value="time_desc">Thời gian ↓</option>
+                                </select>
+                            </div>
 
-                    <!-- Nút tìm kiếm -->
-                   @*  <div class="col-md-3">
-                        <button type="button" id="searchButton" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
+                            <!-- Nút reset -->
+                            <div class="col-md-1">
+                                <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+                            </div>
+                        </div>
                     </div>
- *@
-                    <!-- Nút reset -->
-                    <div class="col-md-1">
-                        <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i></a>
+                    <div class="col-md-3 text-end">
+                        @if (Model.Any())
+                        {
+                            <a id="exportExcel"
+                               class="btn btn-success"
+                               title="Xuất dữ liệu ra file Excel">
+                                <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                            </a>
+                        }
+                        else
+                        {
+                            <p>Không có dữ liệu để xuất Excel.</p>
+                        }
+                    </div>
+                </div>
+
+                <br />
+                <div class="table-responsive">
+                    <div>
+                        Bảng tổng hợp phân tích
+                        <span id="filterDescription"></span>
+                    </div>
+                    <table class="table table-bordered text-left table-hover" id="analysisTable">
+                        <thead class="text-center">
+                            <tr>
+                                <th>STT</th>
+                                <th>Nhân sự</th>
+                                <th>Tổng số</th>
+                                <th>Đúng hạn</th>
+                                <th>Trễ hạn</th>
+                                <th>Quá hạn</th>
+                                <th>Đang xử lý</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int index = (Model.PageNumber - 1) * Model.PageSize;
+
+                                // Tính tổng các giá trị từ Model
+                                var totalSum = Model.Sum(item => item.Total);
+                                var ontimeSum = Model.Sum(item => item.Ontime);
+                                var lateSum = Model.Sum(item => item.Late);
+                                var overdueSum = Model.Sum(item => item.Overdue);
+                                var processingSum = Model.Sum(item => item.Processing);
+                            }
+                            <tr style="font-weight: bold; background-color: #f8f9fa;">
+                                <td></td>
+                                <td>@ViewBag.DepartmentName</td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;"
+                                             aria-valuenow="@totalSum" aria-valuemin="0" aria-valuemax="@totalSum">
+                                            @totalSum
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: @(totalSum > 0 ? (ontimeSum * 100 / totalSum) : 0)%;"
+                                             aria-valuenow="@ontimeSum" aria-valuemin="0" aria-valuemax="@totalSum">
+                                            @ontimeSum
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-warning text-dark" role="progressbar"
+                                             style="width: @(totalSum > 0 ? (lateSum * 100 / totalSum) : 0)%;"
+                                             aria-valuenow="@lateSum" aria-valuemin="0" aria-valuemax="@totalSum">
+                                            @lateSum
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-danger" role="progressbar"
+                                             style="width: @(totalSum > 0 ? (overdueSum * 100 / totalSum) : 0)%;"
+                                             aria-valuenow="@overdueSum" aria-valuemin="0" aria-valuemax="@totalSum">
+                                            @overdueSum
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 40px;">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                             style="width: @(totalSum > 0 ? (processingSum * 100 / totalSum) : 0)%;"
+                                             aria-valuenow="@processingSum" aria-valuemin="0" aria-valuemax="@totalSum">
+                                            @processingSum
+                                        </div>
+                                    </div>
+                                </td>
+                                <td></td> <!-- Cột Hành động để trống -->
+                            </tr>
+
+                            <!-- Danh sách nhân sự -->
+                            @foreach (var item in Model)
+                            {
+                                index++;
+                                <tr>
+                                    <td>@index</td>
+                                    <td>@Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
+                                    <td>
+                                        <div class="progress" style="height: 40px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;"
+                                                 aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
+                                                @item.Total
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 40px;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;"
+                                                 aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
+                                                @item.Ontime
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 40px;">
+                                            <div class="progress-bar bg-warning text-dark" role="progressbar"
+                                                 style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;"
+                                                 aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
+                                                @item.Late
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 40px;">
+                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                 style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;"
+                                                 aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
+                                                @item.Overdue
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 40px;">
+                                            <div class="progress-bar bg-info" role="progressbar"
+                                                 style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;"
+                                                 aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
+                                                @item.Processing
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Phân trang -->
+                <div class="pagination">
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
+               {
+                   LiElementClasses = new string[] { "page-item" },
+                   PageClasses = new string[] { "page-link" },
+                   DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                   DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                   DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                   DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                   DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                   MaximumPageNumbersToDisplay = 5
+               })
+                </div>
+            </div>
+            <div class="col-md-4 d-none" id="detail-section">
+                <div class="actionCustomers"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="col-md-6">
+        @if (Model.Any())
+        {
+            <!-- Pie Chart -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h5>Theo số lượng công việc</h5>
+                    <canvas id="pieChartTasks"></canvas>
+                </div>
+            </div>
+            <!-- Histogram -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <h5>Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))</h5>
+                    <canvas id="histogramTasks"></canvas>
+                </div>
+            </div>
+            <!-- New Datatable -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center" id="summaryTable">
+                            <thead>
+                                <tr>
+                                    <th>Nhân viên</th>
+                                    <th>Tổng</th>
+                                    <th>Đúng hạn</th>
+                                    <th>Trễ hạn</th>
+                                    <th>Quá hạn</th>
+                                    <th>Đang xử lý</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
+                                        <td>@item.Total</td>
+                                        <td>@item.Ontime</td>
+                                        <td>@item.Late</td>
+                                        <td>@item.Overdue</td>
+                                        <td>@item.Processing</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 text-end">
-                @if (Model.Any())
-                {
-                    <a id="exportExcel" 
-                       class="btn btn-success" 
-                       title="Xuất dữ liệu ra file Excel">
-                        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
-                    </a>
-                }
-                else
-                {
-                    <p>Không có dữ liệu để xuất Excel.</p>
-                }
-            </div>
-        </div>
-
-        <br />
-        <div class="table-responsive">
-            <table class="table table-bordered text-left table-hover" id="analysisTable">
-                <thead class="text-center">
-                    <tr>
-                        <th>STT</th>
-                        <th>Tổng số</th>
-                        <th>Đúng hạn</th>
-                        <th>Trễ hạn</th>
-                        <th>Quá hạn</th>
-                        <th>Đang xử lý</th>
-                        <th>Thời gian</th>
-                        <th>Nhân viên</th>
-                        <th>Hành động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        int index = (Model.PageNumber - 1) * Model.PageSize;
-                    }
-                    @foreach (var item in Model)
-                    {
-                        index++;
-                        <tr>
-                            <td>@index</td>
-                            <td>
-                                <div class="progress" style="height: 40px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
-                                        @item.Total
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="progress" style="height: 40px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;"
-                                         aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
-                                        @item.Ontime
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="progress" style="height: 40px;">
-                                    <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;"
-                                         aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
-                                        @item.Late
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="progress" style="height: 40px;">
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;"
-                                         aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
-                                        @item.Overdue
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="progress" style="height: 40px;">
-                                    <div class="progress-bar bg-info" role="progressbar" style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;"
-                                         aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
-                                        @item.Processing
-                                    </div>
-                                </div>
-                            </td>
-                            <td>@(item.Time?.ToString("MM/yyyy"))</td>
-                            <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                            <td>
-                                <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Phân trang -->
-        <div class="pagination">
-            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
-            {
-                LiElementClasses = new string[] { "page-item" },
-                PageClasses = new string[] { "page-link" },
-                DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                MaximumPageNumbersToDisplay = 5
-            })
-        </div>
-    </div>
-    <div class="col-md-4 d-none" id="detail-section">
-        <div class="actionCustomers"></div>
+        }
+        else
+        {
+            <p>Không có dữ liệu để hiển thị biểu đồ.</p>
+        }
     </div>
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 @section Scripts {
+    <!-- Extract data for charts -->
+    <script>
+        // Arrays to hold chart data
+        const employeeNames = [];
+        const totalTasks = [];
+        const ontimeTasks = [];
+        const lateTasks = [];
+        const overdueTasks = [];
+        const processingTasks = [];
+
+        // Populate arrays with data from the Model
+        @foreach (var item in Model)
+        {
+            <text>
+                    employeeNames.push("@($"{item.Employee.FirstName} {item.Employee.LastName}")");
+                    totalTasks.push(@item.Total);
+                    ontimeTasks.push(@item.Ontime);
+                    lateTasks.push(@item.Late);
+                    overdueTasks.push(@item.Overdue);
+                    processingTasks.push(@item.Processing);
+            </text>
+        }
+
+        // Render charts if there is data
+        if (employeeNames.length > 0) {
+            // Calculate total for percentage computation
+            const totalSum = totalTasks.reduce((a, b) => a + b, 0);
+
+            // Pie Chart: Distribution of total tasks by employee with percentage in tooltip
+            const pieChartTasks = new Chart(document.getElementById('pieChartTasks'), {
+                type: 'pie',
+                data: {
+                    labels: employeeNames,
+                    datasets: [{
+                        data: totalTasks,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'right' },
+                        title: { display: true, text: 'Theo số lượng công việc' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let value = context.raw;
+                                    let percentage = ((value / totalSum) * 100).toFixed(1);
+                                    return `${context.label}: ${percentage}% (${value} công việc)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Histogram: Summary of tasks by employee and status with grouped bars
+            const histogramTasks = new Chart(document.getElementById('histogramTasks'), {
+                type: 'bar',
+                data: {
+                    labels: employeeNames,
+                    datasets: [
+                        {
+                            label: 'Tổng',
+                            data: totalTasks,
+                            backgroundColor: '#36A2EB'
+                        },
+                        {
+                            label: 'Đúng hạn',
+                            data: ontimeTasks,
+                            backgroundColor: '#4BC0C0'
+                        },
+                        {
+                            label: 'Trễ hạn',
+                            data: lateTasks,
+                            backgroundColor: '#FFCE56'
+                        },
+                        {
+                            label: 'Quá hạn',
+                            data: overdueTasks,
+                            backgroundColor: '#FF6384'
+                        },
+                        {
+                            label: 'Đang xử lý',
+                            data: processingTasks,
+                            backgroundColor: '#9966FF'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: false },
+                        y: { beginAtZero: true }
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: {
+                            display: true,
+                            text: 'Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        onComplete: function() {
+                            const chart = this;
+                            const ctx = chart.ctx;
+                            ctx.font = 'bold 12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = '#000';
+
+                            chart.data.datasets.forEach((dataset, i) => {
+                                const meta = chart.getDatasetMeta(i);
+                                meta.data.forEach((bar, index) => {
+                                    const value = dataset.data[index];
+                                    if (value > 0) { // Chỉ hiển thị nếu giá trị > 0
+                                        ctx.fillText(value, bar.x, bar.y - 5);
+                                    }
+                                });
+                            });
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+    <!-- Cập nhật reloadCharts function -->
+    <script>
+        function reloadCharts(data) {
+            const newEmployeeNames = [];
+            const newTotalTasks = [];
+            const newOntimeTasks = [];
+            const newLateTasks = [];
+            const newOverdueTasks = [];
+            const newProcessingTasks = [];
+
+            $(data).find("#analysisTable tbody tr").each(function () {
+                const employeeName = $(this).find("td:eq(7)").text().split(" - ")[1]; // Lấy FirstName LastName
+                const total = parseInt($(this).find("td:eq(1) .progress-bar").text()) || 0;
+                const ontime = parseInt($(this).find("td:eq(2) .progress-bar").text()) || 0;
+                const late = parseInt($(this).find("td:eq(3) .progress-bar").text()) || 0;
+                const overdue = parseInt($(this).find("td:eq(4) .progress-bar").text()) || 0;
+                const processing = parseInt($(this).find("td:eq(5) .progress-bar").text()) || 0;
+
+                newEmployeeNames.push(employeeName);
+                newTotalTasks.push(total);
+                newOntimeTasks.push(ontime);
+                newLateTasks.push(late);
+                newOverdueTasks.push(overdue);
+                newProcessingTasks.push(processing);
+            });
+
+            const pieChartCanvas = document.getElementById('pieChartTasks');
+            const histogramCanvas = document.getElementById('histogramTasks');
+            if (pieChartCanvas && histogramCanvas) {
+                const pieChartInstance = Chart.getChart(pieChartCanvas);
+                const histogramInstance = Chart.getChart(histogramCanvas);
+                if (pieChartInstance) pieChartInstance.destroy();
+                if (histogramInstance) histogramInstance.destroy();
+
+                const chartSection = $(".col-md-6");
+                if (newEmployeeNames.length > 0) {
+                    chartSection.html(`
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5>Theo số lượng công việc</h5>
+                                <canvas id="pieChartTasks"></canvas>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <h5>Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))</h5>
+                                <canvas id="histogramTasks"></canvas>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center" id="summaryTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Nhân viên</th>
+                                                <th>Tổng</th>
+                                                <th>Đúng hạn</th>
+                                                <th>Trễ hạn</th>
+                                                <th>Quá hạn</th>
+                                                <th>Đang xử lý</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${newEmployeeNames.map((name, index) => `
+                                                <tr>
+                                                    <td>${name}</td>
+                                                    <td>${newTotalTasks[index]}</td>
+                                                    <td>${newOntimeTasks[index]}</td>
+                                                    <td>${newLateTasks[index]}</td>
+                                                    <td>${newOverdueTasks[index]}</td>
+                                                    <td>${newProcessingTasks[index]}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+
+                    const totalSum = newTotalTasks.reduce((a, b) => a + b, 0);
+
+                    // Pie Chart
+                    new Chart(document.getElementById('pieChartTasks'), {
+                        type: 'pie',
+                        data: {
+                            labels: newEmployeeNames,
+                            datasets: [{
+                                data: newTotalTasks,
+                                backgroundColor: [
+                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                                    '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'right' },
+                                title: { display: true, text: 'Theo số lượng công việc' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let value = context.raw;
+                                            let percentage = ((value / totalSum) * 100).toFixed(1);
+                                            return `${context.label}: ${percentage}% (${value} công việc)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    // Histogram
+                    new Chart(document.getElementById('histogramTasks'), {
+                        type: 'bar',
+                        data: {
+                            labels: newEmployeeNames,
+                            datasets: [
+                                {
+                                    label: 'Tổng',
+                                    data: newTotalTasks,
+                                    backgroundColor: '#36A2EB'
+                                },
+                                {
+                                    label: 'Đúng hạn',
+                                    data: newOntimeTasks,
+                                    backgroundColor: '#4BC0C0'
+                                },
+                                {
+                                    label: 'Trễ hạn',
+                                    data: newLateTasks,
+                                    backgroundColor: '#FFCE56'
+                                },
+                                {
+                                    label: 'Quá hạn',
+                                    data: newOverdueTasks,
+                                    backgroundColor: '#FF6384'
+                                },
+                                {
+                                    label: 'Đang xử lý',
+                                    data: newProcessingTasks,
+                                    backgroundColor: '#9966FF'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: { stacked: false },
+                                y: { beginAtZero: true }
+                            },
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: {
+                                    display: true,
+                                    text: 'Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.dataset.label}: ${context.raw}`;
+                                        }
+                                    }
+                                }
+                            },
+                            animation: {
+                                onComplete: function() {
+                                    const chart = this;
+                                    const ctx = chart.ctx;
+                                    ctx.font = 'bold 12px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.fillStyle = '#000';
+
+                                    chart.data.datasets.forEach((dataset, i) => {
+                                        const meta = chart.getDatasetMeta(i);
+                                        meta.data.forEach((bar, index) => {
+                                            const value = dataset.data[index];
+                                            if (value > 0) {
+                                                ctx.fillText(value, bar.x, bar.y - 5);
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    chartSection.html('<p>Không có dữ liệu để hiển thị biểu đồ.</p>');
+                }
+            }
+        }
+    </script>
+
+    <!-- Các script còn lại giữ nguyên -->
     <script>
         $(document).ready(function () {
-            // Xử lý nút chi tiết (ajax-action) với event delegation
             $(document).on("click", ".ajax-action", function (e) {
                 e.preventDefault();
                 var url = $(this).data("url");
@@ -196,24 +650,16 @@
                 });
             });
 
-            // Xử lý tìm kiếm và lọc
             $("#searchText, #time, #sortOrder").on("input change", function () {
                 applyFilters();
             });
 
-            // Xử lý nút tìm kiếm
-            $("#searchButton").on("click", function () {
-                applyFilters();
-            });
-
-            // Xử lý phân trang
             $(document).on("click", ".page-link", function (e) {
                 e.preventDefault();
                 var url = $(this).attr("href");
                 loadTable(url);
             });
 
-            // Xử lý nút xuất Excel
             $("#exportExcel").on("click", function (e) {
                 e.preventDefault();
                 var searchText = $("#searchText").val();
@@ -232,10 +678,10 @@
             loadTable(url);
         }
 
-        function loadTable(url) {
+                function loadTable(url) {
             $.ajax({
                 url: url,
-                type: "GET",
+                peninsula: "GET",
                 beforeSend: function () {
                     $("#analysisTable").html('<div class="text-center">Đang tải...</div>');
                 },
@@ -244,6 +690,8 @@
                     $("#analysisTable").html(newTable);
                     var newPagination = $(data).find(".pagination").html();
                     $(".pagination").html(newPagination);
+                    reloadCharts(data);
+                    updateFilterDescription(); // Cập nhật span sau khi tải dữ liệu
                 },
                 error: function (xhr, status, error) {
                     console.error("Lỗi tải dữ liệu:", status, error);
@@ -251,9 +699,46 @@
             });
         }
 
-        function closeDetailSection() {
-            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
-            $("#detail-section").addClass("d-none");
+        function updateFilterDescription() {
+            var searchText = $("#searchText").val();
+            var time = $("#time").val();
+            var description = "";
+
+            if (!searchText && !time) {
+                description = " Toàn bộ";
+            } else {
+                var filterText = [];
+                if (searchText) {
+                    filterText.push(`Nhân viên: ${searchText}`);
+                }
+                if (time) {
+                    // Parse yyyy-MM thành MM/yyyy
+                    var parts = time.split("-");
+                    if (parts.length === 2) {
+                        var year = parts[0];
+                        var month = parts[1];
+                        filterText.push(`Tháng: ${month}/${year}`);
+                    }
+                }
+                description = "// Theo " + filterText.join(" và ");
+            }
+
+            $("#filterDescription").text(description);
         }
     </script>
+
+    <style>
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
 }
