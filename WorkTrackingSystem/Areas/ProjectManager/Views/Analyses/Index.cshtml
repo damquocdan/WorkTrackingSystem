@@ -28,17 +28,17 @@
                     <div class="col-md-9">
                         <div class="row">
                             <!-- Tìm kiếm theo nhân viên -->
-                            <div class="col-md-3">
-                                <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Tìm theo mã/tên nhân viên" value="@ViewBag.SearchText" />
+                            <div class="col-md-4">
+                                <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.SearchText" />
                             </div>
 
                             <!-- Bộ lọc thời gian (Tháng) -->
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
                             </div>
 
                             <!-- Sắp xếp -->
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <select id="sortOrder" name="sortOrder" class="form-control">
                                     <option value="">-- Sắp xếp theo --</option>
                                     <option value="total_asc">Tổng số ↑</option>
@@ -233,7 +233,7 @@
                })
                 </div>
             </div>
-            <div class="col-md-4 d-none" id="detail-section">
+            <div class="col-md-6 d-none" id="detail-section">
                 <div class="actionCustomers"></div>
             </div>
         </div>
@@ -254,36 +254,69 @@
             <div class="row mt-4">
                 <div class="col-md-12">
                     <h5>Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))</h5>
-                    <canvas id="histogramTasks"></canvas>
+                    <canvas style="margin-left:48px" id="histogramTasks"></canvas>
                 </div>
             </div>
             <!-- New Datatable -->
-            <div class="row mt-4">
+            <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive">
                         <table class="table table-bordered text-center" id="summaryTable">
                             <thead>
                                 <tr>
-                                    <th>Nhân viên</th>
-                                    <th>Tổng</th>
-                                    <th>Đúng hạn</th>
-                                    <th>Trễ hạn</th>
-                                    <th>Quá hạn</th>
-                                    <th>Đang xử lý</th>
+                                    <th class="first-col"></th>
+                                    <th class="data-col">@ViewBag.DepartmentName</th>
+                                    @foreach (var item in Model)
+                                    {
+                                        var fullName = $"{item.Employee.FirstName} {item.Employee.LastName}".Trim();
+                                        var showDept = string.IsNullOrWhiteSpace(fullName);
+                                        <th class="data-col">
+                                            @(showDept ? ViewBag.DepartmentName : fullName)
+                                        </th>
+                                    }
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td>@Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                                        <td>@item.Total</td>
-                                        <td>@item.Ontime</td>
-                                        <td>@item.Late</td>
-                                        <td>@item.Overdue</td>
-                                        <td>@item.Processing</td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <td class="first-col">Tổng</td>
+                                    <td class="data-col">@Model.Sum(item => item.Total)</td>
+                                    @foreach (var item in Model)
+                                    {
+                                        <td class="data-col">@item.Total</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td class="first-col">Đúng hạn</td>
+                                    <td class="data-col">@Model.Sum(item => item.Ontime)</td>
+                                    @foreach (var item in Model)
+                                    {
+                                        <td class="data-col">@item.Ontime</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td class="first-col">Trễ hạn</td>
+                                    <td class="data-col">@Model.Sum(item => item.Late)</td>
+                                    @foreach (var item in Model)
+                                    {
+                                        <td class="data-col">@item.Late</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td class="first-col">Quá hạn</td>
+                                    <td class="data-col">@Model.Sum(item => item.Overdue)</td>
+                                    @foreach (var item in Model)
+                                    {
+                                        <td class="data-col">@item.Overdue</td>
+                                    }
+                                </tr>
+                                <tr>
+                                    <td class="first-col">Đang xử lý</td>
+                                    <td class="data-col">@Model.Sum(item => item.Processing)</td>
+                                    @foreach (var item in Model)
+                                    {
+                                        <td class="data-col">@item.Processing</td>
+                                    }
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -305,18 +338,26 @@
     <!-- Extract data for charts -->
     <script>
         // Arrays to hold chart data
-        const employeeNames = [];
+        const labels = [];
         const totalTasks = [];
         const ontimeTasks = [];
         const lateTasks = [];
         const overdueTasks = [];
         const processingTasks = [];
 
-        // Populate arrays with data from the Model
+        // Add department data as the first entry
+        labels.push("@ViewBag.DepartmentName");
+        totalTasks.push(@Model.Sum(item => item.Total));
+        ontimeTasks.push(@Model.Sum(item => item.Ontime));
+        lateTasks.push(@Model.Sum(item => item.Late));
+        overdueTasks.push(@Model.Sum(item => item.Overdue));
+        processingTasks.push(@Model.Sum(item => item.Processing));
+
+        // Populate arrays with employee data
         @foreach (var item in Model)
         {
             <text>
-                    employeeNames.push("@($"{item.Employee.FirstName} {item.Employee.LastName}")");
+                    labels.push("@($"{ViewBag.DepartmentName} - {item.Employee.FirstName} {item.Employee.LastName}")");
                     totalTasks.push(@item.Total);
                     ontimeTasks.push(@item.Ontime);
                     lateTasks.push(@item.Late);
@@ -326,17 +367,17 @@
         }
 
         // Render charts if there is data
-        if (employeeNames.length > 0) {
-            // Calculate total for percentage computation
-            const totalSum = totalTasks.reduce((a, b) => a + b, 0);
+        if (labels.length > 0) {
+            // Calculate total for percentage computation (excluding department total for pie chart)
+            const employeeTotalSum = totalTasks.slice(1).reduce((a, b) => a + b, 0);
 
-            // Pie Chart: Distribution of total tasks by employee with percentage in tooltip
+            // Pie Chart: Distribution of total tasks by employee (excluding department)
             const pieChartTasks = new Chart(document.getElementById('pieChartTasks'), {
                 type: 'pie',
                 data: {
-                    labels: employeeNames,
+                    labels: labels.slice(1), // Exclude department for pie chart
                     datasets: [{
-                        data: totalTasks,
+                        data: totalTasks.slice(1), // Exclude department for pie chart
                         backgroundColor: [
                             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
                             '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513'
@@ -352,7 +393,7 @@
                             callbacks: {
                                 label: function(context) {
                                     let value = context.raw;
-                                    let percentage = ((value / totalSum) * 100).toFixed(1);
+                                    let percentage = ((value / employeeTotalSum) * 100).toFixed(1);
                                     return `${context.label}: ${percentage}% (${value} công việc)`;
                                 }
                             }
@@ -361,107 +402,135 @@
                 }
             });
 
-            // Histogram: Summary of tasks by employee and status with grouped bars
-            const histogramTasks = new Chart(document.getElementById('histogramTasks'), {
-                type: 'bar',
-                data: {
-                    labels: employeeNames,
-                    datasets: [
-                        {
-                            label: 'Tổng',
-                            data: totalTasks,
-                            backgroundColor: '#36A2EB'
-                        },
-                        {
-                            label: 'Đúng hạn',
-                            data: ontimeTasks,
-                            backgroundColor: '#4BC0C0'
-                        },
-                        {
-                            label: 'Trễ hạn',
-                            data: lateTasks,
-                            backgroundColor: '#FFCE56'
-                        },
-                        {
-                            label: 'Quá hạn',
-                            data: overdueTasks,
-                            backgroundColor: '#FF6384'
-                        },
-                        {
-                            label: 'Đang xử lý',
-                            data: processingTasks,
-                            backgroundColor: '#9966FF'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { stacked: false },
-                        y: { beginAtZero: true }
+            // Histogram: Summary of tasks by department and employees
+                    const histogramTasks = new Chart(document.getElementById('histogramTasks'), {
+            type: 'bar',
+            data: {
+                labels: Array(labels.length).fill(""), // Tạo mảng với các chuỗi rỗng thay vì tên phòng ban và nhân viên
+                datasets: [
+                    {
+                        label: 'Tổng',
+                        data: totalTasks,
+                        backgroundColor: '#36A2EB'
                     },
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: {
-                            display: true,
-                            text: 'Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `${context.dataset.label}: ${context.raw}`;
-                                }
+                    {
+                        label: 'Đúng hạn',
+                        data: ontimeTasks,
+                        backgroundColor: '#4BC0C0'
+                    },
+                    {
+                        label: 'Trễ hạn',
+                        data: lateTasks,
+                        backgroundColor: '#FFCE56'
+                    },
+                    {
+                        label: 'Quá hạn',
+                        data: overdueTasks,
+                        backgroundColor: '#FF6384'
+                    },
+                    {
+                        label: 'Đang xử lý',
+                        data: processingTasks,
+                        backgroundColor: '#9966FF'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: false,
+                        ticks: {
+                            maxRotation: 45, // Rotate labels for better readability (không còn cần thiết nhưng giữ nguyên)
+                            minRotation: 45,
+                            display: false // Ẩn hoàn toàn các nhãn trên trục x nếu muốn
+                        }
+                    },
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    title: {
+                        display: true,
+                        text: 'Tổng hợp tháng @(ViewBag.Time != null ? DateTime.Parse(ViewBag.Time.ToString()).ToString("MM/yyyy") : DateTime.Now.ToString("MM/yyyy"))'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}`;
                             }
                         }
-                    },
-                    animation: {
-                        onComplete: function() {
-                            const chart = this;
-                            const ctx = chart.ctx;
-                            ctx.font = 'bold 12px Arial';
-                            ctx.textAlign = 'center';
-                            ctx.fillStyle = '#000';
+                    }
+                },
+                animation: {
+                    onComplete: function() {
+                        const chart = this;
+                        const ctx = chart.ctx;
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillStyle = '#000';
 
-                            chart.data.datasets.forEach((dataset, i) => {
-                                const meta = chart.getDatasetMeta(i);
-                                meta.data.forEach((bar, index) => {
-                                    const value = dataset.data[index];
-                                    if (value > 0) { // Chỉ hiển thị nếu giá trị > 0
-                                        ctx.fillText(value, bar.x, bar.y - 5);
-                                    }
-                                });
+                        chart.data.datasets.forEach((dataset, i) => {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach((bar, index) => {
+                                const value = dataset.data[index];
+                                if (value > 0) { // Chỉ hiển thị nếu giá trị > 0
+                                    ctx.fillText(value, bar.x, bar.y - 5);
+                                }
                             });
-                        }
+                        });
                     }
                 }
-            });
+            }
+        });
         }
     </script>
 
-    <!-- Cập nhật reloadCharts function -->
+    <!-- Update reloadCharts function -->
     <script>
-        function reloadCharts(data) {
-            const newEmployeeNames = [];
+                function reloadCharts(data) {
+            const newLabels = [];
             const newTotalTasks = [];
             const newOntimeTasks = [];
             const newLateTasks = [];
             const newOverdueTasks = [];
             const newProcessingTasks = [];
+            const employeeLabels = []; // Mảng để lưu nhãn nhân viên (Nhân viên 1, Nhân viên 2,...)
 
-            $(data).find("#analysisTable tbody tr").each(function () {
-                const employeeName = $(this).find("td:eq(7)").text().split(" - ")[1]; // Lấy FirstName LastName
-                const total = parseInt($(this).find("td:eq(1) .progress-bar").text()) || 0;
-                const ontime = parseInt($(this).find("td:eq(2) .progress-bar").text()) || 0;
-                const late = parseInt($(this).find("td:eq(3) .progress-bar").text()) || 0;
-                const overdue = parseInt($(this).find("td:eq(4) .progress-bar").text()) || 0;
-                const processing = parseInt($(this).find("td:eq(5) .progress-bar").text()) || 0;
+            // Extract department data (first row of analysisTable)
+            const departmentRow = $(data).find("#analysisTable tbody tr").first();
+            const departmentName = departmentRow.find("td:eq(1)").text();
+            const departmentTotal = parseInt(departmentRow.find("td:eq(2) .progress-bar").text()) || 0;
+            const departmentOntime = parseInt(departmentRow.find("td:eq(3) .progress-bar").text()) || 0;
+            const departmentLate = parseInt(departmentRow.find("td:eq(4) .progress-bar").text()) || 0;
+            const departmentOverdue = parseInt(departmentRow.find("td:eq(5) .progress-bar").text()) || 0;
+            const departmentProcessing = parseInt(departmentRow.find("td:eq(6) .progress-bar").text()) || 0;
 
-                newEmployeeNames.push(employeeName);
+            // Add department data as the first entry
+            newLabels.push(departmentName);
+            newTotalTasks.push(departmentTotal);
+            newOntimeTasks.push(departmentOntime);
+            newLateTasks.push(departmentLate);
+            newOverdueTasks.push(departmentOverdue);
+            newProcessingTasks.push(departmentProcessing);
+
+            // Extract employee data (skip the first row)
+            $(data).find("#analysisTable tbody tr").slice(1).each(function (index) {
+                const employeeName = $(this).find("td:eq(1)").text();
+                const label = `${departmentName} - Nhân viên ${index + 1}`; // Thay tên nhân viên bằng "Nhân viên [số thứ tự]"
+                const total = parseInt($(this).find("td:eq(2) .progress-bar").text()) || 0;
+                const ontime = parseInt($(this).find("td:eq(3) .progress-bar").text()) || 0;
+                const late = parseInt($(this).find("td:eq(4) .progress-bar").text()) || 0;
+                const overdue = parseInt($(this).find("td:eq(5) .progress-bar").text()) || 0;
+                const processing = parseInt($(this).find("td:eq(6) .progress-bar").text()) || 0;
+
+                newLabels.push(label);
                 newTotalTasks.push(total);
                 newOntimeTasks.push(ontime);
                 newLateTasks.push(late);
                 newOverdueTasks.push(overdue);
                 newProcessingTasks.push(processing);
+                employeeLabels.push(`Nhân viên ${index + 1}`); // Lưu nhãn "Nhân viên [số thứ tự]" cho biểu đồ tròn và bảng
             });
 
             const pieChartCanvas = document.getElementById('pieChartTasks');
@@ -473,7 +542,7 @@
                 if (histogramInstance) histogramInstance.destroy();
 
                 const chartSection = $(".col-md-6");
-                if (newEmployeeNames.length > 0) {
+                if (newLabels.length > 0) {
                     chartSection.html(`
                         <div class="row">
                             <div class="col-md-12">
@@ -493,25 +562,31 @@
                                     <table class="table table-bordered text-center" id="summaryTable">
                                         <thead>
                                             <tr>
-                                                <th>Nhân viên</th>
-                                                <th>Tổng</th>
-                                                <th>Đúng hạn</th>
-                                                <th>Trễ hạn</th>
-                                                <th>Quá hạn</th>
-                                                <th>Đang xử lý</th>
+                                                <th></th>
+                                                ${newLabels.map(label => `<th>${label}</th>`).join('')}
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            ${newEmployeeNames.map((name, index) => `
-                                                <tr>
-                                                    <td>${name}</td>
-                                                    <td>${newTotalTasks[index]}</td>
-                                                    <td>${newOntimeTasks[index]}</td>
-                                                    <td>${newLateTasks[index]}</td>
-                                                    <td>${newOverdueTasks[index]}</td>
-                                                    <td>${newProcessingTasks[index]}</td>
-                                                </tr>
-                                            `).join('')}
+                                            <tr>
+                                                <td>Tổng</td>
+                                                ${newTotalTasks.map(total => `<td>${total}</td>`).join('')}
+                                            </tr>
+                                            <tr>
+                                                <td>Đúng hạn</td>
+                                                ${newOntimeTasks.map(ontime => `<td>${ontime}</td>`).join('')}
+                                            </tr>
+                                            <tr>
+                                                <td>Trễ hạn</td>
+                                                ${newLateTasks.map(late => `<td>${late}</td>`).join('')}
+                                            </tr>
+                                            <tr>
+                                                <td>Quá hạn</td>
+                                                ${newOverdueTasks.map(overdue => `<td>${overdue}</td>`).join('')}
+                                            </tr>
+                                            <tr>
+                                                <td>Đang xử lý</td>
+                                                ${newProcessingTasks.map(processing => `<td>${processing}</td>`).join('')}
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -519,15 +594,15 @@
                         </div>
                     `);
 
-                    const totalSum = newTotalTasks.reduce((a, b) => a + b, 0);
+                    const employeeTotalSum = newTotalTasks.slice(1).reduce((a, b) => a + b, 0);
 
-                    // Pie Chart
+                    // Pie Chart (sử dụng employeeLabels thay vì tên nhân viên)
                     new Chart(document.getElementById('pieChartTasks'), {
                         type: 'pie',
                         data: {
-                            labels: newEmployeeNames,
+                            labels: employeeLabels, // Sử dụng "Nhân viên 1", "Nhân viên 2",...
                             datasets: [{
-                                data: newTotalTasks,
+                                data: newTotalTasks.slice(1),
                                 backgroundColor: [
                                     '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
                                     '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513'
@@ -543,7 +618,7 @@
                                     callbacks: {
                                         label: function(context) {
                                             let value = context.raw;
-                                            let percentage = ((value / totalSum) * 100).toFixed(1);
+                                            let percentage = ((value / employeeTotalSum) * 100).toFixed(1);
                                             return `${context.label}: ${percentage}% (${value} công việc)`;
                                         }
                                     }
@@ -552,11 +627,11 @@
                         }
                     });
 
-                    // Histogram
+                    // Histogram (giữ nguyên)
                     new Chart(document.getElementById('histogramTasks'), {
                         type: 'bar',
                         data: {
-                            labels: newEmployeeNames,
+                            labels: newLabels,
                             datasets: [
                                 {
                                     label: 'Tổng',
@@ -588,7 +663,13 @@
                         options: {
                             responsive: true,
                             scales: {
-                                x: { stacked: false },
+                                x: {
+                                    stacked: false,
+                                    ticks: {
+                                        maxRotation: 5,
+                                        minRotation: 5
+                                    }
+                                },
                                 y: { beginAtZero: true }
                             },
                             plugins: {
@@ -612,7 +693,6 @@
                                     ctx.font = 'bold 12px Arial';
                                     ctx.textAlign = 'center';
                                     ctx.fillStyle = '#000';
-
                                     chart.data.datasets.forEach((dataset, i) => {
                                         const meta = chart.getDatasetMeta(i);
                                         meta.data.forEach((bar, index) => {
@@ -639,16 +719,46 @@
             $(document).on("click", ".ajax-action", function (e) {
                 e.preventDefault();
                 var url = $(this).data("url");
+
+                // Hiển thị chi tiết
                 if ($("#detail-section").hasClass("d-none")) {
-                    $("#list-section").removeClass("col-md-12").addClass("col-md-8");
-                    $("#detail-section").removeClass("d-none").addClass("col-md-4");
+                    $("#list-section").removeClass("col-md-12").addClass("col-md-6");
+                    $("#detail-section").removeClass("d-none").addClass("col-md-6");
                 }
+
+                // Tải dữ liệu chi tiết
                 $(".actionCustomers").load(url, function (response, status, xhr) {
                     if (status === "error") {
                         alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
                     }
                 });
+
+                // Ẩn các cột Tổng số, Đúng hạn, Trễ hạn, Quá hạn, Đang xử lý
+                const columnsToHide = [2, 3, 4, 5, 6]; // Chỉ số bắt đầu từ 0
+
+                $("#analysisTable").find("tr").each(function () {
+                    $(this).find("th, td").each(function (index) {
+                        if (columnsToHide.includes(index)) {
+                            $(this).hide();
+                        }
+                    });
+                });
             });
+
+            function closeDetailSection() {
+                $("#list-section").removeClass("col-md-6 col-md-8").addClass("col-md-12");
+                $("#detail-section").addClass("d-none");
+
+                // Hiện lại các cột đã ẩn
+                const columnsToShow = [2, 3, 4, 5, 6]; // Cột cần hiện lại
+                $("#analysisTable").find("tr").each(function () {
+                    $(this).find("th, td").each(function (index) {
+                        if (columnsToShow.includes(index)) {
+                            $(this).show();
+                        }
+                    });
+                });
+            }
 
             $("#searchText, #time, #sortOrder").on("input change", function () {
                 applyFilters();
@@ -678,10 +788,10 @@
             loadTable(url);
         }
 
-                function loadTable(url) {
+        function loadTable(url) {
             $.ajax({
                 url: url,
-                peninsula: "GET",
+                method: "GET", // Fixed typo: "peninsula" to "method"
                 beforeSend: function () {
                     $("#analysisTable").html('<div class="text-center">Đang tải...</div>');
                 },
@@ -729,7 +839,7 @@
 
     <style>
         canvas {
-            max-width: 100%;
+            max-width: 47.5rem;
             height: auto;
         }
 
@@ -740,5 +850,28 @@
         .table th, .table td {
             vertical-align: middle;
         }
+
+        #summaryTable th, #summaryTable td {
+            text-align: center;
+            vertical-align: middle;
+            padding:0px;
+        }
+
+        /* Cột đầu tiên (row headers như "Tổng", "Đúng hạn", ...) */
+        #summaryTable .first-col {
+            width:80px;
+            font-size:12px;
+        }
+
+        /* Các cột còn lại chia đều nhau */
+        #summaryTable {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+            #summaryTable th,
+            #summaryTable td {
+                word-wrap: break-word;
+            }
     </style>
 }

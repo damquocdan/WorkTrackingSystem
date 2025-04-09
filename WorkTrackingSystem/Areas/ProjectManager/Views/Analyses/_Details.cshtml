@@ -20,8 +20,8 @@
 
     <div>
         <dl class="row">
-            <dt class="col-sm-10"><h4><i class="bi bi-calculator"></i>Tổng số công việc tháng @(Model.Time?.ToString("MM/yyyy") ?? "Chưa có dữ liệu") :</h4> </dt>
-            <dd class="col-sm-2"><h3>@Html.DisplayFor(model => model.Total)</h3></dd>
+            <dt class="col-sm-10"><h4><i class="bi bi-calculator"></i>Tháng @(Model.Time?.ToString("MM/yyyy") ?? "Chưa có dữ liệu") :</h4> </dt>
+            <dd class="col-sm-2"><h3>@Html.DisplayFor(model => model.Total)</h3> Công việc</dd>
 
             <div class="card border rounded shadow p-4">
                 <h4 class="mb-3">Thống kê trạng thái</h4>
@@ -91,4 +91,19 @@
             }
         }
     });
+         function closeDetailSection() {
+        $("#list-section").removeClass("col-md-6 col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
+
+        // Hiện lại các cột đã ẩn
+        const columnsToShow = [2, 3, 4, 5, 6]; // Cột cần hiện lại
+        $("#analysisTable").find("tr").each(function () {
+            $(this).find("th, td").each(function (index) {
+                if (columnsToShow.includes(index)) {
+                    $(this).show();
+                }
+            });
+        });
+    }
+
 </script>
