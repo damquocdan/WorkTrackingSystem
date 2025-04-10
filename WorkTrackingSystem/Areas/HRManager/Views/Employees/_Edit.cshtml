@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Chỉnh sửa nhân viên";
 }
-
+ <form asp-action="Edit" method="post" enctype="multipart/form-data">
 <div class="container mt-4">
     <div class="card p-3 shadow-lg">
                
@@ -70,7 +70,10 @@
             <label class="form-label">Điện thoại</label>
             <input asp-for="Phone" class="form-control" />
         </div>
-
+        <div class="mt-2">
+            <label class="form-label">Địa chỉ</label>
+            <textarea asp-for="Address" class="form-control"></textarea>
+        </div>
         <div class="mt-2">
             <label class="form-label">Email</label>
             <input asp-for="Email" class="form-control" />
@@ -82,7 +85,7 @@
     </div>
 
 </div>
-
+</form>
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

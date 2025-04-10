@@ -24,7 +24,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
 		// GET: HRManager/Employees
 		public async Task<IActionResult> Index(string search, int? DepartmentId, int page = 1)
 		{
-			var limit = 5;
+			var limit = 10;
 			var query = _context.Employees.Where(e => e.IsActive == true).Include(e => e.Department).Include(e => e.Position).AsQueryable();
 
 			if (DepartmentId > 0)

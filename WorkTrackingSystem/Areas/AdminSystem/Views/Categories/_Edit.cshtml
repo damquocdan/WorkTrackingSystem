@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Sửa Hạng Mục";
 }
-
+ <form asp-action="Edit" method="post" enctype="multipart/form-data">
 <div class="container py-4">
     <div class="card shadow-lg rounded-4 border-0 position-relative p-3">
         <button class="close" onclick="closeDetailSection()" style=" position: absolute; right: 20px;">
@@ -52,7 +52,7 @@
         <a asp-action="Index" class="btn btn-secondary mt-2 w-100"><i class="bi bi-arrow-left"></i> Quay lại</a>
     </div>
 </div>
-
+</form>
 
 
 @section Scripts {

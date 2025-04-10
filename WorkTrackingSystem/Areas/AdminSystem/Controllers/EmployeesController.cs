@@ -34,7 +34,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             Console.WriteLine($"Search: {search}, DepartmentId: {DepartmentId}, Page: {page}");
 
-            int limit = 5;
+            int limit = 10;
             var query = _context.Employees
                 .Where(e => e.IsActive == true)
                 .Include(e => e.Department)

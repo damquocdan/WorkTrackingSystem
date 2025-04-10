@@ -64,7 +64,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 <script>
     $(document).ready(function () {
-        $(".ajax-action").click(function (e) {
+        $(document).on("click", ".ajax-action", function (e) {
             e.preventDefault();
 
             var url = $(this).data("url");

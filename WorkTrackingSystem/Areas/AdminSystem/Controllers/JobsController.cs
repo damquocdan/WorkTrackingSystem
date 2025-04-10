@@ -150,7 +150,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 		public IActionResult JobOfEmployee(string search, int? DepartmentId, int page = 1)
 		{
-			int limit = 5;
+			int limit = 10;
 
 			// Lấy danh sách nhân viên + số công việc của từng nhân viên
 			var query = _context.Employees
@@ -199,7 +199,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
 		public IActionResult EmployeeWork(long id, int? page, string search, string filterStatus)
         {
-            int pageSize = 5;
+            int pageSize = 10;
             int pageNumber = page ?? 1;
 
             // Xử lý search

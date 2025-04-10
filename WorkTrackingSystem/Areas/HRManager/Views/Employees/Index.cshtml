@@ -14,15 +14,21 @@
 </div>
 <div class="row">
     <div class="col-md-12" id="list-section">
+       
         <div class="row mb-2">
             <div class="col-lg-9 col-md-9 col-sm-12">
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-2">
+                        <p>
+                            <a class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="bi bi-plus-circle"></i> Tạo Mới</a>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
                         <div class="input-group">
                             <input type="text" class="form-control" id="searchInput" placeholder="Nhập tên / mã nhân viên" value="@ViewBag.Search" />
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="@ViewBag.Department">
                             <option value="" selected>Tất cả phòng ban</option>
                             @foreach (var department in ViewBag.Department)
@@ -120,7 +126,7 @@
 <script>
     $(document).ready(function () {
         // Xử lý sự kiện click cho các nút AJAX
-        $(".ajax-action").click(function (e) {
+        $(document).on("click", ".ajax-action", function (e) {
             e.preventDefault();
             var url = $(this).data("url");
             console.log("oke");

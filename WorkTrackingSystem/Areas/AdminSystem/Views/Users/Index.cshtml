@@ -106,7 +106,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        $(".ajax-action").click(function (e) {
+        $(document).on("click", ".ajax-action", function (e) {
             e.preventDefault();
 
             var url = $(this).data("url");
