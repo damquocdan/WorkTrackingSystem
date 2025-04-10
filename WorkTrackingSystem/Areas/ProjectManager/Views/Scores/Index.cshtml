@@ -30,7 +30,10 @@
                     <label class="form-label fw-bold">Tháng</label>
                     <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
                 </div>
-
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Ngày</label>
+                    <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                </div>
                 <!-- Trạng thái -->
                 <div class="col-md-2">
                     <label class="form-label fw-bold">Trạng thái</label>
@@ -80,7 +83,7 @@
                 <div class="col-md-2">
                     <div class="form-check mt-4">
                         <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
-                        <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
+                        <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
                     </div>
                 </div>
 
@@ -178,9 +181,9 @@
                             <th>Đánh giá chất lượng</th> *@
                             <th>Tổng hợp đánh giá</th>
                             <th width="100px">
-                                <a id="exportExcel" class="btn btn-success">
+@*                                 <a id="exportExcel" class="btn btn-success">
                                     <i class="bi bi-file-earmark-excel"></i> Excel
-                                </a>
+                                </a> *@
                             </th>
                         </tr>
                     </thead>
@@ -246,7 +249,7 @@
                                                 @("Chưa bắt đầu")
                                                 ; break;
                                             default:
-                                                @("Không xác định")
+                                                @("Chưa bắt đầu")
                                                 ; break;
                                         }
                                     </span>
@@ -297,9 +300,9 @@
                                                 <i class="fas fa-people-arrows"></i>
                                             </a>
                                         }
-                                        <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Đánh giá">
+                                        @* <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Đánh giá">
                                             <i class="fas fa-star"></i>
-                                        </a>
+                                        </a> *@
                                         <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
                                             <i class="fas fa-info-circle"></i>
                                         </a>
@@ -369,7 +372,7 @@
     <script>
         $(document).ready(function () {
             // Xử lý tìm kiếm và lọc
-            $("#searchText, #month, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
+            $("#searchText, #month,#day, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
                 applyFilters();
             });
 
@@ -390,6 +393,7 @@
                 e.preventDefault();
                 var searchText = $("#searchText").val();
                 var month = $("#month").val();
+                var day = $("#day").val();
                 var status = $("#status").val();
                 var categoryId = $("#categoryId").val();
                 var sortOrder = $("#sortOrder").val();
@@ -397,6 +401,7 @@
                 var dueToday = $("#dueToday").is(":checked");
                 var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
                     "&month=" + encodeURIComponent(month) +
+                    "&day=" + encodeURIComponent(day) +
                     "&status=" + encodeURIComponent(status) +
                     "&categoryId=" + encodeURIComponent(categoryId) +
                     "&sortOrder=" + encodeURIComponent(sortOrder) +
@@ -774,6 +779,7 @@
         function applyFilters() {
             var searchText = $("#searchText").val();
             var month = $("#month").val();
+            var day = $("#day").val();
             var status = $("#status").val();
             var categoryId = $("#categoryId").val();
             var sortOrder = $("#sortOrder").val();
@@ -781,6 +787,7 @@
             var dueToday = $("#dueToday").is(":checked");
             var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) +
                 "&month=" + encodeURIComponent(month) +
+                "&day=" + encodeURIComponent(day) +
                 "&status=" + encodeURIComponent(status) +
                 "&categoryId=" + encodeURIComponent(categoryId) +
                 "&sortOrder=" + encodeURIComponent(sortOrder) +

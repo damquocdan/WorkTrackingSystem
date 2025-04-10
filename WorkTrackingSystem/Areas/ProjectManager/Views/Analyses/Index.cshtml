@@ -245,9 +245,11 @@
         {
             <!-- Pie Chart -->
             <div class="row">
-                <div class="col-md-12">
-                    <h5>Theo số lượng công việc</h5>
+                <h5>Theo số lượng công việc</h5>
+                <div class="col-md-6">
                     <canvas id="pieChartTasks"></canvas>
+                </div>
+                <div class="col-md-6">
                 </div>
             </div>
             <!-- Histogram -->
@@ -357,7 +359,7 @@
         @foreach (var item in Model)
         {
             <text>
-                    labels.push("@($"{ViewBag.DepartmentName} - {item.Employee.FirstName} {item.Employee.LastName}")");
+                    labels.push("@($"{item.Employee.FirstName} {item.Employee.LastName}")");
                     totalTasks.push(@item.Total);
                     ontimeTasks.push(@item.Ontime);
                     lateTasks.push(@item.Late);
@@ -488,6 +490,11 @@
 
     <!-- Update reloadCharts function -->
     <script>
+                function decodeHtmlEntities(str) {
+            let txt = document.createElement("textarea");
+            txt.innerHTML = str;
+            return txt.value;
+        }
                 function reloadCharts(data) {
             const newLabels = [];
             const newTotalTasks = [];
@@ -495,7 +502,6 @@
             const newLateTasks = [];
             const newOverdueTasks = [];
             const newProcessingTasks = [];
-            const employeeLabels = []; // Mảng để lưu nhãn nhân viên (Nhân viên 1, Nhân viên 2,...)
 
             // Extract department data (first row of analysisTable)
             const departmentRow = $(data).find("#analysisTable tbody tr").first();
@@ -515,22 +521,24 @@
             newProcessingTasks.push(departmentProcessing);
 
             // Extract employee data (skip the first row)
-            $(data).find("#analysisTable tbody tr").slice(1).each(function (index) {
+            $(data).find("#analysisTable tbody tr").slice(1).each(function () {
                 const employeeName = $(this).find("td:eq(1)").text();
-                const label = `${departmentName} - Nhân viên ${index + 1}`; // Thay tên nhân viên bằng "Nhân viên [số thứ tự]"
+                // Chuyển đổi định dạng tên
+                const formattedName = formatVietnameseName(employeeName);
+                const pieLabel = formattedName; // Dùng cho Pie Chart
+                const label = `${departmentName} - ${formattedName}`; // Dùng cho Histogram
                 const total = parseInt($(this).find("td:eq(2) .progress-bar").text()) || 0;
                 const ontime = parseInt($(this).find("td:eq(3) .progress-bar").text()) || 0;
                 const late = parseInt($(this).find("td:eq(4) .progress-bar").text()) || 0;
                 const overdue = parseInt($(this).find("td:eq(5) .progress-bar").text()) || 0;
                 const processing = parseInt($(this).find("td:eq(6) .progress-bar").text()) || 0;
 
-                newLabels.push(label);
+                newLabels.push(pieLabel);
                 newTotalTasks.push(total);
                 newOntimeTasks.push(ontime);
                 newLateTasks.push(late);
                 newOverdueTasks.push(overdue);
                 newProcessingTasks.push(processing);
-                employeeLabels.push(`Nhân viên ${index + 1}`); // Lưu nhãn "Nhân viên [số thứ tự]" cho biểu đồ tròn và bảng
             });
 
             const pieChartCanvas = document.getElementById('pieChartTasks');
@@ -540,7 +548,9 @@
                 const histogramInstance = Chart.getChart(histogramCanvas);
                 if (pieChartInstance) pieChartInstance.destroy();
                 if (histogramInstance) histogramInstance.destroy();
-
+                // console.log(newLabels)
+                // console.log(newLabels.slice(1))
+                // document.writeln(newLabels)
                 const chartSection = $(".col-md-6");
                 if (newLabels.length > 0) {
                     chartSection.html(`
@@ -563,29 +573,41 @@
                                         <thead>
                                             <tr>
                                                 <th></th>
-                                                ${newLabels.map(label => `<th>${label}</th>`).join('')}
+                                                ${newLabels.map(label => `
+                                                    <th>${label}</th>
+                                                `).join('')}
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td>Tổng</td>
-                                                ${newTotalTasks.map(total => `<td>${total}</td>`).join('')}
+                                                ${newTotalTasks.map(total => `
+                                                    <td>${total}</td>
+                                                `).join('')}
                                             </tr>
                                             <tr>
                                                 <td>Đúng hạn</td>
-                                                ${newOntimeTasks.map(ontime => `<td>${ontime}</td>`).join('')}
+                                                ${newOntimeTasks.map(ontime => `
+                                                    <td>${ontime}</td>
+                                                `).join('')}
                                             </tr>
                                             <tr>
                                                 <td>Trễ hạn</td>
-                                                ${newLateTasks.map(late => `<td>${late}</td>`).join('')}
+                                                ${newLateTasks.map(late => `
+                                                    <td>${late}</td>
+                                                `).join('')}
                                             </tr>
                                             <tr>
                                                 <td>Quá hạn</td>
-                                                ${newOverdueTasks.map(overdue => `<td>${overdue}</td>`).join('')}
+                                                ${newOverdueTasks.map(overdue => `
+                                                    <td>${overdue}</td>
+                                                `).join('')}
                                             </tr>
                                             <tr>
                                                 <td>Đang xử lý</td>
-                                                ${newProcessingTasks.map(processing => `<td>${processing}</td>`).join('')}
+                                                ${newProcessingTasks.map(processing => `
+                                                    <td>${processing}</td>
+                                                `).join('')}
                                             </tr>
                                         </tbody>
                                     </table>
@@ -596,11 +618,13 @@
 
                     const employeeTotalSum = newTotalTasks.slice(1).reduce((a, b) => a + b, 0);
 
-                    // Pie Chart (sử dụng employeeLabels thay vì tên nhân viên)
+                    // Pie Chart (excluding department)
+
+                    
                     new Chart(document.getElementById('pieChartTasks'), {
                         type: 'pie',
                         data: {
-                            labels: employeeLabels, // Sử dụng "Nhân viên 1", "Nhân viên 2",...
+                            labels: newLabels.slice(1).map(label => decodeHtmlEntities(label)),
                             datasets: [{
                                 data: newTotalTasks.slice(1),
                                 backgroundColor: [
@@ -627,7 +651,7 @@
                         }
                     });
 
-                    // Histogram (giữ nguyên)
+                    // Histogram
                     new Chart(document.getElementById('histogramTasks'), {
                         type: 'bar',
                         data: {
@@ -693,6 +717,7 @@
                                     ctx.font = 'bold 12px Arial';
                                     ctx.textAlign = 'center';
                                     ctx.fillStyle = '#000';
+
                                     chart.data.datasets.forEach((dataset, i) => {
                                         const meta = chart.getDatasetMeta(i);
                                         meta.data.forEach((bar, index) => {

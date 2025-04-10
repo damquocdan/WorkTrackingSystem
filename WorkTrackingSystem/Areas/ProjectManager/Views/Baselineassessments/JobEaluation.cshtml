@@ -30,7 +30,11 @@
                     <label class="form-label fw-bold">Tháng</label>
                     <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
                 </div>
-
+                <!-- Ngày -->
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Ngày</label>
+                    <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                </div>
                 <!-- Trạng thái -->
                 <div class="col-md-2">
                     <label class="form-label fw-bold">Trạng thái</label>
@@ -51,7 +55,7 @@
                         <option value="">-- Chọn danh mục --</option>
                         @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
                         {
-                            <option value="@category.Id">@category.Name</option>
+                                <option value="@category.Id">@category.Name</option>
                         }
                     </select>
                 </div>
@@ -78,15 +82,15 @@
 
                 <!-- Hạn hôm nay -->
                 <div class="col-md-2">
-                    <div class="form-check mt-4">
-                        <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
-                        <label class="form-check-label" for="dueToday">Hạn hôm nay</label>
-                    </div>
-                </div>
+    <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
+        <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
+    </div>
+</div>
 
                 <!-- Nút Tìm kiếm & Reset -->
                 <div class="col-md-4 d-flex justify-content-end mt-4">
-                   @*  <button type="button" id="searchButton" class="btn btn-primary me-2">
+                    @*  <button type="button" id="searchButton" class="btn btn-primary me-2">
                         <i class="bi bi-search"></i> Tìm kiếm
                     </button> *@
                     <a href="@Url.Action("JobEaluation")" id="resetButton" class="btn btn-secondary">
@@ -124,11 +128,11 @@
                             <th>Đánh giá tiến độ</th>
                             <th>Đánh giá chất lượng</th>
                             <th>Tổng hợp đánh giá</th>
-                           @*  <th width="100px">
+                            <th width="100px">
                                 <a id="exportExcel" class="btn btn-success">
                                     <i class="bi bi-file-earmark-excel"></i> Excel
                                 </a>
-                            </th> *@
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -138,38 +142,38 @@
                         @foreach (var item in Model)
                         {
                             index++;
-                            <tr class="text-center
+                                <tr class="text-center
                                 @(item.Status == 1 ? "table-success" :
                                 item.Status == 2 ? "table-warning" :
                                 item.Status == 3 ? "table-danger" :
                                 item.Status == 4 ? "table-primary" :
                                 item.Status == 0 ? "table-secondary" : "")">
-                                <td>@index</td>
-                                <td>
+                                    <td>@index</td>
+                                    <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
                                     }
                                     else
                                     {
-                                        <span class="text-danger">Chưa giao việc</span>
+                                                <span class="text-danger">Chưa giao việc</span>
                                     }
-                                </td>
-                                <td>@item.JobMapEmployee.Job.Category.Name</td>
-                                <td>@item.JobMapEmployee.Job.Name</td>
-                                <td>
+                                    </td>
+                                    <td>@item.JobMapEmployee.Job.Category.Name</td>
+                                    <td>@item.JobMapEmployee.Job.Name</td>
+                                    <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @Html.DisplayFor(modelItem => item.CreateDate)
                                     }
                                     else
                                     {
-                                        <span class=""></span>
+                                                <span class=""></span>
                                     }
-                                </td>
-                                <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td>
-                                    <span class="badge
+                                    </td>
+                                    <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                    <td>
+                                        <span class="badge
                                         @(item.Status == 1 ? "bg-success" :
                                         item.Status == 2 ? "bg-warning" :
                                         item.Status == 3 ? "bg-danger" :
@@ -196,48 +200,48 @@
                                                 @("Không xác định")
                                                 ; break;
                                         }
-                                    </span>
-                                </td>
-                                <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <input type="number" class="form-control assessment-input"
-                                               data-field="VolumeAssessment"
-                                               data-id="@item.Id"
-                                               value="@(item.VolumeAssessment?.ToString("F2") ?? "0.00")"
-                                               min="0" max="3" step="0.5" />
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <input type="number" class="form-control assessment-input"
-                                               data-field="ProgressAssessment"
-                                               data-id="@item.Id"
-                                               value="@(item.ProgressAssessment?.ToString("F2") ?? "0.00")"
-                                               min="0" max="3" step="0.5" />
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <input type="number" class="form-control assessment-input"
-                                               data-field="QualityAssessment"
-                                               data-id="@item.Id"
-                                               value="@(item.QualityAssessment?.ToString("F2") ?? "0.00")"
-                                               min="0" max="3" step="0.5" />
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <span class="summary-display" data-id="@item.Id">
-                                            @(item.SummaryOfReviews?.ToString("F2") ?? "N/A")
                                         </span>
+                                    </td>
+                                    <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                                <input type="number" class="form-control assessment-input"
+                                                       data-field="VolumeAssessment"
+                                                       data-id="@item.Id"
+                                                       value="@(item.VolumeAssessment?.ToString("F2") ?? "0.00")"
+                                                       min="0" max="3" step="0.5" />
                                     }
-                                </td>
-                               
-                            </tr>
+                                    </td>
+                                    <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                                <input type="number" class="form-control assessment-input"
+                                                       data-field="ProgressAssessment"
+                                                       data-id="@item.Id"
+                                                       value="@(item.ProgressAssessment?.ToString("F2") ?? "0.00")"
+                                                       min="0" max="3" step="0.5" />
+                                    }
+                                    </td>
+                                    <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                                <input type="number" class="form-control assessment-input"
+                                                       data-field="QualityAssessment"
+                                                       data-id="@item.Id"
+                                                       value="@(item.QualityAssessment?.ToString("F2") ?? "0.00")"
+                                                       min="0" max="3" step="0.5" />
+                                    }
+                                    </td>
+                                    <td>
+                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    {
+                                                <span class="summary-display" data-id="@item.Id">
+                                            @(item.SummaryOfReviews?.ToString("F2") ?? "N/A")
+                                                </span>
+                                    }
+                                    </td>
+
+                                </tr>
                         }
                     </tbody>
                 </table>
@@ -280,37 +284,39 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Xử lý tìm kiếm và lọc
-            $("#searchText, #month, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
-                applyFilters();
-            });
+        <script>
+            $(document).ready(function () {
+                // Xử lý tìm kiếm và lọc
+                $("#searchText, #month, #day, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
+                    applyFilters();
+                });
 
-            // Xử lý nút tìm kiếm
-            $("#searchButton").on("click", function () {
-                applyFilters();
-            });
+                // Xử lý nút tìm kiếm
+                $("#searchButton").on("click", function () {
+                    applyFilters();
+                });
 
-            // Xử lý phân trang
-            $(document).on("click", ".page-link", function (e) {
-                e.preventDefault();
-                var url = $(this).attr("href");
-                loadTable(url);
-            });
+                // Xử lý phân trang
+                $(document).on("click", ".page-link", function (e) {
+                    e.preventDefault();
+                    var url = $(this).attr("href");
+                    loadTable(url);
+                });
 
-            // Xử lý nút xuất Excel
-            $(document).on("click", "#exportExcel", function (e) {
+                // Xử lý nút xuất Excel
+                        $(document).on("click", "#exportExcel", function (e) {
                 e.preventDefault();
                 var searchText = $("#searchText").val();
                 var month = $("#month").val();
+                var day = $("#day").val();
                 var status = $("#status").val();
                 var categoryId = $("#categoryId").val();
                 var sortOrder = $("#sortOrder").val();
                 var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
                 var dueToday = $("#dueToday").is(":checked");
-                var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
+                var url = "@Url.Action("ExportToExcel", "Scores")" + "?searchText=" + encodeURIComponent(searchText) +
                     "&month=" + encodeURIComponent(month) +
+                    "&day=" + encodeURIComponent(day) +
                     "&status=" + encodeURIComponent(status) +
                     "&categoryId=" + encodeURIComponent(categoryId) +
                     "&sortOrder=" + encodeURIComponent(sortOrder) +
@@ -319,346 +325,9 @@
                 window.location.href = url;
             });
 
-            // Xử lý sự kiện AJAX cho nút chi tiết
-            $(document).on("click", ".ajax-action", function (e) {
-                e.preventDefault();
-                var url = $(this).data("url");
-                if ($("#detail-section").hasClass("d-none")) {
-                    $("#list-section").removeClass("col-md-12").addClass("col-md-8");
-                    $("#detail-section").removeClass("d-none").addClass("col-md-4");
-                }
-                $(".actionCustomers").load(url, function (response, status, xhr) {
-                    if (status === "error") {
-                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
-                    }
-                });
-            });
 
-            // Xử lý cập nhật đánh giá
-            $(document).on('change keydown', '.assessment-input', function (e) {
-                if (e.type === 'keydown' && e.key !== 'Enter') return; // Only proceed on Enter or change
-
-                var $input = $(this);
-                var id = $input.data('id');
-                var field = $input.data('field');
-                var value = parseFloat($input.val());
-
-                // Validate input
-                if (isNaN(value) || value < 0 || value > 3) {
-                    $input.val(value < 0 ? '0.00' : '3.00');
-                    value = value < 0 ? 0 : 3;
-                }
-
-                // AJAX call to update the field
-                $.ajax({
-                    url: '@Url.Action("UpdateAssessment", "Baselineassessments", new { area = "ProjectManager" })',
-                    type: 'POST',
-                    data: {
-                        id: id,
-                        field: field,
-                        value: value,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            // Update SummaryOfReviews
-                            updateSummary(id);
-                        } else {
-                            alert('Cập nhật thất bại: ' + response.message);
-                        }
-                    },
-                    error: function () {
-                        alert('Lỗi khi gửi yêu cầu.');
-                    }
-                });
-
-                // Move to next input on Enter
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    var $row = $input.closest('tr');
-                    var $rowInputs = $row.find('.assessment-input');
-                    var currentIndex = $rowInputs.index($input);
-                    var $nextInput = $rowInputs.eq(currentIndex + 1);
-
-                    if ($nextInput.length) {
-                        // Nếu còn input trong hàng hiện tại, focus vào đó
-                        $nextInput.focus();
-                    } else {
-                        // Nếu hết input trong hàng hiện tại, chuyển sang input đầu tiên của hàng tiếp theo
-                        var $nextRow = $row.next('tr');
-                        if ($nextRow.length) {
-                            var $firstInputInNextRow = $nextRow.find('.assessment-input').eq(0);
-                            if ($firstInputInNextRow.length) {
-                                $firstInputInNextRow.focus();
-                            }
-                        }
-                    }
-                }
-            });
-            // Function to calculate and update SummaryOfReviews
-            function updateSummary(id) {
-                var $row = $('tr').find(`[data-id="${id}"]`).closest('tr');
-                var volume = parseFloat($row.find('[data-field="VolumeAssessment"]').val()) || 0;
-                var progress = parseFloat($row.find('[data-field="ProgressAssessment"]').val()) || 0;
-                var quality = parseFloat($row.find('[data-field="QualityAssessment"]').val()) || 0;
-
-                // Calculate SummaryOfReviews: Volume*60% + Progress*15% + Quality*20%
-                var summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.2);
-                $row.find('.summary-display').text(summary.toFixed(2));
-            }
-
-            // Hiển thị ô tìm kiếm khi bấm "Giao C.việc"
-            $("#btn-create-job").click(function () {
-                $("#search-employee-section").removeClass("d-none");
-                if (sessionStorage.getItem('selectedEmployee')) {
-                    $("#selected-employee").removeClass("d-none");
-                }
-            });
-
-            // Autocomplete tìm kiếm nhân viên
-            var employees = [
-        @if (ViewBag.EmployeeList != null)
-        {
-            foreach (var employee in (IEnumerable<dynamic>)ViewBag.EmployeeList)
-            {
-                @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
-            }
-        }
-                    ];
-
-            $("#employee-search").autocomplete({
-                source: function (request, response) {
-                    var results = $.map(employees, function (employee) {
-                        if (employee.name.toLowerCase().includes(request.term.toLowerCase())) {
-                            return employee;
-                        }
-                    });
-                    response(results);
-                },
-                select: function (event, ui) {
-                    $("#employee-search").val('');
-                    showSelectedEmployee(ui.item);
-                    return false;
-                },
-                open: function () {
-                    var $menu = $(this).data("ui-autocomplete").menu.element;
-                    $menu.css({
-                        "display": "flex",
-                        "flex-direction": "row",
-                        "flex-wrap": "wrap",
-                        "overflow-x": "auto",
-                        "white-space": "nowrap"
-                    });
-                }
-            }).autocomplete("instance")._renderItem = function (ul, item) {
-                return $("<li>")
-                    .append(`
-                                <div class="card mb-2" style="width: 200px; text-align: center;">
-                                    <div class="card-body d-flex flex-column align-items-center">
-                                        <img src="${item.avatar}" class="mb-2" style="width: 100px; height: 100px; border-radius: 50%;">
-                                        <p class="mt-2">${item.name}</p>
-                                    </div>
-                                </div>
-                            `)
-                    .appendTo(ul);
-            };
-
-            // Hiển thị nhân viên đã chọn và lấy danh sách công việc
-            function showSelectedEmployee(employee) {
-                $("#selected-employee").removeClass("d-none");
-                $("#selected-avatar").attr("src", employee.avatar);
-                $("#selected-name").text(employee.name);
-                $("#search-employee-section").addClass("d-none");
-                $("#selected-employee").data("employee-id", employee.id);
-                sessionStorage.setItem('selectedEmployee', JSON.stringify({
-                    id: employee.id,
-                    name: employee.name,
-                    avatar: employee.avatar
-                }));
-                fetchJobs(employee.id);
-            }
-
-            // Lấy danh sách công việc qua AJAX
-            function fetchJobs(employeeId) {
-                $.ajax({
-                    url: '@Url.Action("GetJobsByEmployee", "Baselineassessments")',
-                    type: 'GET',
-                    data: { employeeId: employeeId },
-                    success: function (result) {
-                        if (result.success) {
-                            displayJobs(result.unassignedJobs, result.assignedJobs);
-                            $("#job-lists").removeClass("d-none");
-                        } else {
-                            alert("Lỗi: " + result.message);
-                            $("#job-lists").addClass("d-none");
-                        }
-                    },
-                    error: function (xhr) {
-                        alert("Lỗi khi tải danh sách công việc: " + xhr.responseText);
-                        $("#job-lists").addClass("d-none");
-                    }
-                });
-            }
-
-            // Hiển thị danh sách công việc
-            function displayJobs(unassignedJobs, assignedJobs) {
-                var unassignedTableBody = $("#unassigned-jobs-table tbody");
-                var assignedTableBody = $("#assigned-jobs-table tbody");
-
-                unassignedTableBody.empty();
-                assignedTableBody.empty();
-
-                unassignedJobs.forEach(function (job) {
-                    var statusText = getStatusText(job.status);
-                    var rowClass = getStatusClass(job.status);
-                    unassignedTableBody.append(`
-                                <tr class="${rowClass}" data-job-id="${job.id}">
-                                    <td>${job.categoryName || 'N/A'}</td>
-                                    <td>${job.name || 'N/A'}</td>
-                                    <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
-                                    <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
-                                    <td><span class="text-bold">${statusText}</span></td>
-                                    <td>
-                                        <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
-                                    </td>
-                                </tr>
-                            `);
-                });
-
-                assignedJobs.forEach(function (job) {
-                    var statusText = getStatusText(job.status);
-                    var rowClass = getStatusClass(job.status);
-                    assignedTableBody.append(`
-                                <tr class="${rowClass}" data-job-id="${job.id}">
-                                    <td>${job.categoryName || 'N/A'}</td>
-                                    <td>${job.name || 'N/A'}</td>
-                                    <td>${formatDate(job.time)}</td>
-                                    <td>${formatDate(job.deadline1)}</td>
-                                    <td><span class="text-bold">${statusText}</span></td>
-                                    <td>${formatDate(job.completionDate)}</td>
-                                </tr>
-                            `);
-                });
-
-                // Khởi tạo lại datepicker sau khi thêm các phần tử mới
-                $(".datepicker-time").datepicker({
-                    dateFormat: 'dd/mm/yy',
-                    changeMonth: true,
-                    changeYear: true
-                });
-                $(".datepicker-deadline").datepicker({
-                    dateFormat: 'dd/mm/yy',
-                    changeMonth: true,
-                    changeYear: true
-                });
-
-                bindCheckboxEvents();
-                bindAjaxActions();
-            }
-
-            // Lấy văn bản trạng thái
-            function getStatusText(status) {
-                switch (status) {
-                    case 1: return "Hoàn thành";
-                    case 2: return "Chưa hoàn thành";
-                    case 3: return "Hoàn thành muộn";
-                    case 4: return "Đang xử lý";
-                    case 0: return "Chưa bắt đầu";
-                    default: return "Chưa đánh giá";
-                }
-            }
-
-            // Lấy class trạng thái
-            function getStatusClass(status) {
-                switch (status) {
-                    case 1: return "table-success";
-                    case 2: return "table-warning";
-                    case 3: return "table-danger";
-                    case 4: return "table-primary";
-                    case 0: return "table-secondary";
-                    default: return "";
-                }
-            }
-
-            // Gắn sự kiện checkbox
-            function bindCheckboxEvents() {
-                $(".assign-job-checkbox").off("change").on("change", function () {
-                    var checkbox = $(this);
-                    var jobId = checkbox.data("job-id");
-                    var employeeId = $("#selected-employee").data("employee-id");
-                    var time = checkbox.closest("tr").find(".datepicker-time").val();
-                    var deadline = checkbox.closest("tr").find(".datepicker-deadline").val();
-
-                    if (checkbox.is(":checked")) {
-                        if (!employeeId) {
-
-                            Swal.fire({
-                                icon: "error",
-                                title: "Vui lòng chọn nhân viên trước!",
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                            checkbox.prop("checked", false);
-                            return;
-                        }
-
-                        $("#form-job-id").val(jobId);
-                        $("#form-employee-id").val(employeeId);
-
-                        // Gửi AJAX request để giao việc kèm ngày tháng
-                        $.ajax({
-                            url: $("#assign-job-form").attr("action"),
-                            type: "POST",
-                            data: {
-                                jobId: jobId,
-                                employeeId: employeeId,
-                                time: time,
-                                deadline: deadline,
-                                "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            success: function (result) {
-                                if (result.success) {
-                                    Swal.fire({
-                                        icon: "success",
-                                        title: "Đã giao công việc thành công!",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    fetchJobs(employeeId);
-                                } else {
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "Lỗi: " + result.message,
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    checkbox.prop("checked", false);
-                                }
-                            },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    icon: "error",
-                                    title: "Lỗi khi gán công việc",
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                });
-                                checkbox.prop("checked", false);
-                            }
-                        });
-                    }
-                });
-            }
-
-            // Gắn sự kiện giao việc trực tiếp từ bảng chính
-            $(".assign-job-btn").click(function () {
-                var jobId = $(this).data("job-id");
-                $("#search-employee-section").removeClass("d-none");
-                $("#form-job-id").val(jobId);
-            });
-
-            // Gắn sự kiện AJAX
-            function bindAjaxActions() {
-                $(".ajax-action").off("click").on("click", function (e) {
+                // Xử lý sự kiện AJAX cho nút chi tiết
+                $(document).on("click", ".ajax-action", function (e) {
                     e.preventDefault();
                     var url = $(this).data("url");
                     if ($("#detail-section").hasClass("d-none")) {
@@ -667,88 +336,428 @@
                     }
                     $(".actionCustomers").load(url, function (response, status, xhr) {
                         if (status === "error") {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Lỗi khi tải dữ liệu",
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
+                            alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
                         }
                     });
                 });
+
+                // Xử lý cập nhật đánh giá
+                $(document).on('change keydown', '.assessment-input', function (e) {
+                    if (e.type === 'keydown' && e.key !== 'Enter') return; // Only proceed on Enter or change
+
+                    var $input = $(this);
+                    var id = $input.data('id');
+                    var field = $input.data('field');
+                    var value = parseFloat($input.val());
+
+                    // Validate input
+                    if (isNaN(value) || value < 0 || value > 3) {
+                        $input.val(value < 0 ? '0.00' : '3.00');
+                        value = value < 0 ? 0 : 3;
+                    }
+
+                    // AJAX call to update the field
+                    $.ajax({
+                        url: '@Url.Action("UpdateAssessment", "Baselineassessments", new { area = "ProjectManager" })',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            field: field,
+                            value: value,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                // Update SummaryOfReviews
+                                updateSummary(id);
+                            } else {
+                                alert('Cập nhật thất bại: ' + response.message);
+                            }
+                        },
+                        error: function () {
+                            alert('Lỗi khi gửi yêu cầu.');
+                        }
+                    });
+
+                    // Move to next input on Enter
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        var $row = $input.closest('tr');
+                        var $rowInputs = $row.find('.assessment-input');
+                        var currentIndex = $rowInputs.index($input);
+                        var $nextInput = $rowInputs.eq(currentIndex + 1);
+
+                        if ($nextInput.length) {
+                            // Nếu còn input trong hàng hiện tại, focus vào đó
+                            $nextInput.focus();
+                        } else {
+                            // Nếu hết input trong hàng hiện tại, chuyển sang input đầu tiên của hàng tiếp theo
+                            var $nextRow = $row.next('tr');
+                            if ($nextRow.length) {
+                                var $firstInputInNextRow = $nextRow.find('.assessment-input').eq(0);
+                                if ($firstInputInNextRow.length) {
+                                    $firstInputInNextRow.focus();
+                                }
+                            }
+                        }
+                    }
+                });
+                // Function to calculate and update SummaryOfReviews
+                function updateSummary(id) {
+                    var $row = $('tr').find(`[data-id="${id}"]`).closest('tr');
+                    var volume = parseFloat($row.find('[data-field="VolumeAssessment"]').val()) || 0;
+                    var progress = parseFloat($row.find('[data-field="ProgressAssessment"]').val()) || 0;
+                    var quality = parseFloat($row.find('[data-field="QualityAssessment"]').val()) || 0;
+
+                    // Calculate SummaryOfReviews: Volume*60% + Progress*15% + Quality*20%
+                    var summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.2);
+                    $row.find('.summary-display').text(summary.toFixed(2));
+                }
+
+                // Hiển thị ô tìm kiếm khi bấm "Giao C.việc"
+                $("#btn-create-job").click(function () {
+                    $("#search-employee-section").removeClass("d-none");
+                    if (sessionStorage.getItem('selectedEmployee')) {
+                        $("#selected-employee").removeClass("d-none");
+                    }
+                });
+
+                // Autocomplete tìm kiếm nhân viên
+                var employees = [
+        @if (ViewBag.EmployeeList != null)
+        {
+            foreach (var employee in (IEnumerable<dynamic>)ViewBag.EmployeeList)
+            {
+                @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
             }
-
-            // Xóa nhân viên đã chọn
-            $("#clear-selection").click(function () {
-                $("#selected-employee").addClass("d-none");
-                $("#search-employee-section").removeClass("d-none");
-                $("#selected-employee").removeData("employee-id");
-                sessionStorage.removeItem('selectedEmployee');
-                $("#job-lists").addClass("d-none");
-
-                // Tải lại trang
-                location.reload();
-            });
-
-            // Load nhân viên từ sessionStorage
-            var previouslySelected = sessionStorage.getItem('selectedEmployee');
-            if (previouslySelected) {
-                var employee = JSON.parse(previouslySelected);
-                showSelectedEmployee(employee);
-            }
-        });
-
-        function applyFilters() {
-            var searchText = $("#searchText").val();
-            var month = $("#month").val();
-            var status = $("#status").val();
-            var categoryId = $("#categoryId").val();
-            var sortOrder = $("#sortOrder").val();
-            var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
-            var dueToday = $("#dueToday").is(":checked");
-            var url = "@Url.Action("JobEaluation")" + "?searchText=" + encodeURIComponent(searchText) +
-                "&month=" + encodeURIComponent(month) +
-                "&status=" + encodeURIComponent(status) +
-                "&categoryId=" + encodeURIComponent(categoryId) +
-                "&sortOrder=" + encodeURIComponent(sortOrder) +
-                "&showCompletedZeroReview=" + encodeURIComponent(showCompletedZeroReview) +
-                "&dueToday=" + encodeURIComponent(dueToday);
-            loadTable(url);
         }
+                        ];
 
-        function loadTable(url) {
-            $.ajax({
-                url: url,
-                type: "GET",
-                beforeSend: function () {
-                    $("#scoreTable tbody").html('<tr><td colspan="12" class="text-center">Đang tải...</td></tr>');
-                },
-                success: function (data) {
-                    var newTableBody = $(data).find("#scoreTable tbody").html();
-                    $("#scoreTable tbody").html(newTableBody);
-                    var newPagination = $(data).find(".pagination").html();
-                    $(".pagination").html(newPagination);
-                },
-                error: function (xhr, status, error) {
-                    console.error("Lỗi tải dữ liệu:", status, error);
-                    $("#scoreTable tbody").html('<tr><td colspan="12" class="text-center text-danger">Lỗi khi tải dữ liệu.</td></tr>');
+                $("#employee-search").autocomplete({
+                    source: function (request, response) {
+                        var results = $.map(employees, function (employee) {
+                            if (employee.name.toLowerCase().includes(request.term.toLowerCase())) {
+                                return employee;
+                            }
+                        });
+                        response(results);
+                    },
+                    select: function (event, ui) {
+                        $("#employee-search").val('');
+                        showSelectedEmployee(ui.item);
+                        return false;
+                    },
+                    open: function () {
+                        var $menu = $(this).data("ui-autocomplete").menu.element;
+                        $menu.css({
+                            "display": "flex",
+                            "flex-direction": "row",
+                            "flex-wrap": "wrap",
+                            "overflow-x": "auto",
+                            "white-space": "nowrap"
+                        });
+                    }
+                }).autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append(`
+                                    <div class="card mb-2" style="width: 200px; text-align: center;">
+                                        <div class="card-body d-flex flex-column align-items-center">
+                                            <img src="${item.avatar}" class="mb-2" style="width: 100px; height: 100px; border-radius: 50%;">
+                                            <p class="mt-2">${item.name}</p>
+                                        </div>
+                                    </div>
+                                `)
+                        .appendTo(ul);
+                };
+
+                // Hiển thị nhân viên đã chọn và lấy danh sách công việc
+                function showSelectedEmployee(employee) {
+                    $("#selected-employee").removeClass("d-none");
+                    $("#selected-avatar").attr("src", employee.avatar);
+                    $("#selected-name").text(employee.name);
+                    $("#search-employee-section").addClass("d-none");
+                    $("#selected-employee").data("employee-id", employee.id);
+                    sessionStorage.setItem('selectedEmployee', JSON.stringify({
+                        id: employee.id,
+                        name: employee.name,
+                        avatar: employee.avatar
+                    }));
+                    fetchJobs(employee.id);
+                }
+
+                // Lấy danh sách công việc qua AJAX
+                function fetchJobs(employeeId) {
+                    $.ajax({
+                        url: '@Url.Action("GetJobsByEmployee", "Baselineassessments")',
+                        type: 'GET',
+                        data: { employeeId: employeeId },
+                        success: function (result) {
+                            if (result.success) {
+                                displayJobs(result.unassignedJobs, result.assignedJobs);
+                                $("#job-lists").removeClass("d-none");
+                            } else {
+                                alert("Lỗi: " + result.message);
+                                $("#job-lists").addClass("d-none");
+                            }
+                        },
+                        error: function (xhr) {
+                            alert("Lỗi khi tải danh sách công việc: " + xhr.responseText);
+                            $("#job-lists").addClass("d-none");
+                        }
+                    });
+                }
+
+                // Hiển thị danh sách công việc
+                function displayJobs(unassignedJobs, assignedJobs) {
+                    var unassignedTableBody = $("#unassigned-jobs-table tbody");
+                    var assignedTableBody = $("#assigned-jobs-table tbody");
+
+                    unassignedTableBody.empty();
+                    assignedTableBody.empty();
+
+                    unassignedJobs.forEach(function (job) {
+                        var statusText = getStatusText(job.status);
+                        var rowClass = getStatusClass(job.status);
+                        unassignedTableBody.append(`
+                                    <tr class="${rowClass}" data-job-id="${job.id}">
+                                        <td>${job.categoryName || 'N/A'}</td>
+                                        <td>${job.name || 'N/A'}</td>
+                                        <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
+                                        <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
+                                        <td><span class="text-bold">${statusText}</span></td>
+                                        <td>
+                                            <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
+                                        </td>
+                                    </tr>
+                                `);
+                    });
+
+                    assignedJobs.forEach(function (job) {
+                        var statusText = getStatusText(job.status);
+                        var rowClass = getStatusClass(job.status);
+                        assignedTableBody.append(`
+                                    <tr class="${rowClass}" data-job-id="${job.id}">
+                                        <td>${job.categoryName || 'N/A'}</td>
+                                        <td>${job.name || 'N/A'}</td>
+                                        <td>${formatDate(job.time)}</td>
+                                        <td>${formatDate(job.deadline1)}</td>
+                                        <td><span class="text-bold">${statusText}</span></td>
+                                        <td>${formatDate(job.completionDate)}</td>
+                                    </tr>
+                                `);
+                    });
+
+                    // Khởi tạo lại datepicker sau khi thêm các phần tử mới
+                    $(".datepicker-time").datepicker({
+                        dateFormat: 'dd/mm/yy',
+                        changeMonth: true,
+                        changeYear: true
+                    });
+                    $(".datepicker-deadline").datepicker({
+                        dateFormat: 'dd/mm/yy',
+                        changeMonth: true,
+                        changeYear: true
+                    });
+
+                    bindCheckboxEvents();
+                    bindAjaxActions();
+                }
+
+                // Lấy văn bản trạng thái
+                function getStatusText(status) {
+                    switch (status) {
+                        case 1: return "Hoàn thành";
+                        case 2: return "Chưa hoàn thành";
+                        case 3: return "Hoàn thành muộn";
+                        case 4: return "Đang xử lý";
+                        case 0: return "Chưa bắt đầu";
+                        default: return "Chưa đánh giá";
+                    }
+                }
+
+                // Lấy class trạng thái
+                function getStatusClass(status) {
+                    switch (status) {
+                        case 1: return "table-success";
+                        case 2: return "table-warning";
+                        case 3: return "table-danger";
+                        case 4: return "table-primary";
+                        case 0: return "table-secondary";
+                        default: return "";
+                    }
+                }
+
+                // Gắn sự kiện checkbox
+                function bindCheckboxEvents() {
+                    $(".assign-job-checkbox").off("change").on("change", function () {
+                        var checkbox = $(this);
+                        var jobId = checkbox.data("job-id");
+                        var employeeId = $("#selected-employee").data("employee-id");
+                        var time = checkbox.closest("tr").find(".datepicker-time").val();
+                        var deadline = checkbox.closest("tr").find(".datepicker-deadline").val();
+
+                        if (checkbox.is(":checked")) {
+                            if (!employeeId) {
+
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Vui lòng chọn nhân viên trước!",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                checkbox.prop("checked", false);
+                                return;
+                            }
+
+                            $("#form-job-id").val(jobId);
+                            $("#form-employee-id").val(employeeId);
+
+                            // Gửi AJAX request để giao việc kèm ngày tháng
+                            $.ajax({
+                                url: $("#assign-job-form").attr("action"),
+                                type: "POST",
+                                data: {
+                                    jobId: jobId,
+                                    employeeId: employeeId,
+                                    time: time,
+                                    deadline: deadline,
+                                    "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                                },
+                                success: function (result) {
+                                    if (result.success) {
+                                        Swal.fire({
+                                            icon: "success",
+                                            title: "Đã giao công việc thành công!",
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        });
+                                        fetchJobs(employeeId);
+                                    } else {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Lỗi: " + result.message,
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        });
+                                        checkbox.prop("checked", false);
+                                    }
+                                },
+                                error: function (xhr) {
+                                    Swal.fire({
+                                        icon: "error",
+                                        title: "Lỗi khi gán công việc",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                    checkbox.prop("checked", false);
+                                }
+                            });
+                        }
+                    });
+                }
+
+                // Gắn sự kiện giao việc trực tiếp từ bảng chính
+                $(".assign-job-btn").click(function () {
+                    var jobId = $(this).data("job-id");
+                    $("#search-employee-section").removeClass("d-none");
+                    $("#form-job-id").val(jobId);
+                });
+
+                // Gắn sự kiện AJAX
+                function bindAjaxActions() {
+                    $(".ajax-action").off("click").on("click", function (e) {
+                        e.preventDefault();
+                        var url = $(this).data("url");
+                        if ($("#detail-section").hasClass("d-none")) {
+                            $("#list-section").removeClass("col-md-12").addClass("col-md-8");
+                            $("#detail-section").removeClass("d-none").addClass("col-md-4");
+                        }
+                        $(".actionCustomers").load(url, function (response, status, xhr) {
+                            if (status === "error") {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Lỗi khi tải dữ liệu",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            }
+                        });
+                    });
+                }
+
+                // Xóa nhân viên đã chọn
+                $("#clear-selection").click(function () {
+                    $("#selected-employee").addClass("d-none");
+                    $("#search-employee-section").removeClass("d-none");
+                    $("#selected-employee").removeData("employee-id");
+                    sessionStorage.removeItem('selectedEmployee');
+                    $("#job-lists").addClass("d-none");
+
+                    // Tải lại trang
+                    location.reload();
+                });
+
+                // Load nhân viên từ sessionStorage
+                var previouslySelected = sessionStorage.getItem('selectedEmployee');
+                if (previouslySelected) {
+                    var employee = JSON.parse(previouslySelected);
+                    showSelectedEmployee(employee);
                 }
             });
-        }
 
-        function closeDetailSection() {
-            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
-            $("#detail-section").addClass("d-none");
-            $(".actionCustomers").empty();
-        }
+            function applyFilters() {
+                var searchText = $("#searchText").val();
+                var month = $("#month").val();
+                var day = $("#day").val(); // Thêm day
+                var status = $("#status").val();
+                var categoryId = $("#categoryId").val();
+                var sortOrder = $("#sortOrder").val();
+                var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
+                var dueToday = $("#dueToday").is(":checked");
+                var url = "@Url.Action("JobEaluation")" + "?searchText=" + encodeURIComponent(searchText) +
+                    "&month=" + encodeURIComponent(month) +
+                    "&day=" + encodeURIComponent(day) +
+                    "&status=" + encodeURIComponent(status) +
+                    "&categoryId=" + encodeURIComponent(categoryId) +
+                    "&sortOrder=" + encodeURIComponent(sortOrder) +
+                    "&showCompletedZeroReview=" + encodeURIComponent(showCompletedZeroReview) +
+                    "&dueToday=" + encodeURIComponent(dueToday);
+                loadTable(url);
+            }
 
-        function formatDate(date) {
-            if (!date) return '';
-            const d = new Date(date);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
-            const year = d.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-    </script>
+            function loadTable(url) {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    beforeSend: function () {
+                        $("#scoreTable tbody").html('<tr><td colspan="12" class="text-center">Đang tải...</td></tr>');
+                    },
+                    success: function (data) {
+                        var newTableBody = $(data).find("#scoreTable tbody").html();
+                        $("#scoreTable tbody").html(newTableBody);
+                        var newPagination = $(data).find(".pagination").html();
+                        $(".pagination").html(newPagination);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Lỗi tải dữ liệu:", status, error);
+                        $("#scoreTable tbody").html('<tr><td colspan="12" class="text-center text-danger">Lỗi khi tải dữ liệu.</td></tr>');
+                    }
+                });
+            }
+
+            function closeDetailSection() {
+                $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+                $("#detail-section").addClass("d-none");
+                $(".actionCustomers").empty();
+            }
+
+            function formatDate(date) {
+                if (!date) return '';
+                const d = new Date(date);
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+                const year = d.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+        </script>
 }
