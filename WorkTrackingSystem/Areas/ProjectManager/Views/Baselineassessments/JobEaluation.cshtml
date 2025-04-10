@@ -203,7 +203,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    @if (item.JobMapEmployee?.Employee != null)
                                     {
                                                 <input type="number" class="form-control assessment-input"
                                                        data-field="VolumeAssessment"
@@ -213,7 +213,7 @@
                                     }
                                     </td>
                                     <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    @if (item.JobMapEmployee?.Employee != null)
                                     {
                                                 <input type="number" class="form-control assessment-input"
                                                        data-field="ProgressAssessment"
@@ -223,7 +223,7 @@
                                     }
                                     </td>
                                     <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    @if (item.JobMapEmployee?.Employee != null)
                                     {
                                                 <input type="number" class="form-control assessment-input"
                                                        data-field="QualityAssessment"
@@ -233,7 +233,7 @@
                                     }
                                     </td>
                                     <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    @if (item.JobMapEmployee?.Employee != null )
                                     {
                                                 <span class="summary-display" data-id="@item.Id">
                                             @(item.SummaryOfReviews?.ToString("F2") ?? "N/A")
@@ -410,7 +410,7 @@
                     var quality = parseFloat($row.find('[data-field="QualityAssessment"]').val()) || 0;
 
                     // Calculate SummaryOfReviews: Volume*60% + Progress*15% + Quality*20%
-                    var summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.2);
+                    var summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.25);
                     $row.find('.summary-display').text(summary.toFixed(2));
                 }
 

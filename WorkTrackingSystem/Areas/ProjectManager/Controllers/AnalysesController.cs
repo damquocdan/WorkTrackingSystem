@@ -136,14 +136,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return View(analyses.ToPagedList(page,limit));
         }
 
-        public async Task<IActionResult> ExportToExcel(
-    string searchText,
-    string time,
-    string sortOrder,
-    string filterType)
+        public async Task<IActionResult> ExportToExcel(string searchText, string time, string sortOrder, string filterType)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
-
             if (string.IsNullOrEmpty(managerUsername))
             {
                 return RedirectToAction("Index", "Login");
@@ -172,20 +167,17 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             var analyses = _context.Analyses
                 .Include(a => a.Employee)
                 .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+            Console.WriteLine($"Trước khi lọc: {(await analyses.ToListAsync()).Count} bản ghi");
 
-            if (!analyses.Any())
-            {
-                TempData["NoDataMessage"] = "Không có dữ liệu để xuất Excel.";
-                return RedirectToAction("Index");
-            }
-
-            // Lọc theo tên/mã nhân viên
             if (!string.IsNullOrEmpty(searchText))
             {
-                analyses = analyses.Where(a =>
-                    a.Employee.Code.Contains(searchText) ||
-                    a.Employee.FirstName.Contains(searchText) ||
-                    a.Employee.LastName.Contains(searchText));
+                searchText = searchText.Trim();
+                analyses = analyses.Where(a => a.Employee != null && (
+                    (a.Employee.Code ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    (a.Employee.FirstName ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    (a.Employee.LastName ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    ($"{a.Employee.FirstName} {a.Employee.LastName}" ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase)));
+                Console.WriteLine($"Sau khi lọc searchText '{searchText}': {(await analyses.ToListAsync()).Count} bản ghi");
             }
 
             string selectedMonth = "Toàn bộ";
@@ -198,165 +190,145 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     analyses = analyses.Where(a => a.Time.HasValue &&
                                                    a.Time.Value.Month == selectedDate.Month &&
                                                    a.Time.Value.Year == selectedDate.Year);
+                    Console.WriteLine($"Sau khi lọc time '{time}': {(await analyses.ToListAsync()).Count} bản ghi");
                 }
             }
 
-            // Sắp xếp
             switch (sortOrder)
             {
-                case "total_asc":
-                    analyses = analyses.OrderBy(a => a.Total);
-                    break;
-                case "total_desc":
-                    analyses = analyses.OrderByDescending(a => a.Total);
-                    break;
-                case "ontime_asc":
-                    analyses = analyses.OrderBy(a => a.Ontime);
-                    break;
-                case "ontime_desc":
-                    analyses = analyses.OrderByDescending(a => a.Ontime);
-                    break;
-                case "late_asc":
-                    analyses = analyses.OrderBy(a => a.Late);
-                    break;
-                case "late_desc":
-                    analyses = analyses.OrderByDescending(a => a.Late);
-                    break;
-                case "overdue_asc":
-                    analyses = analyses.OrderBy(a => a.Overdue);
-                    break;
-                case "overdue_desc":
-                    analyses = analyses.OrderByDescending(a => a.Overdue);
-                    break;
-                case "processing_asc":
-                    analyses = analyses.OrderBy(a => a.Processing);
-                    break;
-                case "processing_desc":
-                    analyses = analyses.OrderByDescending(a => a.Processing);
-                    break;
-                case "time_asc":
-                    analyses = analyses.OrderBy(a => a.Time);
-                    break;
-                case "time_desc":
-                    analyses = analyses.OrderByDescending(a => a.Time);
-                    break;
-                default:
-                    analyses = analyses.OrderBy(a => a.Id);
-                    break;
+                case "total_asc": analyses = analyses.OrderBy(a => a.Total); break;
+                case "total_desc": analyses = analyses.OrderByDescending(a => a.Total); break;
+                case "ontime_asc": analyses = analyses.OrderBy(a => a.Ontime); break;
+                case "ontime_desc": analyses = analyses.OrderByDescending(a => a.Ontime); break;
+                case "late_asc": analyses = analyses.OrderBy(a => a.Late); break;
+                case "late_desc": analyses = analyses.OrderByDescending(a => a.Late); break;
+                case "overdue_asc": analyses = analyses.OrderBy(a => a.Overdue); break;
+                case "overdue_desc": analyses = analyses.OrderByDescending(a => a.Overdue); break;
+                case "processing_asc": analyses = analyses.OrderBy(a => a.Processing); break;
+                case "processing_desc": analyses = analyses.OrderByDescending(a => a.Processing); break;
+                case "time_asc": analyses = analyses.OrderBy(a => a.Time); break;
+                case "time_desc": analyses = analyses.OrderByDescending(a => a.Time); break;
+                default: analyses = analyses.OrderBy(a => a.Id); break;
             }
 
             var analysesList = await analyses.ToListAsync();
+            Console.WriteLine($"Sau khi lọc: {analysesList.Count} bản ghi");
 
-            using (var package = new ExcelPackage())
+            if (!analysesList.Any())
             {
-                var worksheet = package.Workbook.Worksheets.Add("Analysis Summary");
+                return BadRequest($"Không có dữ liệu để xuất Excel cho tháng {selectedMonth}.");
+            }
 
-                worksheet.Cells[1, 1].Value = $"Bảng tổng hợp phân tích tháng {selectedMonth}";
-                worksheet.Cells[1, 1, 1, 7].Merge = true;
-                worksheet.Cells[1, 1].Style.Font.Size = 14;
-                worksheet.Cells[1, 1].Style.Font.Bold = true;
-                worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                // Tiêu đề cột
-                worksheet.Cells[2, 1].Value = "STT";
-                worksheet.Cells[2, 2].Value = "Nhân sự";
-                worksheet.Cells[2, 3].Value = "Tổng";
-                worksheet.Cells[2, 4].Value = "Đúng hạn";
-                worksheet.Cells[2, 5].Value = "Trễ hạn";
-                worksheet.Cells[2, 6].Value = "Quá hạn";
-                worksheet.Cells[2, 7].Value = "Đang xử lý";
-                worksheet.Cells[2, 1, 2, 7].Style.Font.Bold = true;
-                worksheet.Cells[2, 1, 2, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                worksheet.Cells[2, 1, 2, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Green);
-                worksheet.Cells[2, 1, 2, 7].Style.Font.Color.SetColor(System.Drawing.Color.White);
-                worksheet.Cells[2, 1, 2, 7].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                // Hàng tổng của phòng ban
-                worksheet.Cells[3, 1].Value = 1;
-                worksheet.Cells[3, 2].Value = department;
-                worksheet.Cells[3, 3].Value = analysesList.Sum(a => a.Total);
-                worksheet.Cells[3, 4].Value = analysesList.Sum(a => a.Ontime);
-                worksheet.Cells[3, 5].Value = analysesList.Sum(a => a.Late);
-                worksheet.Cells[3, 6].Value = analysesList.Sum(a => a.Overdue);
-                worksheet.Cells[3, 7].Value = analysesList.Sum(a => a.Processing);
-                worksheet.Cells[3, 1, 3, 7].Style.Font.Bold = true;
-
-                // Dữ liệu nhân viên
-                for (int i = 0; i < analysesList.Count; i++)
+            try
+            {
+                using (var package = new ExcelPackage())
                 {
-                    worksheet.Cells[i + 4, 1].Value = i + 2; // STT bắt đầu từ 2
-                    worksheet.Cells[i + 4, 2].Value = $"{analysesList[i].Employee.FirstName} {analysesList[i].Employee.LastName}";
-                    worksheet.Cells[i + 4, 3].Value = analysesList[i].Total;
-                    worksheet.Cells[i + 4, 4].Value = analysesList[i].Ontime;
-                    worksheet.Cells[i + 4, 5].Value = analysesList[i].Late;
-                    worksheet.Cells[i + 4, 6].Value = analysesList[i].Overdue;
-                    worksheet.Cells[i + 4, 7].Value = analysesList[i].Processing;
-                }
-                worksheet.Cells[3, 1, analysesList.Count + 3, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    var worksheet = package.Workbook.Worksheets.Add("Analysis Summary");
 
-                if (analysesList.Any())
-                {
-                    // Biểu đồ cột
-                    var columnChart = worksheet.Drawings.AddChart("ColumnChart", eChartType.ColumnClustered) as ExcelBarChart;
-                    columnChart.SetPosition(analysesList.Count + 15, 0, 1, 0);
-                    columnChart.SetSize(800, 400);
+                    worksheet.Cells[1, 1].Value = $"Bảng tổng hợp phân tích tháng {selectedMonth}";
+                    worksheet.Cells[1, 1, 1, 7].Merge = true;
+                    worksheet.Cells[1, 1].Style.Font.Size = 14;
+                    worksheet.Cells[1, 1].Style.Font.Bold = true;
+                    worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
-                    int nameColumnIndex = 2;
-                    int totalColumnIndex = 3;
-                    int ontimeColumnIndex = 4;  // Corrected from antiferColumnIndex
-                    int lateColumnIndex = 5;
-                    int overdueColumnIndex = 6;
+                    worksheet.Cells[2, 1].Value = "STT";
+                    worksheet.Cells[2, 2].Value = "Nhân sự";
+                    worksheet.Cells[2, 3].Value = "Tổng";
+                    worksheet.Cells[2, 4].Value = "Đúng hạn";
+                    worksheet.Cells[2, 5].Value = "Trễ hạn";
+                    worksheet.Cells[2, 6].Value = "Quá hạn";
+                    worksheet.Cells[2, 7].Value = "Đang xử lý";
+                    worksheet.Cells[2, 1, 2, 7].Style.Font.Bold = true;
+                    worksheet.Cells[2, 1, 2, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet.Cells[2, 1, 2, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Green);
+                    worksheet.Cells[2, 1, 2, 7].Style.Font.Color.SetColor(System.Drawing.Color.White);
+                    worksheet.Cells[2, 1, 2, 7].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
-                    var labelRange = worksheet.Cells[4, nameColumnIndex, analysesList.Count + 3, nameColumnIndex];
-                    var totalRange = worksheet.Cells[4, totalColumnIndex, analysesList.Count + 3, totalColumnIndex];
-                    var ontimeRange = worksheet.Cells[4, ontimeColumnIndex, analysesList.Count + 3, ontimeColumnIndex]; // Corrected
-                    var lateRange = worksheet.Cells[4, lateColumnIndex, analysesList.Count + 3, lateColumnIndex];
-                    var overdueRange = worksheet.Cells[4, overdueColumnIndex, analysesList.Count + 3, overdueColumnIndex];
+                    worksheet.Cells[3, 1].Value = 1;
+                    worksheet.Cells[3, 2].Value = department;
+                    worksheet.Cells[3, 3].Value = analysesList.Sum(a => a.Total);
+                    worksheet.Cells[3, 4].Value = analysesList.Sum(a => a.Ontime);
+                    worksheet.Cells[3, 5].Value = analysesList.Sum(a => a.Late);
+                    worksheet.Cells[3, 6].Value = analysesList.Sum(a => a.Overdue);
+                    worksheet.Cells[3, 7].Value = analysesList.Sum(a => a.Processing);
+                    worksheet.Cells[3, 1, 3, 7].Style.Font.Bold = true;
 
-                    var seriesTotal = columnChart.Series.Add(totalRange, labelRange);
-                    seriesTotal.Header = "Tổng";
-                    var seriesOntime = columnChart.Series.Add(ontimeRange, labelRange); // Corrected
-                    seriesOntime.Header = "Đúng hạn";
-                    var seriesLate = columnChart.Series.Add(lateRange, labelRange);
-                    seriesLate.Header = "Trễ hạn";
-                    var seriesOverdue = columnChart.Series.Add(overdueRange, labelRange);
-                    seriesOverdue.Header = "Quá hạn";
-
-                    seriesTotal.Fill.Color = System.Drawing.Color.Blue;
-                    seriesOntime.Fill.Color = System.Drawing.Color.Green;
-                    seriesLate.Fill.Color = System.Drawing.Color.Red;
-                    seriesOverdue.Fill.Color = System.Drawing.Color.Yellow;
-
-                    columnChart.Title.Text = "Tổng hợp tháng/năm";
-                    columnChart.Legend.Position = eLegendPosition.Bottom;
-                    columnChart.DataLabel.ShowValue = true;
-                    columnChart.DataLabel.Position = eLabelPosition.OutEnd;
-                }
-                if (analysesList.Any())
-                {
-                    var chart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart;
-                    chart.SetPosition(1, 0, 9, 0);
-                    chart.SetSize(500, 350);
-
-                    int totalColumnIndex = 3;
-                    int nameColumnIndex = 2;
-
-                    var dataRange = worksheet.Cells[4, totalColumnIndex, analysesList.Count + 3, totalColumnIndex]; // Bỏ hàng tổng
-                    var labelRange = worksheet.Cells[4, nameColumnIndex, analysesList.Count + 3, nameColumnIndex];
-
-                    var series = chart.Series.Add(dataRange, labelRange) as ExcelPieChartSerie;
-                    chart.Title.Text = "Theo số lượng công việc";
-                    chart.Legend.Position = eLegendPosition.Left;
-
-                    if (series != null)
+                    for (int i = 0; i < analysesList.Count; i++)
                     {
-                        series.DataLabel.ShowPercent = true;
-                        series.DataLabel.Position = eLabelPosition.Center;
+                        worksheet.Cells[i + 4, 1].Value = i + 2;
+                        worksheet.Cells[i + 4, 2].Value = $"{analysesList[i].Employee.FirstName} {analysesList[i].Employee.LastName}";
+                        worksheet.Cells[i + 4, 3].Value = analysesList[i].Total;
+                        worksheet.Cells[i + 4, 4].Value = analysesList[i].Ontime;
+                        worksheet.Cells[i + 4, 5].Value = analysesList[i].Late;
+                        worksheet.Cells[i + 4, 6].Value = analysesList[i].Overdue;
+                        worksheet.Cells[i + 4, 7].Value = analysesList[i].Processing;
                     }
-                }
+                    worksheet.Cells[3, 1, analysesList.Count + 3, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
-                var stream = new MemoryStream(package.GetAsByteArray());
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Analysis_{selectedMonth}.xlsx");
+                    if (analysesList.Any())
+                    {
+                        var columnChart = worksheet.Drawings.AddChart("ColumnChart", eChartType.ColumnClustered) as ExcelBarChart;
+                        columnChart.SetPosition(analysesList.Count + 15, 0, 1, 0);
+                        columnChart.SetSize(800, 400);
+
+                        int nameColumnIndex = 2;
+                        int totalColumnIndex = 3;
+                        int ontimeColumnIndex = 4;
+                        int lateColumnIndex = 5;
+                        int overdueColumnIndex = 6;
+
+                        var labelRange = worksheet.Cells[4, nameColumnIndex, analysesList.Count + 3, nameColumnIndex];
+                        var totalRange = worksheet.Cells[4, totalColumnIndex, analysesList.Count + 3, totalColumnIndex];
+                        var ontimeRange = worksheet.Cells[4, ontimeColumnIndex, analysesList.Count + 3, ontimeColumnIndex];
+                        var lateRange = worksheet.Cells[4, lateColumnIndex, analysesList.Count + 3, lateColumnIndex];
+                        var overdueRange = worksheet.Cells[4, overdueColumnIndex, analysesList.Count + 3, overdueColumnIndex];
+
+                        var seriesTotal = columnChart.Series.Add(totalRange, labelRange);
+                        seriesTotal.Header = "Tổng";
+                        var seriesOntime = columnChart.Series.Add(ontimeRange, labelRange);
+                        seriesOntime.Header = "Đúng hạn";
+                        var seriesLate = columnChart.Series.Add(lateRange, labelRange);
+                        seriesLate.Header = "Trễ hạn";
+                        var seriesOverdue = columnChart.Series.Add(overdueRange, labelRange);
+                        seriesOverdue.Header = "Quá hạn";
+
+                        seriesTotal.Fill.Color = System.Drawing.Color.Blue;
+                        seriesOntime.Fill.Color = System.Drawing.Color.Green;
+                        seriesLate.Fill.Color = System.Drawing.Color.Red;
+                        seriesOverdue.Fill.Color = System.Drawing.Color.Yellow;
+
+                        columnChart.Title.Text = "Tổng hợp tháng/năm";
+                        columnChart.Legend.Position = eLegendPosition.Bottom;
+                        columnChart.DataLabel.ShowValue = true;
+                        columnChart.DataLabel.Position = eLabelPosition.OutEnd;
+
+                        var pieChart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart;
+                        pieChart.SetPosition(1, 0, 9, 0);
+                        pieChart.SetSize(500, 350);
+
+                        var pieDataRange = worksheet.Cells[4, totalColumnIndex, analysesList.Count + 3, totalColumnIndex];
+                        var pieLabelRange = worksheet.Cells[4, nameColumnIndex, analysesList.Count + 3, nameColumnIndex];
+
+                        var pieSeries = pieChart.Series.Add(pieDataRange, pieLabelRange) as ExcelPieChartSerie;
+                        pieChart.Title.Text = "Theo số lượng công việc";
+                        pieChart.Legend.Position = eLegendPosition.Left;
+
+                        if (pieSeries != null)
+                        {
+                            pieSeries.DataLabel.ShowPercent = true;
+                            pieSeries.DataLabel.Position = eLabelPosition.Center;
+                        }
+                    }
+
+                    var stream = new MemoryStream(package.GetAsByteArray());
+                    return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Analysis_{selectedMonth.Replace("/", "_")}.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi tạo Excel: {ex.Message}");
+                TempData["NoDataMessage"] = "Có lỗi xảy ra khi xuất Excel.";
+                return RedirectToAction("Index");
             }
         }
         public ActionResult SendEmail()
