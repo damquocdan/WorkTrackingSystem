@@ -26,6 +26,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         public async Task<IActionResult> Index(
     string searchText = "",
     string month = "",
+    string day = "",
     string status = "",
     string categoryId = "",
     string sortOrder = "",
@@ -109,9 +110,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             // 2. Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
-                scoresQuery = scoresQuery.Where(s => s.Time.HasValue && s.Time.Value.Year == selectedMonth.Year && s.Time.Value.Month == selectedMonth.Month);
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedMonth.Year && s.CreateDate.Value.Month == selectedMonth.Month);
             }
-
+            if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
+            {
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
+            }
             // 3. Lọc theo trạng thái
             if (!string.IsNullOrEmpty(status) && byte.TryParse(status, out byte statusValue))
             {
@@ -129,10 +133,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == 1 && (!s.SummaryOfReviews.HasValue || s.SummaryOfReviews == 0));
             }
-
+            if (dueToday)
+            {
+                scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
+            }
             var scores = scoresQuery.ToPagedList(page,limit);
             ViewBag.SearchText = searchText;
             ViewBag.Month = month;
+            ViewBag.Day = day;
             ViewBag.Status = status?.ToString();
             ViewBag.CategoryId = categoryId?.ToString();
             ViewBag.SortOrder = sortOrder;
