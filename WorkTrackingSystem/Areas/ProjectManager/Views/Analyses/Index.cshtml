@@ -280,6 +280,7 @@
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 @section Scripts {
@@ -468,25 +469,29 @@
         $(document).ready(function() {
             reloadChartsAndSummary(document.documentElement.outerHTML);
 
-            $(document).on("click", ".ajax-action", function(e) {
-                e.preventDefault();
-                var url = $(this).data("url");
-                if ($("#detail-section").hasClass("d-none")) {
-                    $("#list-section").removeClass("col-md-12").addClass("col-md-6");
-                    $("#detail-section").removeClass("d-none").addClass("col-md-6");
+                    $(document).on("click", ".ajax-action", function(e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+            var time = $("#time").val();
+            if (time) {
+                url += (url.includes("?") ? "&" : "?") + "time=" + encodeURIComponent(time);
+            }
+            if ($("#detail-section").hasClass("d-none")) {
+                $("#list-section").removeClass("col-md-12").addClass("col-md-6");
+                $("#detail-section").removeClass("d-none").addClass("col-md-6");
+            }
+            $(".actionCustomers").load(url, function(response, status, xhr) {
+                if (status === "error") {
+                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
                 }
-                $(".actionCustomers").load(url, function(response, status, xhr) {
-                    if (status === "error") {
-                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
-                    }
-                });
-                const columnsToHide = [2, 3, 4, 5, 6];
-                $("#analysisTable").find("tr").each(function() {
-                    $(this).find("th, td").each(function(index) {
-                        if (columnsToHide.includes(index)) $(this).hide();
-                    });
+            });
+            const columnsToHide = [2, 3, 4, 5, 6];
+            $("#analysisTable").find("tr").each(function() {
+                $(this).find("th, td").each(function(index) {
+                    if (columnsToHide.includes(index)) $(this).hide();
                 });
             });
+        });
 
             $("#searchText, #time, #sortOrder").on("input change", function() {
                 applyFilters();
@@ -497,8 +502,8 @@
                 var url = $(this).attr("href");
                 loadTable(url);
             });
-             $(document).on("click", "#exportExcel", function (e) {
-            // $("#exportExcel").on("click", function(e) {
+
+            $(document).on("click", "#exportExcel", function(e) {
                 e.preventDefault();
                 var rowCount = $("#analysisTable tbody tr").length;
                 if (rowCount <= 1) {
@@ -509,7 +514,7 @@
                 var time = $("#time").val();
                 var sortOrder = $("#sortOrder").val();
                 var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) + "&time=" + encodeURIComponent(time) + "&sortOrder=" + encodeURIComponent(sortOrder);
-                window.location.href = url; // Gọi trực tiếp để tải file
+                window.location.href = url;
             });
         });
 

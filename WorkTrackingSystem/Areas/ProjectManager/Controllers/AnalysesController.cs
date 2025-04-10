@@ -30,9 +30,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         // GET: ProjectManager/Analyses
         public async Task<IActionResult> Index(
     string searchText,
-    string time, // Thay vì month và year riêng lẻ
+    string time,
     string sortOrder,
-    string filterType,int page=1)
+    string filterType,
+    int page = 1)
         {
             var limit = 8;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -43,19 +44,20 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var manager = await _context.Users
-        .Include(u => u.Employee)
-        .ThenInclude(e => e.Department)
-        .FirstOrDefaultAsync(u => u.UserName == managerUsername);
+                .Include(u => u.Employee)
+                .ThenInclude(e => e.Department)
+                .FirstOrDefaultAsync(u => u.UserName == managerUsername);
 
             if (manager == null || manager.Employee?.DepartmentId == null)
             {
                 return RedirectToAction("Index", "Login");
             }
+
             ViewBag.DepartmentName = manager.Employee.Department?.Name ?? "Không xác định";
             var employeeIdsInManagedDepartment = await _context.Employees
-        .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
-        .Select(e => e.Id)
-        .ToListAsync();
+                .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+                .Select(e => e.Id)
+                .ToListAsync();
 
             var analyses = _context.Analyses
                 .Include(a => a.Employee)
@@ -70,8 +72,30 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     a.Employee.LastName.Contains(searchText));
             }
 
-            // Bộ lọc theo tháng/năm
-            if (!string.IsNullOrEmpty(time))
+            IEnumerable<Analysis> finalAnalyses; // Sử dụng IEnumerable thay vì IQueryable
+
+            // Nếu không có time, tính tổng toàn bộ các tháng
+            if (string.IsNullOrEmpty(time))
+            {
+                // Lấy dữ liệu thô từ cơ sở dữ liệu trước
+                var rawAnalyses = await analyses.ToListAsync();
+
+                // Nhóm và tính tổng trong bộ nhớ
+                finalAnalyses = rawAnalyses
+                    .GroupBy(a => a.EmployeeId)
+                    .Select(g => new Analysis
+                    {
+                        EmployeeId = g.Key,
+                        Employee = g.First().Employee, // Lấy thông tin Employee từ bản ghi đầu tiên
+                        Total = g.Sum(x => x.Total ?? 0),
+                        Ontime = g.Sum(x => x.Ontime ?? 0),
+                        Late = g.Sum(x => x.Late ?? 0),
+                        Overdue = g.Sum(x => x.Overdue ?? 0),
+                        Processing = g.Sum(x => x.Processing ?? 0),
+                        Time = null // Không hiển thị thời gian cụ thể vì đây là tổng
+                    });
+            }
+            else // Nếu có time, lọc theo tháng/năm như cũ
             {
                 DateTime selectedDate;
                 if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
@@ -80,60 +104,63 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                                    a.Time.Value.Month == selectedDate.Month &&
                                                    a.Time.Value.Year == selectedDate.Year);
                 }
+                finalAnalyses = await analyses.ToListAsync(); // Chuyển trực tiếp sang List
             }
 
             // Sắp xếp kết quả theo lựa chọn của người dùng
             switch (sortOrder)
             {
                 case "total_asc":
-                    analyses = analyses.OrderBy(a => a.Total);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Total);
                     break;
                 case "total_desc":
-                    analyses = analyses.OrderByDescending(a => a.Total);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Total);
                     break;
                 case "ontime_asc":
-                    analyses = analyses.OrderBy(a => a.Ontime);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Ontime);
                     break;
                 case "ontime_desc":
-                    analyses = analyses.OrderByDescending(a => a.Ontime);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Ontime);
                     break;
                 case "late_asc":
-                    analyses = analyses.OrderBy(a => a.Late);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Late);
                     break;
                 case "late_desc":
-                    analyses = analyses.OrderByDescending(a => a.Late);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Late);
                     break;
                 case "overdue_asc":
-                    analyses = analyses.OrderBy(a => a.Overdue);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Overdue);
                     break;
                 case "overdue_desc":
-                    analyses = analyses.OrderByDescending(a => a.Overdue);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Overdue);
                     break;
                 case "processing_asc":
-                    analyses = analyses.OrderBy(a => a.Processing);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Processing);
                     break;
                 case "processing_desc":
-                    analyses = analyses.OrderByDescending(a => a.Processing);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Processing);
                     break;
                 case "time_asc":
-                    analyses = analyses.OrderBy(a => a.Time);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Time);
                     break;
                 case "time_desc":
-                    analyses = analyses.OrderByDescending(a => a.Time);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Time);
                     break;
                 default:
-                    analyses = analyses.OrderBy(a => a.Id);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Id);
                     break;
             }
-            var analysesList = await analyses.ToListAsync();
+
+            var analysesList = finalAnalyses.ToList(); // Chuyển sang List để xử lý phân trang
             if (!analysesList.Any())
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
+
             ViewBag.SearchText = searchText;
             ViewBag.Time = time;
             ViewBag.SortOrder = sortOrder;
-            return View(analyses.ToPagedList(page,limit));
+            return View(finalAnalyses.ToPagedList(page, limit));
         }
 
         public async Task<IActionResult> ExportToExcel(string searchText, string time, string sortOrder, string filterType)
@@ -167,7 +194,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             var analyses = _context.Analyses
                 .Include(a => a.Employee)
                 .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
-            Console.WriteLine($"Trước khi lọc: {(await analyses.ToListAsync()).Count} bản ghi");
 
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -177,11 +203,30 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     (a.Employee.FirstName ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                     (a.Employee.LastName ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                     ($"{a.Employee.FirstName} {a.Employee.LastName}" ?? "").Contains(searchText, StringComparison.OrdinalIgnoreCase)));
-                Console.WriteLine($"Sau khi lọc searchText '{searchText}': {(await analyses.ToListAsync()).Count} bản ghi");
             }
 
+            IEnumerable<Analysis> finalAnalyses;
             string selectedMonth = "Toàn bộ";
-            if (!string.IsNullOrEmpty(time))
+
+            // Nếu không có time, tính tổng toàn bộ các tháng
+            if (string.IsNullOrEmpty(time))
+            {
+                var rawAnalyses = await analyses.ToListAsync();
+                finalAnalyses = rawAnalyses
+                    .GroupBy(a => a.EmployeeId)
+                    .Select(g => new Analysis
+                    {
+                        EmployeeId = g.Key,
+                        Employee = g.First().Employee,
+                        Total = g.Sum(x => x.Total ?? 0),
+                        Ontime = g.Sum(x => x.Ontime ?? 0),
+                        Late = g.Sum(x => x.Late ?? 0),
+                        Overdue = g.Sum(x => x.Overdue ?? 0),
+                        Processing = g.Sum(x => x.Processing ?? 0),
+                        Time = null
+                    });
+            }
+            else // Nếu có time, lọc theo tháng/năm
             {
                 DateTime selectedDate;
                 if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
@@ -190,30 +235,29 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     analyses = analyses.Where(a => a.Time.HasValue &&
                                                    a.Time.Value.Month == selectedDate.Month &&
                                                    a.Time.Value.Year == selectedDate.Year);
-                    Console.WriteLine($"Sau khi lọc time '{time}': {(await analyses.ToListAsync()).Count} bản ghi");
                 }
+                finalAnalyses = await analyses.ToListAsync();
             }
 
+            // Sắp xếp kết quả theo lựa chọn của người dùng
             switch (sortOrder)
             {
-                case "total_asc": analyses = analyses.OrderBy(a => a.Total); break;
-                case "total_desc": analyses = analyses.OrderByDescending(a => a.Total); break;
-                case "ontime_asc": analyses = analyses.OrderBy(a => a.Ontime); break;
-                case "ontime_desc": analyses = analyses.OrderByDescending(a => a.Ontime); break;
-                case "late_asc": analyses = analyses.OrderBy(a => a.Late); break;
-                case "late_desc": analyses = analyses.OrderByDescending(a => a.Late); break;
-                case "overdue_asc": analyses = analyses.OrderBy(a => a.Overdue); break;
-                case "overdue_desc": analyses = analyses.OrderByDescending(a => a.Overdue); break;
-                case "processing_asc": analyses = analyses.OrderBy(a => a.Processing); break;
-                case "processing_desc": analyses = analyses.OrderByDescending(a => a.Processing); break;
-                case "time_asc": analyses = analyses.OrderBy(a => a.Time); break;
-                case "time_desc": analyses = analyses.OrderByDescending(a => a.Time); break;
-                default: analyses = analyses.OrderBy(a => a.Id); break;
+                case "total_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Total); break;
+                case "total_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Total); break;
+                case "ontime_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Ontime); break;
+                case "ontime_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Ontime); break;
+                case "late_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Late); break;
+                case "late_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Late); break;
+                case "overdue_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Overdue); break;
+                case "overdue_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Overdue); break;
+                case "processing_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Processing); break;
+                case "processing_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Processing); break;
+                case "time_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Time); break;
+                case "time_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Time); break;
+                default: finalAnalyses = finalAnalyses.OrderBy(a => a.Id); break;
             }
 
-            var analysesList = await analyses.ToListAsync();
-            Console.WriteLine($"Sau khi lọc: {analysesList.Count} bản ghi");
-
+            var analysesList = finalAnalyses.ToList();
             if (!analysesList.Any())
             {
                 return BadRequest($"Không có dữ liệu để xuất Excel cho tháng {selectedMonth}.");
@@ -417,24 +461,106 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
         }
         // GET: ProjectManager/Analyses/Details/5
-        public async Task<IActionResult> Details(long? id)
+        public async Task<IActionResult> Details(long? id, string time = null)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var analysis = await _context.Analyses
-                .Include(a => a.Employee)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (analysis == null)
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
             {
-                return NotFound();
+                return RedirectToAction("Index", "Login");
             }
+
+            var manager = await _context.Users
+                .Include(u => u.Employee)
+                .ThenInclude(e => e.Department)
+                .FirstOrDefaultAsync(u => u.UserName == managerUsername);
+
+            if (manager == null || manager.Employee?.DepartmentId == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var employeeIdsInManagedDepartment = await _context.Employees
+                .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            // Fetch analyses for the specific employee (not just by ID, but by EmployeeId)
+            var analysesQuery = _context.Analyses
+                .Include(a => a.Employee)
+                .Where(a => a.EmployeeId.HasValue &&
+                            employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+
+            Analysis analysis;
+
+            if (string.IsNullOrEmpty(time))
+            {
+                // Aggregate totals across all months for this employee
+                var rawAnalyses = await analysesQuery
+                    .Where(a => a.Id == id) // Match the ID from the table row
+                    .ToListAsync();
+
+                if (!rawAnalyses.Any())
+                {
+                    return NotFound();
+                }
+
+                var employeeId = rawAnalyses.First().EmployeeId;
+                var allAnalysesForEmployee = await analysesQuery
+                    .Where(a => a.EmployeeId == employeeId)
+                    .ToListAsync();
+
+                analysis = new Analysis
+                {
+                    Id = rawAnalyses.First().Id,
+                    EmployeeId = employeeId,
+                    Employee = rawAnalyses.First().Employee,
+                    Total = allAnalysesForEmployee.Sum(x => x.Total ?? 0),
+                    Ontime = allAnalysesForEmployee.Sum(x => x.Ontime ?? 0),
+                    Late = allAnalysesForEmployee.Sum(x => x.Late ?? 0),
+                    Overdue = allAnalysesForEmployee.Sum(x => x.Overdue ?? 0),
+                    Processing = allAnalysesForEmployee.Sum(x => x.Processing ?? 0),
+                    Time = null, // Aggregated data has no specific time
+                    IsDelete = rawAnalyses.First().IsDelete,
+                    IsActive = rawAnalyses.First().IsActive,
+                    CreateDate = rawAnalyses.First().CreateDate,
+                    UpdateDate = rawAnalyses.First().UpdateDate,
+                    CreateBy = rawAnalyses.First().CreateBy,
+                    UpdateBy = rawAnalyses.First().UpdateBy
+                };
+            }
+            else
+            {
+                // Filter by the specific month/year
+                DateTime selectedDate;
+                if (!DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
+                {
+                    return BadRequest("Invalid time format. Use 'yyyy-MM'.");
+                }
+
+                analysis = await analysesQuery
+                    .FirstOrDefaultAsync(a => a.Id == id &&
+                                              a.Time.HasValue &&
+                                              a.Time.Value.Month == selectedDate.Month &&
+                                              a.Time.Value.Year == selectedDate.Year);
+
+                if (analysis == null)
+                {
+                    return NotFound();
+                }
+            }
+
+            ViewBag.Time = time;
+
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Details", analysis);
             }
+
             return View(analysis);
         }
 
