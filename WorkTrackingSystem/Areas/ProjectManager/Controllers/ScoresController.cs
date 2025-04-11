@@ -390,7 +390,15 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return View(job);
         }
 
-        public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
+        public async Task<IActionResult> ExportToExcel(
+     string searchText = "",
+     string month = "",
+     string day = "",
+     int? status = null,
+     int? categoryId = null,
+     bool dueToday = false,
+     string sortOrder = "",
+     bool showCompletedZeroReview = false)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
@@ -400,6 +408,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             var manager = await _context.Users
                 .Where(u => u.UserName == managerUsername)
+                .Include(u => u.Employee)
                 .Select(u => u.Employee)
                 .FirstOrDefaultAsync();
 
@@ -418,70 +427,96 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Select(e => e.Id)
                 .ToListAsync();
 
-            var jobs = _context.Scores
-                .Include(j => j.JobMapEmployee.Job.Category)
-                .Include(j => j.JobMapEmployee.Employee)
-                .Where(j => j.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Contains(j.JobMapEmployee.EmployeeId.Value));
+            var scoresQuery = _context.Scores
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Employee)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Job)
+                        .ThenInclude(j => j.Category)
+                .Where(s => s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Contains(s.JobMapEmployee.EmployeeId.Value));
 
-            // Áp dụng các bộ lọc giống như trong Index
+            // Áp dụng các bộ lọc giống như trong JobEaluation
+
+            // 1. Tìm kiếm theo mã / tên nhân viên / công việc
             if (!string.IsNullOrEmpty(searchText))
             {
-                jobs = jobs.Where(j =>
-                    j.JobMapEmployee.Employee.Code.Contains(searchText) ||
-                    j.JobMapEmployee.Employee.FirstName.Contains(searchText) ||
-                    j.JobMapEmployee.Employee.LastName.Contains(searchText) ||
-                    j.JobMapEmployee.Job.Name.Contains(searchText));
+                searchText = searchText.ToLower();
+                scoresQuery = scoresQuery.Where(s =>
+                    (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.Code.ToLower().Contains(searchText)) ||
+                    (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.FirstName.ToLower().Contains(searchText)) ||
+                    (s.JobMapEmployee.Employee != null && s.JobMapEmployee.Employee.LastName.ToLower().Contains(searchText)) ||
+                    s.JobMapEmployee.Job.Name.ToLower().Contains(searchText));
             }
 
-            if (status.HasValue)
-            {
-                jobs = jobs.Where(j => j.Status == status.Value);
-            }
-
-            if (categoryId.HasValue)
-            {
-                jobs = jobs.Where(j => j.JobMapEmployee.Job.CategoryId == categoryId.Value);
-            }
-
-            if (dueToday)
-            {
-                jobs = jobs.Where(j => j.CreateDate.HasValue && j.CreateDate.Value.Date == DateTime.Today);
-            }
-
+            // 2. Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
-                jobs = jobs.Where(j => j.CreateDate.HasValue &&
-                                      j.CreateDate.Value.Year == selectedMonth.Year &&
-                                      j.CreateDate.Value.Month == selectedMonth.Month);
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue &&
+                                                  s.CreateDate.Value.Year == selectedMonth.Year &&
+                                                  s.CreateDate.Value.Month == selectedMonth.Month);
             }
 
+            // 3. Lọc theo ngày
+            if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
+            {
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
+            }
+
+            // 4. Lọc theo trạng thái
+            if (status.HasValue)
+            {
+                scoresQuery = scoresQuery.Where(s => s.Status == status.Value);
+            }
+
+            // 5. Lọc theo danh mục
+            if (categoryId.HasValue)
+            {
+                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == categoryId.Value);
+            }
+
+            // 6. Hiển thị công việc hoàn thành nhưng chưa đánh giá
+            if (showCompletedZeroReview)
+            {
+                scoresQuery = scoresQuery.Where(s => s.SummaryOfReviews == 0);
+            }
+
+            // 7. Lọc công việc theo ngày (dueToday)
+            if (dueToday)
+            {
+                scoresQuery = scoresQuery.Where(s => s.Time==s.CreateDate);
+            }
+
+            // 8. Sắp xếp
             switch (sortOrder)
             {
                 case "due_asc":
-                    jobs = jobs.OrderBy(j => j.CreateDate);
+                    scoresQuery = scoresQuery.OrderBy(s => s.CreateDate);
                     break;
                 case "due_desc":
-                    jobs = jobs.OrderByDescending(j => j.CreateDate);
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.CreateDate);
                     break;
                 case "review_asc":
-                    jobs = jobs.OrderBy(j => j.SummaryOfReviews);
+                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews);
                     break;
                 case "review_desc":
-                    jobs = jobs.OrderByDescending(j => j.SummaryOfReviews);
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews);
+                    break;
+                default:
+                    scoresQuery = scoresQuery.OrderBy(s => s.CreateDate);
                     break;
             }
 
-            var jobList = await jobs.ToListAsync();
+            var scoreList = await scoresQuery.ToListAsync();
 
             // Tạo file Excel bằng EPPlus
             using (var package = new ExcelPackage())
             {
-                var worksheet = package.Workbook.Worksheets.Add("Jobs");
+                var worksheet = package.Workbook.Worksheets.Add("Scores");
                 worksheet.Cells[1, 1].Value = "STT";
                 worksheet.Cells[1, 2].Value = "Nhân viên";
                 worksheet.Cells[1, 3].Value = "Hạng mục";
                 worksheet.Cells[1, 4].Value = "Công việc";
-                worksheet.Cells[1, 5].Value = "Deadline";
+                worksheet.Cells[1, 5].Value = "Ngày tạo";
                 worksheet.Cells[1, 6].Value = "Ngày hoàn thành";
                 worksheet.Cells[1, 7].Value = "Trạng thái";
                 worksheet.Cells[1, 8].Value = "Đánh giá khối lượng";
@@ -490,16 +525,18 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 worksheet.Cells[1, 11].Value = "Đánh giá tổng hợp";
 
                 // Điền dữ liệu
-                for (int i = 0; i < jobList.Count; i++)
+                for (int i = 0; i < scoreList.Count; i++)
                 {
-                    var job = jobList[i];
+                    var score = scoreList[i];
                     worksheet.Cells[i + 2, 1].Value = i + 1; // STT
-                    worksheet.Cells[i + 2, 2].Value = $"{job.JobMapEmployee.Employee.Code} {job.JobMapEmployee.Employee.FirstName} {job.JobMapEmployee.Employee.LastName}";
-                    worksheet.Cells[i + 2, 3].Value = job.JobMapEmployee.Job.Category.Name;
-                    worksheet.Cells[i + 2, 4].Value = job.JobMapEmployee.Job.Name;
-                    worksheet.Cells[i + 2, 5].Value = job.CreateDate?.ToString("dd/MM/yyyy");
-                    worksheet.Cells[i + 2, 6].Value = job.CompletionDate?.ToString("dd/MM/yyyy"); // Giả sử ngày hoàn thành bằng Deadline
-                    worksheet.Cells[i + 2, 7].Value = job.Status switch
+                    worksheet.Cells[i + 2, 2].Value = score.JobMapEmployee.Employee != null
+                        ? $"{score.JobMapEmployee.Employee.Code} {score.JobMapEmployee.Employee.FirstName} {score.JobMapEmployee.Employee.LastName}"
+                        : "N/A";
+                    worksheet.Cells[i + 2, 3].Value = score.JobMapEmployee.Job.Category?.Name ?? "N/A";
+                    worksheet.Cells[i + 2, 4].Value = score.JobMapEmployee.Job?.Name ?? "N/A";
+                    worksheet.Cells[i + 2, 5].Value = score.CreateDate?.ToString("dd/MM/yyyy");
+                    worksheet.Cells[i + 2, 6].Value = score.CompletionDate?.ToString("dd/MM/yyyy");
+                    worksheet.Cells[i + 2, 7].Value = score.Status switch
                     {
                         1 => "Hoàn thành",
                         2 => "Chưa hoàn thành",
@@ -507,10 +544,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         4 => "Đang xử lý",
                         _ => "Chưa bắt đầu"
                     };
-                    worksheet.Cells[i + 2, 8].Value = job.VolumeAssessment;
-                    worksheet.Cells[i + 2, 9].Value = job.ProgressAssessment;
-                    worksheet.Cells[i + 2, 10].Value = job.QualityAssessment;
-                    worksheet.Cells[i + 2, 11].Value = job.SummaryOfReviews;
+                    worksheet.Cells[i + 2, 8].Value = score.VolumeAssessment;
+                    worksheet.Cells[i + 2, 9].Value = score.ProgressAssessment;
+                    worksheet.Cells[i + 2, 10].Value = score.QualityAssessment;
+                    worksheet.Cells[i + 2, 11].Value = score.SummaryOfReviews;
                 }
 
                 // Định dạng cột
@@ -519,7 +556,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                 // Xuất file Excel
                 var stream = new MemoryStream(package.GetAsByteArray());
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Jobs.xlsx");
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Scores.xlsx");
             }
         }
         // GET: ProjectManager/Scores/Details/5
