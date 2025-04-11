@@ -214,7 +214,17 @@
                                 <td>@item.JobMapEmployee.Job.Category.Name</td>
                                 <td>@item.JobMapEmployee.Job.Name</td>
                                 <td>
-                                    @if (item.JobMapEmployee?.Employee != null)
+                                    @{
+                                        var createDate = item.CreateDate?.Date;
+                                        var deadline1 = item.JobMapEmployee?.Job?.Deadline1;
+                                        var deadline2 = item.JobMapEmployee?.Job?.Deadline2;
+                                        var deadline3 = item.JobMapEmployee?.Job?.Deadline3;
+                                    }
+
+                                    @if (item.JobMapEmployee?.Employee != null
+                                   &&( (createDate.HasValue && deadline1.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline1.Value)
+                                   || (createDate.HasValue && deadline2.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline2.Value)
+                                   || (createDate.HasValue && deadline3.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline3.Value)))
                                     {
                                         @Html.DisplayFor(modelItem => item.CreateDate)
                                     }
@@ -285,7 +295,7 @@
                                     }
                                 </td> *@
                                 <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
+                                    @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <span class="summary-display" data-id="@item.Id">
                                             @(item.SummaryOfReviews?.ToString("F2") ?? "N/A")
@@ -300,9 +310,9 @@
                                                 <i class="fas fa-people-arrows"></i>
                                             </a>
                                         }
-                                        @* <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Đánh giá">
+                                        <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Sửa">
                                             <i class="fas fa-star"></i>
-                                        </a> *@
+                                        </a>
                                         <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
                                             <i class="fas fa-info-circle"></i>
                                         </a>
