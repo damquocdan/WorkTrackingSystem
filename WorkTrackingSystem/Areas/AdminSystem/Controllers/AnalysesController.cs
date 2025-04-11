@@ -33,7 +33,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
     string sortOrder,
     string filterType)
         {
-            int pageSize = 5; // Số lượng bản ghi mỗi trang
+            int pageSize = 10; // Số lượng bản ghi mỗi trang
             int pageNumber = page ?? 1;
             var managerUsername = HttpContext.Session.GetString("AdminLogin");
 

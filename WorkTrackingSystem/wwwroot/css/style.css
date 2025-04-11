@@ -2,15 +2,19 @@
    
     vertical-align: middle;
 }
-td:last-child {
+/*td:last-child {
+    width: 150px;
+    text-align: center;
+}*/
+table.table.table-bordered.text-left.table-hover > tbody > tr > td:last-child {
     width: 150px;
     text-align: center;
 }
 table.table.table-bordered.table-hover {
-  /*  border-collapse: separate;*/
+    border-collapse: separate;
     border-spacing: 0;
     border-radius: 0.25rem;
-    /*overflow: hidden;*/
+    overflow: hidden;
 }
 .table > tbody {
     
@@ -60,3 +64,10 @@ thead.table-dark.text-white.text-center {
     .btn-red:hover {
         background-color: #c82333;
     }
+/*  Dashboard*/
+.fc-daygrid-day-top > a {
+    color: white;
+}
+a.fc-col-header-cell-cushion {
+    color: white;
+}

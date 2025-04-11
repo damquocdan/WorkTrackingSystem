@@ -104,6 +104,8 @@
 
     <!-- Phân trang -->
     <div class="pagination">
+        @if (Model.TotalItemCount > Model.PageSize)
+{
         @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, search = ViewBag.Search, DepartmentId = ViewBag.DepartmentId }), new PagedListRenderOptions
         {
             LiElementClasses = new string[] { "page-item" },
@@ -114,7 +116,7 @@
             DisplayLinkToNextPage = PagedListDisplayMode.Always,
             DisplayEllipsesWhenNotShowingAllPageNumbers = true,
             MaximumPageNumbersToDisplay = 5
-        })
+        })}
     </div>
 </div>
     <div class="col-md-4 d-none" id="detail-section">

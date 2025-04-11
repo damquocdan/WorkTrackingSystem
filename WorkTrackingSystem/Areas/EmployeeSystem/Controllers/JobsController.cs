@@ -30,7 +30,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 	string? search=null, string? filterStatus = null,
 	DateTime? deadlineStartDate = null, DateTime? deadlineEndDate = null)
 		{
-			int limit = 9;
+			int limit = 10;
 			int pageIndex = page ?? 1;
 			
 			var sessionUserId = HttpContext.Session.GetString("UserId");

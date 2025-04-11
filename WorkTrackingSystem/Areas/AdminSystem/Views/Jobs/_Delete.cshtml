@@ -1,0 +1,66 @@
+﻿@model WorkTrackingSystem.Models.Score
+
+@{
+    ViewData["Title"] = "Xóa đánh giá";
+}
+
+<div class="modal-content">
+    <form asp-action="Delete" method="post" id="deleteScoreForm">
+        <div class="modal-header">
+            <h2 class="text-center"> Xóa đánh giá </h2>
+            <button type="button" class="close" onclick="closeDetailSection()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+
+            <dl class="row">
+                <dt class="col-sm-4 fw-bold">Nhân viên</dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.JobMapEmployee.Employee.Code)
+                    @Html.DisplayFor(model => model.JobMapEmployee.Employee.FirstName)
+                    @Html.DisplayFor(model => model.JobMapEmployee.Employee.LastName)
+                </dd>
+
+                <dt class="col-sm-4 fw-bold">Công việc</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.JobMapEmployee.Job.Name)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.CompletionDate)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.CompletionDate)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Status)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Status)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.VolumeAssessment)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.VolumeAssessment)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.ProgressAssessment)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.ProgressAssessment)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.QualityAssessment)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.QualityAssessment)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.SummaryOfReviews)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.SummaryOfReviews)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Progress)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Progress)</dd>
+
+                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Time)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Time)</dd>
+            </dl>
+        </div>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-danger">Xóa</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

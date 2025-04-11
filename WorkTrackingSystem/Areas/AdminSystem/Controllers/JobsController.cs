@@ -39,7 +39,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             bool dueToday = false,
             long? jobId = null)
          {
-            int pageSize = 5; // Số lượng công việc mỗi trang
+            int pageSize = 10; // Số lượng công việc mỗi trang
             int pageIndex = page ?? 1; // Trang hiện tại
 
             // Lấy toàn bộ nhân viên
@@ -148,7 +148,321 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
             return View(pagedScores);
         }
-		public IActionResult JobOfEmployee(string search, int? DepartmentId, int page = 1)
+        public IActionResult Createjob()
+        {
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Createjob");
+            }
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Createjob([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
+        {
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (ModelState.IsValid)
+            {
+                // Tạo Job
+                job.CreateBy = managerUsername;
+                _context.Jobs.Add(job);
+                await _context.SaveChangesAsync();
+
+                // Tạo JobMapEmployee (Gán JobId)
+                var jobMapEmployee = new Jobmapemployee
+                {
+                    JobId = job.Id,
+                    EmployeeId = null, // Chưa có Employee, cần cập nhật sau nếu cần
+                    IsDelete = false,
+                    IsActive = true,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now,
+                    CreateBy = job.CreateBy,
+                    UpdateBy = job.UpdateBy
+                };
+
+                _context.Jobmapemployees.Add(jobMapEmployee);
+                await _context.SaveChangesAsync(); // Lưu để lấy Id của JobMapEmployee
+
+                // Tạo Score (Gán JobMapEmployeeId)
+                var score = new Score
+                {
+                    JobMapEmployeeId = jobMapEmployee.Id,
+                    Status = 0, // Mặc định trạng thái chưa bat dau
+                    IsDelete = false,
+                    IsActive = true,
+                    CreateDate = null,
+                    UpdateDate = DateTime.Now,
+                    CreateBy = job.CreateBy,
+                    UpdateBy = job.UpdateBy
+                };
+
+                _context.Scores.Add(score);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            return View(job);
+        }
+
+        public IActionResult Create(int? currentJobMapEmployeeId)
+        {
+           
+
+            var manager = _context.Users
+                
+                .Include(u => u.Employee)
+                .Select(u => u.Employee)
+                .FirstOrDefault();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var currentJobMapEmployee = _context.Jobmapemployees
+                .Include(j => j.Job)
+                .FirstOrDefault(j => j.Id == currentJobMapEmployeeId);
+
+            if (currentJobMapEmployee == null)
+            {
+                return BadRequest("Không tìm thấy công việc hiện tại");
+            }
+
+            var managedDepartments = _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+                .Select(d => d.Id)
+                .ToList();
+
+            var currentEmployeeId = currentJobMapEmployee.EmployeeId;
+            var employeesInManagedDepartments = _context.Employees
+                .Where(e => e.DepartmentId.HasValue &&
+                           managedDepartments.Contains(e.DepartmentId.Value) &&
+                           e.Id != currentEmployeeId)
+                .Select(e => new {
+                    Value = e.Id.ToString(),
+                    Text = $"{e.Code} {e.FirstName} {e.LastName}",
+                    Avatar = e.Avatar ?? "/images/default-avatar.png"
+                })
+                .ToList();
+
+            ViewBag.EmployeeList = employeesInManagedDepartments;
+            ViewBag.CurrentJobMapEmployeeId = currentJobMapEmployeeId;
+            // Truyền thêm Job để sử dụng Deadline1 trong view nếu cần
+            ViewBag.Job = currentJobMapEmployee.Job;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(int employeeId, DateOnly deadline, int currentJobMapEmployeeId)
+        {
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            var currentJobMapEmployee = await _context.Jobmapemployees
+                .Include(j => j.Job)
+                .FirstOrDefaultAsync(j => j.Id == currentJobMapEmployeeId);
+
+            if (currentJobMapEmployee == null)
+            {
+                return BadRequest("Không tìm thấy công việc hiện tại");
+            }
+
+            // Vô hiệu hóa Score cũ của currentJobMapEmployee
+            var oldScores = await _context.Scores
+               .Where(s => s.JobMapEmployeeId == currentJobMapEmployeeId)
+                .ToListAsync();
+
+            foreach (var oldScore in oldScores)
+            {
+                oldScore.IsActive = false;
+            }
+
+            _context.Scores.UpdateRange(oldScores);
+
+            // Tạo JobMapEmployee mới
+            var newJobMapEmployee = new Jobmapemployee
+            {
+                JobId = currentJobMapEmployee.JobId,
+                EmployeeId = employeeId,
+            };
+
+            _context.Jobmapemployees.Add(newJobMapEmployee);
+            await _context.SaveChangesAsync();
+
+            // Cập nhật deadline cho Job (gán vào Deadline2 hoặc Deadline3)
+            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == currentJobMapEmployee.JobId);
+            if (job != null)
+            {
+                if (job.Deadline2 == null)
+                {
+                    job.Deadline2 = deadline;
+                }
+                else if (job.Deadline3 == null)
+                {
+                    job.Deadline3 = deadline;
+                }
+                _context.Jobs.Update(job);
+            }
+
+            // Tạo Score mới với Time = Deadline1 của Job
+            var score = new Score
+            {
+                CreateBy = managerUsername,
+                JobMapEmployeeId = newJobMapEmployee.Id,
+                Status = 0,
+                Time = job.Deadline1.HasValue ? DateTime.Parse(job.Deadline1.Value.ToString("yyyy-MM-dd")) : DateTime.Now,
+                CreateDate = deadline.ToDateTime(TimeOnly.MinValue),
+
+                IsActive = true,
+                IsDelete = false
+            };
+
+            await UpdateBaselineAssessment(newJobMapEmployee.EmployeeId);
+            await UpdateAnalysis(newJobMapEmployee.EmployeeId);
+
+            _context.Add(score);
+            await _context.SaveChangesAsync();
+
+            // Trả về JSON để AJAX xử lý
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true });
+            }
+
+            return RedirectToAction("Index");
+        }
+        // GET: ProjectManager/Scores/Edit/5
+        public async Task<IActionResult> Edit(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var score = await _context.Scores.FindAsync(id);
+            if (score == null)
+            {
+                return NotFound();
+            }
+            ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id", score.JobMapEmployeeId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Edit", score);
+            }
+            return View(score);
+        }
+        public async Task<IActionResult> Delete(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (score == null)
+            {
+                return NotFound();
+            }
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Delete", score);
+            }
+            return View(score);
+        }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(long id)
+        {
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Job)
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Employee)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (score == null)
+            {
+                return NotFound();
+            }
+
+            var jobMapEmployee = score.JobMapEmployee;
+            var job = jobMapEmployee?.Job;
+
+            if (jobMapEmployee == null || job == null)
+            {
+                return NotFound();
+            }
+
+            if (jobMapEmployee.EmployeeId == null)
+            {
+                // Lấy tất cả JobMapEmployee liên quan đến Job
+                var relatedJobMapEmployees = await _context.Jobmapemployees
+                    .Where(jme => jme.JobId == job.Id)
+                    .ToListAsync();
+
+                // Lấy tất cả Score liên quan đến bất kỳ JobMapEmployee nào trong danh sách
+                var jobMapEmployeeIds = relatedJobMapEmployees.Select(jme => jme.Id).ToList();
+                var relatedScores = await _context.Scores
+                    .Where(s => s.JobMapEmployeeId.HasValue && jobMapEmployeeIds.Contains(s.JobMapEmployeeId.Value))
+                    .ToListAsync();
+                _context.Scores.RemoveRange(relatedScores);
+
+                // Xóa tất cả JobMapEmployee liên quan đến Job
+                _context.Jobmapemployees.RemoveRange(relatedJobMapEmployees);
+
+                // Cuối cùng xóa Job
+                _context.Jobs.Remove(job);
+            }
+            else
+            {
+                // Xóa Score trước
+                _context.Scores.Remove(score);
+
+                // Xóa JobMapEmployee
+                _context.Jobmapemployees.Remove(jobMapEmployee);
+
+                // Kiểm tra và xóa Deadline nếu cần
+                if (score.CreateDate.HasValue) // Kiểm tra null cho DateTime?
+                {
+                    var scoreCreateDate = score.CreateDate.Value; // Lấy giá trị từ nullable DateTime
+
+                    if (job.Deadline1.HasValue && scoreCreateDate.Date == job.Deadline1.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        job.Deadline1 = null;
+                    }
+                    else if (job.Deadline2.HasValue && scoreCreateDate.Date == job.Deadline2.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        job.Deadline2 = null;
+                    }
+                    else if (job.Deadline3.HasValue && scoreCreateDate.Date == job.Deadline3.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        job.Deadline3 = null;
+                    }
+
+                    // Cập nhật Job nếu có thay đổi Deadline
+                    if (job.Deadline1 == null || job.Deadline2 == null || job.Deadline3 == null)
+                    {
+                        job.UpdateDate = DateTime.Now;
+                        _context.Jobs.Update(job);
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult JobOfEmployee(string search, int? DepartmentId, int page = 1)
 		{
 			int limit = 10;
 
@@ -421,82 +735,82 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
 
 
-        public async Task<IActionResult> Create()
-		{
-			var managerUsername = HttpContext.Session.GetString("AdminLogin");
-			if (string.IsNullOrEmpty(managerUsername))
-			{
-				return RedirectToAction("Index", "Login");
-			}
+  //      public async Task<IActionResult> Create()
+		//{
+		//	var managerUsername = HttpContext.Session.GetString("AdminLogin");
+		//	if (string.IsNullOrEmpty(managerUsername))
+		//	{
+		//		return RedirectToAction("Index", "Login");
+		//	}
 
-			var manager = await _context.Users
-				.Where(u => u.UserName == managerUsername)
-				.Select(u => u.Employee)
-				.FirstOrDefaultAsync();
+		//	var manager = await _context.Users
+		//		.Where(u => u.UserName == managerUsername)
+		//		.Select(u => u.Employee)
+		//		.FirstOrDefaultAsync();
 
-			if (manager == null)
-			{
-				return RedirectToAction("Index", "Login");
-			}
-			ViewBag.CreateBy = managerUsername;
-			// Lấy danh sách phòng ban mà người quản lý này quản lý (dựa trên PositionId == 3)
-			var managedDepartments = await _context.Departments
-				.Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-				.Select(d => d.Id)
-				.ToListAsync();
+		//	if (manager == null)
+		//	{
+		//		return RedirectToAction("Index", "Login");
+		//	}
+		//	ViewBag.CreateBy = managerUsername;
+		//	// Lấy danh sách phòng ban mà người quản lý này quản lý (dựa trên PositionId == 3)
+		//	var managedDepartments = await _context.Departments
+		//		.Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+		//		.Select(d => d.Id)
+		//		.ToListAsync();
 
-			// Lấy danh sách nhân viên thuộc các phòng ban mà người quản lý đang quản lý
-			var employeesInManagedDepartments = await _context.Employees
-				.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
-				.Select(e => new
-				{
-					Id = e.Id,
-					FullName = e.Code + " " + e.FirstName + " " + e.LastName
-				})
-				.ToListAsync();
+		//	// Lấy danh sách nhân viên thuộc các phòng ban mà người quản lý đang quản lý
+		//	var employeesInManagedDepartments = await _context.Employees
+		//		.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
+		//		.Select(e => new
+		//		{
+		//			Id = e.Id,
+		//			FullName = e.Code + " " + e.FirstName + " " + e.LastName
+		//		})
+		//		.ToListAsync();
 
-			// Gán danh sách nhân viên vào ViewBag để hiển thị trong dropdown
-			//ViewData["EmployeeId"] = new SelectList(employeesInManagedDepartments, "Id", "FullName");
-			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
-			ViewBag.JobNames = await _context.Jobs
-		.Where(j => !string.IsNullOrEmpty(j.Name)) // Lọc bỏ các job không có tên
-		.Select(j => j.Name)
-		.Distinct()
-		.ToListAsync();
-			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-			{
-				return PartialView("_Create");
-			}
-			return View();
-		}
+		//	// Gán danh sách nhân viên vào ViewBag để hiển thị trong dropdown
+		//	//ViewData["EmployeeId"] = new SelectList(employeesInManagedDepartments, "Id", "FullName");
+		//	ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+		//	ViewBag.JobNames = await _context.Jobs
+		//.Where(j => !string.IsNullOrEmpty(j.Name)) // Lọc bỏ các job không có tên
+		//.Select(j => j.Name)
+		//.Distinct()
+		//.ToListAsync();
+		//	if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+		//	{
+		//		return PartialView("_Create");
+		//	}
+		//	return View();
+		//}
 
 
 		//// POST: AdminSystem/Jobs/Create
 		//// To protect from overposting attacks, enable the specific properties you want to bind to.
 		//// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
-		{
-			var managerUsername = HttpContext.Session.GetString("AdminLogin");
-			if (string.IsNullOrEmpty(managerUsername))
-			{
-				return RedirectToAction("Index", "Login");
-			}
+		//[HttpPost]
+		//[ValidateAntiForgeryToken]
+		//public async Task<IActionResult> Create([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
+		//{
+		//	var managerUsername = HttpContext.Session.GetString("AdminLogin");
+		//	if (string.IsNullOrEmpty(managerUsername))
+		//	{
+		//		return RedirectToAction("Index", "Login");
+		//	}
 
-			if (ModelState.IsValid)
-			{
-				job.CreateBy = managerUsername; // Gán giá trị CreateBy
+		//	if (ModelState.IsValid)
+		//	{
+		//		job.CreateBy = managerUsername; // Gán giá trị CreateBy
 
-				_context.Add(job);
-				await _context.SaveChangesAsync();
-				return RedirectToAction(nameof(Index));
-			}
+		//		_context.Add(job);
+		//		await _context.SaveChangesAsync();
+		//		return RedirectToAction(nameof(Index));
+		//	}
 
-			ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
-			//ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
-			return View(job);
-		}
+		//	ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
+		//	//ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", job.EmployeeId);
+		//	return View(job);
+		//}
 
 		
 		[HttpPost]

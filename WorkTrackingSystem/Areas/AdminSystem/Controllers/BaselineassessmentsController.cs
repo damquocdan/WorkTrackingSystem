@@ -27,7 +27,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Baselineassessments
         public async Task<IActionResult> Index(int? page,string employeeCode, string employeeName, bool? evaluate, string time)
         {
-            int pageSize = 5; // Số lượng bản ghi mỗi trang
+            int pageSize = 10; // Số lượng bản ghi mỗi trang
             int pageNumber = page ?? 1;
             // Lấy ManagerId từ session
             var managerUsername = HttpContext.Session.GetString("AdminLogin");

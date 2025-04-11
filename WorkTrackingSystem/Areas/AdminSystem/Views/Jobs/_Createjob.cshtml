@@ -1,0 +1,48 @@
+﻿@model WorkTrackingSystem.Models.Job
+
+@{
+    ViewData["Title"] = "Tạo công việc mới";
+}
+
+<div class="modal-content">
+    <form asp-action="Createjob" method="post" id="createJobForm">
+        <div class="modal-header">
+            <h2 class="text-center">Tạo công việc mới</h2>
+            <button type="button" class="close" onclick="closeDetailSection()">×</button>
+        </div>
+
+        <div class="modal-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label">Danh mục</label>
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId" required>
+                    <option value="">-- Chọn danh mục --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Tên công việc</label>
+                <input asp-for="Name" class="form-control" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Mô tả</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Tạo công việc</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

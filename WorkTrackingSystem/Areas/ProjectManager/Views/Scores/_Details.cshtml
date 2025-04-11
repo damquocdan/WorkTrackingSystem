@@ -21,12 +21,12 @@
             </div>
             <div class="row">
                 <label class="form-label fw-bold">Công việc</label>
-                <textarea class="form-control bg-light ">@Model.JobMapEmployee.Job.Name</textarea>
+                <textarea readonly class="form-control bg-light ">@Model.JobMapEmployee.Job.Name</textarea>
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Trạng thái</label>
-                    <textarea class="form-control bg-light">
+                    <textarea readonly class="form-control bg-light">
                         @switch (Model.Status)
                         {
                             case 1: <text>Hoàn thành (@Model.CompletionDate)</text>; break;
