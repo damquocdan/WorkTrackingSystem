@@ -37,19 +37,22 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			ViewBag.JobStatusProcessing = _context.Jobmapemployees.Include(x => x.Job).Where(x => x.EmployeeId == user.EmployeeId).Count(x => x.Scores.Any(s => s.Status == 4));
 
 			//Thống kê công việc theo tháng/ năm cho biểu đồ cột(client-side)
-			var jobsByMonth = _context.Jobmapemployees.Include(x => x.Job).Where(x => x.EmployeeId == user.EmployeeId)
-				.Where(x => x.Scores.Any(s => s.CreateDate.HasValue) && x.IsActive == true && x.IsDelete == false)
-				.ToList() // Chuyển sang client-side
-				 .SelectMany(x => x.Scores) // Lấy từng Score từ Jobmapemployees
-			   .Where(s => s.CreateDate.HasValue) // Chỉ lấy những Score có Time
-				.GroupBy(s => s.CreateDate.Value.ToString("MM/yyyy")) // Nhóm theo tháng/năm
-				.Select(g => new
-				{
-					MonthYear = g.Key,
-					TotalJobs = g.Count()
-				})
-				.OrderBy(g => g.MonthYear)
-				.ToList();
+			var jobsByMonth = _context.Jobmapemployees
+	.Include(x => x.Job)
+	.Include(x => x.Scores) // 🔥 cần thiết để load dữ liệu Scores!
+	.Where(x => x.EmployeeId == user.EmployeeId && x.IsActive==true && x.IsDelete==false)
+	.ToList()
+	.SelectMany(x => x.Scores)
+	.Where(s => s.CreateDate.HasValue)
+	.GroupBy(s => s.CreateDate.Value.ToString("MM/yyyy"))
+	.Select(g => new
+	{
+		MonthYear = g.Key,
+		TotalJobs = g.Count()
+	})
+	.OrderBy(g => g.MonthYear)
+	.ToList();
+
 
 			ViewBag.JobMonths = jobsByMonth.Select(j => j.MonthYear).ToList();
 			ViewBag.JobCounts = jobsByMonth.Select(j => j.TotalJobs).ToList();
