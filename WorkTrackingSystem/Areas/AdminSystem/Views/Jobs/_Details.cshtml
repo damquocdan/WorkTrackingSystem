@@ -66,7 +66,7 @@
                     <p class="form-control bg-light">@Model.QualityAssessment</p>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">Điểm <br />  tiến độ</label>
+                    <label class="form-label fw-bold">Điểm tiến độ</label>
                     <p class="form-control bg-light">@Model.ProgressAssessment</p>
                 </div>
 
@@ -74,7 +74,7 @@
 
             <div class="mt-2">
                 <label class="form-label fw-bold">Tổng điểm đánh giá</label>
-                <p class="form-control bg-light">@Model.SummaryOfReviews</p>
+                <p class="form-control bg-light">@(Model.SummaryOfReviews.HasValue ? String.Format("{0:F2}", Model.SummaryOfReviews) : "0.00")</p>
             </div>
             <div class="">
                 <label class="form-label fw-bold">Thời gian</label>

@@ -27,39 +27,40 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // GET: AdminSystem/Analyses
-        public async Task<IActionResult> Index(int? page,
-    string searchText,
-    string time, // Thay vì month và year riêng lẻ
-    string sortOrder,
-    string filterType)
+        public async Task<IActionResult> Index(
+   string searchText,
+   string time,
+   string sortOrder,
+   string filterType,
+   int page = 1)
         {
-            int pageSize = 10; // Số lượng bản ghi mỗi trang
-            int pageNumber = page ?? 1;
-            var managerUsername = HttpContext.Session.GetString("AdminLogin");
+            var limit = 8;
+            //var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
 
-            if (string.IsNullOrEmpty(managerUsername))
-            {
-                return RedirectToAction("Index", "Login");
-            }
+            //if (string.IsNullOrEmpty(managerUsername))
+            //{
+            //    return RedirectToAction("Index", "Login");
+            //}
 
-            var manager = await _context.Users
-                .Where(u => u.UserName == managerUsername)
-                .Select(u => u.Employee)
-                .FirstOrDefaultAsync();
+            //var manager = await _context.Users
+            //    .Include(u => u.Employee)
+            //    .ThenInclude(e => e.Department)
+            //    .FirstOrDefaultAsync(u => u.UserName == managerUsername);
 
-            if (manager == null || manager.DepartmentId == null)
-            {
-                return RedirectToAction("Index", "Login");
-            }
+            //if (manager == null || manager.Employee?.DepartmentId == null)
+            //{
+            //    return RedirectToAction("Index", "Login");
+            //}
 
-            var employeeIdsInManagedDepartment =  _context.Employees
-                //.Where(e => e.DepartmentId == manager.DepartmentId)
-                //.Select(e => e.Id)
-               .ToPagedList(pageNumber, pageSize);
+            //ViewBag.DepartmentName = manager.Employee.Department?.Name ?? "Không xác định";
+            var employeeIdsInManagedDepartment = await _context.Employees
+                //.Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+                .Select(e => e.Id)
+                .ToListAsync();
 
             var analyses = _context.Analyses
                 .Include(a => a.Employee)
-                .Where(a => a.EmployeeId.HasValue );
+                .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
 
             // Tìm kiếm theo mã/tên nhân viên
             if (!string.IsNullOrEmpty(searchText))
@@ -70,8 +71,30 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                     a.Employee.LastName.Contains(searchText));
             }
 
-            // Bộ lọc theo tháng/năm
-            if (!string.IsNullOrEmpty(time))
+            IEnumerable<Analysis> finalAnalyses; // Sử dụng IEnumerable thay vì IQueryable
+
+            // Nếu không có time, tính tổng toàn bộ các tháng
+            if (string.IsNullOrEmpty(time))
+            {
+                // Lấy dữ liệu thô từ cơ sở dữ liệu trước
+                var rawAnalyses = await analyses.ToListAsync();
+
+                // Nhóm và tính tổng trong bộ nhớ
+                finalAnalyses = rawAnalyses
+                    .GroupBy(a => a.EmployeeId)
+                    .Select(g => new Analysis
+                    {
+                        EmployeeId = g.Key,
+                        Employee = g.First().Employee, // Lấy thông tin Employee từ bản ghi đầu tiên
+                        Total = g.Sum(x => x.Total ?? 0),
+                        Ontime = g.Sum(x => x.Ontime ?? 0),
+                        Late = g.Sum(x => x.Late ?? 0),
+                        Overdue = g.Sum(x => x.Overdue ?? 0),
+                        Processing = g.Sum(x => x.Processing ?? 0),
+                        Time = null // Không hiển thị thời gian cụ thể vì đây là tổng
+                    });
+            }
+            else // Nếu có time, lọc theo tháng/năm như cũ
             {
                 DateTime selectedDate;
                 if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
@@ -80,63 +103,64 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                                                    a.Time.Value.Month == selectedDate.Month &&
                                                    a.Time.Value.Year == selectedDate.Year);
                 }
+                finalAnalyses = await analyses.ToListAsync(); // Chuyển trực tiếp sang List
             }
 
             // Sắp xếp kết quả theo lựa chọn của người dùng
             switch (sortOrder)
             {
                 case "total_asc":
-                    analyses = analyses.OrderBy(a => a.Total);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Total);
                     break;
                 case "total_desc":
-                    analyses = analyses.OrderByDescending(a => a.Total);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Total);
                     break;
                 case "ontime_asc":
-                    analyses = analyses.OrderBy(a => a.Ontime);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Ontime);
                     break;
                 case "ontime_desc":
-                    analyses = analyses.OrderByDescending(a => a.Ontime);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Ontime);
                     break;
                 case "late_asc":
-                    analyses = analyses.OrderBy(a => a.Late);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Late);
                     break;
                 case "late_desc":
-                    analyses = analyses.OrderByDescending(a => a.Late);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Late);
                     break;
                 case "overdue_asc":
-                    analyses = analyses.OrderBy(a => a.Overdue);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Overdue);
                     break;
                 case "overdue_desc":
-                    analyses = analyses.OrderByDescending(a => a.Overdue);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Overdue);
                     break;
                 case "processing_asc":
-                    analyses = analyses.OrderBy(a => a.Processing);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Processing);
                     break;
                 case "processing_desc":
-                    analyses = analyses.OrderByDescending(a => a.Processing);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Processing);
                     break;
                 case "time_asc":
-                    analyses = analyses.OrderBy(a => a.Time);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Time);
                     break;
                 case "time_desc":
-                    analyses = analyses.OrderByDescending(a => a.Time);
+                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Time);
                     break;
                 default:
-                    analyses = analyses.OrderBy(a => a.Id);
+                    finalAnalyses = finalAnalyses.OrderBy(a => a.Id);
                     break;
             }
-            var analysesList =  analyses.ToPagedList(pageNumber, pageSize);
+
+            var analysesList = finalAnalyses.ToList(); // Chuyển sang List để xử lý phân trang
             if (!analysesList.Any())
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_AnalysesTablePatial", analyses.ToPagedList(pageNumber, pageSize));
-            }
-            return View( analyses.ToPagedList(pageNumber, pageSize));
-        }
 
+            ViewBag.SearchText = searchText;
+            ViewBag.Time = time;
+            ViewBag.SortOrder = sortOrder;
+            return View(finalAnalyses.ToPagedList(page, limit));
+        }
 
         public async Task<IActionResult> ExportToExcel(
     string searchText,

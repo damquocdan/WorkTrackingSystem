@@ -165,7 +165,7 @@
                     </a>
                    
                 </li>
-                <li class="nav-item">
+              @*   <li class="nav-item">
                     <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
 
@@ -175,6 +175,29 @@
                         </p>
                     </a>
                     
+                </li> *@
+                <li class="nav-item">
+                    <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
+                        <i class="nav-icon fas fa-star"></i>
+
+                        <p>
+                            Quản lý dánh giá
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
+                                <p>Thống kê đánh giá</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-controller="Baselineassessments" asp-action="JobEaluation" class="nav-link">
+                                <p>Đánh giá</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">

@@ -13,9 +13,6 @@
         </ol>
     </div>
 </div>
-
-
-
 <div class="collapse" id="collapseExample">
     <div class="card card-body">
         <div class="row">
@@ -119,7 +116,7 @@
     <div id="employee-suggestions" class="d-flex flex-wrap mt-2"></div>
 </div>
 </div>
-</div>
+
 
 <div id="selected-employee" class="d-none mt-3 selected-employee-container">
     <div class="card p-3 d-flex flex-row align-items-center">
@@ -164,14 +161,12 @@
         </table>
     </div>
 </div>
-
-<form id="assign-job-form" action="@Url.Action("AssignEmployee", "Scores")" method="post" style="display: none;">
+</div>
+<form id="assign-job-form" action="@Url.Action("AssignEmployee", "Jobs")" method="post" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="jobId" id="form-job-id" />
     <input type="hidden" name="employeeId" id="form-employee-id" />
 </form>
-
-<br />
 <div class="row">
     <div class="col-md-12" id="list-section">
         <div class="card-body">
@@ -321,9 +316,7 @@
                                                 <i class="fas fa-people-arrows"></i>
                                             </a>
                                         }
-                                        <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Sửa">
-                                            <i class="fas fa-star"></i>
-                                        </a>
+                                        <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
                                         <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
                                             <i class="fas fa-info-circle"></i>
                                         </a>
@@ -332,30 +325,19 @@
                                         </a>
                                     </div>
                                 </td>
-                                @* <div class="d-flex gap-2">
-                            <a class="btn btn-primary btn-sm ajax-action" data-url="/ProjectManager/Scores/Create?currentJobMapEmployeeId=1" title="Giao cho người khác">
-                            <i class="fas fa-people-arrows"></i>
-                            </a>
-                            <a class="btn-yellow btn-event ajax-action" data-url="/ProjectManager/Scores/Edit/1" title="Đánh giá">
-                            <i class="fas fa-star"></i>
-                            </a>
-                            <a class="btn-green btn-event ajax-action" data-url="/ProjectManager/Scores/Details/1" title="Chi tiết">
-                            <i class="fas fa-info-circle"></i>
-                            </a>
-                            <a class="btn-red btn-event ajax-action" data-url="/ProjectManager/Scores/Delete/1" title="Xoá">
-                            <i class="fas fa-trash"></i>
-                            </a>
-
-                            </div> *@
+                                
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
             <div class="pagination">
-                @Html.PagedListPager(Model, page => Url.Action("Index", new
-                    {
-                        page,
+                
+                @if (Model.TotalItemCount > Model.PageSize)
+                {
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new
+                        {
+                            page,
                         searchText = ViewBag.SearchText,
                         month = ViewBag.Month,
                         status = ViewBag.Status,
@@ -374,6 +356,7 @@
                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                MaximumPageNumbersToDisplay = 5
            })
+                }
             </div>
         </div>
     </div>
@@ -381,7 +364,6 @@
         <div class="actionCustomers"></div>
     </div>
 </div>
-
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
@@ -463,7 +445,7 @@
 
                 // AJAX call to update the field
                 $.ajax({
-                    url: '@Url.Action("UpdateAssessment", "Scores", new { area = "ProjectManager" })',
+                    url: '@Url.Action("UpdateAssessment", "Jobs", new { area = "AdminSystem" })',
                     type: 'POST',
                     data: {
                         id: id,
@@ -580,7 +562,7 @@
             // Lấy danh sách công việc qua AJAX
             function fetchJobs(employeeId) {
                 $.ajax({
-                    url: '@Url.Action("GetJobsByEmployee", "Scores")',
+                    url: '@Url.Action("GetJobsByEmployee", "Jobs")',
                     type: 'GET',
                     data: { employeeId: employeeId },
                     success: function (result) {
