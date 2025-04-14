@@ -725,12 +725,21 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return NotFound();
             }
 
-            var score = await _context.Scores.FindAsync(id);
+            var score = await _context.Scores
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Job)
+                .ThenInclude(j => j.Category)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (score == null)
             {
                 return NotFound();
             }
+
+
             ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id", score.JobMapEmployeeId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", score.JobMapEmployee?.Job?.CategoryId);
+
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Edit", score);
@@ -738,14 +747,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return View(score);
         }
 
-        // POST: ProjectManager/Scores/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Scores/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("Id,JobMapEmployeeId,CompletionDate,Status,VolumeAssessment,ProgressAssessment,QualityAssessment,SummaryOfReviews,Progress,Time,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Score score)
+        public async Task<IActionResult> Edit(long id, Score score)
         {
-            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (id != score.Id)
             {
                 return NotFound();
@@ -756,15 +762,17 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 try
                 {
                     var existingScore = await _context.Scores
-                .Include(s => s.JobMapEmployee) // Nạp JobMapEmployee
-                .FirstOrDefaultAsync(s => s.Id == id);
+                        .Include(s => s.JobMapEmployee)
+                        .ThenInclude(jme => jme.Job)
+                        .FirstOrDefaultAsync(s => s.Id == id);
 
                     if (existingScore == null)
                     {
                         return NotFound();
                     }
 
-                    // Cập nhật các thuộc tính của existingScore từ score gửi lên
+                    // Cập nhật các thuộc tính của Score
+                    existingScore.CreateDate = score.CreateDate;
                     existingScore.CompletionDate = score.CompletionDate;
                     existingScore.Status = score.Status;
                     existingScore.VolumeAssessment = score.VolumeAssessment;
@@ -773,19 +781,63 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     existingScore.SummaryOfReviews = score.SummaryOfReviews;
                     existingScore.Progress = score.Progress;
                     existingScore.Time = score.Time;
-                    existingScore.IsDelete = score.IsDelete;
-                    existingScore.IsActive = score.IsActive;
-                    existingScore.UpdateDate = DateTime.Now; // Cập nhật thời gian sửa
-                    existingScore.UpdateBy = score.UpdateBy;
 
-                    // Gọi UpdateBaselineAssessment và UpdateAnalysis với EmployeeId từ JobMapEmployee
-                    if (existingScore.JobMapEmployee != null)
+                    //// Xử lý logic Deadline
+                    //if (existingScore.JobMapEmployee?.EmployeeId != null)
+                    //{
+                    //    var job = existingScore.JobMapEmployee.Job;
+
+                    //    if (job != null && score.CreateDate.HasValue)
+                    //    {
+                    //        // Chuyển CreateDate (DateTime?) sang DateOnly để so sánh
+                    //        DateOnly createDateAsDateOnly = DateOnly.FromDateTime(score.CreateDate.Value);
+
+                    //        if (job.Deadline1.HasValue && job.Deadline1.Value == createDateAsDateOnly)
+                    //        {
+                    //            job.Deadline1 = createDateAsDateOnly;
+                    //        }
+                    //        if (job.Deadline2.HasValue && job.Deadline2.Value == createDateAsDateOnly)
+                    //        {
+                    //            job.Deadline2 = createDateAsDateOnly;
+                    //        }
+                    //        if (job.Deadline3.HasValue && job.Deadline3.Value == createDateAsDateOnly)
+                    //        {
+                    //            job.Deadline3 = createDateAsDateOnly;
+                    //        }
+                    //    }
+                    //}
+                    if (existingScore.JobMapEmployee?.EmployeeId != null)
                     {
-                        await UpdateBaselineAssessment(existingScore.JobMapEmployee.EmployeeId);
-                        await UpdateAnalysis(existingScore.JobMapEmployee.EmployeeId);
-                    }
+                        var job = existingScore.JobMapEmployee.Job;
+                        if (job != null)
+                        {
+                            job.Name = score.JobMapEmployee?.Job?.Name;
+                            job.CategoryId = score.JobMapEmployee?.Job?.CategoryId;
+                        }
 
-                    _context.Update(existingScore);
+
+                        if (job != null && score.CreateDate.HasValue)
+                        {
+                            // Chuyển CreateDate (DateTime?) sang DateOnly
+                            DateOnly createDateAsDateOnly = DateOnly.FromDateTime(score.CreateDate.Value);
+
+                            // Trường hợp 3: Nếu Deadline1, Deadline2, và Deadline3 đều có giá trị
+                            if (job.Deadline1.HasValue && job.Deadline2.HasValue && job.Deadline3.HasValue)
+                            {
+                                job.Deadline3 = createDateAsDateOnly;
+                            }
+                            // Trường hợp 2: Nếu Deadline1 và Deadline2 có giá trị
+                            else if (job.Deadline1.HasValue && job.Deadline2.HasValue)
+                            {
+                                job.Deadline2 = createDateAsDateOnly;
+                            }
+                            // Trường hợp 1: Nếu Deadline1 là null hoặc (Deadline1 có giá trị nhưng Deadline2 là null)
+                            else if (!job.Deadline1.HasValue || (job.Deadline1.HasValue && !job.Deadline2.HasValue))
+                            {
+                                job.Deadline1 = createDateAsDateOnly;
+                            }
+                        }
+                    }
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -801,7 +853,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id", score.JobMapEmployeeId);
             return View(score);
         }
 

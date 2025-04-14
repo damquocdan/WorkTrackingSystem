@@ -5,110 +5,24 @@
     ViewData["Title"] = "Quản lý công việc";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 }
-<div class="row">
-    <div class="col-md-12">
-        <ol class="breadcrumb float-sm-end bg-light">
-            <li class="breadcrumb-item">Project Manager</li>
-            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
-        </ol>
-    </div>
-</div>
 
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow-sm p-3 mb-3">
-            <div class="row gx-2 gy-2 align-items-end">
-                <!-- Tìm kiếm -->
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Tìm kiếm</label>
-                    <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên / công việc" value="@ViewBag.SearchText">
-                </div>
-
-                <!-- Tháng -->
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Tháng</label>
-                    <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Ngày</label>
-                    <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
-                </div>
-                <!-- Trạng thái -->
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Trạng thái</label>
-                    <select id="status" name="status" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option value="1">Hoàn thành</option>
-                        <option value="2">Chưa hoàn thành</option>
-                        <option value="3">Hoàn thành muộn</option>
-                        <option value="4">Đang xử lý</option>
-                        <option value="0">Chưa bắt đầu</option>
-                    </select>
-                </div>
-
-                <!-- Danh mục -->
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Danh mục</label>
-                    <select id="categoryId" name="categoryId" class="form-select">
-                        <option value="">-- Chọn danh mục --</option>
-                        @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
-                        {
-                            <option value="@category.Id" >@category.Name</option>
-                        }
-                    </select>
-                </div>
-
-                <!-- Sắp xếp -->
-                <div class="col-md-2">
-                    <label class="form-label fw-bold">Sắp xếp</label>
-                    <select id="sortOrder" name="sortOrder" class="form-select">
-                        <option value="">-- Mặc định --</option>
-                        <option value="due_asc" >Hạn hoàn thành tăng dần</option>
-                        <option value="due_desc">Hạn hoàn thành giảm dần</option>
-                        <option value="review_asc" >Đánh giá tăng dần</option>
-                        <option value="review_desc" >Đánh giá giảm dần</option>
-                    </select>
-                </div>
-
-                <!-- Chưa đánh giá -->
-                <div class="col-md-2">
-                    <div class="form-check mt-4">
-                        <input class="form-check-input" type="checkbox" id="showCompletedZeroReview" name="showCompletedZeroReview" value="true" @(ViewBag.ShowCompletedZeroReview ? "checked" : "")>
-                        <label class="form-check-label" for="showCompletedZeroReview">Chưa đánh giá</label>
-                    </div>
-                </div>
-
-                <!-- Hạn hôm nay -->
-                <div class="col-md-2">
-                    <div class="form-check mt-4">
-                        <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
-                        <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
-                    </div>
-                </div>
-
-                <!-- Nút Tìm kiếm & Reset -->
-                <div class="col-md-4 d-flex justify-content-end mt-4">
-                    <button type="button" id="searchButton" class="btn btn-primary me-2">
-                        <i class="bi bi-search"></i> Tìm kiếm
-                    </button>
-                    <a href="@Url.Action("Index")" id="resetButton" class="btn btn-secondary">
-                        <i class="bi bi-arrow-repeat"></i> Reset
-                    </a>
-                </div>
+<p>
+    <button class="btn btn-primary" id="btn-create-job" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+        Giao C.việc
+    </button>
+    <a class="btn btn-success ajax-action" data-url="@Url.Action("Createjob")">Tạo công việc</a>
+</p>
+<div>
+    <div class="collapse collapse-horizontal" id="collapseWidthExample">
+        <div class="card card-body">
+            <div id="search-employee-section" class="d-none">
+                <input type="text" id="employee-search" class="form-control" placeholder="Tìm kiếm nhân viên...">
+                <div id="employee-suggestions" class="d-flex flex-wrap mt-2"></div>
             </div>
         </div>
     </div>
 </div>
-<p>
-    <a id="btn-create-job" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Giao C.việc</a>
-    <a class="btn btn-success ajax-action" data-url="@Url.Action("Createjob")">Tạo công việc</a>
-</p>
 
-<div id="search-employee-section" class="d-none">
-    <input type="text" id="employee-search" class="form-control" placeholder="Tìm kiếm nhân viên...">
-    <div id="employee-suggestions" class="d-flex flex-wrap mt-2"></div>
-</div>
 
 <div id="selected-employee" class="d-none mt-3 selected-employee-container">
     <div class="card p-3 d-flex flex-row align-items-center">
@@ -165,7 +79,96 @@
     <div class="col-md-12" id="list-section">
         <div class="card-body">
             <div class="table-responsive">
-                <h3 class="text-center">Danh sách công việc</h3>
+                <h1 class="text-center">Danh sách công việc</h1>
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    Tìm kiếm
+                </button>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card shadow-sm">
+                                    <div class="row gx-2 gy-2 align-items-end">
+                                        <!-- Tìm kiếm -->
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">Tìm kiếm</label>
+                                            <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên / công việc" value="@ViewBag.SearchText">
+                                        </div>
+
+                                        <!-- Tháng -->
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-bold">Tháng</label>
+                                            <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-bold">Ngày</label>
+                                            <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                                        </div>
+                                        <!-- Trạng thái -->
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-bold">Trạng thái</label>
+                                            <select id="status" name="status" class="form-select">
+                                                <option value="">-- Tất cả --</option>
+                                                <option value="1">Hoàn thành</option>
+                                                <option value="2">Chưa hoàn thành</option>
+                                                <option value="3">Hoàn thành muộn</option>
+                                                <option value="4">Đang xử lý</option>
+                                                <option value="0">Chưa bắt đầu</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Danh mục -->
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-bold">Danh mục</label>
+                                            <select id="categoryId" name="categoryId" class="form-select">
+                                                <option value="">-- Chọn danh mục --</option>
+                                                @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
+                                                {
+                                                    <option value="@category.Id">@category.Name</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- Sắp xếp -->
+                                        <div class="col-md-2">
+                                            <label class="form-label fw-bold">Sắp xếp</label>
+                                            <select id="sortOrder" name="sortOrder" class="form-select">
+                                                <option value="">-- Mặc định --</option>
+                                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
+                                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                                                <option value="review_asc">Đánh giá tăng dần</option>
+                                                <option value="review_desc">Đánh giá giảm dần</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Chưa đánh giá -->
+                                        <div class="col-md-2">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="showCompletedZeroReview" name="showCompletedZeroReview" value="true" @(ViewBag.ShowCompletedZeroReview ? "checked" : "")>
+                                                <label class="form-check-label" for="showCompletedZeroReview">Chưa đánh giá</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Hạn hôm nay -->
+                                        <div class="col-md-2">
+                                            <div class="form-check mt-4">
+                                                <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
+                                                <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Nút Tìm kiếm & Reset -->
+                                        <div class="col-md-4 d-flex justify-content-end mt-4">
+                                            <a href="@Url.Action("Index")" id="resetButton" class="btn btn-secondary">
+                                                <i class="bi bi-arrow-repeat"></i> Reset
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
                     <thead class="text-center">
                         <tr>
@@ -176,14 +179,8 @@
                             <th>Deadline</th>
                             <th>Ngày hoàn thành thực tế</th>
                             <th>Trạng thái</th>
-                            @* <th>Đánh giá khối lượng</th>
-                            <th>Đánh giá tiến độ</th>
-                            <th>Đánh giá chất lượng</th> *@
                             <th>Tổng hợp đánh giá</th>
                             <th width="100px">
-@*                                 <a id="exportExcel" class="btn btn-success">
-                                    <i class="bi bi-file-earmark-excel"></i> Excel
-                                </a> *@
                             </th>
                         </tr>
                     </thead>
@@ -264,36 +261,6 @@
                                         }
                                     </span>
                                 </td>
-                               @*  <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <input type="number" class="form-control assessment-input"
-                                               data-field="VolumeAssessment"
-                                               data-id="@item.Id"
-                                               value="@(item.VolumeAssessment?.ToString("F2") ?? "0.00")"
-                                               min="0" max="3" step="0.5" />
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <input type="number" class="form-control assessment-input"
-                                               data-field="ProgressAssessment"
-                                               data-id="@item.Id"
-                                               value="@(item.ProgressAssessment?.ToString("F2") ?? "0.00")"
-                                               min="0" max="3" step="0.5" />
-                                    }
-                                </td>
-                                <td>
-                                    @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
-                                    {
-                                        <input type="number" class="form-control assessment-input"
-                                               data-field="QualityAssessment"
-                                               data-id="@item.Id"
-                                               value="@(item.QualityAssessment?.ToString("F2") ?? "0.00")"
-                                               min="0" max="3" step="0.5" />
-                                    }
-                                </td> *@
                                 <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
@@ -303,7 +270,7 @@
                                     }
                                 </td>
                                 <td>
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex gap-2 ms-auto justify-content-end">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
                                         {
                                             <a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Create", new { currentJobMapEmployeeId = item.JobMapEmployee.Id })" title="Giao cho người khác">
@@ -311,7 +278,7 @@
                                             </a>
                                         }
                                         <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Sửa">
-                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-edit"></i>
                                         </a>
                                         <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
                                             <i class="fas fa-info-circle"></i>
@@ -321,21 +288,6 @@
                                         </a>
                                     </div>
                                 </td>
-                                @* <div class="d-flex gap-2">
-                                    <a class="btn btn-primary btn-sm ajax-action" data-url="/ProjectManager/Scores/Create?currentJobMapEmployeeId=1" title="Giao cho người khác">
-                                        <i class="fas fa-people-arrows"></i>
-                                    </a>
-                                    <a class="btn-yellow btn-event ajax-action" data-url="/ProjectManager/Scores/Edit/1" title="Đánh giá">
-                                        <i class="fas fa-star"></i>
-                                    </a>
-                                    <a class="btn-green btn-event ajax-action" data-url="/ProjectManager/Scores/Details/1" title="Chi tiết">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
-                                    <a class="btn-red btn-event ajax-action" data-url="/ProjectManager/Scores/Delete/1" title="Xoá">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-
-                                </div> *@
                             </tr>
                         }
                     </tbody>

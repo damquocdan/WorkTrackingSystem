@@ -6,7 +6,7 @@
 
 <div class="modal-content">
     <div class="modal-header">
-        <h2 class="text-center">Đánh giá</h2>
+        <h2 class="text-center">Sửa công việc</h2>
         <button type="button" class="close" onclick="closeDetailSection()">×</button>
     </div>
     <div class="modal-body">
@@ -15,100 +15,83 @@
                 <form asp-action="Edit">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id" />
-                    <div class="form-group" hidden>
-                        <label asp-for="JobMapEmployeeId" class="control-label"></label>
-                        <select asp-for="JobMapEmployeeId" class="form-control" asp-items="ViewBag.JobMapEmployeeId"></select>
-                        <span asp-validation-for="JobMapEmployeeId" class="text-danger"></span>
+                    <input type="hidden" asp-for="JobMapEmployeeId" />
+
+                    <!-- Tên công việc -->
+                    <div class="form-group">
+                        <label class="control-label">Tên công việc</label>
+                        <input asp-for="JobMapEmployee.Job.Name" class="form-control" />
+                        <span asp-validation-for="JobMapEmployee.Job.Name" class="text-danger"></span>
                     </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="CompletionDate" class="control-label"></label>
-                        <input asp-for="CompletionDate" class="form-control" />
-                        <span asp-validation-for="CompletionDate" class="text-danger"></span>
+
+                    <!-- Danh mục -->
+                    <div class="form-group">
+                        <label class="control-label">Danh mục</label>
+                    <select asp-for="JobMapEmployee.Job.CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                        <option value="">Chọn danh mục</option>
+                    </select>
+                    <span asp-validation-for="JobMapEmployee.Job.CategoryId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Trạng thái</label>
-                        <input class="form-control" readonly
-                               value="@(Model.Status switch
-                        {
-                            1 => "Hoàn thành",
-                            2 => "Chưa hoàn thành",
-                            3 => "Hoàn thành muộn",
-                            4 => "Đang xử lý",
-                            0 => "Chưa bắt đầu",
-                            _ => "Không xác định"
-                        })" />
+                        <label asp-for="Time" class="control-label">Ngày bắt đầu</label>
+                        <input asp-for="CreateDate" class="form-control" type="date" name="Time" value="@Model.Time?.ToString("yyyy-MM-dd")" />
+
+                        <span asp-validation-for="Time" class="text-danger"></span>
                     </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="Status" class="control-label"></label>
-                        <input asp-for="Status" class="form-control" />
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-                    <div class="form-group" hidden>
-                        <label class="control-label">Tiến độ</label>
-                        <div class="progress" role="progressbar" aria-valuenow="@Model.Progress" aria-valuemin="0" aria-valuemax="100" style="height:30px;">
-                            <div class="progress-bar" style="width: @Model.Progress%;">@Model.Progress%</div>
+                    <!-- Ngày tạo -->
+                    @if (Model.JobMapEmployee?.EmployeeId != null)
+                    {
+                        <div class="form-group">
+                            <label asp-for="CreateDate" class="control-label">Hạn chót</label>
+                            <input asp-for="CreateDate" class="form-control" type="date" value="@Model.CreateDate?.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="CreateDate" class="text-danger"></span>
                         </div>
+                    }
+                    <div class="form-group" hidden>
+                        <label asp-for="CompletionDate" class="control-label">Ngày hoàn thành</label>
+                        <input asp-for="CompletionDate" class="form-control" type="date" />
+                        <span asp-validation-for="CompletionDate" class="text-danger"></span>
                     </div>
 
                     <div class="form-group" hidden>
-                        <label asp-for="VolumeAssessment" class="control-label"></label>
-                        <input asp-for="VolumeAssessment" class="form-control" type="number" min="0" max="3" step="0.5" oninput="calculateSummary()" />
+                        <label asp-for="Status" class="control-label">Trạng thái</label>
+                        <input asp-for="Status" class="form-control" />
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group" hidden>
+                        <label asp-for="VolumeAssessment" class="control-label">Đánh giá khối lượng</label>
+                        <input asp-for="VolumeAssessment" class="form-control" />
                         <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
                     </div>
 
                     <div class="form-group" hidden>
-                        <label asp-for="ProgressAssessment" class="control-label"></label>
-                        <input asp-for="ProgressAssessment" class="form-control" type="number" min="0" max="3" step="0.5" oninput="calculateSummary()" />
+                        <label asp-for="ProgressAssessment" class="control-label">Đánh giá tiến độ</label>
+                        <input asp-for="ProgressAssessment" class="form-control" />
                         <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
                     </div>
 
                     <div class="form-group" hidden>
-                        <label asp-for="QualityAssessment" class="control-label"></label>
-                        <input asp-for="QualityAssessment" class="form-control" type="number" min="0" max="3" step="0.5" oninput="calculateSummary()" />
+                        <label asp-for="QualityAssessment" class="control-label">Đánh giá chất lượng</label>
+                        <input asp-for="QualityAssessment" class="form-control" />
                         <span asp-validation-for="QualityAssessment" class="text-danger"></span>
                     </div>
 
                     <div class="form-group" hidden>
-                        <label asp-for="SummaryOfReviews" class="control-label"></label>
-                        <input asp-for="SummaryOfReviews" class="form-control" readonly />
+                        <label asp-for="SummaryOfReviews" class="control-label">Tổng hợp đánh giá</label>
+                        <input asp-for="SummaryOfReviews" class="form-control" />
+                        <span asp-validation-for="SummaryOfReviews" class="text-danger"></span>
                     </div>
+
                     <div class="form-group" hidden>
-                        <label asp-for="Time" class="control-label"></label>
-                        <input asp-for="Time" class="form-control" />
-                        <span asp-validation-for="Time" class="text-danger"></span>
+                        <label asp-for="Progress" class="control-label">Tiến độ</label>
+                        <input asp-for="Progress" class="form-control" />
+                        <span asp-validation-for="Progress" class="text-danger"></span>
                     </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="IsDelete" class="control-label"></label>
-                        <input asp-for="IsDelete" class="form-control" />
-                        <span asp-validation-for="IsDelete" class="text-danger"></span>
-                    </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="IsActive" class="control-label"></label>
-                        <input asp-for="IsActive" class="form-control" />
-                        <span asp-validation-for="IsActive" class="text-danger"></span>
-                    </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="CreateDate" class="control-label"></label>
-                        <input asp-for="CreateDate" class="form-control" />
-                        <span asp-validation-for="CreateDate" class="text-danger"></span>
-                    </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="UpdateDate" class="control-label"></label>
-                        <input asp-for="UpdateDate" class="form-control" />
-                        <span asp-validation-for="UpdateDate" class="text-danger"></span>
-                    </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="CreateBy" class="control-label"></label>
-                        <input asp-for="CreateBy" class="form-control" />
-                        <span asp-validation-for="CreateBy" class="text-danger"></span>
-                    </div>
-                    <div class="form-group" hidden>
-                        <label asp-for="UpdateBy" class="control-label"></label>
-                        <input asp-for="UpdateBy" class="form-control" />
-                        <span asp-validation-for="UpdateBy" class="text-danger"></span>
-                    </div>
+
+                   
                     <div class="form-group d-flex justify-content-between">
-                        <input type="submit" value="Save" class="btn btn-primary" />
+                        <input type="submit" value="Lưu" class="btn btn-primary" />
                     </div>
                 </form>
             </div>
@@ -117,19 +100,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
-
-<script>
-
-    function calculateSummary() {
-        let volume = parseFloat(document.getElementById("VolumeAssessment").value) || 0;
-        let progress = parseFloat(document.getElementById("ProgressAssessment").value) || 0;
-        let quality = parseFloat(document.getElementById("QualityAssessment").value) || 0;
-
-        let summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.25);
-        document.getElementById("SummaryOfReviews").value = summary.toFixed(2);
-    }
-</script>
