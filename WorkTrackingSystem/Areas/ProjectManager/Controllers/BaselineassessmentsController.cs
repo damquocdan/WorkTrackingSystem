@@ -187,7 +187,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[row, 3].Value = item.VolumeAssessment;
                     worksheet.Cells[row, 4].Value = item.ProgressAssessment;
                     worksheet.Cells[row, 5].Value = item.QualityAssessment;
-                    worksheet.Cells[row, 6].Value = item.SummaryOfReviews;
+                    worksheet.Cells[row, 6].Value = Math.Round(Convert.ToDouble(item.SummaryOfReviews), 2);
+                    worksheet.Cells[row, 6].Style.Numberformat.Format = "0.00";
+
                     worksheet.Cells[row, 7].Value = item.Evaluate.GetValueOrDefault() ? "Đạt baseline" : "Chưa đạt baseline";
 
                     worksheet.Cells[row, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

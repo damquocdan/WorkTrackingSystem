@@ -197,36 +197,75 @@
                                         }
                                         </span>
                                     </td>
-                                    <td>
+                                <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
-                                                <input type="number" class="form-control assessment-input"
-                                                       data-field="VolumeAssessment"
-                                                       data-id="@item.Id"
-                                                       value="@(item.VolumeAssessment?.ToString("F2") ?? "0.00")"
-                                                       min="0" max="3" step="0.5" />
+                                        <select class="form-control assessment-input"
+                                                data-field="VolumeAssessment"
+                                                data-id="@item.Id">
+                                            @{
+                                                var volumeOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
+                                                foreach (var value in volumeOptions)
+                                                {
+                                                    if (item.VolumeAssessment.HasValue && item.VolumeAssessment.Value == value)
+                                                    {
+                                                        <option value="@value" selected>@value.ToString("F2")</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@value">@value.ToString("F2")</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
                                     }
-                                    </td>
-                                    <td>
+                                </td>
+                                <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
-                                                <input type="number" class="form-control assessment-input"
-                                                       data-field="ProgressAssessment"
-                                                       data-id="@item.Id"
-                                                       value="@(item.ProgressAssessment?.ToString("F2") ?? "0.00")"
-                                                       min="0" max="3" step="0.5" />
+                                        <select class="form-control assessment-input"
+                                                data-field="ProgressAssessment"
+                                                data-id="@item.Id">
+                                            @{
+                                                var progressOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
+                                                foreach (var value in progressOptions)
+                                                {
+                                                    if (item.ProgressAssessment.HasValue && item.ProgressAssessment.Value == value)
+                                                    {
+                                                        <option value="@value" selected>@value.ToString("F2")</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@value">@value.ToString("F2")</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
                                     }
-                                    </td>
-                                    <td>
+                                </td>
+                                <td>
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
-                                                <input type="number" class="form-control assessment-input"
-                                                       data-field="QualityAssessment"
-                                                       data-id="@item.Id"
-                                                       value="@(item.QualityAssessment?.ToString("F2") ?? "0.00")"
-                                                       min="0" max="3" step="0.5" />
+                                        <select class="form-control assessment-input"
+                                                data-field="QualityAssessment"
+                                                data-id="@item.Id">
+                                            @{
+                                                var qualityOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
+                                                foreach (var value in qualityOptions)
+                                                {
+                                                    if (item.QualityAssessment.HasValue && item.QualityAssessment.Value == value)
+                                                    {
+                                                        <option value="@value" selected>@value.ToString("F2")</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@value">@value.ToString("F2")</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
                                     }
-                                    </td>
+                                </td>
                                     <td>
                                     @if (item.JobMapEmployee?.Employee != null )
                                     {
