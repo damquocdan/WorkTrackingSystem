@@ -31,6 +31,18 @@
                                 <div class="col-md-4">
                                     <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />
                                 </div>
+                                <div class="col-md-4">
+                                    <select id="quarteryear" name="quarteryear" class="form-control">
+                                        <option value="">-- Chọn quý --</option>
+                                        <option value="@(DateTime.Now.Year)-1">Q1 @DateTime.Now.Year</option>
+                                        <option value="@(DateTime.Now.Year)-2">Q2 @DateTime.Now.Year</option>
+                                        <option value="@(DateTime.Now.Year)-3">Q3 @DateTime.Now.Year</option>
+                                        <option value="@(DateTime.Now.Year)-4">Q4 @DateTime.Now.Year</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="number" id="year" name="year" class="form-control" placeholder="Năm" value="@ViewBag.Year" min="2000" max="@DateTime.Now.Year" />
+                                </div>
                                 <div class="col-md-3">
                                     <input type="date" id="date1" name="date1" class="form-control" placeholder="Từ ngày" value="@ViewBag.Date1" />
                                 </div>
@@ -168,7 +180,7 @@
                                         </div>
                                     </td>
                                     <td>
-@*                                         <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a> *@
+                                        @* <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a> *@
                                     </td>
                                 </tr>
                             }
@@ -176,7 +188,7 @@
                     </table>
                 </div>
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, quarteryear = ViewBag.Quarteryear, year = ViewBag.Year, date1 = ViewBag.Date1, date2 = ViewBag.Date2, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
                {
                    LiElementClasses = new string[] { "page-item" },
                    PageClasses = new string[] { "page-link" },
@@ -474,10 +486,17 @@
 
         function getFilterPeriodText() {
             var time = $("#time").val();
+            var quarteryear = $("#quarteryear").val();
+            var year = $("#year").val();
             var date1 = $("#date1").val();
             var date2 = $("#date2").val();
             if (date1 && date2) {
                 return `từ ${formatDate(date1)} đến ${formatDate(date2)}`;
+            } else if (year) {
+                return `năm ${year}`;
+            } else if (quarteryear) {
+                var parts = quarteryear.split("-");
+                return `quý ${parts[1]}/${parts[0]}`;
             } else if (time) {
                 var parts = time.split("-");
                 return `tháng ${parts[1]}/${parts[0]}`;
@@ -498,10 +517,16 @@
                 e.preventDefault();
                 var url = $(this).data("url");
                 var time = $("#time").val();
+                var quarteryear = $("#quarteryear").val();
+                var year = $("#year").val();
                 var date1 = $("#date1").val();
                 var date2 = $("#date2").val();
                 if (date1 && date2) {
                     url += (url.includes("?") ? "&" : "?") + "date1=" + encodeURIComponent(date1) + "&date2=" + encodeURIComponent(date2);
+                } else if (year) {
+                    url += (url.includes("?") ? "&" : "?") + "year=" + encodeURIComponent(year);
+                } else if (quarteryear) {
+                    url += (url.includes("?") ? "&" : "?") + "quarteryear=" + encodeURIComponent(quarteryear);
                 } else if (time) {
                     url += (url.includes("?") ? "&" : "?") + "time=" + encodeURIComponent(time);
                 }
@@ -522,7 +547,7 @@
                 });
             });
 
-            $("#searchText, #time, #date1, #date2, #sortOrder").on("input change", function() {
+            $("#searchText, #time, #quarteryear, #year, #date1, #date2, #sortOrder").on("input change", function() {
                 applyFilters();
             });
 
@@ -541,11 +566,15 @@
                 }
                 var searchText = $("#searchText").val();
                 var time = $("#time").val();
+                var quarteryear = $("#quarteryear").val();
+                var year = $("#year").val();
                 var date1 = $("#date1").val();
                 var date2 = $("#date2").val();
                 var sortOrder = $("#sortOrder").val();
                 var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
                     "&time=" + encodeURIComponent(time) +
+                    "&quarteryear=" + encodeURIComponent(quarteryear) +
+                    "&year=" + encodeURIComponent(year) +
                     "&date1=" + encodeURIComponent(date1) +
                     "&date2=" + encodeURIComponent(date2) +
                     "&sortOrder=" + encodeURIComponent(sortOrder);
@@ -556,11 +585,15 @@
         function applyFilters() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
+            var quarteryear = $("#quarteryear").val();
+            var year = $("#year").val();
             var date1 = $("#date1").val();
             var date2 = $("#date2").val();
             var sortOrder = $("#sortOrder").val();
             var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) +
                 "&time=" + encodeURIComponent(time) +
+                "&quarteryear=" + encodeURIComponent(quarteryear) +
+                "&year=" + encodeURIComponent(year) +
                 "&date1=" + encodeURIComponent(date1) +
                 "&date2=" + encodeURIComponent(date2) +
                 "&sortOrder=" + encodeURIComponent(sortOrder);
@@ -595,16 +628,23 @@
         function updateFilterDescription() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
+            var quarteryear = $("#quarteryear").val();
+            var year = $("#year").val();
             var date1 = $("#date1").val();
             var date2 = $("#date2").val();
             var description = "";
-            if (!searchText && !time && !date1 && !date2) {
+            if (!searchText && !time && !quarteryear && !year && !date1 && !date2) {
                 description = "toàn bộ";
             } else {
                 var filterText = [];
                 if (searchText) filterText.push(`nhân viên: ${searchText}`);
                 if (date1 && date2) {
                     filterText.push(`từ ${formatDate(date1)} đến ${formatDate(date2)}`);
+                } else if (year) {
+                    filterText.push(`năm: ${year}`);
+                } else if (quarteryear) {
+                    var parts = quarteryear.split("-");
+                    filterText.push(`quý: ${parts[1]}/${parts[0]}`);
                 } else if (time) {
                     var parts = time.split("-");
                     filterText.push(`tháng: ${parts[1]}/${parts[0]}`);
