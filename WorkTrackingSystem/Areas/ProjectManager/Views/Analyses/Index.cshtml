@@ -31,6 +31,12 @@
                                 <div class="col-md-4">
                                     <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />
                                 </div>
+                                <div class="col-md-3">
+                                    <input type="date" id="date1" name="date1" class="form-control" placeholder="Từ ngày" value="@ViewBag.Date1" />
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="date" id="date2" name="date2" class="form-control" placeholder="Đến ngày" value="@ViewBag.Date2" />
+                                </div>
                                 <div class="col-md-4">
                                     <select id="sortOrder" name="sortOrder" class="form-control">
                                         <option value="">-- Sắp xếp theo --</option>
@@ -433,7 +439,7 @@
                             legend: { position: 'top' },
                             title: {
                                 display: true,
-                                text: 'Tổng hợp tháng ' + ($("#time").val() ? $("#time").val().split("-").reverse().join("/") : new Date().toLocaleString('default', { month: '2-digit', year: 'numeric' }))
+                                text: 'Tổng hợp ' + getFilterPeriodText()
                             },
                             tooltip: {
                                 callbacks: {
@@ -466,34 +472,57 @@
             }
         }
 
+        function getFilterPeriodText() {
+            var time = $("#time").val();
+            var date1 = $("#date1").val();
+            var date2 = $("#date2").val();
+            if (date1 && date2) {
+                return `từ ${formatDate(date1)} đến ${formatDate(date2)}`;
+            } else if (time) {
+                var parts = time.split("-");
+                return `tháng ${parts[1]}/${parts[0]}`;
+            } else {
+                return `toàn bộ`;
+            }
+        }
+
+        function formatDate(dateStr) {
+            var date = new Date(dateStr);
+            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        }
+
         $(document).ready(function() {
             reloadChartsAndSummary(document.documentElement.outerHTML);
 
-                    $(document).on("click", ".ajax-action", function(e) {
-            e.preventDefault();
-            var url = $(this).data("url");
-            var time = $("#time").val();
-            if (time) {
-                url += (url.includes("?") ? "&" : "?") + "time=" + encodeURIComponent(time);
-            }
-            if ($("#detail-section").hasClass("d-none")) {
-                $("#list-section").removeClass("col-md-12").addClass("col-md-6");
-                $("#detail-section").removeClass("d-none").addClass("col-md-6");
-            }
-            $(".actionCustomers").load(url, function(response, status, xhr) {
-                if (status === "error") {
-                    alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+            $(document).on("click", ".ajax-action", function(e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                var time = $("#time").val();
+                var date1 = $("#date1").val();
+                var date2 = $("#date2").val();
+                if (date1 && date2) {
+                    url += (url.includes("?") ? "&" : "?") + "date1=" + encodeURIComponent(date1) + "&date2=" + encodeURIComponent(date2);
+                } else if (time) {
+                    url += (url.includes("?") ? "&" : "?") + "time=" + encodeURIComponent(time);
                 }
-            });
-            const columnsToHide = [2, 3, 4, 5, 6];
-            $("#analysisTable").find("tr").each(function() {
-                $(this).find("th, td").each(function(index) {
-                    if (columnsToHide.includes(index)) $(this).hide();
+                if ($("#detail-section").hasClass("d-none")) {
+                    $("#list-section").removeClass("col-md-12").addClass("col-md-6");
+                    $("#detail-section").removeClass("d-none").addClass("col-md-6");
+                }
+                $(".actionCustomers").load(url, function(response, status, xhr) {
+                    if (status === "error") {
+                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                    }
+                });
+                const columnsToHide = [2, 3, 4, 5, 6];
+                $("#analysisTable").find("tr").each(function() {
+                    $(this).find("th, td").each(function(index) {
+                        if (columnsToHide.includes(index)) $(this).hide();
+                    });
                 });
             });
-        });
 
-            $("#searchText, #time, #sortOrder").on("input change", function() {
+            $("#searchText, #time, #date1, #date2, #sortOrder").on("input change", function() {
                 applyFilters();
             });
 
@@ -512,8 +541,14 @@
                 }
                 var searchText = $("#searchText").val();
                 var time = $("#time").val();
+                var date1 = $("#date1").val();
+                var date2 = $("#date2").val();
                 var sortOrder = $("#sortOrder").val();
-                var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) + "&time=" + encodeURIComponent(time) + "&sortOrder=" + encodeURIComponent(sortOrder);
+                var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
+                    "&time=" + encodeURIComponent(time) +
+                    "&date1=" + encodeURIComponent(date1) +
+                    "&date2=" + encodeURIComponent(date2) +
+                    "&sortOrder=" + encodeURIComponent(sortOrder);
                 window.location.href = url;
             });
         });
@@ -521,8 +556,14 @@
         function applyFilters() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
+            var date1 = $("#date1").val();
+            var date2 = $("#date2").val();
             var sortOrder = $("#sortOrder").val();
-            var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) + "&time=" + encodeURIComponent(time) + "&sortOrder=" + encodeURIComponent(sortOrder);
+            var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) +
+                "&time=" + encodeURIComponent(time) +
+                "&date1=" + encodeURIComponent(date1) +
+                "&date2=" + encodeURIComponent(date2) +
+                "&sortOrder=" + encodeURIComponent(sortOrder);
             loadTable(url);
         }
 
@@ -554,15 +595,19 @@
         function updateFilterDescription() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
+            var date1 = $("#date1").val();
+            var date2 = $("#date2").val();
             var description = "";
-            if (!searchText && !time) {
-                description = " toàn bộ";
+            if (!searchText && !time && !date1 && !date2) {
+                description = "toàn bộ";
             } else {
                 var filterText = [];
                 if (searchText) filterText.push(`nhân viên: ${searchText}`);
-                if (time) {
+                if (date1 && date2) {
+                    filterText.push(`từ ${formatDate(date1)} đến ${formatDate(date2)}`);
+                } else if (time) {
                     var parts = time.split("-");
-                    if (parts.length === 2) filterText.push(`tháng: ${parts[1]}/${parts[0]}`);
+                    filterText.push(`tháng: ${parts[1]}/${parts[0]}`);
                 }
                 description = "theo " + filterText.join(" và ");
             }

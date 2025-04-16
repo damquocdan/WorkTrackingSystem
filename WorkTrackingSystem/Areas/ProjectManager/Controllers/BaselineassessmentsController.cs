@@ -4,14 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml.Style;
 using OfficeOpenXml;
-using WorkTrackingSystem.Models;
 using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Style;
+using WorkTrackingSystem.Models;
 using X.PagedList.Extensions;
-
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
@@ -24,8 +22,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             _context = context;
         }
 
-        // GET: ProjectManager/Baselineassessments
-        public async Task<IActionResult> Index(string employeeName, string evaluate, string time, int page = 1)
+        public async Task<IActionResult> Index(
+            string employeeName,
+            string evaluate,
+            string time,
+            string date1,
+            string date2,
+            int page = 1)
         {
             var limit = 10;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -36,44 +39,73 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var manager = await _context.Users
-                .Where(u => u.UserName == managerUsername)
-                .Select(u => u.Employee)
-                .FirstOrDefaultAsync();
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.UserName == managerUsername);
 
-            if (manager == null)
+            if (manager?.Employee?.DepartmentId == null)
             {
                 return RedirectToAction("Index", "Login");
             }
 
-            var managedDepartments = await _context.Employees
-                .Where(e => e.DepartmentId == manager.DepartmentId)
+            var managedEmployeeIds = await _context.Employees
+                .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
                 .Select(e => e.Id)
                 .ToListAsync();
 
-            var assessments = _context.Baselineassessments
-                .Include(b => b.Employee)
-                .Where(b => b.EmployeeId.HasValue && managedDepartments.Contains(b.EmployeeId.Value));
+            IQueryable<Baselineassessment> assessments;
 
-            // Lọc theo tên nhân viên
-            if (!string.IsNullOrEmpty(employeeName))
+            if (!string.IsNullOrEmpty(date1) && !string.IsNullOrEmpty(date2) &&
+                DateTime.TryParse(date1, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
+                DateTime.TryParse(date2, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
             {
-                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+                assessments = from e in _context.Employees
+                              where e.IsDelete == false && e.IsActive == true
+                              && managedEmployeeIds.Contains(e.Id)
+                              join jme in _context.Jobmapemployees on e.Id equals jme.EmployeeId into jmeGroup
+                              from jme in jmeGroup.DefaultIfEmpty()
+                              join s in _context.Scores
+                                  on jme.Id equals s.JobMapEmployeeId into scoreGroup
+                              from s in scoreGroup.DefaultIfEmpty()
+                              where (s == null || (s.CreateDate >= startDate && s.CreateDate <= endDate && s.IsDelete == false && s.IsActive == true))
+                              group new { e, s } by new { e.Id, e.FirstName, e.LastName, e.Code } into g
+                              select new Baselineassessment
+                              {
+                                  EmployeeId = g.Key.Id,
+                                  Employee = new Employee
+                                  {
+                                      Id = g.Key.Id,
+                                      FirstName = g.Key.FirstName,
+                                      LastName = g.Key.LastName,
+                                      Code = g.Key.Code
+                                  },
+                                  VolumeAssessment = g.Sum(x => x.s != null ? x.s.VolumeAssessment ?? 0 : 0),
+                                  ProgressAssessment = g.Sum(x => x.s != null ? x.s.ProgressAssessment ?? 0 : 0),
+                                  QualityAssessment = g.Sum(x => x.s != null ? x.s.QualityAssessment ?? 0 : 0),
+                                  SummaryOfReviews = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0),
+                                  Evaluate = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0) >= 45
+                              };
             }
-
-            // Lọc theo trạng thái đánh giá
-            if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
+            else
             {
-                assessments = assessments.Where(b => b.Evaluate == evaluateVal);
-            }
+                assessments = _context.Baselineassessments
+                    .Include(b => b.Employee)
+                    .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
 
-            // Lọc theo tháng/năm
-            if (!string.IsNullOrEmpty(time))
-            {
-                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+                if (!string.IsNullOrEmpty(employeeName))
+                {
+                    assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+                }
+
+                if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
+                {
+                    assessments = assessments.Where(b => b.Evaluate == evaluateVal);
+                }
+
+                if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
                 {
                     assessments = assessments.Where(b => b.Time.HasValue &&
-                                                         b.Time.Value.Year == selectedTime.Year &&
-                                                         b.Time.Value.Month == selectedTime.Month);
+                                                        b.Time.Value.Year == selectedTime.Year &&
+                                                        b.Time.Value.Month == selectedTime.Month);
                 }
             }
 
@@ -86,11 +118,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             ViewBag.EmployeeName = employeeName;
             ViewBag.Evaluate = evaluate;
             ViewBag.Time = time;
+            ViewBag.Date1 = date1;
+            ViewBag.Date2 = date2;
 
-            return View(assessments.OrderByDescending(x => x.Time ?? DateTime.MinValue).ToPagedList(page, limit));
+            return View(assessments.OrderBy(x => x.EmployeeId).ToPagedList(page, limit));
         }
 
-        public async Task<IActionResult> ExportToExcel(string employeeCode, string employeeName, bool? evaluate, string time)
+        public async Task<IActionResult> ExportToExcel(string employeeName, string evaluate, string time, string date1, string date2)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -101,64 +135,92 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var manager = await _context.Users
-                .Where(u => u.UserName == managerUsername)
-                .Select(u => u.Employee)
-                .FirstOrDefaultAsync();
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.UserName == managerUsername);
 
-            if (manager == null)
+            if (manager?.Employee?.DepartmentId == null)
             {
                 return RedirectToAction("Index", "Login");
             }
 
-            var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-                .Select(d => d.Id)
+            var managedEmployeeIds = await _context.Employees
+                .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+                .Select(e => e.Id)
                 .ToListAsync();
 
-            var assessments = _context.Baselineassessments
-                .Include(b => b.Employee)
-                .Where(b => b.Employee != null &&
-                            b.Employee.DepartmentId.HasValue &&
-                            managedDepartments.Contains(b.Employee.DepartmentId.Value));
+            IQueryable<Baselineassessment> assessments;
+            string selectedPeriod = "Toàn bộ";
 
-            if (!string.IsNullOrEmpty(employeeCode))
+            if (!string.IsNullOrEmpty(date1) && !string.IsNullOrEmpty(date2) &&
+                DateTime.TryParse(date1, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
+                DateTime.TryParse(date2, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
             {
-                assessments = assessments.Where(b => b.Employee.Code.Contains(employeeCode));
+                selectedPeriod = $"{startDate:dd/MM/yyyy} - {endDate:dd/MM/yyyy}";
+                assessments = from e in _context.Employees
+                              where e.IsDelete == false && e.IsActive == true
+                              && managedEmployeeIds.Contains(e.Id)
+                              join jme in _context.Jobmapemployees on e.Id equals jme.EmployeeId into jmeGroup
+                              from jme in jmeGroup.DefaultIfEmpty()
+                              join s in _context.Scores
+                                  on jme.Id equals s.JobMapEmployeeId into scoreGroup
+                              from s in scoreGroup.DefaultIfEmpty()
+                              where (s == null || (s.CreateDate >= startDate && s.CreateDate <= endDate && s.IsDelete == false && s.IsActive == true))
+                              group new { e, s } by new { e.Id, e.FirstName, e.LastName, e.Code } into g
+                              select new Baselineassessment
+                              {
+                                  EmployeeId = g.Key.Id,
+                                  Employee = new Employee
+                                  {
+                                      Id = g.Key.Id,
+                                      FirstName = g.Key.FirstName,
+                                      LastName = g.Key.LastName,
+                                      Code = g.Key.Code
+                                  },
+                                  VolumeAssessment = g.Sum(x => x.s != null ? x.s.VolumeAssessment ?? 0 : 0),
+                                  ProgressAssessment = g.Sum(x => x.s != null ? x.s.ProgressAssessment ?? 0 : 0),
+                                  QualityAssessment = g.Sum(x => x.s != null ? x.s.QualityAssessment ?? 0 : 0),
+                                  SummaryOfReviews = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0),
+                                  Evaluate = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0) >= 45
+                              };
             }
+            else
+            {
+                assessments = _context.Baselineassessments
+                    .Include(b => b.Employee)
+                    .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
 
-            if (!string.IsNullOrEmpty(employeeName))
-            {
-                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
-            }
-
-            if (evaluate.HasValue)
-            {
-                assessments = assessments.Where(b => b.Evaluate == evaluate.Value);
-            }
-            string selectedMonth = "Toàn bộ";
-            if (!string.IsNullOrEmpty(time))
-            {
-                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+                if (!string.IsNullOrEmpty(employeeName))
                 {
-                    selectedMonth = selectedTime.ToString("MM/yyyy");
+                    assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+                }
+
+                if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
+                {
+                    assessments = assessments.Where(b => b.Evaluate == evaluateVal);
+                }
+
+                if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+                {
+                    selectedPeriod = selectedTime.ToString("MM/yyyy");
                     assessments = assessments.Where(b => b.Time.HasValue &&
-                                                         b.Time.Value.Year == selectedTime.Year &&
-                                                         b.Time.Value.Month == selectedTime.Month);
+                                                        b.Time.Value.Year == selectedTime.Year &&
+                                                        b.Time.Value.Month == selectedTime.Month);
                 }
             }
 
-            var assessmentList = await assessments.OrderByDescending(x => x.Time).ToListAsync();
+            var assessmentList = await assessments.OrderBy(x => x.EmployeeId).ToListAsync();
             if (!assessmentList.Any())
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để xuất Excel.";
                 return RedirectToAction("Index");
             }
+
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Danh sách đánh giá");
 
                 worksheet.Cells[1, 1, 1, 7].Merge = true;
-                worksheet.Cells[1, 1].Value = $"Bảng tổng hợp đánh giá tháng {selectedMonth}";
+                worksheet.Cells[1, 1].Value = $"Bảng tổng hợp đánh giá {selectedPeriod}";
                 worksheet.Cells[1, 1].Style.Font.Bold = true;
                 worksheet.Cells[1, 1].Style.Font.Size = 14;
                 worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -187,14 +249,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[row, 3].Value = item.VolumeAssessment;
                     worksheet.Cells[row, 4].Value = item.ProgressAssessment;
                     worksheet.Cells[row, 5].Value = item.QualityAssessment;
-                    worksheet.Cells[row, 6].Value = Math.Round(Convert.ToDouble(item.SummaryOfReviews), 2);
+                    worksheet.Cells[row, 6].Value = Math.Round(item.SummaryOfReviews ?? 0, 2);
                     worksheet.Cells[row, 6].Style.Numberformat.Format = "0.00";
-
                     worksheet.Cells[row, 7].Value = item.Evaluate.GetValueOrDefault() ? "Đạt baseline" : "Chưa đạt baseline";
-
                     worksheet.Cells[row, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[row, 3, row, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
-
                     row++;
                 }
 
@@ -206,11 +265,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     chart.SetPosition(1, 0, 9, 0);
                     chart.SetSize(500, 350);
 
-                    int totalColumnIndex = 3;
-                    int nameColumnIndex = 2;
-
-                    var dataRange = worksheet.Cells[3, totalColumnIndex, assessmentList.Count + 2, totalColumnIndex];
-                    var labelRange = worksheet.Cells[3, nameColumnIndex, assessmentList.Count + 2, nameColumnIndex];
+                    var dataRange = worksheet.Cells[3, 3, assessmentList.Count + 2, 3];
+                    var labelRange = worksheet.Cells[3, 2, assessmentList.Count + 2, 2];
 
                     var series = chart.Series.Add(dataRange, labelRange) as ExcelPieChartSerie;
                     chart.Title.Text = "Đánh giá khối lượng";
@@ -227,12 +283,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 package.SaveAs(stream);
                 stream.Position = 0;
 
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "DanhSachDanhGia.xlsx");
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"DanhSachDanhGia_{selectedPeriod.Replace("/", "_")}.xlsx");
             }
         }
 
-
-        // GET: ProjectManager/Baselineassessments/Details/5
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -254,18 +308,17 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             return View(baselineassessment);
         }
 
-
-        //đánh giá từng công việc cảu nhân viên
-        public async Task<IActionResult> JobEaluation(
- string searchText = "",
- string month = "",
- string day = "",
- string status = "",
- string categoryId = "",
- string sortOrder = "",
- bool showCompletedZeroReview = false,
- bool dueToday = false,
- long? jobId = null, int page = 1)
+        public async Task<IActionResult> JobEvaluation(
+    string searchText = "",
+    string month = "",
+    string day = "",
+    string status = "",
+    string categoryId = "",
+    string sortOrder = "",
+    bool showCompletedZeroReview = false,
+    bool dueToday = false,
+    long? jobId = null,
+    int page = 1)
         {
             var limit = 8;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -275,29 +328,26 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var manager = await _context.Users
-                .Where(u => u.UserName == managerUsername)
                 .Include(u => u.Employee)
-                .Select(u => u.Employee)
-                .FirstOrDefaultAsync();
-            if (manager == null)
+                .FirstOrDefaultAsync(u => u.UserName == managerUsername);
+            if (manager?.Employee == null)
             {
                 return RedirectToAction("Index", "Login");
             }
 
-            var managedDepartments = await _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-                .Select(d => d.Id)
+            var managedEmployeeIds = await _context.Employees
+                .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+                .Select(e => e.Id)
                 .ToListAsync();
 
             var employeesInManagedDepartments = await _context.Employees
-                .Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
+                .Where(e => managedEmployeeIds.Contains(e.Id))
                 .Select(e => new { Value = e.Id.ToString(), Text = $"{e.Code} {e.FirstName} {e.LastName}", Avatar = e.Avatar ?? "/images/default-avatar.png" })
                 .ToListAsync();
             ViewBag.EmployeeList = employeesInManagedDepartments;
 
             ViewData["Categories"] = await _context.Categories.ToListAsync();
 
-            // Lấy danh sách JobId đã được gán cho bất kỳ nhân viên nào (EmployeeId không null)
             var assignedJobIds = await _context.Jobmapemployees
                 .Where(jme => jme.EmployeeId != null)
                 .Select(jme => jme.JobId)
@@ -312,10 +362,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         .ThenInclude(j => j.Category)
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
                 .Where(s =>
-                    (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value))
+                    (s.JobMapEmployee.EmployeeId.HasValue && managedEmployeeIds.Contains(s.JobMapEmployee.EmployeeId.Value))
                     || (s.JobMapEmployee.EmployeeId == null && s.CreateBy == managerUsername && !assignedJobIds.Contains(s.JobMapEmployee.JobId)));
 
-            // Apply the filter only if jobId is provided (keeping the original jobId-specific logic)
             if (jobId.HasValue)
             {
                 bool hasAssignedJob = await _context.Jobmapemployees
@@ -329,7 +378,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
             }
 
-            // 1. Tìm kiếm theo mã / tên nhân viên / công việc
             if (!string.IsNullOrEmpty(searchText))
             {
                 searchText = searchText.ToLower();
@@ -340,37 +388,41 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.JobMapEmployee.Job.Name.ToLower().Contains(searchText));
             }
 
-            // 2. Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedMonth.Year && s.CreateDate.Value.Month == selectedMonth.Month);
             }
+
             if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
             }
-            // 3. Lọc theo trạng thái
+
             if (!string.IsNullOrEmpty(status) && byte.TryParse(status, out byte statusValue))
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == statusValue);
             }
 
-            // 4. Lọc theo danh mục
             if (!string.IsNullOrEmpty(categoryId) && long.TryParse(categoryId, out long catId))
             {
                 scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == catId);
             }
 
-            // 5. Hiển thị công việc hoàn thành nhưng chưa đánh giá
             if (showCompletedZeroReview)
             {
                 scoresQuery = scoresQuery.Where(s => s.SummaryOfReviews == 0);
             }
+
             if (dueToday)
             {
-                scoresQuery = scoresQuery.Where(s => s.Time==s.CreateDate);
+                scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
             }
-            var scores = scoresQuery.ToPagedList(page, limit);
+
+            // Materialize the query asynchronously
+            var scoresList = await scoresQuery.ToListAsync();
+            // Apply paging synchronously
+            var scores = scoresList.ToPagedList(page, limit);
+
             ViewBag.SearchText = searchText;
             ViewBag.Month = month;
             ViewBag.Day = day;
@@ -379,6 +431,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             ViewBag.SortOrder = sortOrder;
             ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
             ViewBag.DueToday = dueToday;
+
             return View(scores);
         }
 
@@ -398,7 +451,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return Json(new { success = false, message = "Employee not found" });
             }
 
-            // Tạo JobMapEmployee
             var jobMapEmployee = new Jobmapemployee
             {
                 JobId = jobId,
@@ -412,7 +464,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             _context.Jobmapemployees.Add(jobMapEmployee);
             await _context.SaveChangesAsync();
 
-            // Xử lý ngày bắt đầu và ngày kết thúc
             DateTime? parsedTime = null;
             DateOnly? parsedDeadline = null;
 
@@ -428,7 +479,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 _context.Jobs.Update(job);
             }
 
-            // Tạo Score
             var score = new Score
             {
                 JobMapEmployeeId = jobMapEmployee.Id,
@@ -442,6 +492,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             return Json(new { success = true });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAssessment(long id, string field, float value)
@@ -457,7 +508,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             try
             {
-                // Update the specified field
                 switch (field)
                 {
                     case "VolumeAssessment":
@@ -473,7 +523,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         return Json(new { success = false, message = "Trường không hợp lệ." });
                 }
 
-                // Update SummaryOfReviews automatically
                 score.SummaryOfReviews = (score.VolumeAssessment ?? 0) * 0.6f +
                                          (score.ProgressAssessment ?? 0) * 0.15f +
                                          (score.QualityAssessment ?? 0) * 0.25f;
@@ -481,7 +530,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 score.UpdateDate = DateTime.Now;
                 score.UpdateBy = HttpContext.Session.GetString("ProjectManagerLogin");
 
-                // Update related assessments if EmployeeId exists
                 if (score.JobMapEmployee != null)
                 {
                     await UpdateBaselineAssessment(score.JobMapEmployee.EmployeeId);
@@ -499,13 +547,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
         }
 
-
         private async Task UpdateBaselineAssessment(long? employeeId)
         {
             if (employeeId == null)
                 return;
 
-            // Lấy tất cả bản ghi Score của nhân viên
             var jobs = await _context.Scores
                 .Where(j => j.JobMapEmployee.EmployeeId == employeeId && j.CreateDate.HasValue)
                 .ToListAsync();
@@ -513,7 +559,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             if (!jobs.Any())
                 return;
 
-            // Nhóm các bản ghi Score theo tháng và năm của CreateDate
             var groupedJobs = jobs
                 .GroupBy(j => new { j.CreateDate.Value.Year, j.CreateDate.Value.Month });
 
@@ -522,14 +567,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 var year = group.Key.Year;
                 var month = group.Key.Month;
 
-                // Tính tổng các đánh giá cho tháng/năm này
                 double sumVolume = group.Sum(j => j.VolumeAssessment ?? 0);
                 double sumProgress = group.Sum(j => j.ProgressAssessment ?? 0);
                 double sumQuality = group.Sum(j => j.QualityAssessment ?? 0);
                 double sumSummary = group.Sum(j => j.SummaryOfReviews ?? 0);
                 bool evaluate = sumSummary >= 45;
 
-                // Tìm bản ghi BaselineAssessment cho tháng/năm của CreateDate
                 var baseline = await _context.Baselineassessments
                     .FirstOrDefaultAsync(b => b.EmployeeId == employeeId
                                            && b.Time.HasValue
@@ -538,7 +581,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                 if (baseline == null)
                 {
-                    // Nếu chưa có bản ghi, tạo mới
                     baseline = new Baselineassessment
                     {
                         EmployeeId = employeeId,
@@ -546,7 +588,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         ProgressAssessment = sumProgress,
                         QualityAssessment = sumQuality,
                         SummaryOfReviews = sumSummary,
-                        Time = new DateTime(year, month, 1), // Dựa trên CreateDate
+                        Time = new DateTime(year, month, 1),
                         Evaluate = evaluate,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
@@ -557,7 +599,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 else
                 {
-                    // Nếu đã có bản ghi, cập nhật dữ liệu
                     baseline.VolumeAssessment = sumVolume;
                     baseline.ProgressAssessment = sumProgress;
                     baseline.QualityAssessment = sumQuality;
@@ -569,12 +610,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             await _context.SaveChangesAsync();
         }
+
         private async Task UpdateAnalysis(long? employeeId)
         {
             if (employeeId == null)
                 return;
 
-            // Lấy tất cả bản ghi Score của nhân viên
             var jobs = await _context.Scores
                 .Where(j => j.JobMapEmployee.EmployeeId == employeeId && j.CreateDate.HasValue)
                 .ToListAsync();
@@ -582,7 +623,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             if (!jobs.Any())
                 return;
 
-            // Nhóm các bản ghi Score theo tháng và năm của CreateDate
             var groupedJobs = jobs
                 .GroupBy(j => new { j.CreateDate.Value.Year, j.CreateDate.Value.Month });
 
@@ -591,14 +631,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 var year = group.Key.Year;
                 var month = group.Key.Month;
 
-                // Tính số lượng công việc theo trạng thái cho tháng/năm này
                 int ontime = group.Count(j => j.Status == 1);
                 int late = group.Count(j => j.Status == 2);
                 int overdue = group.Count(j => j.Status == 3);
                 int processing = group.Count(j => j.Status == 4 || j.Status == 0 || j.Status == 5);
                 int total = ontime + late + overdue + processing;
 
-                // Tìm bản ghi Analysis cho tháng/năm của CreateDate
                 var analysis = await _context.Analyses
                     .FirstOrDefaultAsync(a => a.EmployeeId == employeeId
                                            && a.Time.HasValue
@@ -607,7 +645,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                 if (analysis == null)
                 {
-                    // Nếu chưa có bản ghi, tạo mới
                     analysis = new Analysis
                     {
                         EmployeeId = employeeId,
@@ -616,7 +653,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         Late = late,
                         Overdue = overdue,
                         Processing = processing,
-                        Time = new DateTime(year, month, 1), // Dựa trên CreateDate
+                        Time = new DateTime(year, month, 1),
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now
                     };
@@ -624,7 +661,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 else
                 {
-                    // Nếu đã có bản ghi, cập nhật dữ liệu
                     analysis.Total = total;
                     analysis.Ontime = ontime;
                     analysis.Late = late;
@@ -649,35 +685,32 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
 
                 var manager = await _context.Users
-                    .Where(u => u.UserName == managerUsername)
-                    .Select(u => u.Employee)
-                    .FirstOrDefaultAsync();
+                    .Include(u => u.Employee)
+                    .FirstOrDefaultAsync(u => u.UserName == managerUsername);
 
-                if (manager == null)
+                if (manager?.Employee == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy thông tin quản lý." });
                 }
 
-                var managedDepartments = await _context.Departments
-                    .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-                    .Select(d => d.Id)
+                var managedEmployeeIds = await _context.Employees
+                    .Where(e => e.DepartmentId == manager.Employee.DepartmentId)
+                    .Select(e => e.Id)
                     .ToListAsync();
 
-                // Lấy danh sách JobId đã được gán cho bất kỳ nhân viên nào (Employee_Id không null)
-                var assignedJobIds = await _context.Jobmapemployees // Truy cập trực tiếp bảng JOBMAPEMPLOYEE
+                var assignedJobIds = await _context.Jobmapemployees
                     .Where(jme => jme.EmployeeId != null)
                     .Select(jme => jme.JobId)
                     .Distinct()
                     .ToListAsync();
 
-                // Công việc chưa giao và không nằm trong danh sách JobId đã gán
                 var unassignedJobs = await _context.Scores
                     .Include(s => s.JobMapEmployee)
                         .ThenInclude(jme => jme.Job)
                             .ThenInclude(j => j.Category)
                     .Where(s => s.JobMapEmployee.EmployeeId == null
                              && s.CreateBy == managerUsername
-                             && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
+                             && !assignedJobIds.Contains(s.JobMapEmployee.JobId))
                     .Select(s => new
                     {
                         Id = s.JobMapEmployee.JobId,
@@ -690,7 +723,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     })
                     .ToListAsync();
 
-                // Công việc đã giao cho nhân viên cụ thể
                 var assignedJobs = await _context.Scores
                     .Include(s => s.JobMapEmployee)
                         .ThenInclude(jme => jme.Job)
