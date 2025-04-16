@@ -24,45 +24,67 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         public IActionResult Index()
         {
             //// Tổng quan
-            //ViewBag.TotalJobs = _context.Jobs.Count(j => j.IsActive == true && j.IsDelete == false);
-            //ViewBag.CompletedJobs = _context.Jobs.Count(j => j.Status == 1 && j.IsActive == true && j.IsDelete == false);
-            //ViewBag.OverdueJobs = _context.Jobs.Count(j => j.Status == 2 && j.IsActive == true && j.IsDelete == false);
-            //ViewBag.TotalCategories = _context.Categories.Count(c => c.IsActive == true && c.IsDelete == false);
+            ViewBag.TotalJobs = _context.Jobs.Count(j => j.IsActive == true && j.IsDelete == false);
+            ViewBag.CompletedJobs = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job)
+     .Count(s => s.Status == 1 && s.JobMapEmployee.Job.IsActive ==true && !s.JobMapEmployee.Job.IsDelete ==false);
+
+            ViewBag.OverdueJobs = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job)
+     .Count(s => s.Status == 2 && s.JobMapEmployee.Job.IsActive == true && !s.JobMapEmployee.Job.IsDelete == false);
+
+            ViewBag.TotalCategories = _context.Categories.Count(c => c.IsActive == true && c.IsDelete == false);
 
             //// Trạng thái công việc cho biểu đồ tròn
-            //ViewBag.JobStatusOntime = _context.Jobs.Count(j => j.Status == 1);
-            //ViewBag.JobStatusOverdue = _context.Jobs.Count(j => j.Status == 2);
-            //ViewBag.JobStatusLate = _context.Jobs.Count(j => j.Status == 3);
-            //ViewBag.JobStatusProcessing = _context.Jobs.Count(j => j.Status == 4);
+            ViewBag.JobStatusOntime = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job).Count(s => s.Status == 1);
+            ViewBag.JobStatusOverdue = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job).Count(s => s.Status ==2);
+            ViewBag.JobStatusLate = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job).Count(s => s.Status == 3);
+            ViewBag.JobStatusProcessing = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job).Count(s => s.Status == 4);
 
             //// Thống kê công việc theo tháng/năm cho biểu đồ cột (client-side)
-            //var jobsByMonth = _context.Jobs
-            //    .Where(j => j.Time.HasValue && j.IsActive == true && j.IsDelete == false)
-            //    .ToList() // Chuyển sang client-side
-            //    .GroupBy(j => j.Time.Value.ToString("MM/yyyy"))
-            //    .Select(g => new
-            //    {
-            //        MonthYear = g.Key,
-            //        TotalJobs = g.Count()
-            //    })
-            //    .OrderBy(g => g.MonthYear)
-            //    .ToList();
+            var jobsByMonth = _context.Scores
+    .Include(s => s.JobMapEmployee)
+    .ThenInclude(jme => jme.Job)
+    .Where(s => s.Time.HasValue && s.JobMapEmployee.Job.IsActive == true && !s.JobMapEmployee.Job.IsDelete ==false)
+    .ToList()
+    .GroupBy(s => s.Time.Value.ToString("MM/yyyy"))
+    .Select(g => new
+    {
+        MonthYear = g.Key,
+        TotalJobs = g.Count()
+    })
+    .OrderBy(g => g.MonthYear)
+    .ToList();
 
-            //ViewBag.JobMonths = jobsByMonth.Select(j => j.MonthYear).ToList();
-            //ViewBag.JobCounts = jobsByMonth.Select(j => j.TotalJobs).ToList();
+            ViewBag.JobMonths = jobsByMonth.Select(j => j.MonthYear).ToList();
+            ViewBag.JobCounts = jobsByMonth.Select(j => j.TotalJobs).ToList();
+
 
             //// Dữ liệu lịch (công việc theo ngày)
-            //var calendarJobs = _context.Jobs
-            //    .Where(j => j.Time.HasValue && j.IsActive == true && j.IsDelete == false)
-            //    .Select(j => new
-            //    {
-            //        Title = j.Name,
-            //        Start = j.Time.Value.ToString("yyyy-MM-dd"),
-            //        Status = j.Status
-            //    })
-            //    .ToList();
+            var calendarJobs = _context.Scores
+     .Include(s => s.JobMapEmployee)
+     .ThenInclude(jme => jme.Job)
+     .Where(s => s.Time.HasValue && s.JobMapEmployee.Job.IsActive == true && !s.JobMapEmployee.Job.IsDelete == false)
+     .Select(s => new
+     {
+         Title = s.JobMapEmployee.Job.Name,
+         Start = s.Time.Value.ToString("yyyy-MM-dd"),
+         Status = s.Status
+     })
+     .ToList();
 
-            //ViewBag.CalendarJobs = Newtonsoft.Json.JsonConvert.SerializeObject(calendarJobs);
+            ViewBag.CalendarJobs = Newtonsoft.Json.JsonConvert.SerializeObject(calendarJobs);
+
 
             return View();
         }

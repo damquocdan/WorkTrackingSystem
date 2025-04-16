@@ -99,7 +99,7 @@
 
                                         <!-- Nút Tìm kiếm & Reset -->
                                         <div class="col-md-4 d-flex justify-content-end mt-4">
-                                            <a href="@Url.Action("JobEaluation")" id="resetButton" class="btn btn-secondary">
+                                            <a href="@Url.Action("JobEvaluation")" id="resetButton" class="btn btn-secondary">
                                                 <i class="bi bi-arrow-repeat"></i> Reset
                                             </a>
                                         </div>
@@ -281,7 +281,7 @@
                 </table>
             </div>
             <div class="pagination">
-                @Html.PagedListPager(Model, page => Url.Action("JobEaluation", new
+                @Html.PagedListPager(Model, page => Url.Action("JobEvaluation", new
                     {
                         page,
                         searchText = ViewBag.SearchText,
@@ -751,7 +751,7 @@
                 var sortOrder = $("#sortOrder").val();
                 var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
                 var dueToday = $("#dueToday").is(":checked");
-                var url = "@Url.Action("JobEaluation")" + "?searchText=" + encodeURIComponent(searchText) +
+                var url = "@Url.Action("JobEvaluation")" + "?searchText=" + encodeURIComponent(searchText) +
                     "&month=" + encodeURIComponent(month) +
                     "&day=" + encodeURIComponent(day) +
                     "&status=" + encodeURIComponent(status) +
