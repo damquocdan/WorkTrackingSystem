@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 using X.PagedList.Extensions;
 
@@ -24,7 +25,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         // GET: AdminSystem/Users
         public async Task<IActionResult> Index(string? search, int page = 1)
         {
-            var limit = 8;
+            var limit = 10;
             var WorkTrackingSystemContext = _context.Users.Where(u=>u.IsActive==true).Include(u => u.Employee).Include(u => u.Employee.Department);
             if (!string.IsNullOrEmpty(search))
             {
@@ -85,6 +86,16 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,UserName,Password,EmployeeId,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] User user)
         {
+            var userId = HttpContext.Session.GetString("AdminUserId");
+
+            long id = long.Parse(userId);
+
+            var userad = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var employee = await _context.Employees
+                .Include(e => e.Department)
+                .Include(e => e.Position)
+                .FirstOrDefaultAsync(e => e.Id == userad.EmployeeId);
+
             bool employeeAccount = _context.Users.Any(u => u.EmployeeId == user.EmployeeId);
             if (employeeAccount)
             {
@@ -93,7 +104,13 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
             if (ModelState.IsValid)
             {
+
+                user.CreateDate = DateTime.Now;
+
+                user.CreateBy = employee.FirstName + "" + employee.LastName;
+                user.Password = SHA.GetSha256Hash(user.Password);
                 _context.Add(user);
+                
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Tạo tài khoản thành công!";
                 return RedirectToAction(nameof(Index));
@@ -200,7 +217,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // POST: AdminSystem/Users/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {

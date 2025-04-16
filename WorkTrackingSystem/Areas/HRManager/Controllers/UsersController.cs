@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 using X.PagedList.Extensions;
 
@@ -93,15 +94,35 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 .Include(e => e.Position)
                 .FirstOrDefaultAsync(e => e.Id == userad.EmployeeId);
 
+            bool employeeAccount = _context.Users.Any(u => u.EmployeeId == user.EmployeeId);
+            if (employeeAccount)
+            {
+                TempData["ErrorMessage"] = "Nhân viên này đã có tài khoản!"; // Lưu thông báo lỗi
+                return RedirectToAction(nameof(Create));
+            }
             if (ModelState.IsValid)
             {
-                user.CreateDate= DateTime.Now;
-                user.CreateBy= employee.FirstName+""+ employee.LastName;
+                user.CreateDate = DateTime.Now;
+                user.CreateBy = employee.FirstName + "" + employee.LastName;
+                user.Password = SHA.GetSha256Hash(user.Password);
                 _context.Add(user);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Tạo tài khoản thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", user.EmployeeId);
+            var employees = _context.Employees
+                .Include(e => e.Position)
+                .Where(e => !_context.Users.Any(u => u.EmployeeId == e.Id))
+                .Select(e => new
+                {
+                    Id = e.Id,
+                    FullName = e.FirstName + " " + e.LastName + " - " + e.Position.Name
+                }).ToList();
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName", user.EmployeeId);
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Create", user);
+            }
             return View(user);
         }
 

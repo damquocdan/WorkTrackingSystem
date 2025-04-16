@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Common;
 using WorkTrackingSystem.Models;
 using X.PagedList.Extensions;
 
@@ -94,24 +95,22 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userId = HttpContext.Session.GetString("HRUserId");
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return RedirectToAction("Index", "Login");
-                }
-                long id = long.Parse(userId);
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-               var employeeCr = await _context.Employees
-                    .FirstOrDefaultAsync(e => e.Id == user.EmployeeId);
-
-                if (employeeCr.FirstName != null && employeeCr.LastName != null)
-                {
-                    employee.CreateBy = employeeCr.FirstName+""+ employeeCr.LastName;
-                 
-                }
-                employee.CreateDate = DateTime.Now;
+              
+                employee.CreateBy = HttpContext.Session.GetString("HRManagerLogin");
                 _context.Add(employee);
+
                 await _context.SaveChangesAsync();
+                var lastInsertedId = employee.Id;
+                var users = new User()
+                {
+                    EmployeeId = lastInsertedId,
+                    UserName = employee.Email,
+                    Password = SHA.GetSha256Hash("Devmaster@6789"),
+                    CreateBy = HttpContext.Session.GetString("HRManagerLogin")
+                };
+                _context.AddAsync(users);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Id", employee.DepartmentId);

@@ -3,7 +3,7 @@
 @model X.PagedList.IPagedList<WorkTrackingSystem.Models.User>
 @{
     ViewData["Title"] = "Quản lý người dùng";
-    Layout = "~/Areas/HRManager/Views/Shared/_HRManager.cshtml";
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
 
 <div class="row">
@@ -66,14 +66,17 @@
                         <td>
                             <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
                             <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
-                            <a class="btn-red btn-event ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a>
+                            <a class="btn-red btn-event btn-delete" data-id="@item.Id"><i class="bi bi-trash"></i></a>
+                            @* <a class="btn-red btn-event ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a> *@
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
         <div class="pagination">
-            @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, search = ViewBag.Search }), new PagedListRenderOptions
+              @if (Model.TotalItemCount > Model.PageSize)
+            {
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page, search = ViewBag.Search }), new PagedListRenderOptions
        {
            LiElementClasses = new string[] { "page-item" },
            PageClasses = new string[] { "page-link" },
@@ -84,25 +87,18 @@
            DisplayEllipsesWhenNotShowingAllPageNumbers = true,
            MaximumPageNumbersToDisplay = 5
        })
+            }
         </div>
     </div>
     <div class="col-md-4 d-none" id="detail-section">
         <div class="actionCustomers"></div>
     </div>
 </div>
-@* @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }), new PagedListRenderOptions
-{
-    LiElementClasses = new string[] { "page-item" },
-    PageClasses = new string[] { "page-link" },
-    DisplayLinkToFirstPage = PagedListDisplayMode.Always, // Luôn hiển thị nút về trang đầu
-    DisplayLinkToLastPage = PagedListDisplayMode.Always, // Luôn hiển thị nút đến trang cuối
-    DisplayLinkToPreviousPage = PagedListDisplayMode.Always, // Luôn hiển thị nút trước
-    DisplayLinkToNextPage = PagedListDisplayMode.Always, // Luôn hiển thị nút sau
-    DisplayEllipsesWhenNotShowingAllPageNumbers = true, // Hiển thị dấu ... nếu có quá nhiều trang
-    MaximumPageNumbersToDisplay = 5 // Giới hạn số lượng trang hiển thị
-}) *@
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<form id="antiForgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+@* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"> *@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -121,6 +117,46 @@
             $(".actionCustomers").load(url, function (response, status, xhr) {
                 if (status === "error") {
                     alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+        });
+        $(document).on("click", ".btn-delete", function (e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+
+            Swal.fire({
+                title: "Bạn có chắc muốn xóa?",
+                text: "Dữ liệu sẽ không thể khôi phục!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Vâng, xóa đi!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: '@Url.Action("DeleteConfirmed", "Users", new { area = "AdminSystem" })',
+                        type: 'POST',
+                        data: {
+                            id: id,
+                            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                        },
+
+                        success: function () {
+
+                            Swal.fire({
+                                title: "Đã xóa!",
+                                text: "Người dùng đã được xóa.",
+                                icon: "success"
+                            }).then(() => {
+                                location.reload(); // reload lại trang sau khi xóa thành công
+                            });
+                        },
+                        error: function () {
+                            Swal.fire("Lỗi!", "Không thể xóa người dùng.", "error");
+                        }
+                    });
                 }
             });
         });

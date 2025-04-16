@@ -90,7 +90,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             return View(assessments.OrderByDescending(x => x.Time ?? DateTime.MinValue).ToPagedList(page, limit));
         }
       
-        public async Task<IActionResult> JobEaluation(
+        public async Task<IActionResult> JobEvaluation(
 string searchText = "",
 string month = "",
 string day = "",

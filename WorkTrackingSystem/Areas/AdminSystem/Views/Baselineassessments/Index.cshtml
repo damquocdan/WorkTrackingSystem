@@ -151,7 +151,9 @@
                 </div>
                 <!-- Phân trang -->
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, employeeCode = ViewBag.EmployeeCode, employeeName = ViewBag.EmployeeName, evaluate = ViewBag.Evaluate, time = ViewBag.Time }), new PagedListRenderOptions
+                      @if (Model.TotalItemCount > Model.PageSize)
+                    {
+                        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, employeeCode = ViewBag.EmployeeCode, employeeName = ViewBag.EmployeeName, evaluate = ViewBag.Evaluate, time = ViewBag.Time }), new PagedListRenderOptions
                {
                    LiElementClasses = new string[] { "page-item" },
                    PageClasses = new string[] { "page-link" },
@@ -162,6 +164,7 @@
                    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                    MaximumPageNumbersToDisplay = 5
                })
+                    }
                 </div>
             </div>
             <div class="col-md-4 d-none" id="detail-section">

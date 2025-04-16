@@ -170,7 +170,9 @@
                     </table>
                 </div>
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
+                      @if (Model.TotalItemCount > Model.PageSize)
+                    {
+                        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
                {
                    LiElementClasses = new string[] { "page-item" },
                    PageClasses = new string[] { "page-link" },
@@ -181,6 +183,7 @@
                    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                    MaximumPageNumbersToDisplay = 5
                })
+                    }
                 </div>
             </div>
             <div class="col-md-6 d-none" id="detail-section">

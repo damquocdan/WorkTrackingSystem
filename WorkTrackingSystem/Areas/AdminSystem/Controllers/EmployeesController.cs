@@ -36,7 +36,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             int limit = 10;
             var query = _context.Employees
-                .Where(e => e.IsActive == true)
+                .Where(e => e.IsActive == true && e.IsDelete== false)
                 .Include(e => e.Department)
                 .Include(e => e.Position)
                 .AsQueryable();
@@ -104,17 +104,17 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(employee);
+                
                 employee.CreateBy = HttpContext.Session.GetString("AdminLogin");
+                _context.Add(employee);
 
-               
                 await _context.SaveChangesAsync();
                 var lastInsertedId = employee.Id;
                 var users = new User()
                 {
                     EmployeeId = lastInsertedId,
                     UserName = employee.Email,
-                    Password = "Devmaster@6789",
+                    Password = SHA.GetSha256Hash("Devmaster@6789"),
                     CreateBy = HttpContext.Session.GetString("AdminLogin")
                 };
                 _context.AddAsync(users);
@@ -275,7 +275,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         // POST: AdminSystem/Employees/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
@@ -283,8 +283,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             if (employee != null)
             {
                 employee.IsDelete=
-                    false;
-                employee.IsActive = true;
+                    true;
+                employee.IsActive = false;
                 _context.Employees.Update(employee);
                 //_context.Employees.Remove(employee);
             }
