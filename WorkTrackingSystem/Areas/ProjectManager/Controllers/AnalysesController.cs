@@ -31,6 +31,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         public async Task<IActionResult> Index(
     string searchText,
     string time,
+    string date1, // New parameter for start date
+    string date2, // New parameter for end date
     string sortOrder,
     string filterType,
     int page = 1)
@@ -59,11 +61,83 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Select(e => e.Id)
                 .ToListAsync();
 
-            var analyses = _context.Analyses
-                .Include(a => a.Employee)
-                .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+            IQueryable<Analysis> analyses;
 
-            // Tìm kiếm theo mã/tên nhân viên
+            // If date1 and date2 are provided, use the date range logic
+            if (!string.IsNullOrEmpty(date1) && !string.IsNullOrEmpty(date2) &&
+                DateTime.TryParse(date1, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
+                DateTime.TryParse(date2, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
+            {
+                // Replicate the SQL query logic using LINQ
+                analyses = from e in _context.Employees
+                           where e.IsDelete == false && e.IsActive == true
+                           && employeeIdsInManagedDepartment.Contains(e.Id)
+                           join jme in _context.Jobmapemployees on e.Id equals jme.EmployeeId into jmeGroup
+                           from jme in jmeGroup.DefaultIfEmpty()
+                           join s in _context.Scores
+                               on jme.Id equals s.JobMapEmployeeId into scoreGroup
+                           from s in scoreGroup.DefaultIfEmpty()
+                           where (s == null || (s.CreateDate >= startDate && s.CreateDate <= endDate && s.IsDelete == false && s.IsActive == true))
+                           group new { e, s } by new { e.Id, e.FirstName, e.LastName } into g
+                           select new Analysis
+                           {
+                               EmployeeId = g.Key.Id,
+                               Employee = new Employee
+                               {
+                                   Id = g.Key.Id,
+                                   FirstName = g.Key.FirstName,
+                                   LastName = g.Key.LastName
+                               },
+                               Ontime = g.Sum(x => x.s != null && x.s.Status == 1 ? 1 : 0),
+                               Late = g.Sum(x => x.s != null && x.s.Status == 3 ? 1 : 0),
+                               Overdue = g.Sum(x => x.s != null && x.s.Status == 2 ? 1 : 0),
+                               Processing = g.Sum(x => x.s != null && x.s.Status == 4 ? 1 : 0),
+                               Total = g.Sum(x => x.s != null && x.s.Status >= 1 && x.s.Status <= 4 ? 1 : 0),
+                               Time = null // No specific time since this is aggregated over a date range
+                           };
+            }
+            else if (string.IsNullOrEmpty(time))
+            {
+                // Existing logic for aggregating all months
+                analyses = _context.Analyses
+                    .Include(a => a.Employee)
+                    .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+
+                var rawAnalyses = await analyses.ToListAsync();
+                analyses = rawAnalyses
+                    .GroupBy(a => a.EmployeeId)
+                    .Select(g => new Analysis
+                    {
+                        EmployeeId = g.Key,
+                        Employee = g.First().Employee,
+                        Total = g.Sum(x => x.Total ?? 0),
+                        Ontime = g.Sum(x => x.Ontime ?? 0),
+                        Late = g.Sum(x => x.Late ?? 0),
+                        Overdue = g.Sum(x => x.Overdue ?? 0),
+                        Processing = g.Sum(x => x.Processing ?? 0),
+                        Time = null
+                    }).AsQueryable();
+            }
+            else
+            {
+                // Existing logic for specific month/year
+                DateTime selectedDate;
+                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
+                {
+                    analyses = _context.Analyses
+                        .Include(a => a.Employee)
+                        .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value)
+                                    && a.Time.HasValue && a.Time.Value.Month == selectedDate.Month && a.Time.Value.Year == selectedDate.Year);
+                }
+                else
+                {
+                    analyses = _context.Analyses
+                        .Include(a => a.Employee)
+                        .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+                }
+            }
+
+            // Search by employee code or name
             if (!string.IsNullOrEmpty(searchText))
             {
                 analyses = analyses.Where(a =>
@@ -72,86 +146,27 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     a.Employee.LastName.Contains(searchText));
             }
 
-            IEnumerable<Analysis> finalAnalyses; // Sử dụng IEnumerable thay vì IQueryable
-
-            // Nếu không có time, tính tổng toàn bộ các tháng
-            if (string.IsNullOrEmpty(time))
-            {
-                // Lấy dữ liệu thô từ cơ sở dữ liệu trước
-                var rawAnalyses = await analyses.ToListAsync();
-
-                // Nhóm và tính tổng trong bộ nhớ
-                finalAnalyses = rawAnalyses
-                    .GroupBy(a => a.EmployeeId)
-                    .Select(g => new Analysis
-                    {
-                        EmployeeId = g.Key,
-                        Employee = g.First().Employee, // Lấy thông tin Employee từ bản ghi đầu tiên
-                        Total = g.Sum(x => x.Total ?? 0),
-                        Ontime = g.Sum(x => x.Ontime ?? 0),
-                        Late = g.Sum(x => x.Late ?? 0),
-                        Overdue = g.Sum(x => x.Overdue ?? 0),
-                        Processing = g.Sum(x => x.Processing ?? 0),
-                        Time = null // Không hiển thị thời gian cụ thể vì đây là tổng
-                    });
-            }
-            else // Nếu có time, lọc theo tháng/năm như cũ
-            {
-                DateTime selectedDate;
-                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
-                {
-                    analyses = analyses.Where(a => a.Time.HasValue &&
-                                                   a.Time.Value.Month == selectedDate.Month &&
-                                                   a.Time.Value.Year == selectedDate.Year);
-                }
-                finalAnalyses = await analyses.ToListAsync(); // Chuyển trực tiếp sang List
-            }
-
-            // Sắp xếp kết quả theo lựa chọn của người dùng
+            // Sorting logic
+            IEnumerable<Analysis> finalAnalyses;
             switch (sortOrder)
             {
-                case "total_asc":
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Total);
-                    break;
-                case "total_desc":
-                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Total);
-                    break;
-                case "ontime_asc":
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Ontime);
-                    break;
-                case "ontime_desc":
-                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Ontime);
-                    break;
-                case "late_asc":
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Late);
-                    break;
-                case "late_desc":
-                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Late);
-                    break;
-                case "overdue_asc":
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Overdue);
-                    break;
-                case "overdue_desc":
-                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Overdue);
-                    break;
-                case "processing_asc":
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Processing);
-                    break;
-                case "processing_desc":
-                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Processing);
-                    break;
-                case "time_asc":
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Time);
-                    break;
-                case "time_desc":
-                    finalAnalyses = finalAnalyses.OrderByDescending(a => a.Time);
-                    break;
-                default:
-                    finalAnalyses = finalAnalyses.OrderBy(a => a.Id);
-                    break;
+                case "total_asc": finalAnalyses = analyses.OrderBy(a => a.Total); break;
+                case "total_desc": finalAnalyses = analyses.OrderByDescending(a => a.Total); break;
+                case "ontime_asc": finalAnalyses = analyses.OrderBy(a => a.Ontime); break;
+                case "ontime_desc": finalAnalyses = analyses.OrderByDescending(a => a.Ontime); break;
+                case "late_asc": finalAnalyses = analyses.OrderBy(a => a.Late); break;
+                case "late_desc": finalAnalyses = analyses.OrderByDescending(a => a.Late); break;
+                case "overdue_asc": finalAnalyses = analyses.OrderBy(a => a.Overdue); break;
+                case "overdue_desc": finalAnalyses = analyses.OrderByDescending(a => a.Overdue); break;
+                case "processing_asc": finalAnalyses = analyses.OrderBy(a => a.Processing); break;
+                case "processing_desc": finalAnalyses = analyses.OrderByDescending(a => a.Processing); break;
+                case "time_asc": finalAnalyses = analyses.OrderBy(a => a.Time); break;
+                case "time_desc": finalAnalyses = analyses.OrderByDescending(a => a.Time); break;
+                default: finalAnalyses = analyses.OrderBy(a => a.EmployeeId ?? 0); break;
             }
 
-            var analysesList = finalAnalyses.ToList(); // Chuyển sang List để xử lý phân trang
+            var analysesList = finalAnalyses.ToList();
+
             if (!analysesList.Any())
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
@@ -159,11 +174,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             ViewBag.SearchText = searchText;
             ViewBag.Time = time;
+            ViewBag.Date1 = date1;
+            ViewBag.Date2 = date2;
             ViewBag.SortOrder = sortOrder;
-            return View(finalAnalyses.ToPagedList(page, limit));
+
+            return View(analysesList.ToPagedList(page, limit));
         }
 
-        public async Task<IActionResult> ExportToExcel(string searchText, string time, string sortOrder, string filterType)
+        public async Task<IActionResult> ExportToExcel(string searchText, string time, string date1, string date2, string sortOrder, string filterType)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
@@ -191,9 +209,80 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Select(e => e.Id)
                 .ToListAsync();
 
-            var analyses = _context.Analyses
-                .Include(a => a.Employee)
-                .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+            IQueryable<Analysis> analyses;
+            string selectedPeriod = "Toàn bộ";
+
+            if (!string.IsNullOrEmpty(date1) && !string.IsNullOrEmpty(date2) &&
+                DateTime.TryParse(date1, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
+                DateTime.TryParse(date2, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
+            {
+                selectedPeriod = $"{startDate:dd/MM/yyyy} - {endDate:dd/MM/yyyy}";
+                analyses = from e in _context.Employees
+                           where e.IsDelete == false && e.IsActive == true
+                           && employeeIdsInManagedDepartment.Contains(e.Id)
+                           join jme in _context.Jobmapemployees on e.Id equals jme.EmployeeId into jmeGroup
+                           from jme in jmeGroup.DefaultIfEmpty()
+                           join s in _context.Scores
+                               on jme.Id equals s.JobMapEmployeeId into scoreGroup
+                           from s in scoreGroup.DefaultIfEmpty()
+                           where (s == null || (s.CreateDate >= startDate && s.CreateDate <= endDate && s.IsDelete == false && s.IsActive == true))
+                           group new { e, s } by new { e.Id, e.FirstName, e.LastName } into g
+                           select new Analysis
+                           {
+                               EmployeeId = g.Key.Id,
+                               Employee = new Employee
+                               {
+                                   Id = g.Key.Id,
+                                   FirstName = g.Key.FirstName,
+                                   LastName = g.Key.LastName
+                               },
+                               Ontime = g.Sum(x => x.s != null && x.s.Status == 1 ? 1 : 0),
+                               Late = g.Sum(x => x.s != null && x.s.Status == 3 ? 1 : 0),
+                               Overdue = g.Sum(x => x.s != null && x.s.Status == 2 ? 1 : 0),
+                               Processing = g.Sum(x => x.s != null && x.s.Status == 4 ? 1 : 0),
+                               Total = g.Sum(x => x.s != null && x.s.Status >= 1 && x.s.Status <= 4 ? 1 : 0),
+                               Time = null
+                           };
+            }
+            else if (string.IsNullOrEmpty(time))
+            {
+                analyses = _context.Analyses
+                    .Include(a => a.Employee)
+                    .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+
+                var rawAnalyses = await analyses.ToListAsync();
+                analyses = rawAnalyses
+                    .GroupBy(a => a.EmployeeId)
+                    .Select(g => new Analysis
+                    {
+                        EmployeeId = g.Key,
+                        Employee = g.First().Employee,
+                        Total = g.Sum(x => x.Total ?? 0),
+                        Ontime = g.Sum(x => x.Ontime ?? 0),
+                        Late = g.Sum(x => x.Late ?? 0),
+                        Overdue = g.Sum(x => x.Overdue ?? 0),
+                        Processing = g.Sum(x => x.Processing ?? 0),
+                        Time = null
+                    }).AsQueryable();
+            }
+            else
+            {
+                DateTime selectedDate;
+                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
+                {
+                    selectedPeriod = selectedDate.ToString("MM/yyyy");
+                    analyses = _context.Analyses
+                        .Include(a => a.Employee)
+                        .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value)
+                                    && a.Time.HasValue && a.Time.Value.Month == selectedDate.Month && a.Time.Value.Year == selectedDate.Year);
+                }
+                else
+                {
+                    analyses = _context.Analyses
+                        .Include(a => a.Employee)
+                        .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
+                }
+            }
 
             if (!string.IsNullOrEmpty(searchText))
             {
@@ -206,61 +295,28 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             IEnumerable<Analysis> finalAnalyses;
-            string selectedMonth = "Toàn bộ";
-
-            // Nếu không có time, tính tổng toàn bộ các tháng
-            if (string.IsNullOrEmpty(time))
-            {
-                var rawAnalyses = await analyses.ToListAsync();
-                finalAnalyses = rawAnalyses
-                    .GroupBy(a => a.EmployeeId)
-                    .Select(g => new Analysis
-                    {
-                        EmployeeId = g.Key,
-                        Employee = g.First().Employee,
-                        Total = g.Sum(x => x.Total ?? 0),
-                        Ontime = g.Sum(x => x.Ontime ?? 0),
-                        Late = g.Sum(x => x.Late ?? 0),
-                        Overdue = g.Sum(x => x.Overdue ?? 0),
-                        Processing = g.Sum(x => x.Processing ?? 0),
-                        Time = null
-                    });
-            }
-            else // Nếu có time, lọc theo tháng/năm
-            {
-                DateTime selectedDate;
-                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out selectedDate))
-                {
-                    selectedMonth = selectedDate.ToString("MM/yyyy");
-                    analyses = analyses.Where(a => a.Time.HasValue &&
-                                                   a.Time.Value.Month == selectedDate.Month &&
-                                                   a.Time.Value.Year == selectedDate.Year);
-                }
-                finalAnalyses = await analyses.ToListAsync();
-            }
-
-            // Sắp xếp kết quả theo lựa chọn của người dùng
             switch (sortOrder)
             {
-                case "total_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Total); break;
-                case "total_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Total); break;
-                case "ontime_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Ontime); break;
-                case "ontime_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Ontime); break;
-                case "late_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Late); break;
-                case "late_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Late); break;
-                case "overdue_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Overdue); break;
-                case "overdue_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Overdue); break;
-                case "processing_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Processing); break;
-                case "processing_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Processing); break;
-                case "time_asc": finalAnalyses = finalAnalyses.OrderBy(a => a.Time); break;
-                case "time_desc": finalAnalyses = finalAnalyses.OrderByDescending(a => a.Time); break;
-                default: finalAnalyses = finalAnalyses.OrderBy(a => a.Id); break;
+                case "total_asc": finalAnalyses = analyses.OrderBy(a => a.Total); break;
+                case "total_desc": finalAnalyses = analyses.OrderByDescending(a => a.Total); break;
+                case "ontime_asc": finalAnalyses = analyses.OrderBy(a => a.Ontime); break;
+                case "ontime_desc": finalAnalyses = analyses.OrderByDescending(a => a.Ontime); break;
+                case "late_asc": finalAnalyses = analyses.OrderBy(a => a.Late); break;
+                case "late_desc": finalAnalyses = analyses.OrderByDescending(a => a.Late); break;
+                case "overdue_asc": finalAnalyses = analyses.OrderBy(a => a.Overdue); break;
+                case "overdue_desc": finalAnalyses = analyses.OrderByDescending(a => a.Overdue); break;
+                case "processing_asc": finalAnalyses = analyses.OrderBy(a => a.Processing); break;
+                case "processing_desc": finalAnalyses = analyses.OrderByDescending(a => a.Processing); break;
+                case "time_asc": finalAnalyses = analyses.OrderBy(a => a.Time); break;
+                case "time_desc": finalAnalyses = analyses.OrderByDescending(a => a.Time); break;
+                default: finalAnalyses = analyses.OrderBy(a => a.EmployeeId ?? 0); break;
             }
 
             var analysesList = finalAnalyses.ToList();
+
             if (!analysesList.Any())
             {
-                return BadRequest($"Không có dữ liệu để xuất Excel cho tháng {selectedMonth}.");
+                return BadRequest($"Không có dữ liệu để xuất Excel cho khoảng thời gian {selectedPeriod}.");
             }
 
             try
@@ -269,7 +325,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Analysis Summary");
 
-                    worksheet.Cells[1, 1].Value = $"Bảng tổng hợp phân tích tháng {selectedMonth}";
+                    worksheet.Cells[1, 1].Value = $"Bảng tổng hợp phân tích {selectedPeriod}";
                     worksheet.Cells[1, 1, 1, 7].Merge = true;
                     worksheet.Cells[1, 1].Style.Font.Size = 14;
                     worksheet.Cells[1, 1].Style.Font.Bold = true;
@@ -341,7 +397,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         seriesLate.Fill.Color = System.Drawing.Color.Red;
                         seriesOverdue.Fill.Color = System.Drawing.Color.Yellow;
 
-                        columnChart.Title.Text = "Tổng hợp tháng/năm";
+                        columnChart.Title.Text = "Tổng hợp khoảng thời gian";
                         columnChart.Legend.Position = eLegendPosition.Bottom;
                         columnChart.DataLabel.ShowValue = true;
                         columnChart.DataLabel.Position = eLabelPosition.OutEnd;
@@ -365,7 +421,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     }
 
                     var stream = new MemoryStream(package.GetAsByteArray());
-                    return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Analysis_{selectedMonth.Replace("/", "_")}.xlsx");
+                    return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Analysis_{selectedPeriod.Replace("/", "_")}.xlsx");
                 }
             }
             catch (Exception ex)
