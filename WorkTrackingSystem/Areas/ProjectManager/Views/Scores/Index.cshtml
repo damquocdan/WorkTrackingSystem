@@ -88,82 +88,85 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="card shadow-sm">
-                                    <div class="row gx-2 gy-2 align-items-end">
-                                        <!-- Tìm kiếm -->
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Tìm kiếm</label>
-                                            <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên / công việc" value="@ViewBag.SearchText">
-                                        </div>
+                                    <form method="get" action="">
+                                        <div class="row gx-2 gy-2 align-items-end">
 
-                                        <!-- Tháng -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Tháng</label>
-                                            <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Ngày</label>
-                                            <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
-                                        </div>
-                                        <!-- Trạng thái -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Trạng thái</label>
-                                            <select id="status" name="status" class="form-select">
-                                                <option value="">-- Tất cả --</option>
-                                                <option value="1">Hoàn thành</option>
-                                                <option value="2">Chưa hoàn thành</option>
-                                                <option value="3">Hoàn thành muộn</option>
-                                                <option value="4">Đang xử lý</option>
-                                                <option value="0">Chưa bắt đầu</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Danh mục -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Danh mục</label>
-                                            <select id="categoryId" name="categoryId" class="form-select">
-                                                <option value="">-- Chọn danh mục --</option>
-                                                @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
-                                                {
-                                                    <option value="@category.Id">@category.Name</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <!-- Sắp xếp -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Sắp xếp</label>
-                                            <select id="sortOrder" name="sortOrder" class="form-select">
-                                                <option value="">-- Mặc định --</option>
-                                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
-                                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
-                                                <option value="review_asc">Đánh giá tăng dần</option>
-                                                <option value="review_desc">Đánh giá giảm dần</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Chưa đánh giá -->
-                                        <div class="col-md-2">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="showCompletedZeroReview" name="showCompletedZeroReview" value="true" @(ViewBag.ShowCompletedZeroReview ? "checked" : "")>
-                                                <label class="form-check-label" for="showCompletedZeroReview">Chưa đánh giá</label>
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-bold">Tìm kiếm</label>
+                                                <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên / công việc" value="@ViewBag.SearchText">
                                             </div>
-                                        </div>
 
-                                        <!-- Hạn hôm nay -->
-                                        <div class="col-md-2">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
-                                                <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
+                                            <!-- Tháng -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Tháng</label>
+                                                <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
                                             </div>
-                                        </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Ngày</label>
+                                                <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                                            </div>
+                                            <!-- Trạng thái -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Trạng thái</label>
+                                                <select id="status" name="status" class="form-select">
+                                                    <option value="">-- Tất cả --</option>
+                                                    <option value="1">Hoàn thành</option>
+                                                    <option value="2">Chưa hoàn thành</option>
+                                                    <option value="3">Hoàn thành muộn</option>
+                                                    <option value="4">Đang xử lý</option>
+                                                    <option value="0">Chưa bắt đầu</option>
+                                                </select>
+                                            </div>
 
-                                        <!-- Nút Tìm kiếm & Reset -->
-                                        <div class="col-md-4 d-flex justify-content-end mt-4">
-                                            <a href="@Url.Action("Index")" id="resetButton" class="btn btn-secondary">
-                                                <i class="bi bi-arrow-repeat"></i> Reset
-                                            </a>
+                                            <!-- Danh mục -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Danh mục</label>
+                                                <select id="categoryId" name="categoryId" class="form-select">
+                                                    <option value="">-- Chọn danh mục --</option>
+                                                    @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
+                                                    {
+                                                        <option value="@category.Id">@category.Name</option>
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <!-- Sắp xếp -->
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Sắp xếp</label>
+                                                <select id="sortOrder" name="sortOrder" class="form-select">
+                                                    <option value="">-- Mặc định --</option>
+                                                    <option value="due_asc">Hạn hoàn thành tăng dần</option>
+                                                    <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                                                    <option value="review_asc">Đánh giá tăng dần</option>
+                                                    <option value="review_desc">Đánh giá giảm dần</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Chưa đánh giá -->
+                                            <div class="col-md-2">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="showCompletedZeroReview" name="showCompletedZeroReview" value="true" @(ViewBag.ShowCompletedZeroReview ? "checked" : "")>
+                                                    <label class="form-check-label" for="showCompletedZeroReview">Chưa đánh giá</label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Hạn hôm nay -->
+                                            <div class="col-md-2">
+                                                <div class="form-check mt-4">
+                                                    <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
+                                                    <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Nút Tìm kiếm & Reset -->
+                                            <div class="col-md-4 d-flex justify-content-end mt-4">
+                                                <button type="reset" class="btn btn-secondary" id="reset" name="dueToday">
+                                                    <i class="bi bi-arrow-repeat"></i> Reset
+                                                </button>
+                                            </div>
+
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -219,7 +222,7 @@
                                     }
 
                                     @if (item.JobMapEmployee?.Employee != null
-                                   &&( (createDate.HasValue && deadline1.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline1.Value)
+                                   && ((createDate.HasValue && deadline1.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline1.Value)
                                    || (createDate.HasValue && deadline2.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline2.Value)
                                    || (createDate.HasValue && deadline3.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline3.Value)))
                                     {
@@ -295,26 +298,26 @@
             </div>
             <div class="pagination">
                 @Html.PagedListPager(Model, page => Url.Action("Index", new
-                {
-                    page,
-                    searchText = ViewBag.SearchText,
-                    month = ViewBag.Month,
-                    status = ViewBag.Status,
-                    categoryId = ViewBag.CategoryId,
-                    sortOrder = ViewBag.SortOrder,
-                    showCompletedZeroReview = ViewBag.ShowCompletedZeroReview,
-                    dueToday = ViewBag.DueToday
-                }), new PagedListRenderOptions
-                {
-                    LiElementClasses = new string[] { "page-item" },
-                    PageClasses = new string[] { "page-link" },
-                    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                    DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                    MaximumPageNumbersToDisplay = 5
-                })
+                    {
+                        page,
+                        searchText = ViewBag.SearchText,
+                        month = ViewBag.Month,
+                        status = ViewBag.Status,
+                        categoryId = ViewBag.CategoryId,
+                        sortOrder = ViewBag.SortOrder,
+                        showCompletedZeroReview = ViewBag.ShowCompletedZeroReview,
+                        dueToday = ViewBag.DueToday
+                    }), new PagedListRenderOptions
+           {
+               LiElementClasses = new string[] { "page-item" },
+               PageClasses = new string[] { "page-link" },
+               DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+               DisplayLinkToLastPage = PagedListDisplayMode.Always,
+               DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+               DisplayLinkToNextPage = PagedListDisplayMode.Always,
+               DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+               MaximumPageNumbersToDisplay = 5
+           })
             </div>
         </div>
     </div>
@@ -457,13 +460,13 @@
 
             // Autocomplete tìm kiếm nhân viên
             var employees = [
-                @if (ViewBag.EmployeeList != null)
-                {
-                    foreach (var employee in (IEnumerable<dynamic>)ViewBag.EmployeeList)
-                    {
-                        @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
-                    }
-                }
+        @if (ViewBag.EmployeeList != null)
+        {
+            foreach (var employee in (IEnumerable<dynamic>)ViewBag.EmployeeList)
+            {
+                @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
+            }
+        }
             ];
 
             $("#employee-search").autocomplete({
@@ -631,7 +634,7 @@
 
                     if (checkbox.is(":checked")) {
                         if (!employeeId) {
-                           
+
                             Swal.fire({
                                 icon: "error",
                                 title: "Vui lòng chọn nhân viên trước!",
