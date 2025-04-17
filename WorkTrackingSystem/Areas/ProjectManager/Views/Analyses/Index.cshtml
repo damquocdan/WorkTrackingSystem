@@ -22,6 +22,11 @@
                             <span id="filterDescription"></span>
                         </h3>
                     </div>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        Tìm kiếm
+                    </button>
+                    <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel" style="display: @(Model.Any() ? "inline-block" : "none");"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+                    <p id="noDataMessage" style="display: @(Model.Any() ? "none" : "block");">Không có dữ liệu để xuất Excel.</p>
                     <div class="collapse" id="collapseExample">
                         <div class="card card-body">
                             <div class="row">
@@ -32,44 +37,26 @@
                                     <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />
                                 </div>
                                 <div class="col-md-4">
-                                    <select id="quarteryear" name="quarteryear" class="form-control">
-                                        <option value="">-- Chọn quý --</option>
-                                        <option value="@(DateTime.Now.Year)-1">Q1 @DateTime.Now.Year</option>
-                                        <option value="@(DateTime.Now.Year)-2">Q2 @DateTime.Now.Year</option>
-                                        <option value="@(DateTime.Now.Year)-3">Q3 @DateTime.Now.Year</option>
-                                        <option value="@(DateTime.Now.Year)-4">Q4 @DateTime.Now.Year</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="number" id="year" name="year" class="form-control" placeholder="Năm" value="@ViewBag.Year" min="2000" max="@DateTime.Now.Year" />
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="date" id="date1" name="date1" class="form-control" placeholder="Từ ngày" value="@ViewBag.Date1" />
-                                </div>
-                                <div class="col-md-3">
-                                    <input type="date" id="date2" name="date2" class="form-control" placeholder="Đến ngày" value="@ViewBag.Date2" />
-                                </div>
-                                <div class="col-md-4">
                                     <select id="sortOrder" name="sortOrder" class="form-control">
-                                        <option value="">-- Sắp xếp theo --</option>
-                                        <option value="total_asc">Tổng số ↑</option>
-                                        <option value="total_desc">Tổng số ↓</option>
-                                        <option value="ontime_asc">Đúng hạn ↑</option>
-                                        <option value="ontime_desc">Đúng hạn ↓</option>
-                                        <option value="late_asc">Trễ hạn ↑</option>
-                                        <option value="late_desc">Trễ hạn ↓</option>
-                                        <option value="overdue_asc">Quá hạn ↑</option>
-                                        <option value="overdue_desc">Quá hạn ↓</option>
-                                        <option value="processing_asc">Đang xử lý ↑</option>
-                                        <option value="processing_desc">Đang xử lý ↓</option>
-                                        <option value="time_asc">Thời gian ↑</option>
-                                        <option value="time_desc">Thời gian ↓</option>
+                                            <option value="">-- Sắp xếp theo --</option>
+                                            <option value="total_asc">Tổng số ↑</option>
+                                            <option value="total_desc">Tổng số ↓</option>
+                                            <option value="ontime_asc">Đúng hạn ↑</option>
+                                            <option value="ontime_desc">Đúng hạn ↓</option>
+                                            <option value="late_asc">Trễ hạn ↑</option>
+                                            <option value="late_desc">Trễ hạn ↓</option>
+                                            <option value="overdue_asc">Quá hạn ↑</option>
+                                            <option value="overdue_desc">Quá hạn ↓</option>
+                                            <option value="processing_asc">Đang xử lý ↑</option>
+                                            <option value="processing_desc">Đang xử lý ↓</option>
+                                            <option value="time_asc">Thời gian ↑</option>
+                                            <option value="time_desc">Thời gian ↓</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <table class="table table-bordered text-left table-hover" id="analysisTable">
+                    <table class="table table-bordered text-center table-hover" id="analysisTable">
                         <thead class="text-center">
                             <tr>
                                 <th><a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i></a></th>
@@ -79,11 +66,6 @@
                                 <th>Trễ hạn</th>
                                 <th>Quá hạn</th>
                                 <th>Đang xử lý</th>
-                                <th>
-                                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                                        Tìm kiếm
-                                    </button>
-                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,45 +80,11 @@
                             <tr style="font-weight: bold; background-color: #f8f9fa;">
                                 <td>STT</td>
                                 <td>@ViewBag.DepartmentName</td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@totalSum" aria-valuemin="0" aria-valuemax="@totalSum">
-                                            @totalSum
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: @(totalSum > 0 ? (ontimeSum * 100 / totalSum) : 0)%;" aria-valuenow="@ontimeSum" aria-valuemin="0" aria-valuemax="@totalSum">
-                                            @ontimeSum
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(totalSum > 0 ? (lateSum * 100 / totalSum) : 0)%;" aria-valuenow="@lateSum" aria-valuemin="0" aria-valuemax="@totalSum">
-                                            @lateSum
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: @(totalSum > 0 ? (overdueSum * 100 / totalSum) : 0)%;" aria-valuenow="@overdueSum" aria-valuemin="0" aria-valuemax="@totalSum">
-                                            @overdueSum
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 40px;">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: @(totalSum > 0 ? (processingSum * 100 / totalSum) : 0)%;" aria-valuenow="@processingSum" aria-valuemin="0" aria-valuemax="@totalSum">
-                                            @processingSum
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel" style="display: @(Model.Any() ? "inline-block" : "none");"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
-                                    <p id="noDataMessage" style="display: @(Model.Any() ? "none" : "block");">Không có dữ liệu để xuất Excel.</p>
-                                </td>
+                                <td data-total="@totalSum"></td>
+                                <td data-ontime="@ontimeSum" data-total="@totalSum"></td>
+                                <td data-late="@lateSum" data-total="@totalSum"></td>
+                                <td data-overdue="@overdueSum" data-total="@totalSum"></td>
+                                <td data-processing="@processingSum" data-total="@totalSum"></td>
                             </tr>
                             @foreach (var item in Model)
                             {
@@ -144,61 +92,28 @@
                                 <tr>
                                     <td>@index</td>
                                     <td>@Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                                    <td>
-                                        <div class="progress" style="height: 40px;">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;" aria-valuenow="@item.Total" aria-valuemin="0" aria-valuemax="@item.Total">
-                                                @item.Total
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 40px;">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: @(item.Total > 0 ? (item.Ontime * 100 / item.Total) : 0)%;" aria-valuenow="@item.Ontime" aria-valuemin="0" aria-valuemax="@item.Total">
-                                                @item.Ontime
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 40px;">
-                                            <div class="progress-bar bg-warning text-dark" role="progressbar" style="width: @(item.Total > 0 ? (item.Late * 100 / item.Total) : 0)%;" aria-valuenow="@item.Late" aria-valuemin="0" aria-valuemax="@item.Total">
-                                                @item.Late
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 40px;">
-                                            <div class="progress-bar bg-danger" role="progressbar" style="width: @(item.Total > 0 ? (item.Overdue * 100 / item.Total) : 0)%;" aria-valuenow="@item.Overdue" aria-valuemin="0" aria-valuemax="@item.Total">
-                                                @item.Overdue
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="progress" style="height: 40px;">
-                                            <div class="progress-bar bg-info" role="progressbar" style="width: @(item.Total > 0 ? (item.Processing * 100 / item.Total) : 0)%;" aria-valuenow="@item.Processing" aria-valuemin="0" aria-valuemax="@item.Total">
-                                                @item.Processing
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @* <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a> *@
-                                    </td>
+                                    <td data-total="@item.Total"></td>
+                                    <td data-ontime="@item.Ontime" data-total="@item.Total"></td>
+                                    <td data-late="@item.Late" data-total="@item.Total"></td>
+                                    <td data-overdue="@item.Overdue" data-total="@item.Total"></td>
+                                    <td data-processing="@item.Processing" data-total="@item.Total"></td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, quarteryear = ViewBag.Quarteryear, year = ViewBag.Year, date1 = ViewBag.Date1, date2 = ViewBag.Date2, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
-               {
-                   LiElementClasses = new string[] { "page-item" },
-                   PageClasses = new string[] { "page-link" },
-                   DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                   DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                   DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                   DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                   DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                   MaximumPageNumbersToDisplay = 5
-               })
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchText = ViewBag.SearchText, time = ViewBag.Time, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
+                    {
+                        LiElementClasses = new string[] { "page-item" },
+                        PageClasses = new string[] { "page-link" },
+                        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                        MaximumPageNumbersToDisplay = 5
+                    })
                 </div>
             </div>
             <div class="col-md-6 d-none" id="detail-section">
@@ -270,7 +185,7 @@
                                 </tr>
                                 <tr>
                                     <td class="first-col">Quá hạn</td>
-                                    <td class="data-col">@Model.Sum(item => item.Overdue)</td>
+                                    <td class="data-col">@Model.Sum(item => item.Ontime)</td>
                                     @foreach (var item in Model)
                                     {
                                         <td class="data-col">@item.Overdue</td>
@@ -312,6 +227,40 @@
             return txt.value;
         }
 
+        function formatCell(value, total) {
+            if (total > 0) {
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${value} (${percentage}%)`;
+            }
+            return `${value} (0%)`;
+        }
+
+        function renderTableCells() {
+            $("#analysisTable tbody tr").each(function() {
+                const $row = $(this);
+                const total = parseInt($row.find("td:eq(2)").data("total")) || 0;
+
+                // Total column
+                $row.find("td:eq(2)").text(total);
+
+                // Ontime column
+                const ontime = parseInt($row.find("td:eq(3)").data("ontime")) || 0;
+                $row.find("td:eq(3)").text(formatCell(ontime, total));
+
+                // Late column
+                const late = parseInt($row.find("td:eq(4)").data("late")) || 0;
+                $row.find("td:eq(4)").text(formatCell(late, total));
+
+                // Overdue column
+                const overdue = parseInt($row.find("td:eq(5)").data("overdue")) || 0;
+                $row.find("td:eq(5)").text(formatCell(overdue, total));
+
+                // Processing column
+                const processing = parseInt($row.find("td:eq(6)").data("processing")) || 0;
+                $row.find("td:eq(6)").text(formatCell(processing, total));
+            });
+        }
+
         function reloadChartsAndSummary(data) {
             const newLabels = [];
             const newTotalTasks = [];
@@ -327,19 +276,19 @@
             let totalSum = 0, ontimeSum = 0, lateSum = 0, overdueSum = 0, processingSum = 0;
             $data.find("#analysisTable tbody tr").each(function(index) {
                 if (index === 0) {
-                    totalSum = parseInt($(this).find("td:eq(2) .progress-bar").text()) || 0;
-                    ontimeSum = parseInt($(this).find("td:eq(3) .progress-bar").text()) || 0;
-                    lateSum = parseInt($(this).find("td:eq(4) .progress-bar").text()) || 0;
-                    overdueSum = parseInt($(this).find("td:eq(5) .progress-bar").text()) || 0;
-                    processingSum = parseInt($(this).find("td:eq(6) .progress-bar").text()) || 0;
+                    totalSum = parseInt($(this).find("td:eq(2)").data("total")) || 0;
+                    ontimeSum = parseInt($(this).find("td:eq(3)").data("ontime")) || 0;
+                    lateSum = parseInt($(this).find("td:eq(4)").data("late")) || 0;
+                    overdueSum = parseInt($(this).find("td:eq(5)").data("overdue")) || 0;
+                    processingSum = parseInt($(this).find("td:eq(6)").data("processing")) || 0;
                 } else {
                     const employeeName = $(this).find("td:eq(1)").text().trim();
                     newLabels.push(employeeName);
-                    newTotalTasks.push(parseInt($(this).find("td:eq(2) .progress-bar").text()) || 0);
-                    newOntimeTasks.push(parseInt($(this).find("td:eq(3) .progress-bar").text()) || 0);
-                    newLateTasks.push(parseInt($(this).find("td:eq(4) .progress-bar").text()) || 0);
-                    newOverdueTasks.push(parseInt($(this).find("td:eq(5) .progress-bar").text()) || 0);
-                    newProcessingTasks.push(parseInt($(this).find("td:eq(6) .progress-bar").text()) || 0);
+                    newTotalTasks.push(parseInt($(this).find("td:eq(2)").data("total")) || 0);
+                    newOntimeTasks.push(parseInt($(this).find("td:eq(3)").data("ontime")) || 0);
+                    newLateTasks.push(parseInt($(this).find("td:eq(4)").data("late")) || 0);
+                    newOverdueTasks.push(parseInt($(this).find("td:eq(5)").data("overdue")) || 0);
+                    newProcessingTasks.push(parseInt($(this).find("td:eq(6)").data("processing")) || 0);
                 }
             });
 
@@ -451,7 +400,7 @@
                             legend: { position: 'top' },
                             title: {
                                 display: true,
-                                text: 'Tổng hợp ' + getFilterPeriodText()
+                                text: 'Tổng hợp tháng ' + getFilterPeriodText()
                             },
                             tooltip: {
                                 callbacks: {
@@ -486,48 +435,23 @@
 
         function getFilterPeriodText() {
             var time = $("#time").val();
-            var quarteryear = $("#quarteryear").val();
-            var year = $("#year").val();
-            var date1 = $("#date1").val();
-            var date2 = $("#date2").val();
-            if (date1 && date2) {
-                return `từ ${formatDate(date1)} đến ${formatDate(date2)}`;
-            } else if (year) {
-                return `năm ${year}`;
-            } else if (quarteryear) {
-                var parts = quarteryear.split("-");
-                return `quý ${parts[1]}/${parts[0]}`;
-            } else if (time) {
+            if (time) {
                 var parts = time.split("-");
-                return `tháng ${parts[1]}/${parts[0]}`;
-            } else {
-                return `toàn bộ`;
+                return `${parts[1]}/${parts[0]}`;
             }
-        }
-
-        function formatDate(dateStr) {
-            var date = new Date(dateStr);
-            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+            return `${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
         }
 
         $(document).ready(function() {
+            renderTableCells();
             reloadChartsAndSummary(document.documentElement.outerHTML);
+            updateFilterDescription();
 
             $(document).on("click", ".ajax-action", function(e) {
                 e.preventDefault();
                 var url = $(this).data("url");
                 var time = $("#time").val();
-                var quarteryear = $("#quarteryear").val();
-                var year = $("#year").val();
-                var date1 = $("#date1").val();
-                var date2 = $("#date2").val();
-                if (date1 && date2) {
-                    url += (url.includes("?") ? "&" : "?") + "date1=" + encodeURIComponent(date1) + "&date2=" + encodeURIComponent(date2);
-                } else if (year) {
-                    url += (url.includes("?") ? "&" : "?") + "year=" + encodeURIComponent(year);
-                } else if (quarteryear) {
-                    url += (url.includes("?") ? "&" : "?") + "quarteryear=" + encodeURIComponent(quarteryear);
-                } else if (time) {
+                if (time) {
                     url += (url.includes("?") ? "&" : "?") + "time=" + encodeURIComponent(time);
                 }
                 if ($("#detail-section").hasClass("d-none")) {
@@ -547,7 +471,7 @@
                 });
             });
 
-            $("#searchText, #time, #quarteryear, #year, #date1, #date2, #sortOrder").on("input change", function() {
+            $("#searchText, #time, #sortOrder").on("input change", function() {
                 applyFilters();
             });
 
@@ -566,17 +490,9 @@
                 }
                 var searchText = $("#searchText").val();
                 var time = $("#time").val();
-                var quarteryear = $("#quarteryear").val();
-                var year = $("#year").val();
-                var date1 = $("#date1").val();
-                var date2 = $("#date2").val();
                 var sortOrder = $("#sortOrder").val();
                 var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
                     "&time=" + encodeURIComponent(time) +
-                    "&quarteryear=" + encodeURIComponent(quarteryear) +
-                    "&year=" + encodeURIComponent(year) +
-                    "&date1=" + encodeURIComponent(date1) +
-                    "&date2=" + encodeURIComponent(date2) +
                     "&sortOrder=" + encodeURIComponent(sortOrder);
                 window.location.href = url;
             });
@@ -585,17 +501,9 @@
         function applyFilters() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
-            var quarteryear = $("#quarteryear").val();
-            var year = $("#year").val();
-            var date1 = $("#date1").val();
-            var date2 = $("#date2").val();
             var sortOrder = $("#sortOrder").val();
             var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) +
                 "&time=" + encodeURIComponent(time) +
-                "&quarteryear=" + encodeURIComponent(quarteryear) +
-                "&year=" + encodeURIComponent(year) +
-                "&date1=" + encodeURIComponent(date1) +
-                "&date2=" + encodeURIComponent(date2) +
                 "&sortOrder=" + encodeURIComponent(sortOrder);
             loadTable(url);
         }
@@ -610,8 +518,11 @@
                 success: function(data) {
                     var newTable = $(data).find("#analysisTable").html();
                     $("#analysisTable").html(newTable);
+                    renderTableCells();
                     var newPagination = $(data).find(".pagination").html();
                     $(".pagination").html(newPagination);
+                    var newSortOrder = $(data).find("#sortOrder").val() || "";
+                    $("#sortOrder").val(newSortOrder);
                     reloadChartsAndSummary(data);
                     updateFilterDescription();
 
@@ -628,26 +539,35 @@
         function updateFilterDescription() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
-            var quarteryear = $("#quarteryear").val();
-            var year = $("#year").val();
-            var date1 = $("#date1").val();
-            var date2 = $("#date2").val();
+            var sortOrder = $("#sortOrder").val();
             var description = "";
-            if (!searchText && !time && !quarteryear && !year && !date1 && !date2) {
-                description = "toàn bộ";
+            if (!searchText && !time && !sortOrder) {
+                description = `tháng ${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
             } else {
                 var filterText = [];
                 if (searchText) filterText.push(`nhân viên: ${searchText}`);
-                if (date1 && date2) {
-                    filterText.push(`từ ${formatDate(date1)} đến ${formatDate(date2)}`);
-                } else if (year) {
-                    filterText.push(`năm: ${year}`);
-                } else if (quarteryear) {
-                    var parts = quarteryear.split("-");
-                    filterText.push(`quý: ${parts[1]}/${parts[0]}`);
-                } else if (time) {
+                if (time) {
                     var parts = time.split("-");
                     filterText.push(`tháng: ${parts[1]}/${parts[0]}`);
+                } else {
+                    filterText.push(`tháng: ${new Date().getMonth() + 1}/${new Date().getFullYear()}`);
+                }
+                if (sortOrder) {
+                    const sortOptions = {
+                        "total_asc": "tổng số tăng",
+                        "total_desc": "tổng số giảm",
+                        "ontime_asc": "đúng hạn tăng",
+                        "ontime_desc": "đúng hạn giảm",
+                        "late_asc": "trễ hạn tăng",
+                        "late_desc": "trễ hạn giảm",
+                        "overdue_asc": "quá hạn tăng",
+                        "overdue_desc": "quá hạn giảm",
+                        "processing_asc": "đang xử lý tăng",
+                        "processing_desc": "đang xử lý giảm",
+                        "time_asc": "thời gian tăng",
+                        "time_desc": "thời gian giảm"
+                    };
+                    filterText.push(`sắp xếp: ${sortOptions[sortOrder] || "mặc định"}`);
                 }
                 description = "theo " + filterText.join(" và ");
             }
@@ -686,8 +606,12 @@
             width: 100%;
         }
 
-            #summaryTable th, #summaryTable td {
-                word-wrap: break-word;
-            }
+        #summaryTable th, #summaryTable td {
+            word-wrap: break-word;
+        }
+
+        #analysisTable td {
+            text-align: center;
+        }
     </style>
 }

@@ -10,6 +10,7 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using WorkTrackingSystem.Models;
 using X.PagedList.Extensions;
+
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
@@ -26,8 +27,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             string employeeName,
             string evaluate,
             string time,
-            string date1,
-            string date2,
             int page = 1)
         {
             var limit = 10;
@@ -52,61 +51,40 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Select(e => e.Id)
                 .ToListAsync();
 
-            IQueryable<Baselineassessment> assessments;
+            var assessments = _context.Baselineassessments
+                .Include(b => b.Employee)
+                .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
 
-            if (!string.IsNullOrEmpty(date1) && !string.IsNullOrEmpty(date2) &&
-                DateTime.TryParse(date1, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
-                DateTime.TryParse(date2, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
+            // Set default time to current month if not provided
+            if (string.IsNullOrEmpty(time))
             {
-                assessments = from e in _context.Employees
-                              where e.IsDelete == false && e.IsActive == true
-                              && managedEmployeeIds.Contains(e.Id)
-                              join jme in _context.Jobmapemployees on e.Id equals jme.EmployeeId into jmeGroup
-                              from jme in jmeGroup.DefaultIfEmpty()
-                              join s in _context.Scores
-                                  on jme.Id equals s.JobMapEmployeeId into scoreGroup
-                              from s in scoreGroup.DefaultIfEmpty()
-                              where (s == null || (s.CreateDate >= startDate && s.CreateDate <= endDate && s.IsDelete == false && s.IsActive == true))
-                              group new { e, s } by new { e.Id, e.FirstName, e.LastName, e.Code } into g
-                              select new Baselineassessment
-                              {
-                                  EmployeeId = g.Key.Id,
-                                  Employee = new Employee
-                                  {
-                                      Id = g.Key.Id,
-                                      FirstName = g.Key.FirstName,
-                                      LastName = g.Key.LastName,
-                                      Code = g.Key.Code
-                                  },
-                                  VolumeAssessment = g.Sum(x => x.s != null ? x.s.VolumeAssessment ?? 0 : 0),
-                                  ProgressAssessment = g.Sum(x => x.s != null ? x.s.ProgressAssessment ?? 0 : 0),
-                                  QualityAssessment = g.Sum(x => x.s != null ? x.s.QualityAssessment ?? 0 : 0),
-                                  SummaryOfReviews = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0),
-                                  Evaluate = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0) >= 45
-                              };
+                time = DateTime.Now.ToString("yyyy-MM");
             }
-            else
+
+            // Format display month for the view
+            string displayMonth = "Toàn bộ";
+            if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
             {
-                assessments = _context.Baselineassessments
-                    .Include(b => b.Employee)
-                    .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
+                displayMonth = $"Tháng {selectedTime:MM/yyyy}";
+            }
+            ViewBag.DisplayMonth = displayMonth;
 
-                if (!string.IsNullOrEmpty(employeeName))
-                {
-                    assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
-                }
 
-                if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
-                {
-                    assessments = assessments.Where(b => b.Evaluate == evaluateVal);
-                }
+            if (!string.IsNullOrEmpty(employeeName))
+            {
+                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+            }
 
-                if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
-                {
-                    assessments = assessments.Where(b => b.Time.HasValue &&
-                                                        b.Time.Value.Year == selectedTime.Year &&
-                                                        b.Time.Value.Month == selectedTime.Month);
-                }
+            if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
+            {
+                assessments = assessments.Where(b => b.Evaluate == evaluateVal);
+            }
+
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTimeForFilter))
+            {
+                assessments = assessments.Where(b => b.Time.HasValue &&
+                                                    b.Time.Value.Year == selectedTimeForFilter.Year &&
+                                                    b.Time.Value.Month == selectedTimeForFilter.Month);
             }
 
             var assessmentsList = await assessments.ToListAsync();
@@ -118,13 +96,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             ViewBag.EmployeeName = employeeName;
             ViewBag.Evaluate = evaluate;
             ViewBag.Time = time;
-            ViewBag.Date1 = date1;
-            ViewBag.Date2 = date2;
 
             return View(assessments.OrderBy(x => x.EmployeeId).ToPagedList(page, limit));
         }
 
-        public async Task<IActionResult> ExportToExcel(string employeeName, string evaluate, string time, string date1, string date2)
+        public async Task<IActionResult> ExportToExcel(string employeeName, string evaluate, string time)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -148,64 +124,33 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Select(e => e.Id)
                 .ToListAsync();
 
-            IQueryable<Baselineassessment> assessments;
+            var assessments = _context.Baselineassessments
+                .Include(b => b.Employee)
+                .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
+
+            // Set default time to current month if not provided
             string selectedPeriod = "Toàn bộ";
-
-            if (!string.IsNullOrEmpty(date1) && !string.IsNullOrEmpty(date2) &&
-                DateTime.TryParse(date1, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
-                DateTime.TryParse(date2, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
+            if (string.IsNullOrEmpty(time))
             {
-                selectedPeriod = $"{startDate:dd/MM/yyyy} - {endDate:dd/MM/yyyy}";
-                assessments = from e in _context.Employees
-                              where e.IsDelete == false && e.IsActive == true
-                              && managedEmployeeIds.Contains(e.Id)
-                              join jme in _context.Jobmapemployees on e.Id equals jme.EmployeeId into jmeGroup
-                              from jme in jmeGroup.DefaultIfEmpty()
-                              join s in _context.Scores
-                                  on jme.Id equals s.JobMapEmployeeId into scoreGroup
-                              from s in scoreGroup.DefaultIfEmpty()
-                              where (s == null || (s.CreateDate >= startDate && s.CreateDate <= endDate && s.IsDelete == false && s.IsActive == true))
-                              group new { e, s } by new { e.Id, e.FirstName, e.LastName, e.Code } into g
-                              select new Baselineassessment
-                              {
-                                  EmployeeId = g.Key.Id,
-                                  Employee = new Employee
-                                  {
-                                      Id = g.Key.Id,
-                                      FirstName = g.Key.FirstName,
-                                      LastName = g.Key.LastName,
-                                      Code = g.Key.Code
-                                  },
-                                  VolumeAssessment = g.Sum(x => x.s != null ? x.s.VolumeAssessment ?? 0 : 0),
-                                  ProgressAssessment = g.Sum(x => x.s != null ? x.s.ProgressAssessment ?? 0 : 0),
-                                  QualityAssessment = g.Sum(x => x.s != null ? x.s.QualityAssessment ?? 0 : 0),
-                                  SummaryOfReviews = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0),
-                                  Evaluate = g.Sum(x => x.s != null ? x.s.SummaryOfReviews ?? 0 : 0) >= 45
-                              };
+                time = DateTime.Now.ToString("yyyy-MM");
             }
-            else
+
+            if (!string.IsNullOrEmpty(employeeName))
             {
-                assessments = _context.Baselineassessments
-                    .Include(b => b.Employee)
-                    .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
+                assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
+            }
 
-                if (!string.IsNullOrEmpty(employeeName))
-                {
-                    assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
-                }
+            if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
+            {
+                assessments = assessments.Where(b => b.Evaluate == evaluateVal);
+            }
 
-                if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
-                {
-                    assessments = assessments.Where(b => b.Evaluate == evaluateVal);
-                }
-
-                if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
-                {
-                    selectedPeriod = selectedTime.ToString("MM/yyyy");
-                    assessments = assessments.Where(b => b.Time.HasValue &&
-                                                        b.Time.Value.Year == selectedTime.Year &&
-                                                        b.Time.Value.Month == selectedTime.Month);
-                }
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+            {
+                selectedPeriod = selectedTime.ToString("MM/yyyy");
+                assessments = assessments.Where(b => b.Time.HasValue &&
+                                                    b.Time.Value.Year == selectedTime.Year &&
+                                                    b.Time.Value.Month == selectedTime.Month);
             }
 
             var assessmentList = await assessments.OrderBy(x => x.EmployeeId).ToListAsync();
@@ -309,16 +254,16 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         public async Task<IActionResult> JobEvaluation(
-    string searchText = "",
-    string month = "",
-    string day = "",
-    string status = "",
-    string categoryId = "",
-    string sortOrder = "",
-    bool showCompletedZeroReview = false,
-    bool dueToday = false,
-    long? jobId = null,
-    int page = 1)
+            string searchText = "",
+            string month = "",
+            string day = "",
+            string status = "",
+            string categoryId = "",
+            string sortOrder = "",
+            bool showCompletedZeroReview = false,
+            bool dueToday = false,
+            long? jobId = null,
+            int page = 1)
         {
             var limit = 8;
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");

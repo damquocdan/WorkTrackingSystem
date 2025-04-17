@@ -4,38 +4,10 @@
     ViewData["Title"] = "Danh sách đánh giá cơ bản";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 
-    var isDateRange = !string.IsNullOrEmpty(ViewBag.Date1) && !string.IsNullOrEmpty(ViewBag.Date2);
     var totalEvaluations = Model.TotalItemCount;
     var passedEvaluations = Model.Count(x => x.Evaluate.GetValueOrDefault());
     var failedEvaluations = totalEvaluations - passedEvaluations;
     var passRate = totalEvaluations > 0 ? (passedEvaluations * 100.0 / totalEvaluations) : 0;
-
-    var groupedData = !isDateRange ? Model
-        .Where(x => x.Time.HasValue)
-        .GroupBy(x => x.Time.Value.ToString("MM/yyyy"))
-        .Select(g => new
-        {
-            MonthYear = g.Key,
-            SumVolume = g.Sum(x => x.VolumeAssessment ?? 0),
-            SumProgress = g.Sum(x => x.ProgressAssessment ?? 0),
-            SumQuality = g.Sum(x => x.QualityAssessment ?? 0),
-            SumSummary = g.Sum(x => x.SummaryOfReviews ?? 0)
-        })
-        .OrderBy(g => g.MonthYear)
-        .ToList() : new List<object> { }.Select(_ => new
-        {
-            MonthYear = "",
-            SumVolume = 0.0,
-            SumProgress = 0.0,
-            SumQuality = 0.0,
-            SumSummary = 0.0
-        }).ToList();
-
-    var labels = groupedData.Select(x => x.MonthYear).ToList();
-    var sumVolume = groupedData.Select(x => x.SumVolume).ToList();
-    var sumProgress = groupedData.Select(x => x.SumProgress).ToList();
-    var sumQuality = groupedData.Select(x => x.SumQuality).ToList();
-    var sumSummary = groupedData.Select(x => x.SumSummary).ToList();
 
     var pieChartData = Model
         .GroupBy(x => $"{x.Employee.Code} - {x.Employee.FirstName} {x.Employee.LastName}")
@@ -50,54 +22,33 @@
     var pieValues = pieChartData.Select(x => x.TotalVolume).ToList();
 }
 
-<div class="row">
-    <div class="col-md-6" style="height: 460px;">
-        <div class="chart-container border p-3">
-            <h5 class="text-center">Biểu đồ đánh giá</h5>
-            <canvas id="evaluationChart" style="@(isDateRange ? "display: none;" : "")"></canvas>
-            <div id="noChartMessage" class="text-center" style="@(isDateRange ? "" : "display: none;")">
-                Biểu đồ không khả dụng khi lọc theo khoảng thời gian.
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6" style="height: 460px;">
-        <div class="chart-container border p-3">
-            <h5 class="text-center">Tóm tắt công việc</h5>
-            <canvas id="summaryChart" style="@(isDateRange ? "display: none;" : "")"></canvas>
-            <div id="noSummaryChartMessage" class="text-center" style="@(isDateRange ? "" : "display: none;")">
-                Biểu đồ không khả dụng khi lọc theo khoảng thời gian.
-            </div>
-        </div>
-    </div>
-</div>
-
-<h1 class="text-center">Danh sách đánh giá @(isDateRange ? "theo khoảng thời gian" : "các tháng")</h1>
+<h1 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.DisplayMonth ?? "Toàn bộ")</h1>
 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
     Tìm kiếm
 </button>
+@if (Model.Any())
+{
+    <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
+        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+    </a>
+}
 <div class="collapse" id="collapseExample">
     <div class="card card-body">
         <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <input type="text" id="employeeName" name="employeeName" class="form-control" value="@ViewBag.EmployeeName" placeholder="Nhập tên nhân viên">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <select id="evaluate" name="evaluate" class="form-select">
                     <option value="">Trạng thái đánh giá</option>
                     <option value="true">Đạt</option>
                     <option value="false">Chưa đạt</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" @(isDateRange ? "disabled" : "")>
+            <div class="col-md-4">
+                <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
             </div>
-            <div class="col-md-3">
-                <input type="date" id="date1" name="date1" class="form-control" value="@ViewBag.Date1" placeholder="Từ ngày">
-            </div>
-            <div class="col-md-3">
-                <input type="date" id="date2" name="date2" class="form-control" value="@ViewBag.Date2" placeholder="Đến ngày">
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
             </div>
         </div>
@@ -114,24 +65,12 @@
                             <tr>
                                 <th>STT</th>
                                 <th>Nhân viên</th>
-                                <th>Tổng đánh giá khối lượng</th>
-                                <th>Tổng đánh giá tiến độ</th>
-                                <th>Tổng đánh giá chất lượng</th>
-                                <th>Tổng đánh giá tổng hợp</th>
+                                <th>Tổng đ.giá khối lượng</th>
+                                <th>Tổng đ.giá tiến độ</th>
+                                <th>Tổng đ.giá chất lượng</th>
+                                <th>Tổng đ.giá tổng hợp</th>
                                 <th>Đánh giá</th>
-                                @if (!isDateRange)
-                                {
-                                    <th>Tháng</th>
-                                    <th></th>
-                                }
-                                <th>
-                                    @if (Model.Any())
-                                    {
-                                        <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
-                                            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
-                                        </a>
-                                    }
-                                </th>
+@*                                 <th></th> *@
                             </tr>
                         </thead>
                         <tbody>
@@ -158,13 +97,9 @@
                                             <p>Chưa đạt</p>
                                         }
                                     </td>
-                                    @if (!isDateRange)
-                                    {
-                                        <td>@(item.Time.HasValue ? item.Time.Value.ToString("MM/yyyy") : "")</td>
-                                        <td>
-                                            <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-                                        </td>
-                                    }
+@*                                     <td>
+                                        <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+                                    </td> *@
                                 </tr>
                             }
                         </tbody>
@@ -172,17 +107,17 @@
                 </div>
                 <!-- Phân trang -->
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, employeeName = ViewBag.EmployeeName, evaluate = ViewBag.Evaluate, time = ViewBag.Time, date1 = ViewBag.Date1, date2 = ViewBag.Date2 }), new PagedListRenderOptions
-                    {
-                        LiElementClasses = new string[] { "page-item" },
-                        PageClasses = new string[] { "page-link" },
-                        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                        MaximumPageNumbersToDisplay = 5
-                    })
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, employeeName = ViewBag.EmployeeName, evaluate = ViewBag.Evaluate, time = ViewBag.Time }), new PagedListRenderOptions
+               {
+                   LiElementClasses = new string[] { "page-item" },
+                   PageClasses = new string[] { "page-link" },
+                   DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                   DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                   DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                   DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                   DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                   MaximumPageNumbersToDisplay = 5
+               })
                 </div>
             </div>
             <div class="col-md-4 d-none" id="detail-section">
@@ -191,9 +126,13 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="chart-container border p-3">
-            <h5 class="text-center">Tổng đánh giá khối lượng theo nhân viên</h5>
-            <canvas id="volumePieChart"></canvas>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Tổng đánh giá khối lượng theo nhân viên</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="volumePieChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
@@ -203,85 +142,23 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        var isDateRange = @(isDateRange ? "true" : "false");
-        var labels = @Html.Raw(Json.Serialize(labels));
-        var sumVolume = @Html.Raw(Json.Serialize(sumVolume));
-        var sumProgress = @Html.Raw(Json.Serialize(sumProgress));
-        var sumQuality = @Html.Raw(Json.Serialize(sumQuality));
-        var sumSummary = @Html.Raw(Json.Serialize(sumSummary));
         var pieLabels = @Html.Raw(Json.Serialize(pieLabels));
         var pieValues = @Html.Raw(Json.Serialize(pieValues));
-
-        var evaluationChart = null;
-        var summaryChart = null;
         var volumePieChart = null;
 
-        function initializeCharts() {
-            if (!isDateRange) {
-                var ctx1 = document.getElementById('evaluationChart').getContext('2d');
-                evaluationChart = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Tổng DGKL',
-                                data: sumVolume,
-                                borderColor: 'blue',
-                                fill: false
-                            },
-                            {
-                                label: 'Tổng DGTĐ',
-                                data: sumProgress,
-                                borderColor: 'green',
-                                fill: false
-                            },
-                            {
-                                label: 'Tổng DGCL',
-                                data: sumQuality,
-                                borderColor: 'red',
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Tổng điểm'
-                                }
-                            }
-                        }
-                    }
-                });
-
-                var ctx2 = document.getElementById('summaryChart').getContext('2d');
-                summaryChart = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Tổng Đánh giá tổng hợp',
-                            data: sumSummary,
-                            backgroundColor: 'orange'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Tổng điểm'
-                                }
-                            }
-                        }
-                    }
-                });
+        // Function to format yyyy-MM to Tháng MM/yyyy
+        function formatMonthDisplay(time) {
+            if (!time) return "Toàn bộ";
+            var parts = time.split('-');
+            if (parts.length === 2) {
+                var year = parts[0];
+                var month = parts[1];
+                return "Tháng " + month + "/" + year;
             }
+            return "Toàn bộ";
+        }
 
+        function initializeCharts() {
             var ctx3 = document.getElementById('volumePieChart').getContext('2d');
             volumePieChart = new Chart(ctx3, {
                 type: 'pie',
@@ -348,10 +225,7 @@
                 });
             });
 
-            $("#employeeName, #evaluate, #time, #date1, #date2").on("input change", function () {
-                var date1 = $("#date1").val();
-                var date2 = $("#date2").val();
-                $("#time").prop("disabled", date1 || date2);
+            $("#employeeName, #evaluate, #time").on("input change", function () {
                 applyFilters();
             });
 
@@ -366,13 +240,9 @@
                 var employeeName = $("#employeeName").val();
                 var evaluate = $("#evaluate").val();
                 var time = $("#time").val();
-                var date1 = $("#date1").val();
-                var date2 = $("#date2").val();
                 var url = "@Url.Action("ExportToExcel")" + "?employeeName=" + encodeURIComponent(employeeName) +
                     "&evaluate=" + encodeURIComponent(evaluate) +
-                    "&time=" + encodeURIComponent(time) +
-                    "&date1=" + encodeURIComponent(date1) +
-                    "&date2=" + encodeURIComponent(date2);
+                    "&time=" + encodeURIComponent(time);
                 window.location.href = url;
             });
         });
@@ -381,13 +251,9 @@
             var employeeName = $("#employeeName").val();
             var evaluate = $("#evaluate").val();
             var time = $("#time").val();
-            var date1 = $("#date1").val();
-            var date2 = $("#date2").val();
             var url = "@Url.Action("Index")" + "?employeeName=" + encodeURIComponent(employeeName) +
                 "&evaluate=" + encodeURIComponent(evaluate) +
-                "&time=" + encodeURIComponent(time) +
-                "&date1=" + encodeURIComponent(date1) +
-                "&date2=" + encodeURIComponent(date2);
+                "&time=" + encodeURIComponent(time);
             loadTable(url);
         }
 
@@ -404,7 +270,10 @@
                     var newPagination = $(data).find(".pagination").html();
                     $(".pagination").html(newPagination);
                     updateCharts(data);
-                    updateUI(data);
+
+                    // Update the page title based on the time filter
+                    var time = $("#time").val();
+                    $("#pageTitle").text("Danh sách đánh giá " + formatMonthDisplay(time));
                 },
                 error: function (xhr, status, error) {
                     console.error("Lỗi tải dữ liệu:", status, error);
@@ -416,7 +285,6 @@
         function updateCharts(data) {
             var tableRows = $(data).find("#assessmentTable tbody tr");
             var pieData = {};
-            var isDateRange = $("#date1").val() && $("#date2").val();
 
             tableRows.each(function() {
                 var employeeName = $(this).find("td").eq(1).text().trim();
@@ -452,72 +320,6 @@
                 'rgba(255, 159, 64, 1)'
             ] : ['rgba(200, 200, 200, 1)'];
             volumePieChart.update();
-
-            if (evaluationChart && !isDateRange) {
-                var groupedData = [];
-                var uniqueMonths = {};
-
-                tableRows.each(function() {
-                    var monthYear = $(this).find("td").eq(7).text().trim();
-                    if (monthYear && !uniqueMonths[monthYear]) {
-                        uniqueMonths[monthYear] = true;
-                        groupedData.push({
-                            MonthYear: monthYear,
-                            SumVolume: 0,
-                            SumProgress: 0,
-                            SumQuality: 0,
-                            SumSummary: 0
-                        });
-                    }
-                });
-
-                tableRows.each(function() {
-                    var monthYear = $(this).find("td").eq(7).text().trim();
-                    var volume = parseFloat($(this).find("td").eq(2).text().trim()) || 0;
-                    var progress = parseFloat($(this).find("td").eq(3).text().trim()) || 0;
-                    var quality = parseFloat($(this).find("td").eq(4).text().trim()) || 0;
-                    var summary = parseFloat($(this).find("td").eq(5).text().trim()) || 0;
-
-                    var group = groupedData.find(g => g.MonthYear === monthYear);
-                    if (group) {
-                        group.SumVolume += volume;
-                        group.SumProgress += progress;
-                        group.SumQuality += quality;
-                        group.SumSummary += summary;
-                    }
-                });
-
-                groupedData.sort((a, b) => a.MonthYear.localeCompare(b.MonthYear));
-
-                evaluationChart.data.labels = groupedData.map(g => g.MonthYear);
-                evaluationChart.data.datasets[0].data = groupedData.map(g => g.SumVolume);
-                evaluationChart.data.datasets[1].data = groupedData.map(g => g.SumProgress);
-                evaluationChart.data.datasets[2].data = groupedData.map(g => g.SumQuality);
-                evaluationChart.update();
-
-                summaryChart.data.labels = groupedData.map(g => g.MonthYear);
-                summaryChart.data.datasets[0].data = groupedData.map(g => g.SumSummary);
-                summaryChart.update();
-            }
-        }
-
-        function updateUI(data) {
-            var isDateRange = $("#date1").val() && $("#date2").val();
-            $("#evaluationChart").toggle(!isDateRange);
-            $("#noChartMessage").toggle(isDateRange);
-            $("#summaryChart").toggle(!isDateRange);
-            $("#noSummaryChartMessage").toggle(isDateRange);
-            $("#time").prop("disabled", isDateRange);
-            $("h1.text-center").text(isDateRange ? "Danh sách đánh giá theo khoảng thời gian" : "Danh sách đánh giá các tháng");
-
-            if (isDateRange && evaluationChart) {
-                evaluationChart.destroy();
-                evaluationChart = null;
-            }
-            if (isDateRange && summaryChart) {
-                summaryChart.destroy();
-                summaryChart = null;
-            }
         }
 
         function closeDetailSection() {

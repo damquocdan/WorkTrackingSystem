@@ -1,6 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
-    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml"; // Giả sử layout của bạn
+    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+
+    var isDateRange = !string.IsNullOrEmpty(ViewBag.Date1) && !string.IsNullOrEmpty(ViewBag.Date2);
 }
 
 <!-- Content Header (Page header) -->
@@ -8,11 +10,11 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Thống kê </h1>
+                <h1 class="m-0">Thống kê</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Project Manager </a></li>
+                    <li class="breadcrumb-item"><a href="#">Project Manager</a></li>
                     <li class="breadcrumb-item active">Thống kê</li>
                 </ol>
             </div>
@@ -79,6 +81,36 @@
         <div class="row">
             <!-- Left col -->
             <section class="col-lg-7 connectedSortable">
+                <!-- Evaluation Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            Biểu đồ đánh giá
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="evaluationChart" style="@(isDateRange ? "display: none;" : "")"></canvas>
+                        <div id="noChartMessage" class="text-center" style="@(isDateRange ? "" : "display: none;")">
+                            Biểu đồ không khả dụng khi lọc theo khoảng thời gian.
+                        </div>
+                    </div>
+                </div>
+                <!-- Summary Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar mr-1"></i>
+                            Tóm tắt công việc
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="summaryChart" style="@(isDateRange ? "display: none;" : "")"></canvas>
+                        <div id="noSummaryChartMessage" class="text-center" style="@(isDateRange ? "" : "display: none;")">
+                            Biểu đồ không khả dụng khi lọc theo khoảng thời gian.
+                        </div>
+                    </div>
+                </div>
                 <!-- Pie Chart: Job Status -->
                 <div class="card">
                     <div class="card-header">
@@ -91,7 +123,6 @@
                         <canvas id="jobStatusPieChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
                     </div>
                 </div>
-                <!-- /.card -->
                 <!-- Bar Chart: Jobs by Month -->
                 <div class="card">
                     <div class="card-header">
@@ -104,9 +135,7 @@
                         <canvas id="jobsByMonthBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
                     </div>
                 </div>
-                <!-- /.card -->
             </section>
-            <!-- /.Left col -->
             <!-- Right col -->
             <section class="col-lg-5 connectedSortable">
                 <!-- Calendar -->
@@ -129,9 +158,7 @@
                         <div id="calendar" style="width: 100%"></div>
                     </div>
                 </div>
-                <!-- /.card -->
             </section>
-            <!-- /.Right col -->
         </div>
         <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
@@ -142,8 +169,81 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" />
     <script>
+        var isDateRange = @(isDateRange ? "true" : "false");
+        var labels = @Html.Raw(Json.Serialize(ViewBag.Labels));
+        var sumVolume = @Html.Raw(Json.Serialize(ViewBag.SumVolume));
+        var sumProgress = @Html.Raw(Json.Serialize(ViewBag.SumProgress));
+        var sumQuality = @Html.Raw(Json.Serialize(ViewBag.SumQuality));
+        var sumSummary = @Html.Raw(Json.Serialize(ViewBag.SumSummary));
+
         document.addEventListener("DOMContentLoaded", function () {
-            // Biểu đồ tròn: Trạng thái công việc
+            // Evaluation Chart
+            if (!isDateRange) {
+                var ctx1 = document.getElementById('evaluationChart').getContext('2d');
+                var evaluationChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Tổng DGKL',
+                                data: sumVolume,
+                                borderColor: 'blue',
+                                fill: false
+                            },
+                            {
+                                label: 'Tổng DGTĐ',
+                                data: sumProgress,
+                                borderColor: 'green',
+                                fill: false
+                            },
+                            {
+                                label: 'Tổng DGCL',
+                                data: sumQuality,
+                                borderColor: 'red',
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tổng điểm'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                var ctx2 = document.getElementById('summaryChart').getContext('2d');
+                var summaryChart = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Tổng Đánh giá tổng hợp',
+                            data: sumSummary,
+                            backgroundColor: 'orange'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tổng điểm'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Job Status Pie Chart
             var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
             var jobStatusPieChart = new Chart(pieCtx, {
                 type: 'pie',
@@ -163,7 +263,7 @@
                 }
             });
 
-            // Biểu đồ cột: Công việc theo tháng/năm
+            // Jobs by Month Bar Chart
             var barCtx = document.getElementById('jobsByMonthBarChart').getContext('2d');
             var jobsByMonthBarChart = new Chart(barCtx, {
                 type: 'bar',
@@ -184,7 +284,7 @@
                 }
             });
 
-            // Lịch công việc
+            // Calendar
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -199,11 +299,10 @@
                     }
                 },
                 eventBorderColor: function(event) {
-                    return event.backgroundColor; // Đồng bộ viền với màu nền
+                    return event.backgroundColor;
                 },
-                height: 350, // Thu nhỏ từ 400px xuống 350px
+                height: 350,
                 eventDidMount: function(info) {
-                    // Hiển thị tooltip với tên công việc
                     info.el.title = info.event.title;
                 }
             });
