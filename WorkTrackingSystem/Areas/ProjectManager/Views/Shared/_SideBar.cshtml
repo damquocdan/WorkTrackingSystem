@@ -115,13 +115,29 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a asp-controller="Analyses" asp-action="Index" class="nav-link">
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
                         <p>
                             Quản lý phân tích
+
+                            <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a asp-controller="Analyses" asp-action="Index" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bảng phân tích theo tháng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a asp-controller="Employees" asp-action="AnalysesEmployees" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Bảng phân tích theo nhân viên</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 @if (HttpContextAccessor.HttpContext.Session.GetString("ProjectManagerLogin") != null)
                 {
