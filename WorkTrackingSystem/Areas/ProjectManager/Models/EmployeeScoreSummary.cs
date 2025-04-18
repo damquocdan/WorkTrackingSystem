@@ -8,11 +8,5 @@
         public int OverdueCount { get; set; }
         public int ProcessingCount { get; set; }
         public int TotalJobs { get; set; }
-        public int EmployeeId { get; set; }
-        public decimal TotalVolume { get; set; }
-        public decimal TotalProgress { get; set; }
-        public decimal TotalQuality { get; set; }
-        public decimal SummaryScore { get; set; }
-        public string EvaluationResult { get; set; }
     }
 }

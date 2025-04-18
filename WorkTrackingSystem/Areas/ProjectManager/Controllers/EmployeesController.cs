@@ -306,7 +306,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                             && (fromDate == null || s.CreateDate >= fromDate)
                                             && (toDate == null || s.CreateDate <= toDate)
                                       group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
-                                      select new EmployeeScoreSummary
+                                      select new ScoreSummary
                                       {
                                           EmployeeId = (int)g.Key.Id,
                                           EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
@@ -732,7 +732,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                             (parsedFromDate == null || s.CreateDate >= parsedFromDate) &&
                                             (parsedToDate == null || s.CreateDate <= parsedToDate)
                                       group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
-                                      select new EmployeeScoreSummary
+                                      select new ScoreSummary
                                       {
                                           EmployeeId = (int)g.Key.Id,
                                           EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
