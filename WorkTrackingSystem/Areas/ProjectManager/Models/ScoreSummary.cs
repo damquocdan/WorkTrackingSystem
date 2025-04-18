@@ -1,14 +1,9 @@
 ﻿namespace WorkTrackingSystem.Areas.ProjectManager.Models
 {
-    public class EmployeeScoreSummary
+    public class ScoreSummary
     {
-        public string EmployeeName { get; set; }
-        public int OnTimeCount { get; set; }
-        public int LateCount { get; set; }
-        public int OverdueCount { get; set; }
-        public int ProcessingCount { get; set; }
-        public int TotalJobs { get; set; }
         public int EmployeeId { get; set; }
+        public string EmployeeName { get; set; }
         public decimal TotalVolume { get; set; }
         public decimal TotalProgress { get; set; }
         public decimal TotalQuality { get; set; }

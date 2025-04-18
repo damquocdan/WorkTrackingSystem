@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using WorkTrackingSystem.Areas.ProjectManager.Models;
 
 namespace WorkTrackingSystem.Models​;
 
@@ -14,7 +15,8 @@ public partial class WorkTrackingSystemContext : DbContext
         : base(options)
     {
     }
-
+    public DbSet<EmployeeScoreSummary> EmployeeScoreSummaries { get; set; }
+    public DbSet<ScoreSummary> ScoreSummaries { get; set; }
     public virtual DbSet<Analysis> Analyses { get; set; }
 
     public virtual DbSet<Baselineassessment> Baselineassessments { get; set; }
@@ -43,6 +45,8 @@ public partial class WorkTrackingSystemContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<EmployeeScoreSummary>().HasNoKey();
+        modelBuilder.Entity<ScoreSummary>().HasNoKey();
         modelBuilder.Entity<Analysis>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC07E14945A9");
