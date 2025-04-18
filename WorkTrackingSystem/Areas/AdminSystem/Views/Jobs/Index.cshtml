@@ -17,8 +17,8 @@
     <div class="card card-body">
         <div class="row">
             <div class="col-md-12">
-                <div class="card  p-3 mb-3">
-                    <div class="row gx-2 gy-2 align-items-end">
+                <div class="p-3 mb-3">
+                    <div id="searchForm" class="row gx-2 gy-2 align-items-end">
                         <!-- Tìm kiếm -->
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Tìm kiếm</label>
@@ -26,12 +26,30 @@
                         </div>
 
                         <!-- Tháng -->
-                        <div class="col-md-2">
+                      @*   <div class="col-md-2">
                             <label class="form-label fw-bold">Tháng</label>
                             <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Ngày</label>
+                            <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                        </div> *@
+                        <div class="col-md-1">
+                            <label class="form-label fw-bold">Lọc theo</label>
+                            <select id="filterType" name="filterType" class="form-select">
+                                <option value="">-- Chọn kiểu lọc --</option>
+                                <option value="month">Tháng</option>
+                                <option value="day">Ngày</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 mt-2" id="monthFilter" style="display: none;">
+                            <label class="form-label fw-bold">Chọn tháng</label>
+                            <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
+                        </div>
+
+                        <div class="col-md-2 mt-2" id="dayFilter" style="display: none;">
+                            <label class="form-label fw-bold">Chọn ngày</label>
                             <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
                         </div>
                         <!-- Trạng thái -->
@@ -107,7 +125,7 @@
 </div>
 <p> 
     <a id="btn-create-job" class="btn btn-primary" data-bs-toggle="collapse" href="#collapsejob" role="button" aria-expanded="false" aria-controls="collapsejob"><i class="bi bi-plus-circle"></i> Giao C.việc</a>
-    <a class="btn btn-success ajax-action" data-url="@Url.Action("Createjob")">Tạo công việc</a>
+    <a class="btn btn-success ajax-action-create" data-bs-toggle="collapse" href="#collapsecreate" role="button" aria-expanded="false" aria-controls="collapsecreate" data-url="@Url.Action("Createjob")">Tạo công việc</a>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
        Lọc
     </button>
@@ -165,6 +183,7 @@
     </div>
 </div>
 </div>
+<div class="actionCreate collapse" id="collapsecreate"></div>
 <form id="assign-job-form" action="@Url.Action("AssignEmployee", "Jobs")" method="post" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="jobId" id="form-job-id" />
@@ -174,7 +193,7 @@
     <div class="col-md-12" id="list-section">
         <div class="card-body">
             <div class="table-responsive">
-                <h3 class="text-center">Danh sách công việc</h3>
+                <h2 class="text-center">Danh sách công việc</h2>
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
                     <thead class="text-center">
                         <tr>
@@ -377,6 +396,37 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+
+
+            const filterType = document.getElementById("filterType");
+            const monthFilter = document.getElementById("monthFilter");
+            const dayFilter = document.getElementById("dayFilter");
+
+            filterType.addEventListener("change", function () {
+                const value = this.value;
+                if (value === "month") {
+                    monthFilter.style.display = "block";
+                    dayFilter.style.display = "none";
+                } else if (value === "day") {
+                    dayFilter.style.display = "block";
+                    monthFilter.style.display = "none";
+                } else {
+                    monthFilter.style.display = "none";
+                    dayFilter.style.display = "none";
+                }
+            });
+
+            // Nếu đã có dữ liệu sẵn thì hiển thị đúng input tương ứng
+            const currentMonth = "@ViewBag.Month";
+            const currentDay = "@ViewBag.Day";
+            if (currentMonth) {
+                filterType.value = "month";
+                monthFilter.style.display = "block";
+            } else if (currentDay) {
+                filterType.value = "day";
+                dayFilter.style.display = "block";
+            }
+
             // Xử lý tìm kiếm và lọc
             $("#searchText, #month,#day, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
                 applyFilters();
@@ -430,7 +480,19 @@
                     }
                 });
             });
-
+            $(document).on("click", ".ajax-action-create", function (e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                if ($("#detail-section").hasClass("d-none")) {
+                    
+                   
+                }
+                $(".actionCreate").load(url, function (response, status, xhr) {
+                    if (status === "error") {
+                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                    }
+                });
+            });
             // Xử lý cập nhật đánh giá
             $(document).on('change keydown', '.assessment-input', function (e) {
                 if (e.type === 'keydown' && e.key !== 'Tab') return; // Only proceed on Tab or change
@@ -505,7 +567,8 @@
                 $("#searchForm").find("input[type=text], input[type=month], select").val('');
                 $("#searchForm").find("input[type=checkbox]").prop("checked", false);
                 // Xóa các tham số trên URL
-                let url = new URL(window.location.href);
+               let url = "@Url.Action("Index", "Jobs", new { area = "AdminSystem" })";
+                   loadTable(url);
                 url.search = ''; // Xóa toàn bộ query params
                 // Gửi AJAX để tải lại danh sách công việc
                 loadJobs(url.toString());

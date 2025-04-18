@@ -254,7 +254,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 JobId = jobId,
                 EmployeeId = employeeId,
-                CreateBy = HttpContext.Session.GetString("ProjectManagerLogin"),
+                CreateBy = HttpContext.Session.GetString("AdminLogin"),
                 CreateDate = DateTime.Now,
                 IsActive = true,
                 IsDelete = false
@@ -702,6 +702,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 _context.Jobmapemployees.RemoveRange(relatedJobMapEmployees);
 
                 // Cuối cùng xóa Job
+                //job.IsDelete = true;
+                //job.IsActive= false;
                 _context.Jobs.Remove(job);
             }
             else

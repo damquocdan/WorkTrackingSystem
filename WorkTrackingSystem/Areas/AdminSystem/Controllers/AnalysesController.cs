@@ -586,7 +586,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var analysis = await _context.Analyses.FindAsync(id);
             if (analysis != null)
             {
-                _context.Analyses.Remove(analysis);
+                analysis.IsActive = false;
+                analysis.IsDelete= true;
+                _context.Analyses.Update(analysis);
             }
 
             await _context.SaveChangesAsync();

@@ -297,12 +297,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 year = null;
             }
 
-            // Query to aggregate scores by employee
+            // Query to aggregate scores by employee, restricted to managed departments
             var employeeScoresQuery = from s in _context.Scores
                                       join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
                                       join e in _context.Employees on jme.EmployeeId equals e.Id
                                       join d in _context.Departments on e.DepartmentId equals d.Id
-                                      where (departmentId == null || d.Id == departmentId)
+                                      where managedDepartments.Contains(d.Id) // Restrict to managed departments
+                                            && (departmentId == null || d.Id == departmentId) // Filter by selected department
                                             && (fromDate == null || s.CreateDate >= fromDate)
                                             && (toDate == null || s.CreateDate <= toDate)
                                       group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
