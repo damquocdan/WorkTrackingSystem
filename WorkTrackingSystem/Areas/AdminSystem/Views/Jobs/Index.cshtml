@@ -13,6 +13,13 @@
         </ol>
     </div>
 </div>
+<p>
+    <a id="btn-create-job" class="btn btn-primary" data-bs-toggle="collapse" href="#collapsejob" role="button" aria-expanded="false" aria-controls="collapsejob"><i class="bi bi-plus-circle"></i> Giao C.việc</a>
+    <a class="btn btn-success ajax-action-create" data-bs-toggle="collapse" href="#collapsecreate" role="button" aria-expanded="false" aria-controls="collapsecreate" data-url="@Url.Action("Createjob")">Tạo công việc</a>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        Lọc
+    </button>
+</p>
 <div class="collapse" id="collapseExample">
     <div class="card card-body">
         <div class="row">
@@ -123,13 +130,7 @@
         </div>
     </div>
 </div>
-<p> 
-    <a id="btn-create-job" class="btn btn-primary" data-bs-toggle="collapse" href="#collapsejob" role="button" aria-expanded="false" aria-controls="collapsejob"><i class="bi bi-plus-circle"></i> Giao C.việc</a>
-    <a class="btn btn-success ajax-action-create" data-bs-toggle="collapse" href="#collapsecreate" role="button" aria-expanded="false" aria-controls="collapsecreate" data-url="@Url.Action("Createjob")">Tạo công việc</a>
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-       Lọc
-    </button>
-</p>
+
 <div class="collapse" id="collapsejob">
     <div class="card card-body">
 <div id="search-employee-section" class="d-none ">
@@ -193,7 +194,7 @@
     <div class="col-md-12" id="list-section">
         <div class="card-body">
             <div class="table-responsive">
-                <h2 class="text-center">Danh sách công việc</h2>
+                <h2 class="text-center">DANH SÁCH CÔNG VIỆC</h2>
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
                     <thead class="text-center">
                         <tr>
@@ -204,14 +205,10 @@
                             <th>Deadline</th>
                             <th>Ngày hoàn thành thực tế</th>
                             <th>Trạng thái</th>
-                            @* <th>Đánh giá khối lượng</th>
-                            <th>Đánh giá tiến độ</th>
-                            <th>Đánh giá chất lượng</th> *@
+                           
                             <th>Tổng hợp đánh giá</th>
                             <th width="100px">
-                                @*                                 <a id="exportExcel" class="btn btn-success">
-                                <i class="bi bi-file-earmark-excel"></i> Excel
-                                </a> *@
+                               
                             </th>
                         </tr>
                     </thead>
