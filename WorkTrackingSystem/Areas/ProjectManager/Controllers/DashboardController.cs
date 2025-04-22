@@ -5,7 +5,18 @@ using System.Linq;
 using System.Collections.Generic;
 using WorkTrackingSystem.Models;
 using Newtonsoft.Json;
-
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Style;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using WorkTrackingSystem.Models;
 namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 {
     [Area("ProjectManager")]
@@ -18,103 +29,637 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(
+            string day = "",
+            string fromDate = "",
+            string toDate = "",
+            string month = "",
+            string quarter = "",
+            string year = "")
         {
+            // Lưu trạng thái bộ lọc vào ViewBag
+            ViewBag.Day = day;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
+            ViewBag.Month = month;
+            ViewBag.Quarter = quarter;
+            ViewBag.Year = year;
+
+            // Kiểm tra xem có lọc theo khoảng thời gian không
+            bool isDateRange = !string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate);
+            ViewBag.Date1 = fromDate;
+            ViewBag.Date2 = toDate;
+
+            // Xác định kiểu thời gian và khoảng thời gian
+            DateTime? filterFromDate = null;
+            DateTime? filterToDate = null;
+            bool isDailyGrouping = false;
+
+            if (isDateRange && DateTime.TryParse(fromDate, out DateTime startDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            {
+                filterFromDate = startDate;
+                filterToDate = endDate;
+                isDailyGrouping = true; // Nhóm theo ngày nếu lọc theo khoảng thời gian
+            }
+            else if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
+            {
+                filterFromDate = selectedDay;
+                filterToDate = selectedDay;
+                isDailyGrouping = true; // Nhóm theo ngày
+            }
+            else if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter) && !string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
+            {
+                filterFromDate = new DateTime(selectedYear, (selectedQuarter - 1) * 3 + 1, 1);
+                filterToDate = filterFromDate.Value.AddMonths(3).AddDays(-1);
+                isDailyGrouping = false; // Nhóm theo tháng trong quý
+            }
+            else if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+            {
+                int filterYear = !string.IsNullOrEmpty(year) && int.TryParse(year, out int y) ? y : DateTime.Now.Year;
+                filterFromDate = new DateTime(filterYear, selectedMonth.Month, 1);
+                filterToDate = filterFromDate.Value.AddMonths(1).AddDays(-1);
+                isDailyGrouping = true; // Nhóm theo ngày trong tháng
+            }
+            else if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYearForYear))
+            {
+                filterFromDate = new DateTime(selectedYearForYear, 1, 1);
+                filterToDate = new DateTime(selectedYearForYear, 12, 31);
+                isDailyGrouping = false; // Nhóm theo tháng trong năm
+            }
+
+            // Get managed departments
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var manager = await _context.Users
+                .Where(u => u.UserName == managerUsername)
+                .Select(u => u.Employee)
+                .FirstOrDefaultAsync();
+
+            if (manager == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            // Query scores, restricted to managed departments and non-null Time
+            var scoresQuery = _context.Scores
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Job)
+                .Include(s => s.JobMapEmployee)
+                .ThenInclude(jme => jme.Employee)
+                .ThenInclude(e => e.Department)
+                .Where(s => s.Time.HasValue &&
+                            s.JobMapEmployee.Job.IsActive == true &&
+                            s.JobMapEmployee.Job.IsDelete == false &&
+                            s.JobMapEmployee.Employee != null &&
+                            s.JobMapEmployee.Employee.DepartmentId.HasValue &&
+                            managedDepartments.Contains(s.JobMapEmployee.Employee.DepartmentId.Value));
+
+            // Apply time filters
+            if (filterFromDate.HasValue && filterToDate.HasValue)
+            {
+                scoresQuery = scoresQuery.Where(s => s.Time.Value.Date >= filterFromDate.Value.Date && s.Time.Value.Date <= filterToDate.Value.Date);
+            }
+
             // Tổng quan
-            ViewBag.TotalJobs = _context.Jobs.Count(j => j.IsActive == true && j.IsDelete == false);
-            ViewBag.CompletedJobs = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Count(s => s.Status == 1 && s.JobMapEmployee.Job.IsActive == true && s.JobMapEmployee.Job.IsDelete == false);
-
-            ViewBag.OverdueJobs = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Count(s => s.Status == 2 && s.JobMapEmployee.Job.IsActive == true && s.JobMapEmployee.Job.IsDelete == false);
-
-            ViewBag.TotalCategories = _context.Categories.Count(c => c.IsActive == true && c.IsDelete == false);
+            ViewBag.TotalJobs = await _context.Jobs.CountAsync(j => j.IsActive == true && j.IsDelete == false);
+            ViewBag.CompletedJobs = await scoresQuery.CountAsync(s => s.Status == 1);
+            ViewBag.OverdueJobs = await scoresQuery.CountAsync(s => s.Status == 2);
+            ViewBag.TotalCategories = await _context.Categories.CountAsync(c => c.IsActive == true && c.IsDelete == false);
 
             // Trạng thái công việc cho biểu đồ tròn
-            ViewBag.JobStatusOntime = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Count(s => s.Status == 1);
-            ViewBag.JobStatusOverdue = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Count(s => s.Status == 2);
-            ViewBag.JobStatusLate = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Count(s => s.Status == 3);
-            ViewBag.JobStatusProcessing = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Count(s => s.Status == 4);
+            ViewBag.JobStatusOntime = await scoresQuery.CountAsync(s => s.Status == 1);
+            ViewBag.JobStatusOverdue = await scoresQuery.CountAsync(s => s.Status == 2);
+            ViewBag.JobStatusLate = await scoresQuery.CountAsync(s => s.Status == 3);
+            ViewBag.JobStatusProcessing = await scoresQuery.CountAsync(s => s.Status == 4);
 
-            // Thống kê công việc theo tháng/năm cho biểu đồ cột
-            var jobsByMonth = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Where(s => s.Time.HasValue && s.JobMapEmployee.Job.IsActive == true && s.JobMapEmployee.Job.IsDelete == false)
-                .ToList()
-                .GroupBy(s => s.Time.Value.ToString("MM/yyyy"))
-                .Select(g => new
-                {
-                    MonthYear = g.Key,
-                    TotalJobs = g.Count()
-                })
-                .OrderBy(g => g.MonthYear)
-                .ToList();
+            // Thống kê công việc theo tháng/năm hoặc ngày
+            var jobsByPeriod = await scoresQuery
+                .Select(s => new { s.Time })
+                .ToListAsync(); // Fetch to client to avoid ToString translation issue
 
-            ViewBag.JobMonths = jobsByMonth.Select(j => j.MonthYear).ToList();
-            ViewBag.JobCounts = jobsByMonth.Select(j => j.TotalJobs).ToList();
+            var jobsByPeriodGrouped = isDailyGrouping
+                ? jobsByPeriod
+                    .GroupBy(s => new { s.Time.Value.Year, s.Time.Value.Month, s.Time.Value.Day })
+                    .Select(g => new
+                    {
+                        Period = $"{g.Key.Day:D2}/{g.Key.Month:D2}/{g.Key.Year}", // Format client-side
+                        TotalJobs = g.Count()
+                    })
+                    .OrderBy(g => DateTime.Parse(g.Period))
+                : jobsByPeriod
+                    .GroupBy(s => new { s.Time.Value.Year, s.Time.Value.Month })
+                    .Select(g => new
+                    {
+                        Period = $"{g.Key.Month:D2}/{g.Key.Year}", // Format client-side
+                        TotalJobs = g.Count()
+                    })
+                    .OrderBy(g => DateTime.ParseExact(g.Period, "MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
+
+            ViewBag.JobMonths = jobsByPeriodGrouped.Select(j => j.Period).ToList();
+            ViewBag.JobCounts = jobsByPeriodGrouped.Select(j => j.TotalJobs).ToList();
 
             // Dữ liệu lịch (công việc theo ngày)
-            var calendarJobs = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                .ThenInclude(jme => jme.Job)
-                .Where(s => s.Time.HasValue && s.JobMapEmployee.Job.IsActive == true && s.JobMapEmployee.Job.IsDelete == false)
+            var calendarJobs = await scoresQuery
                 .Select(s => new
                 {
                     Title = s.JobMapEmployee.Job.Name,
                     Start = s.Time.Value.ToString("yyyy-MM-dd"),
                     Status = s.Status
                 })
-                .ToList();
+                .ToListAsync();
 
             ViewBag.CalendarJobs = JsonConvert.SerializeObject(calendarJobs);
 
-            // Dữ liệu cho biểu đồ đánh giá và tóm tắt công việc
-            var assessments = _context.Baselineassessments
-                .Include(a => a.Employee)
-                .Where(a => a.Time.HasValue && a.IsActive == true && a.IsDelete == false)
-                .ToList();
-
-            var groupedData = assessments
-                .GroupBy(x => x.Time.Value.ToString("MM/yyyy"))
-                .Select(g => new
+            // Dữ liệu cho biểu đồ đánh giá
+            var scoreSummaryRaw = await scoresQuery
+                .Select(s => new
                 {
-                    MonthYear = g.Key,
-                    SumVolume = g.Sum(x => x.VolumeAssessment ?? 0),
-                    SumProgress = g.Sum(x => x.ProgressAssessment ?? 0),
-                    SumQuality = g.Sum(x => x.QualityAssessment ?? 0),
-                    SumSummary = g.Sum(x => x.SummaryOfReviews ?? 0)
+                    Time = s.Time.Value,
+                    s.VolumeAssessment,
+                    s.ProgressAssessment,
+                    s.QualityAssessment
                 })
-                .OrderBy(g => g.MonthYear)
-                .ToList();
+                .ToListAsync(); // Fetch to client to avoid ToString translation issue
 
-            // Prepare chart data
-            ViewBag.Labels = groupedData.Select(g => g.MonthYear).ToList();
-            ViewBag.SumVolume = groupedData.Select(g => g.SumVolume).ToList();
-            ViewBag.SumProgress = groupedData.Select(g => g.SumProgress).ToList();
-            ViewBag.SumQuality = groupedData.Select(g => g.SumQuality).ToList();
-            ViewBag.SumSummary = groupedData.Select(g => g.SumSummary).ToList();
+            var scoreSummary = isDailyGrouping
+                ? scoreSummaryRaw
+                    .GroupBy(s => new { s.Time.Year, s.Time.Month, s.Time.Day })
+                    .Select(g => new
+                    {
+                        Period = $"{g.Key.Day:D2}/{g.Key.Month:D2}/{g.Key.Year}", // Format client-side
+                        TotalVolume = g.Sum(s => s.VolumeAssessment ?? 0),
+                        TotalProgress = g.Sum(s => s.ProgressAssessment ?? 0),
+                        TotalQuality = g.Sum(s => s.QualityAssessment ?? 0),
+                        SummaryScore = g.Sum(s =>
+                            (decimal)(s.VolumeAssessment ?? 0) * 0.6m +
+                            (decimal)(s.ProgressAssessment ?? 0) * 0.15m +
+                            (decimal)(s.QualityAssessment ?? 0) * 0.25m)
+                    })
+                    .OrderBy(g => DateTime.Parse(g.Period))
+                : scoreSummaryRaw
+                    .GroupBy(s => new { s.Time.Year, s.Time.Month })
+                    .Select(g => new
+                    {
+                        Period = $"{g.Key.Month:D2}/{g.Key.Year}", // Format client-side
+                        TotalVolume = g.Sum(s => s.VolumeAssessment ?? 0),
+                        TotalProgress = g.Sum(s => s.ProgressAssessment ?? 0),
+                        TotalQuality = g.Sum(s => s.QualityAssessment ?? 0),
+                        SummaryScore = g.Sum(s =>
+                            (decimal)(s.VolumeAssessment ?? 0) * 0.6m +
+                            (decimal)(s.ProgressAssessment ?? 0) * 0.15m +
+                            (decimal)(s.QualityAssessment ?? 0) * 0.25m)
+                    })
+                    .OrderBy(g => DateTime.ParseExact(g.Period, "MM/yyyy", System.Globalization.CultureInfo.InvariantCulture));
 
-            ViewBag.Date1 = null; // Set to null or based on filtering logic
-            ViewBag.Date2 = null; // Set to null or based on filtering logic
+            ViewBag.Labels = scoreSummary.Select(s => s.Period).ToList();
+            ViewBag.SumVolume = scoreSummary.Select(s => s.TotalVolume).ToList();
+            ViewBag.SumProgress = scoreSummary.Select(s => s.TotalProgress).ToList();
+            ViewBag.SumQuality = scoreSummary.Select(s => s.TotalQuality).ToList();
+            ViewBag.SumSummary = scoreSummary.Select(s => s.SummaryScore).ToList();
 
             return View();
+        }
+        public async Task<IActionResult> ExportToExcel(
+            string day = "",
+            string fromDate = "",
+            string toDate = "",
+            string month = "",
+            string quarter = "",
+            string year = "")
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            var manager = await _context.Users
+                .Include(u => u.Employee)
+                .FirstOrDefaultAsync(u => u.UserName == managerUsername);
+
+            if (manager?.Employee == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Get managed departments
+            var managedDepartments = await _context.Departments
+                .Where(d => d.Employees.Any(e => e.Id == manager.Employee.Id && e.PositionId == 3))
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            // Process time parameters
+            DateTime? filterFromDate = null;
+            DateTime? filterToDate = null;
+            string selectedPeriod = "Toàn bộ";
+            bool isDateRange = !string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate);
+
+            if (isDateRange && DateTime.TryParse(fromDate, out DateTime startDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            {
+                filterFromDate = startDate;
+                filterToDate = endDate;
+                selectedPeriod = $"Từ {startDate:dd/MM/yyyy} Đến {endDate:dd/MM/yyyy}";
+            }
+            else if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
+            {
+                filterFromDate = selectedDay;
+                filterToDate = selectedDay;
+                selectedPeriod = $"Ngày {selectedDay:dd/MM/yyyy}";
+            }
+            else if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter) && !string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
+            {
+                filterFromDate = new DateTime(selectedYear, (selectedQuarter - 1) * 3 + 1, 1);
+                filterToDate = filterFromDate.Value.AddMonths(3).AddDays(-1);
+                selectedPeriod = $"Quý {selectedQuarter}/{selectedYear}";
+            }
+            else if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+            {
+                int filterYear = !string.IsNullOrEmpty(year) && int.TryParse(year, out int y) ? y : DateTime.Now.Year;
+                filterFromDate = new DateTime(filterYear, selectedMonth.Month, 1);
+                filterToDate = filterFromDate.Value.AddMonths(1).AddDays(-1);
+                selectedPeriod = $"Tháng {selectedMonth:MM/yyyy}";
+            }
+            else if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYearForYear))
+            {
+                filterFromDate = new DateTime(selectedYearForYear, 1, 1);
+                filterToDate = new DateTime(selectedYearForYear, 12, 31);
+                selectedPeriod = $"Năm {selectedYearForYear}";
+            }
+
+            // Base scores query
+            var scoresQuery = _context.Scores
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Employee)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Job)
+                        .ThenInclude(j => j.Category)
+                .Where(s => s.Time.HasValue &&
+                            s.JobMapEmployee.EmployeeId.HasValue &&
+                            s.JobMapEmployee.Employee != null &&
+                            s.JobMapEmployee.Employee.DepartmentId.HasValue &&
+                            managedDepartments.Contains(s.JobMapEmployee.Employee.DepartmentId.Value));
+
+            // Apply time filters
+            if (filterFromDate.HasValue && filterToDate.HasValue)
+            {
+                scoresQuery = scoresQuery.Where(s => s.Time.Value.Date >= filterFromDate.Value.Date && s.Time.Value.Date <= filterToDate.Value.Date);
+            }
+
+            var scoreList = await scoresQuery.ToListAsync();
+
+            // Aggregate scores by employee (for Sheet 2)
+            var employeeScoresQuery = from s in scoresQuery
+                                      join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
+                                      join e in _context.Employees on jme.EmployeeId equals e.Id
+                                      group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
+                                      select new
+                                      {
+                                          EmployeeId = g.Key.Id,
+                                          EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
+                                          TotalVolume = (int)(g.Sum(x => x.s.VolumeAssessment ?? 0)),
+                                          TotalProgress = (int)(g.Sum(x => x.s.ProgressAssessment ?? 0)),
+                                          TotalQuality = (int)(g.Sum(x => x.s.QualityAssessment ?? 0)),
+                                          SummaryScore = g.Sum(x =>
+                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m),
+                                          EvaluationResult = g.Sum(x =>
+                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m) >= 4.5m ? "Đạt" : "Chưa đạt"
+                                      };
+
+            var employeeScores = await employeeScoresQuery.OrderBy(e => e.EmployeeId).ToListAsync();
+
+            // Job status summary (for Sheet 3)
+            var jobStatusQuery = from s in scoresQuery
+                                 join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
+                                 join e in _context.Employees on jme.EmployeeId equals e.Id
+                                 group s by new { e.Id, EmployeeName = e.FirstName + " " + e.LastName } into g
+                                 select new
+                                 {
+                                     EmployeeId = g.Key.Id,
+                                     EmployeeName = g.Key.EmployeeName.Trim(),
+                                     TotalJobs = g.Count(),
+                                     OnTimeCount = g.Count(s => s.Status == 1),
+                                     LateCount = g.Count(s => s.Status == 3),
+                                     OverdueCount = g.Count(s => s.Status == 2),
+                                     ProcessingCount = g.Count(s => s.Status == 4)
+                                 };
+
+            var jobStatusSummary = await jobStatusQuery.OrderBy(e => e.EmployeeName).ToListAsync();
+
+            if (!scoreList.Any() && !employeeScores.Any() && !jobStatusSummary.Any())
+            {
+                TempData["NoDataMessage"] = "Không có dữ liệu để xuất Excel.";
+                return RedirectToAction("Index");
+            }
+
+            using (var package = new ExcelPackage())
+            {
+                // Sheet 1: Detailed Scores
+                var ws1 = package.Workbook.Worksheets.Add("Scores");
+                ws1.Cells[1, 1].Value = $"Danh sách điểm số - {selectedPeriod}";
+                ws1.Cells[1, 1, 1, 11].Merge = true;
+                ws1.Cells[1, 1].Style.Font.Bold = true;
+                ws1.Cells[1, 1].Style.Font.Size = 14;
+                ws1.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                ws1.Cells[2, 1].Value = "STT";
+                ws1.Cells[2, 2].Value = "Nhân viên";
+                ws1.Cells[2, 3].Value = "Hạng mục";
+                ws1.Cells[2, 4].Value = "Công việc";
+                ws1.Cells[2, 5].Value = "Ngày tạo";
+                ws1.Cells[2, 6].Value = "Ngày hoàn thành";
+                ws1.Cells[2, 7].Value = "Trạng thái";
+                ws1.Cells[2, 8].Value = "Đánh giá khối lượng";
+                ws1.Cells[2, 9].Value = "Đánh giá tiến độ";
+                ws1.Cells[2, 10].Value = "Đánh giá chất lượng";
+                ws1.Cells[2, 11].Value = "Đánh giá tổng hợp";
+
+                ws1.Cells[2, 1, 2, 11].Style.Font.Bold = true;
+                ws1.Cells[2, 1, 2, 11].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws1.Cells[2, 1, 2, 11].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                for (int i = 0; i < scoreList.Count; i++)
+                {
+                    var score = scoreList[i];
+                    ws1.Cells[i + 3, 1].Value = i + 1;
+                    ws1.Cells[i + 3, 2].Value = score.JobMapEmployee.Employee != null
+                        ? $"{score.JobMapEmployee.Employee.Code} {score.JobMapEmployee.Employee.FirstName} {score.JobMapEmployee.Employee.LastName}"
+                        : "N/A";
+                    ws1.Cells[i + 3, 3].Value = score.JobMapEmployee.Job.Category?.Name ?? "N/A";
+                    ws1.Cells[i + 3, 4].Value = score.JobMapEmployee.Job?.Name ?? "N/A";
+                    ws1.Cells[i + 3, 5].Value = score.CreateDate?.ToString("dd/MM/yyyy");
+                    ws1.Cells[i + 3, 6].Value = score.CompletionDate?.ToString("dd/MM/yyyy");
+                    ws1.Cells[i + 3, 7].Value = score.Status switch
+                    {
+                        1 => "Hoàn thành",
+                        2 => "Chưa hoàn thành",
+                        3 => "Hoàn thành muộn",
+                        4 => "Đang xử lý",
+                        _ => "Chưa bắt đầu"
+                    };
+                    ws1.Cells[i + 3, 8].Value = score.VolumeAssessment;
+                    ws1.Cells[i + 3, 9].Value = score.ProgressAssessment;
+                    ws1.Cells[i + 3, 10].Value = score.QualityAssessment;
+                    ws1.Cells[i + 3, 11].Value = score.SummaryOfReviews;
+                }
+
+                ws1.Cells.AutoFitColumns();
+
+                // Sheet 2: Employee Score Summary
+                var ws2 = package.Workbook.Worksheets.Add("Danh sách đánh giá");
+                ws2.Cells[1, 1].Value = $"Bảng tổng hợp đánh giá - {selectedPeriod}";
+                ws2.Cells[1, 1, 1, 7].Merge = true;
+                ws2.Cells[1, 1].Style.Font.Bold = true;
+                ws2.Cells[1, 1].Style.Font.Size = 14;
+                ws2.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                ws2.Cells[2, 1].Value = "STT";
+                ws2.Cells[2, 2].Value = "Nhân viên";
+                ws2.Cells[2, 3].Value = "Tổng đánh giá khối lượng";
+                ws2.Cells[2, 4].Value = "Tổng đánh giá tiến độ";
+                ws2.Cells[2, 5].Value = "Tổng đánh giá chất lượng";
+                ws2.Cells[2, 6].Value = "Tổng đánh giá tổng hợp";
+                ws2.Cells[2, 7].Value = "Đánh giá";
+
+                ws2.Cells[2, 1, 2, 7].Style.Font.Bold = true;
+                ws2.Cells[2, 1, 2, 7].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws2.Cells[2, 1, 2, 7].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                ws2.Cells[2, 1, 2, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                int row = 3;
+                int index = 0;
+                foreach (var item in employeeScores)
+                {
+                    index++;
+                    ws2.Cells[row, 1].Value = index;
+                    ws2.Cells[row, 2].Value = item.EmployeeName;
+                    ws2.Cells[row, 3].Value = item.TotalVolume;
+                    ws2.Cells[row, 4].Value = item.TotalProgress;
+                    ws2.Cells[row, 5].Value = item.TotalQuality;
+                    ws2.Cells[row, 6].Value = Math.Round(item.SummaryScore, 2);
+                    ws2.Cells[row, 6].Style.Numberformat.Format = "0.00";
+                    ws2.Cells[row, 7].Value = item.EvaluationResult;
+                    ws2.Cells[row, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws2.Cells[row, 3, row, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    row++;
+                }
+
+                ws2.Cells.AutoFitColumns();
+
+                if (employeeScores.Any())
+                {
+                    var chart = ws2.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart;
+                    chart.SetPosition(1, 0, 9, 0);
+                    chart.SetSize(500, 350);
+
+                    var dataRange = ws2.Cells[3, 3, employeeScores.Count + 2, 3];
+                    var labelRange = ws2.Cells[3, 2, employeeScores.Count + 2, 2];
+
+                    var series = chart.Series.Add(dataRange, labelRange) as ExcelPieChartSerie;
+                    chart.Title.Text = "Đánh giá khối lượng";
+                    chart.Legend.Position = eLegendPosition.Left;
+
+                    if (series != null)
+                    {
+                        series.DataLabel.ShowPercent = true;
+                        series.DataLabel.Position = eLabelPosition.Center;
+                    }
+                }
+
+                // Sheet 3: Job Status Summary
+                var ws3 = package.Workbook.Worksheets.Add("Analysis Summary");
+                var departmentName = _context.Departments
+                    .Where(d => d.Id == managedDepartments.FirstOrDefault())
+                    .Select(d => d.Name)
+                    .FirstOrDefault() ?? "All Departments";
+
+                ws3.Cells[1, 1].Value = $"Bảng tổng hợp phân tích - {selectedPeriod}";
+                ws3.Cells[1, 1, 1, 7].Merge = true;
+                ws3.Cells[1, 1].Style.Font.Size = 14;
+                ws3.Cells[1, 1].Style.Font.Bold = true;
+                ws3.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                ws3.Cells[2, 1].Value = "STT";
+                ws3.Cells[2, 2].Value = "Nhân sự";
+                ws3.Cells[2, 3].Value = "Tổng số";
+                ws3.Cells[2, 4].Value = "Đúng hạn";
+                ws3.Cells[2, 5].Value = "Trễ hạn";
+                ws3.Cells[2, 6].Value = "Quá hạn";
+                ws3.Cells[2, 7].Value = "Đang xử lý";
+
+                ws3.Cells[2, 1, 2, 7].Style.Font.Bold = true;
+                ws3.Cells[2, 1, 2, 7].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws3.Cells[2, 1, 2, 7].Style.Fill.BackgroundColor.SetColor(Color.Green);
+                ws3.Cells[2, 1, 2, 7].Style.Font.Color.SetColor(Color.White);
+                ws3.Cells[2, 1, 2, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                ws3.Cells[3, 1].Value = "Tổng";
+                ws3.Cells[3, 2].Value = departmentName;
+                ws3.Cells[3, 3].Value = jobStatusSummary.Sum(e => e.TotalJobs);
+                ws3.Cells[3, 4].Value = jobStatusSummary.Sum(e => e.OnTimeCount);
+                ws3.Cells[3, 5].Value = jobStatusSummary.Sum(e => e.LateCount);
+                ws3.Cells[3, 6].Value = jobStatusSummary.Sum(e => e.OverdueCount);
+                ws3.Cells[3, 7].Value = jobStatusSummary.Sum(e => e.ProcessingCount);
+                ws3.Cells[3, 1, 3, 7].Style.Font.Bold = true;
+
+                for (int i = 0; i < jobStatusSummary.Count; i++)
+                {
+                    var score = jobStatusSummary[i];
+                    ws3.Cells[i + 4, 1].Value = i + 1;
+                    ws3.Cells[i + 4, 2].Value = score.EmployeeName;
+                    ws3.Cells[i + 4, 3].Value = score.TotalJobs;
+                    ws3.Cells[i + 4, 4].Value = score.OnTimeCount;
+                    ws3.Cells[i + 4, 5].Value = score.LateCount;
+                    ws3.Cells[i + 4, 6].Value = score.OverdueCount;
+                    ws3.Cells[i + 4, 7].Value = score.ProcessingCount;
+                }
+
+                ws3.Cells[3, 1, jobStatusSummary.Count + 3, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                ws3.Cells.AutoFitColumns();
+
+                if (jobStatusSummary.Any())
+                {
+                    var columnChart = ws3.Drawings.AddChart("ColumnChart", eChartType.ColumnClustered) as ExcelBarChart;
+                    columnChart.SetPosition(jobStatusSummary.Count + 5, 0, 1, 0);
+                    columnChart.SetSize(800, 400);
+
+                    int nameColumnIndex = 2;
+                    int totalColumnIndex = 3;
+                    int ontimeColumnIndex = 4;
+                    int lateColumnIndex = 5;
+                    int overdueColumnIndex = 6;
+
+                    var labelRange = ws3.Cells[4, nameColumnIndex, jobStatusSummary.Count + 3, nameColumnIndex];
+                    var totalRange = ws3.Cells[4, totalColumnIndex, jobStatusSummary.Count + 3, totalColumnIndex];
+                    var ontimeRange = ws3.Cells[4, ontimeColumnIndex, jobStatusSummary.Count + 3, ontimeColumnIndex];
+                    var lateRange = ws3.Cells[4, lateColumnIndex, jobStatusSummary.Count + 3, lateColumnIndex];
+                    var overdueRange = ws3.Cells[4, overdueColumnIndex, jobStatusSummary.Count + 3, overdueColumnIndex];
+
+                    var seriesTotal = columnChart.Series.Add(totalRange, labelRange);
+                    seriesTotal.Header = "Tổng số";
+                    var seriesOntime = columnChart.Series.Add(ontimeRange, labelRange);
+                    seriesOntime.Header = "Đúng hạn";
+                    var seriesLate = columnChart.Series.Add(lateRange, labelRange);
+                    seriesLate.Header = "Trễ hạn";
+                    var seriesOverdue = columnChart.Series.Add(overdueRange, labelRange);
+                    seriesOverdue.Header = "Quá hạn";
+
+                    seriesTotal.Fill.Color = Color.Blue;
+                    seriesOntime.Fill.Color = Color.Green;
+                    seriesLate.Fill.Color = Color.Red;
+                    seriesOverdue.Fill.Color = Color.Yellow;
+
+                    columnChart.Title.Text = $"Tổng hợp {selectedPeriod}";
+                    columnChart.Legend.Position = eLegendPosition.Bottom;
+                    columnChart.DataLabel.ShowValue = true;
+                    columnChart.DataLabel.Position = eLabelPosition.OutEnd;
+
+                    var pieChart = ws3.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart;
+                    pieChart.SetPosition(1, 0, 9, 0);
+                    pieChart.SetSize(500, 350);
+
+                    var pieDataRange = ws3.Cells[4, totalColumnIndex, jobStatusSummary.Count + 3, totalColumnIndex];
+                    var pieLabelRange = ws3.Cells[4, nameColumnIndex, jobStatusSummary.Count + 3, nameColumnIndex];
+
+                    var pieSeries = pieChart.Series.Add(pieDataRange, pieLabelRange) as ExcelPieChartSerie;
+                    pieChart.Title.Text = "Theo số lượng công việc";
+                    pieChart.Legend.Position = eLegendPosition.Left;
+
+                    if (pieSeries != null)
+                    {
+                        pieSeries.DataLabel.ShowPercent = true;
+                        pieSeries.DataLabel.Position = eLabelPosition.Center;
+                    }
+                }
+
+                // Per-Employee Sheets
+                var employees = scoreList
+                    .Select(s => new { s.JobMapEmployee.EmployeeId, s.JobMapEmployee.Employee })
+                    .Where(e => e.EmployeeId.HasValue && e.Employee != null)
+                    .DistinctBy(e => e.EmployeeId)
+                    .OrderBy(e => e.Employee.FirstName + " " + e.Employee.LastName);
+
+                foreach (var emp in employees)
+                {
+                    var employeeScoresList = scoreList
+                        .Where(s => s.JobMapEmployee.EmployeeId == emp.EmployeeId)
+                        .ToList();
+
+                    if (!employeeScoresList.Any())
+                        continue;
+
+                    var employeeName = $"{emp.Employee.FirstName} {emp.Employee.LastName}".Trim();
+                    var safeSheetName = employeeName.Length > 31 ? employeeName.Substring(0, 31) : employeeName;
+                    safeSheetName = safeSheetName.Replace("/", "_").Replace("\\", "_").Replace("?", "_").Replace("*", "_").Replace("[", "_").Replace("]", "_");
+
+                    var wsEmp = package.Workbook.Worksheets.Add(safeSheetName);
+                    wsEmp.Cells[1, 1].Value = $"Danh sách điểm số - {employeeName} - {selectedPeriod}";
+                    wsEmp.Cells[1, 1, 1, 11].Merge = true;
+                    wsEmp.Cells[1, 1].Style.Font.Bold = true;
+                    wsEmp.Cells[1, 1].Style.Font.Size = 14;
+                    wsEmp.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    wsEmp.Cells[2, 1].Value = "STT";
+                    wsEmp.Cells[2, 2].Value = "Hạng mục";
+                    wsEmp.Cells[2, 3].Value = "Công việc";
+                    wsEmp.Cells[2, 4].Value = "Ngày tạo";
+                    wsEmp.Cells[2, 5].Value = "Ngày hoàn thành";
+                    wsEmp.Cells[2, 6].Value = "Trạng thái";
+                    wsEmp.Cells[2, 7].Value = "Đánh giá khối lượng";
+                    wsEmp.Cells[2, 8].Value = "Đánh giá tiến độ";
+                    wsEmp.Cells[2, 9].Value = "Đánh giá chất lượng";
+                    wsEmp.Cells[2, 10].Value = "Đánh giá tổng hợp";
+
+                    wsEmp.Cells[2, 1, 2, 10].Style.Font.Bold = true;
+                    wsEmp.Cells[2, 1, 2, 10].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    wsEmp.Cells[2, 1, 2, 10].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                    for (int i = 0; i < employeeScoresList.Count; i++)
+                    {
+                        var score = employeeScoresList[i];
+                        wsEmp.Cells[i + 3, 1].Value = i + 1;
+                        wsEmp.Cells[i + 3, 2].Value = score.JobMapEmployee.Job.Category?.Name ?? "N/A";
+                        wsEmp.Cells[i + 3, 3].Value = score.JobMapEmployee.Job?.Name ?? "N/A";
+                        wsEmp.Cells[i + 3, 4].Value = score.CreateDate?.ToString("dd/MM/yyyy");
+                        wsEmp.Cells[i + 3, 5].Value = score.CompletionDate?.ToString("dd/MM/yyyy");
+                        wsEmp.Cells[i + 3, 6].Value = score.Status switch
+                        {
+                            1 => "Hoàn thành",
+                            2 => "Chưa hoàn thành",
+                            3 => "Hoàn thành muộn",
+                            4 => "Đang xử lý",
+                            _ => "Chưa bắt đầu"
+                        };
+                        wsEmp.Cells[i + 3, 7].Value = score.VolumeAssessment;
+                        wsEmp.Cells[i + 3, 8].Value = score.ProgressAssessment;
+                        wsEmp.Cells[i + 3, 9].Value = score.QualityAssessment;
+                        wsEmp.Cells[i + 3, 10].Value = score.SummaryOfReviews;
+                    }
+
+                    wsEmp.Cells.AutoFitColumns();
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                var fileName = $"Dashboard_Export_{selectedPeriod.Replace("/", "_").Replace(" ", "_")}.xlsx";
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
         }
     }
 }

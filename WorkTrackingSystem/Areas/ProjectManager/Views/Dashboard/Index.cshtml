@@ -2,7 +2,7 @@
     ViewData["Title"] = "Dashboard";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 
-    var isDateRange = !string.IsNullOrEmpty(ViewBag.Date1) && !string.IsNullOrEmpty(ViewBag.Date2);
+    var isDateRange = !string.IsNullOrEmpty(ViewBag.FromDate) && !string.IsNullOrEmpty(ViewBag.ToDate);
 }
 
 <!-- Content Header (Page header) -->
@@ -21,6 +21,66 @@
         </div>
     </div>
 </div>
+
+<!-- Filter Form -->
+<!-- Filter Form -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-body mb-3">
+            <form method="get" action="@Url.Action("Index")" id="filterForm">
+                <div class="row gx-2 gy-2 align-items-end">
+                    <!-- Ngày -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Ngày</label>
+                        <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                    </div>
+                    <!-- Từ ngày -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Từ ngày</label>
+                        <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                    </div>
+                    <!-- Đến ngày -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Đến ngày</label>
+                        <input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                    </div>
+                    <!-- Tháng -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Tháng</label>
+                        <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
+                    </div>
+                    <!-- Quý -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Quý</label>
+                        <select id="quarter" name="quarter" class="form-select">
+                            <option value="">-- Chọn quý --</option>
+                            <option value="1">Quý 1</option>
+                            <option value="2">Quý 2</option>
+                            <option value="3">Quý 3</option>
+                            <option value="4">Quý 4</option>
+                        </select>
+                    </div>
+                    <!-- Năm -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Năm</label>
+                        <select id="year" name="year" class="form-select">
+                            <option value="">-- Chọn năm --</option>
+                            @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+                    <!-- Nút Reset và Export -->
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">Reset</a>
+                        <a href="@Url.Action("ExportToExcel", new { day = ViewBag.Day, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, month = ViewBag.Month, quarter = ViewBag.Quarter, year = ViewBag.Year })" class="btn btn-primary">Xuất Excel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
 
 <!-- Main content -->
 <section class="content">
@@ -81,33 +141,33 @@
         <div class="row">
             <!-- Left col -->
             <section class="col-lg-7 connectedSortable">
-                <!-- Evaluation Chart -->
+                <!-- Score Trend Chart -->
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-chart-line mr-1"></i>
-                            Biểu đồ đánh giá
+                            Xu hướng điểm số
                         </h3>
                     </div>
                     <div class="card-body">
-                        <canvas id="evaluationChart" style="@(isDateRange ? "display: none;" : "")"></canvas>
-                        <div id="noChartMessage" class="text-center" style="@(isDateRange ? "" : "display: none;")">
-                            Biểu đồ không khả dụng khi lọc theo khoảng thời gian.
+                        <canvas id="scoreTrendChart"></canvas>
+                        <div id="noDataMessage" class="text-center" style="@(ViewBag.Labels.Count == 0 ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
                         </div>
                     </div>
                 </div>
-                <!-- Summary Chart -->
+                <!-- Summary Score Chart -->
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-chart-bar mr-1"></i>
-                            Tóm tắt công việc
+                            Tổng điểm đánh giá
                         </h3>
                     </div>
                     <div class="card-body">
-                        <canvas id="summaryChart" style="@(isDateRange ? "display: none;" : "")"></canvas>
-                        <div id="noSummaryChartMessage" class="text-center" style="@(isDateRange ? "" : "display: none;")">
-                            Biểu đồ không khả dụng khi lọc theo khoảng thời gian.
+                        <canvas id="summaryScoreChart"></canvas>
+                        <div id="noSummaryDataMessage" class="text-center" style="@(ViewBag.Labels.Count == 0 ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
                         </div>
                     </div>
                 </div>
@@ -123,16 +183,16 @@
                         <canvas id="jobStatusPieChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
                     </div>
                 </div>
-                <!-- Bar Chart: Jobs by Month -->
+                <!-- Bar Chart: Jobs by Period -->
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-chart-bar mr-1"></i>
-                            Công việc theo tháng/năm
+                            Công việc theo khoảng thời gian
                         </h3>
                     </div>
                     <div class="card-body">
-                        <canvas id="jobsByMonthBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
+                        <canvas id="jobsByPeriodBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
                     </div>
                 </div>
             </section>
@@ -164,10 +224,12 @@
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         var isDateRange = @(isDateRange ? "true" : "false");
         var labels = @Html.Raw(Json.Serialize(ViewBag.Labels));
@@ -175,73 +237,86 @@
         var sumProgress = @Html.Raw(Json.Serialize(ViewBag.SumProgress));
         var sumQuality = @Html.Raw(Json.Serialize(ViewBag.SumQuality));
         var sumSummary = @Html.Raw(Json.Serialize(ViewBag.SumSummary));
+        var jobMonths = @Html.Raw(Json.Serialize(ViewBag.JobMonths));
+        var jobCounts = @Html.Raw(Json.Serialize(ViewBag.JobCounts));
 
         document.addEventListener("DOMContentLoaded", function () {
-            // Evaluation Chart
-            if (!isDateRange) {
-                var ctx1 = document.getElementById('evaluationChart').getContext('2d');
-                var evaluationChart = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Tổng DGKL',
-                                data: sumVolume,
-                                borderColor: 'blue',
-                                fill: false
-                            },
-                            {
-                                label: 'Tổng DGTĐ',
-                                data: sumProgress,
-                                borderColor: 'green',
-                                fill: false
-                            },
-                            {
-                                label: 'Tổng DGCL',
-                                data: sumQuality,
-                                borderColor: 'red',
-                                fill: false
+            // Score Trend Chart
+            var ctx1 = document.getElementById('scoreTrendChart').getContext('2d');
+            var scoreTrendChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tổng Điểm Khối Lượng',
+                            data: sumVolume,
+                            borderColor: 'blue',
+                            fill: false
+                        },
+                        {
+                            label: 'Tổng Điểm Tiến Độ',
+                            data: sumProgress,
+                            borderColor: 'green',
+                            fill: false
+                        },
+                        {
+                            label: 'Tổng Điểm Chất Lượng',
+                            data: sumQuality,
+                            borderColor: 'red',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Tổng điểm'
                             }
-                        ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Tổng điểm'
-                                }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDateRange || labels[0]?.includes('/') && labels[0]?.split('/').length === 3 ? 'Ngày' : 'Tháng/Năm'
                             }
                         }
                     }
-                });
+                }
+            });
 
-                var ctx2 = document.getElementById('summaryChart').getContext('2d');
-                var summaryChart = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Tổng Đánh giá tổng hợp',
-                            data: sumSummary,
-                            backgroundColor: 'orange'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Tổng điểm'
-                                }
+            // Summary Score Chart
+            var ctx2 = document.getElementById('summaryScoreChart').getContext('2d');
+            var summaryScoreChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tổng Điểm Đánh Giá',
+                        data: sumSummary,
+                        backgroundColor: 'orange'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Tổng điểm'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDateRange || labels[0]?.includes('/') && labels[0]?.split('/').length === 3 ? 'Ngày' : 'Tháng/Năm'
                             }
                         }
                     }
-                });
-            }
+                }
+            });
 
             // Job Status Pie Chart
             var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
@@ -263,22 +338,28 @@
                 }
             });
 
-            // Jobs by Month Bar Chart
-            var barCtx = document.getElementById('jobsByMonthBarChart').getContext('2d');
-            var jobsByMonthBarChart = new Chart(barCtx, {
+            // Jobs by Period Bar Chart
+            var barCtx = document.getElementById('jobsByPeriodBarChart').getContext('2d');
+            var jobsByPeriodBarChart = new Chart(barCtx, {
                 type: 'bar',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(ViewBag.JobMonths)),
+                    labels: jobMonths,
                     datasets: [{
                         label: 'Số lượng công việc',
-                        data: @Html.Raw(Json.Serialize(ViewBag.JobCounts)),
+                        data: jobCounts,
                         backgroundColor: '#007bff',
                         borderWidth: 1
                     }]
                 },
                 options: {
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } }
+                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDateRange || jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3 ? 'Ngày' : 'Tháng/Năm'
+                            }
+                        }
                     },
                     plugins: { legend: { display: false } }
                 }
@@ -307,6 +388,11 @@
                 }
             });
             calendar.render();
+
+            // Xử lý bộ lọc
+            $("#day, #fromDate, #toDate, #month, #quarter, #year").on("change", function() {
+                $("#filterForm").submit();
+            });
         });
     </script>
 }
