@@ -96,10 +96,44 @@
                                     <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
                                 </div>
                             </div>
+                            <!-- Năm -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Năm</label>
+                                <select id="year" name="year" class="form-select">
+                                    <option value="">-- Chọn năm --</option>
+                                    @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                </select>
+                            </div>
 
+                            <!-- Quý -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Quý</label>
+                                <select id="quarter" name="quarter" class="form-select">
+                                    <option value="">-- Chọn quý --</option>
+                                    <option value="1">Quý 1</option>
+                                    <option value="2">Quý 2</option>
+                                    <option value="3">Quý 3</option>
+                                    <option value="4">Quý 4</option>
+                                </select>
+                            </div>
+
+                            <!-- Từ ngày -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Từ ngày</label>
+                                <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                            </div>
+
+                            <!-- Đến ngày -->
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold">Đến ngày</label>
+                                <input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                            </div>
                             <!-- Nút Tìm kiếm & Reset -->
-                            <div class="col-md-4 d-flex justify-content-end mt-4">
-                               @*  <button type="reset" class="btn btn-secondary" id="reset" name="dueToday">
+                            <div class="col-md-2 d-flex justify-content-end mt-4">
+                                @*  <button type="reset" class="btn btn-secondary" id="reset" name="dueToday">
                                     <i class="bi bi-arrow-repeat"></i> Reset
                                 </button> *@
                                 <a href="#" id="resetButton" class="btn btn-secondary">
@@ -173,13 +207,13 @@
     <input type="hidden" name="employeeId" id="form-employee-id" />
 </form>
 <div class="actionCreate collapse" id="collapsecreate"></div>
-<br/>
+<br />
 <div class="row">
     <div class="col-md-12" id="list-section">
         <div class="card-body">
             <div class="table-responsive">
                 <h1 class="text-center">DANH SÁCH CÔNG VIỆC</h1>
-              
+
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
                     <thead class="text-center">
                         <tr>
@@ -358,9 +392,9 @@
                 });
             });
             // Xử lý tìm kiếm và lọc
-            $("#searchText, #month,#day, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
-                applyFilters();
-            });
+                    $("#searchText, #month, #day, #year, #quarter, #fromDate, #toDate, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
+            applyFilters();
+        });
 
             // Xử lý nút tìm kiếm
             $("#searchButton").on("click", function () {
@@ -375,26 +409,34 @@
             });
 
             // Xử lý nút xuất Excel
-            $(document).on("click", "#exportExcel", function (e) {
-                e.preventDefault();
-                var searchText = $("#searchText").val();
-                var month = $("#month").val();
-                var day = $("#day").val();
-                var status = $("#status").val();
-                var categoryId = $("#categoryId").val();
-                var sortOrder = $("#sortOrder").val();
-                var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
-                var dueToday = $("#dueToday").is(":checked");
-                var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
-                    "&month=" + encodeURIComponent(month) +
-                    "&day=" + encodeURIComponent(day) +
-                    "&status=" + encodeURIComponent(status) +
-                    "&categoryId=" + encodeURIComponent(categoryId) +
-                    "&sortOrder=" + encodeURIComponent(sortOrder) +
-                    "&showCompletedZeroReview=" + encodeURIComponent(showCompletedZeroReview) +
-                    "&dueToday=" + encodeURIComponent(dueToday);
-                window.location.href = url;
-            });
+                    $(document).on("click", "#exportExcel", function (e) {
+            e.preventDefault();
+            var searchText = $("#searchText").val();
+            var month = $("#month").val();
+            var day = $("#day").val();
+            var year = $("#year").val(); // Thêm year
+            var quarter = $("#quarter").val(); // Thêm quarter
+            var fromDate = $("#fromDate").val(); // Thêm fromDate
+            var toDate = $("#toDate").val(); // Thêm toDate
+            var status = $("#status").val();
+            var categoryId = $("#categoryId").val();
+            var sortOrder = $("#sortOrder").val();
+            var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
+            var dueToday = $("#dueToday").is(":checked");
+            var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
+                "&month=" + encodeURIComponent(month) +
+                "&day=" + encodeURIComponent(day) +
+                "&year=" + encodeURIComponent(year) + // Thêm year
+                "&quarter=" + encodeURIComponent(quarter) + // Thêm quarter
+                "&fromDate=" + encodeURIComponent(fromDate) + // Thêm fromDate
+                "&toDate=" + encodeURIComponent(toDate) + // Thêm toDate
+                "&status=" + encodeURIComponent(status) +
+                "&categoryId=" + encodeURIComponent(categoryId) +
+                "&sortOrder=" + encodeURIComponent(sortOrder) +
+                "&showCompletedZeroReview=" + encodeURIComponent(showCompletedZeroReview) +
+                "&dueToday=" + encodeURIComponent(dueToday);
+            window.location.href = url;
+        });
 
             // Xử lý sự kiện AJAX cho nút chi tiết
             $(document).on("click", ".ajax-action", function (e) {
@@ -478,7 +520,7 @@
                     $("#selected-employee").removeClass("d-none");
                 }
             });
-         
+
             // Autocomplete tìm kiếm nhân viên
             var employees = [
         @if (ViewBag.EmployeeList != null)
@@ -528,18 +570,18 @@
             };
 
             //nút reset
-            $(document).on("click", "#resetButton", function (e) {
-                e.preventDefault();
-                // Reset tất cả các giá trị trong form về mặc định
-                $("#searchForm").find("input[type=text], input[type=month], select").val('');
-                $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-                // Xóa các tham số trên URL
-                let url = "@Url.Action("Index", "Scores", new { area = "ProjectManager" })";
-                loadTable(url);
-                url.search = ''; // Xóa toàn bộ query params
-                // Gửi AJAX để tải lại danh sách công việc
-                loadJobs(url.toString());
-            });
+                    $(document).on("click", "#resetButton", function (e) {
+            e.preventDefault();
+            // Reset tất cả các giá trị trong form về mặc định
+            $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
+            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+            // Xóa các tham số trên URL
+            let url = "@Url.Action("Index", "Scores", new { area = "ProjectManager" })";
+            loadTable(url);
+            url.search = ''; // Xóa toàn bộ query params
+            // Gửi AJAX để tải lại danh sách công việc
+            loadJobs(url.toString());
+        });
             // Hiển thị nhân viên đã chọn và lấy danh sách công việc
             function showSelectedEmployee(employee) {
                 $("#selected-employee").removeClass("d-none");
@@ -775,10 +817,14 @@
             }
         });
 
-        function applyFilters() {
+                function applyFilters() {
             var searchText = $("#searchText").val();
             var month = $("#month").val();
             var day = $("#day").val();
+            var year = $("#year").val(); // Thêm year
+            var quarter = $("#quarter").val(); // Thêm quarter
+            var fromDate = $("#fromDate").val(); // Thêm fromDate
+            var toDate = $("#toDate").val(); // Thêm toDate
             var status = $("#status").val();
             var categoryId = $("#categoryId").val();
             var sortOrder = $("#sortOrder").val();
@@ -787,6 +833,10 @@
             var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) +
                 "&month=" + encodeURIComponent(month) +
                 "&day=" + encodeURIComponent(day) +
+                "&year=" + encodeURIComponent(year) + // Thêm year
+                "&quarter=" + encodeURIComponent(quarter) + // Thêm quarter
+                "&fromDate=" + encodeURIComponent(fromDate) + // Thêm fromDate
+                "&toDate=" + encodeURIComponent(toDate) + // Thêm toDate
                 "&status=" + encodeURIComponent(status) +
                 "&categoryId=" + encodeURIComponent(categoryId) +
                 "&sortOrder=" + encodeURIComponent(sortOrder) +

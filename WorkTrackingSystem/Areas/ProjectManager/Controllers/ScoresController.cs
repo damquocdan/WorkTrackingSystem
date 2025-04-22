@@ -26,6 +26,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string searchText = "",
     string month = "",
     string day = "",
+    string year = "", // Thêm tham số year
+    string quarter = "", // Thêm tham số quarter
+    string fromDate = "", // Thêm tham số fromDate
+    string toDate = "", // Thêm tham số toDate
     string status = "",
     string categoryId = "",
     string sortOrder = "",
@@ -115,6 +119,22 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 );
             }
 
+            // Lọc theo năm
+            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
+            }
+
+            // Lọc theo quý
+            if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
+            {
+                var startMonth = (selectedQuarter - 1) * 3 + 1;
+                var endMonth = startMonth + 2;
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+            }
+
             // Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
@@ -129,6 +149,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 scoresQuery = scoresQuery.Where(s =>
                     s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
+            }
+
+            // Lọc theo khoảng thời gian
+            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) &&
+                DateTime.TryParse(fromDate, out DateTime startDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date && s.CreateDate.Value.Date <= endDate.Date);
             }
 
             // Lọc theo trạng thái
@@ -170,6 +198,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             ViewBag.SearchText = searchText;
             ViewBag.Month = month;
             ViewBag.Day = day;
+            ViewBag.Year = year; // Thêm ViewBag cho năm
+            ViewBag.Quarter = quarter; // Thêm ViewBag cho quý
+            ViewBag.FromDate = fromDate; // Thêm ViewBag cho từ ngày
+            ViewBag.ToDate = toDate; // Thêm ViewBag cho đến ngày
             ViewBag.Status = status?.ToString();
             ViewBag.CategoryId = categoryId?.ToString();
             ViewBag.SortOrder = sortOrder;
@@ -422,14 +454,18 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         public async Task<IActionResult> ExportToExcel(
-     string searchText = "",
-     string month = "",
-     string day = "",
-     int? status = null,
-     int? categoryId = null,
-     bool dueToday = false,
-     string sortOrder = "",
-     bool showCompletedZeroReview = false)
+    string searchText = "",
+    string month = "",
+    string day = "",
+    string year = "", // Thêm tham số year
+    string quarter = "", // Thêm tham số quarter
+    string fromDate = "", // Thêm tham số fromDate
+    string toDate = "", // Thêm tham số toDate
+    int? status = null,
+    int? categoryId = null,
+    bool dueToday = false,
+    string sortOrder = "",
+    bool showCompletedZeroReview = false)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
@@ -466,9 +502,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         .ThenInclude(j => j.Category)
                 .Where(s => s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Contains(s.JobMapEmployee.EmployeeId.Value));
 
-            // Áp dụng các bộ lọc giống như trong JobEaluation
+            // Áp dụng các bộ lọc giống như trong Index
 
-            // 1. Tìm kiếm theo mã / tên nhân viên / công việc
+            // Tìm kiếm theo mã / tên nhân viên / công việc
             if (!string.IsNullOrEmpty(searchText))
             {
                 searchText = searchText.ToLower();
@@ -479,45 +515,69 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.JobMapEmployee.Job.Name.ToLower().Contains(searchText));
             }
 
-            // 2. Lọc theo tháng
+            // Lọc theo năm
+            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
+            }
+
+            // Lọc theo quý
+            if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
+            {
+                var startMonth = (selectedQuarter - 1) * 3 + 1;
+                var endMonth = startMonth + 2;
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+            }
+
+            // Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue &&
-                                                  s.CreateDate.Value.Year == selectedMonth.Year &&
-                                                  s.CreateDate.Value.Month == selectedMonth.Month);
+                                                    s.CreateDate.Value.Year == selectedMonth.Year &&
+                                                    s.CreateDate.Value.Month == selectedMonth.Month);
             }
 
-            // 3. Lọc theo ngày
+            // Lọc theo ngày
             if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
             }
 
-            // 4. Lọc theo trạng thái
+            // Lọc theo khoảng thời gian
+            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) &&
+                DateTime.TryParse(fromDate, out DateTime startDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date && s.CreateDate.Value.Date <= endDate.Date);
+            }
+
+            // Lọc theo trạng thái
             if (status.HasValue)
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == status.Value);
             }
 
-            // 5. Lọc theo danh mục
+            // Lọc theo danh mục
             if (categoryId.HasValue)
             {
                 scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == categoryId.Value);
             }
 
-            // 6. Hiển thị công việc hoàn thành nhưng chưa đánh giá
+            // Hiển thị công việc hoàn thành nhưng chưa đánh giá
             if (showCompletedZeroReview)
             {
                 scoresQuery = scoresQuery.Where(s => s.SummaryOfReviews == 0);
             }
 
-            // 7. Lọc công việc theo ngày (dueToday)
+            // Lọc công việc theo ngày (dueToday)
             if (dueToday)
             {
-                scoresQuery = scoresQuery.Where(s => s.Time==s.CreateDate);
+                scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
             }
 
-            // 8. Sắp xếp
+            // Sắp xếp
             switch (sortOrder)
             {
                 case "due_asc":
@@ -813,30 +873,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     existingScore.Progress = score.Progress;
                     existingScore.Time = score.Time;
 
-                    //// Xử lý logic Deadline
-                    //if (existingScore.JobMapEmployee?.EmployeeId != null)
-                    //{
-                    //    var job = existingScore.JobMapEmployee.Job;
-
-                    //    if (job != null && score.CreateDate.HasValue)
-                    //    {
-                    //        // Chuyển CreateDate (DateTime?) sang DateOnly để so sánh
-                    //        DateOnly createDateAsDateOnly = DateOnly.FromDateTime(score.CreateDate.Value);
-
-                    //        if (job.Deadline1.HasValue && job.Deadline1.Value == createDateAsDateOnly)
-                    //        {
-                    //            job.Deadline1 = createDateAsDateOnly;
-                    //        }
-                    //        if (job.Deadline2.HasValue && job.Deadline2.Value == createDateAsDateOnly)
-                    //        {
-                    //            job.Deadline2 = createDateAsDateOnly;
-                    //        }
-                    //        if (job.Deadline3.HasValue && job.Deadline3.Value == createDateAsDateOnly)
-                    //        {
-                    //            job.Deadline3 = createDateAsDateOnly;
-                    //        }
-                    //    }
-                    //}
                     if (existingScore.JobMapEmployee?.EmployeeId != null)
                     {
                         var job = existingScore.JobMapEmployee.Job;
@@ -895,7 +931,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             var score = await _context.Scores
                 .Include(s => s.JobMapEmployee)
                 .FirstOrDefaultAsync(s => s.Id == id);
-
             if (score == null)
             {
                 return Json(new { success = false, message = "Không tìm thấy bản ghi." });
