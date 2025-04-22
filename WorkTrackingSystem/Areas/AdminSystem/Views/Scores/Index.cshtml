@@ -1,0 +1,120 @@
+﻿@model IEnumerable<WorkTrackingSystem.Models.Score>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CompletionDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VolumeAssessment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProgressAssessment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.QualityAssessment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SummaryOfReviews)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Progress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Time)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsDelete)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdateDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreateBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdateBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobMapEmployee)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CompletionDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VolumeAssessment)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProgressAssessment)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.QualityAssessment)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SummaryOfReviews)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Progress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Time)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsDelete)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdateDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreateBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdateBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobMapEmployee.Id)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

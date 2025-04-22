@@ -1,0 +1,743 @@
+﻿@using X.PagedList.Mvc.Core
+@model X.PagedList.IPagedList<WorkTrackingSystem.Areas.ProjectManager.Models.EmployeeScoreSummary>
+
+@{
+    ViewData["Title"] = "Danh sách phân tích nhân viên";
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+}
+
+@if (TempData["NoDataMessage"] != null)
+{
+    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
+}
+<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Tìm kiếm
+</button>
+<a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel" style="display: @(Model.Any() ? "inline-block" : "none");">
+    <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+</a>
+<p id="noDataMessage" style="display: @(Model.Any() ? "none" : "block");">Không có dữ liệu để xuất Excel.</p>
+<div class="collapse" id="collapseExample">
+    <div class="card card-body" id="searchForm">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" id="search" name="search" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.Search" />
+            </div>
+            <div class="col-md-3">
+                <select id="departmentId" name="departmentId" class="form-control">
+                    <option value="">-- Tất cả phòng ban --</option>
+                    @foreach (var dept in ViewBag.Departments as SelectList)
+                    {
+                        <option value="@dept.Value">@dept.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="sortOrder" name="sortOrder" class="form-control">
+                    <option value="">-- Sắp xếp theo --</option>
+                    <option value="total_asc">Tổng số ↑</option>
+                    <option value="total_desc">Tổng số ↓</option>
+                    <option value="ontime_asc">Đúng hạn ↑</option>
+                    <option value="ontime_desc">Đúng hạn ↓</option>
+                    <option value="late_asc">Trễ hạn ↑</option>
+                    <option value="late_desc">Trễ hạn ↓</option>
+                    <option value="overdue_asc">Quá hạn ↑</option>
+                    <option value="overdue_desc">Quá hạn ↓</option>
+                    <option value="processing_asc">Đang xử lý ↑</option>
+                    <option value="processing_desc">Đang xử lý ↓</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="timeType" name="timeType" class="form-control">
+                    <option value="total">Tổng</option>
+                    <option value="dateRange">Từ ngày - Đến ngày</option>
+                    <option value="month">Tháng</option>
+                    <option value="quarter">Quý</option>
+                    <option value="year">Năm</option>
+                </select>
+            </div>
+            <div class="col-md-3" id="timeInputContainer">
+                <!-- Placeholder for dynamic time inputs -->
+            </div>
+            <div col-md-1>
+                <a href="#" id="resetButton" class="btn btn-secondary">
+                    <i class="bi bi-arrow-repeat"></i> Reset
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-12" id="list-section">
+                <div class="table-responsive">
+                
+                   
+                    <div>
+                        <h3 class="text-center">
+                            Bảng tổng hợp phân tích
+                            <span id="filterDescription"></span>
+                        </h3>
+                    </div>
+                    <table class="table table-bordered text-center table-hover" id="analysisTable">
+                        <thead class="text-center">
+                            <tr>
+                                <th></th>
+                                <th>Nhân sự</th>
+                                <th>Tổng số</th>
+                                <th>Đúng hạn</th>
+                                <th>Trễ hạn</th>
+                                <th>Quá hạn</th>
+                                <th>Đang xử lý</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int index = (Model.PageNumber - 1) * Model.PageSize;
+                            }
+                            <tr style="font-weight: bold; background-color: #f8f9fa;">
+                                <td>STT</td>
+                                <td>@ViewBag.DepartmentName</td>
+                                <td data-total="@ViewBag.TotalSum"></td>
+                                <td data-ontime="@ViewBag.OntimeSum" data-total="@ViewBag.TotalSum"></td>
+                                <td data-late="@ViewBag.LateSum" data-total="@ViewBag.TotalSum"></td>
+                                <td data-overdue="@ViewBag.OverdueSum" data-total="@ViewBag.TotalSum"></td>
+                                <td data-processing="@ViewBag.ProcessingSum" data-total="@ViewBag.TotalSum"></td>
+                            </tr>
+                            @foreach (var item in Model)
+                            {
+                                index++;
+                                <tr>
+                                    <td>@index</td>
+                                    <td>@item.EmployeeName</td>
+                                    <td data-total="@item.TotalJobs"></td>
+                                    <td data-ontime="@item.OnTimeCount" data-total="@item.TotalJobs"></td>
+                                    <td data-late="@item.LateCount" data-total="@item.TotalJobs"></td>
+                                    <td data-overdue="@item.OverdueCount" data-total="@item.TotalJobs"></td>
+                                    <td data-processing="@item.ProcessingCount" data-total="@item.TotalJobs"></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    @Html.PagedListPager(Model, page => Url.Action("AnalysesEmployees", new { page, search = ViewBag.Search, departmentId = ViewBag.DepartmentId, timeType = ViewBag.TimeType, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, time = ViewBag.Time, quarter = ViewBag.Quarter, quarterYear = ViewBag.QuarterYear, year = ViewBag.Year, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
+                    {
+                        LiElementClasses = new string[] { "page-item" },
+                        PageClasses = new string[] { "page-link" },
+                        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                        MaximumPageNumbersToDisplay = 5
+                    })
+                </div>
+            </div>
+            <div class="col-md-6 d-none" id="detail-section">
+                <div class="actionCustomers"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div>
+            <h3 class="text-center">
+                Biểu đồ tổng hợp phân tích
+                <span id="filterDescription"></span>
+            </h3>
+        </div>
+        @if (Model.Any())
+        {
+            <div class="row">
+                <h5>Theo số lượng công việc</h5>
+                <div class="col-md-12">
+                    <canvas id="pieChartTasks"></canvas>
+                </div>
+            </div>
+          
+        }
+        else
+        {
+            <p>Không có dữ liệu để hiển thị biểu đồ.</p>
+        }
+    </div>
+</div>
+<div class="row">
+    @if (Model.Any())
+    {
+       
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h5>Tổng hợp</h5>
+                <canvas id="histogramTasks"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center" id="summaryTable">
+                        <thead>
+                            <tr>
+                                <th class="first-col"></th>
+                                <th class="data-col">@ViewBag.DepartmentName</th>
+                                @foreach (var item in Model)
+                                {
+                                    <th class="data-col">@item.EmployeeName</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="first-col">Tổng</td>
+                                <td class="data-col">@ViewBag.TotalSum</td>
+                                @foreach (var item in Model)
+                                {
+                                    <td class="data-col">@item.TotalJobs</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="first-col">Đúng hạn</td>
+                                <td class="data-col">@ViewBag.OntimeSum</td>
+                                @foreach (var item in Model)
+                                {
+                                    <td class="data-col">@item.OnTimeCount</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="first-col">Trễ hạn</td>
+                                <td class="data-col">@ViewBag.LateSum</td>
+                                @foreach (var item in Model)
+                                {
+                                    <td class="data-col">@item.LateCount</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="first-col">Quá hạn</td>
+                                <td class="data-col">@ViewBag.OverdueSum</td>
+                                @foreach (var item in Model)
+                                {
+                                    <td class="data-col">@item.OverdueCount</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td class="first-col">Đang xử lý</td>
+                                <td class="data-col">@ViewBag.ProcessingSum</td>
+                                @foreach (var item in Model)
+                                {
+                                    <td class="data-col">@item.ProcessingCount</td>
+                                }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Không có dữ liệu để hiển thị biểu đồ.</p>
+    }
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+@section Scripts {
+    <script>
+        let pieChartTasks = null;
+        let histogramTasks = null;
+
+        function decodeHtmlEntities(str) {
+            let txt = document.createElement("textarea");
+            txt.innerHTML = str;
+            return txt.value;
+        }
+
+        function formatCell(value, total) {
+            if (total > 0) {
+                const percentage = ((value / total) * 100).toFixed(1);
+                return `${value} (${percentage}%)`;
+            }
+            return `${value} (0%)`;
+        }
+
+        function renderTableCells() {
+            $("#analysisTable tbody tr").each(function(index) {
+                const $row = $(this);
+                const total = parseInt($row.find("td:eq(2)").data("total")) || 0;
+
+                $row.find("td:eq(2)").text(total);
+                const ontime = parseInt($row.find("td:eq(3)").data("ontime")) || 0;
+                $row.find("td:eq(3)").text(formatCell(ontime, total));
+                const late = parseInt($row.find("td:eq(4)").data("late")) || 0;
+                $row.find("td:eq(4)").text(formatCell(late, total));
+                const overdue = parseInt($row.find("td:eq(5)").data("overdue")) || 0;
+                $row.find("td:eq(5)").text(formatCell(overdue, total));
+                const processing = parseInt($row.find("td:eq(6)").data("processing")) || 0;
+                $row.find("td:eq(6)").text(formatCell(processing, total));
+            });
+        }
+
+        function reloadChartsAndSummary(data) {
+            const newLabels = [];
+            const newTotalTasks = [];
+            const newOntimeTasks = [];
+            const newLateTasks = [];
+            const newOverdueTasks = [];
+            const newProcessingTasks = [];
+
+            const $data = $(data);
+            const departmentName = "@ViewBag.DepartmentName";
+            newLabels.push(departmentName);
+
+            let totalSum = 0, ontimeSum = 0, lateSum = 0, overdueSum = 0, processingSum = 0;
+            $data.find("#analysisTable tbody tr").each(function(index) {
+                if (index === 0) {
+                    totalSum = parseInt($(this).find("td:eq(2)").data("total")) || 0;
+                    ontimeSum = parseInt($(this).find("td:eq(3)").data("ontime")) || 0;
+                    lateSum = parseInt($(this).find("td:eq(4)").data("late")) || 0;
+                    overdueSum = parseInt($(this).find("td:eq(5)").data("overdue")) || 0;
+                    processingSum = parseInt($(this).find("td:eq(6)").data("processing")) || 0;
+                } else {
+                    const employeeName = $(this).find("td:eq(1)").text().trim();
+                    newLabels.push(employeeName);
+                    newTotalTasks.push(parseInt($(this).find("td:eq(2)").data("total")) || 0);
+                    newOntimeTasks.push(parseInt($(this).find("td:eq(3)").data("ontime")) || 0);
+                    newLateTasks.push(parseInt($(this).find("td:eq(4)").data("late")) || 0);
+                    newOverdueTasks.push(parseInt($(this).find("td:eq(5)").data("overdue")) || 0);
+                    newProcessingTasks.push(parseInt($(this).find("td:eq(6)").data("processing")) || 0);
+                }
+            });
+
+            newTotalTasks.unshift(totalSum);
+            newOntimeTasks.unshift(ontimeSum);
+            newLateTasks.unshift(lateSum);
+            newOverdueTasks.unshift(overdueSum);
+            newProcessingTasks.unshift(processingSum);
+
+            let summaryHtml = '<thead><tr><th class="first-col"></th><th class="data-col">' + departmentName + '</th>';
+            for (let i = 1; i < newLabels.length; i++) {
+                summaryHtml += '<th class="data-col">' + newLabels[i] + '</th>';
+            }
+            summaryHtml += '</tr></thead><tbody>';
+            summaryHtml += '<tr><td class="first-col">Tổng</td><td class="data-col">' + totalSum + '</td>';
+            for (let i = 0; i < newTotalTasks.length - 1; i++) {
+                summaryHtml += '<td class="data-col">' + newTotalTasks[i + 1] + '</td>';
+            }
+            summaryHtml += '</tr><tr><td class="first-col">Đúng hạn</td><td class="data-col">' + ontimeSum + '</td>';
+            for (let i = 0; i < newOntimeTasks.length - 1; i++) {
+                summaryHtml += '<td class="data-col">' + newOntimeTasks[i + 1] + '</td>';
+            }
+            summaryHtml += '</tr><tr><td class="first-col">Trễ hạn</td><td class="data-col">' + lateSum + '</td>';
+            for (let i = 0; i < newLateTasks.length - 1; i++) {
+                summaryHtml += '<td class="data-col">' + newLateTasks[i + 1] + '</td>';
+            }
+            summaryHtml += '</tr><tr><td class="first-col">Quá hạn</td><td class="data-col">' + overdueSum + '</td>';
+            for (let i = 0; i < newOverdueTasks.length - 1; i++) {
+                summaryHtml += '<td class="data-col">' + newOverdueTasks[i + 1] + '</td>';
+            }
+            summaryHtml += '</tr><tr><td class="first-col">Đang xử lý</td><td class="data-col">' + processingSum + '</td>';
+            for (let i = 0; i < newProcessingTasks.length - 1; i++) {
+                summaryHtml += '<td class="data-col">' + newProcessingTasks[i + 1] + '</td>';
+            }
+            summaryHtml += '</tr></tbody>';
+            $("#summaryTable").html(summaryHtml);
+
+            if (pieChartTasks) pieChartTasks.destroy();
+            if (histogramTasks) histogramTasks.destroy();
+
+            if (newLabels.length > 1) { // Ensure there are employees to display
+                const employeeTotalSum = newTotalTasks.slice(1).reduce((a, b) => a + b, 0);
+
+                pieChartTasks = new Chart(document.getElementById('pieChartTasks'), {
+                    type: 'pie',
+                    data: {
+                        labels: newLabels.slice(1).map(label => decodeHtmlEntities(label)),
+                        datasets: [{
+                            data: newTotalTasks.slice(1),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'right' },
+                            title: { display: true, text: 'Theo số lượng công việc' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let value = context.raw;
+                                        let percentage = ((value / employeeTotalSum) * 100).toFixed(1);
+                                        return `${context.label}: ${percentage}% (${value} công việc)`;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            onComplete: function() {
+                                const chart = this;
+                                const ctx = chart.ctx;
+                                ctx.font = 'bold 12px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                const dataset = chart.data.datasets[0].data;
+                                const meta = chart.getDatasetMeta(0);
+                                const total = dataset.reduce((a, b) => a + b, 0);
+                                meta.data.forEach((element, index) => {
+                                    const value = dataset[index];
+                                    const percentage = ((value / total) * 100).toFixed(1) + '%';
+                                    const pos = element.tooltipPosition();
+                                    ctx.fillStyle = '#000';
+                                    ctx.fillText(percentage, pos.x, pos.y);
+                                });
+                            }
+                        }
+                    }
+                });
+
+                histogramTasks = new Chart(document.getElementById('histogramTasks'), {
+                    type: 'bar',
+                    data: {
+                        labels: Array(newLabels.length).fill(""),
+                        datasets: [
+                            { label: 'Tổng', data: newTotalTasks, backgroundColor: '#36A2EB' },
+                            { label: 'Đúng hạn', data: newOntimeTasks, backgroundColor: '#4BC0C0' },
+                            { label: 'Trễ hạn', data: newLateTasks, backgroundColor: '#FFCE56' },
+                            { label: 'Quá hạn', data: newOverdueTasks, backgroundColor: '#FF6384' },
+                            { label: 'Đang xử lý', data: newProcessingTasks, backgroundColor: '#9966FF' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { stacked: false, ticks: { display: false } },
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            legend: { position: 'top' },
+                            title: {
+                                display: true,
+                                text: 'Tổng hợp ' + getFilterPeriodText()
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            onComplete: function() {
+                                const chart = this;
+                                const ctx = chart.ctx;
+                                ctx.font = 'bold 12px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.fillStyle = '#000';
+                                chart.data.datasets.forEach((dataset, i) => {
+                                    const meta = chart.getDatasetMeta(i);
+                                    meta.data.forEach((bar, index) => {
+                                        const value = dataset.data[index];
+                                        if (value > 0) {
+                                            ctx.fillText(value, bar.x, bar.y - 5);
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        //nút reset
+        $(document).on("click", "#resetButton", function (e) {
+            e.preventDefault();
+            // Reset tất cả các giá trị trong form về mặc định
+            $("#searchForm").find("input[type=text], input[type=month], select").val('');
+            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+            // Xóa các tham số trên URL
+            let url = "@Url.Action("AnalysesEmployees", "Analyses", new { area = "AdminSystem" })";
+            loadTable(url);
+            url.search = ''; // Xóa toàn bộ query params
+            // Gửi AJAX để tải lại danh sách công việc
+            loadJobs(url.toString());
+        });
+        function getFilterPeriodText() {
+            var timeType = $("#timeType").val();
+            if (timeType === "total") {
+                return "tổng hợp tất cả thời gian";
+            } else if (timeType === "dateRange") {
+                var fromDate = $("#fromDate").val();
+                var toDate = $("#toDate").val();
+                if (fromDate && toDate) {
+                    return `từ ${fromDate.split("-").reverse().join("/")} đến ${toDate.split("-").reverse().join("/")}`;
+                }
+                return "theo khoảng thời gian";
+            } else if (timeType === "month") {
+                var time = $("#time").val();
+                if (time) {
+                    var parts = time.split("-");
+                    return `tháng ${parts[1]}/${parts[0]}`;
+                }
+                return `tháng ${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
+            } else if (timeType === "quarter") {
+                var quarter = $("#quarter").val();
+                var quarterYear = $("#quarterYear").val();
+                if (quarter && quarterYear) {
+                    return `quý ${quarter}/${quarterYear}`;
+                }
+                return "theo quý";
+            } else if (timeType === "year") {
+                var year = $("#year").val();
+                if (year) {
+                    return `năm ${year}`;
+                }
+                return "theo năm";
+            }
+            return "";
+        }
+
+        function updateTimeInput() {
+            var timeType = $("#timeType").val();
+            var inputHtml = "";
+            if (timeType === "total") {
+                inputHtml = "";
+            } else if (timeType === "dateRange") {
+                inputHtml = `<input type="date" id="fromDate" name="fromDate" class="form-control mb-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />` +
+                            `<input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" placeholder="Đến ngày" />`;
+            } else if (timeType === "month") {
+                inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
+            } else if (timeType === "quarter") {
+                inputHtml = `<select id="quarter" name="quarter" class="form-control mb-2">
+                                <option value="">Chọn quý</option>
+                                <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
+                                <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
+                                <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
+                                <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
+                             </select>` +
+                            `<input type="number" id="quarterYear" name="quarterYear" class="form-control" value="@ViewBag.QuarterYear" placeholder="Năm" min="2000" max="2100" />`;
+            } else if (timeType === "year") {
+                inputHtml = `<input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Năm" min="2000" max="2100" />`;
+            }
+            $("#timeInputContainer").html(inputHtml);
+            $("#timeInputContainer").find("input, select").on("input change", function() {
+                applyFilters();
+            });
+        }
+
+        $(document).ready(function() {
+            renderTableCells();
+            reloadChartsAndSummary(document.documentElement.outerHTML);
+            updateTimeInput();
+            updateFilterDescription();
+
+            $("#search, #departmentId, #timeType, #sortOrder").on("input change", function() {
+                if ($(this).attr("id") === "timeType") {
+                    updateTimeInput();
+                }
+                applyFilters();
+            });
+
+            $(document).on("click", ".page-link", function(e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                loadTable(url);
+            });
+
+            $(document).on("click", "#exportExcel", function(e) {
+                e.preventDefault();
+                var rowCount = $("#analysisTable tbody tr").length;
+                if (rowCount <= 1) {
+                    alert("Không có dữ liệu để xuất Excel.");
+                    return;
+                }
+                var url = "@Url.Action("ExportToExcel")" + "?" + getFilterParams();
+                window.location.href = url;
+            });
+        });
+
+        function getFilterParams() {
+            var params = [];
+            var search = $("#search").val();
+            var departmentId = $("#departmentId").val();
+            var timeType = $("#timeType").val();
+            var sortOrder = $("#sortOrder").val();
+
+            if (search) params.push("search=" + encodeURIComponent(search));
+            if (departmentId) params.push("departmentId=" + encodeURIComponent(departmentId));
+            if (timeType) params.push("timeType=" + encodeURIComponent(timeType));
+            if (timeType === "dateRange") {
+                var fromDate = $("#fromDate").val();
+                var toDate = $("#toDate").val();
+                if (fromDate) params.push("fromDate=" + encodeURIComponent(fromDate));
+                if (toDate) params.push("toDate=" + encodeURIComponent(toDate));
+            } else if (timeType === "month") {
+                var time = $("#time").val();
+                if (time) params.push("time=" + encodeURIComponent(time));
+            } else if (timeType === "quarter") {
+                var quarter = $("#quarter").val();
+                var quarterYear = $("#quarterYear").val();
+                if (quarter) params.push("quarter=" + encodeURIComponent(quarter));
+                if (quarterYear) params.push("quarterYear=" + encodeURIComponent(quarterYear));
+            } else if (timeType === "year") {
+                var year = $("#year").val();
+                if (year) params.push("year=" + encodeURIComponent(year));
+            }
+            if (sortOrder) params.push("sortOrder=" + encodeURIComponent(sortOrder));
+
+            return params.join("&");
+        }
+
+        function applyFilters() {
+            var url = "@Url.Action("AnalysesEmployees")" + "?" + getFilterParams();
+            loadTable(url);
+        }
+
+        function loadTable(url) {
+            $.ajax({
+                url: url,
+                method: "GET",
+                beforeSend: function() {
+                    $("#analysisTable").html('<div class="text-center">Đang tải...</div>');
+                },
+                success: function(data) {
+                    // Update table
+                    var newTable = $(data).find("#analysisTable").html();
+                    $("#analysisTable").html(newTable);
+                    renderTableCells();
+
+                    // Update pagination
+                    var newPagination = $(data).find(".pagination").html();
+                    $(".pagination").html(newPagination);
+
+                    // Update charts and summary table
+                    reloadChartsAndSummary(data);
+
+                    // Update filter description
+                    updateFilterDescription();
+
+                    // Show/hide export button and no-data message
+                    var hasData = $(data).find("#analysisTable tbody tr").length > 1;
+                    $("#exportExcel").toggle(hasData);
+                    $("#noDataMessage").toggle(!hasData);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Lỗi tải dữ liệu:", status, error);
+                }
+            });
+        }
+
+        function updateFilterDescription() {
+            var search = $("#search").val();
+            var departmentId = $("#departmentId").val();
+            var timeType = $("#timeType").val();
+            var sortOrder = $("#sortOrder").val();
+            var description = "";
+
+            if (!search && !departmentId && timeType === "total" && !sortOrder) {
+                description = "tổng hợp tất cả thời gian";
+            } else {
+                var filterText = [];
+                if (search) filterText.push(`nhân viên: ${search}`);
+                if (departmentId) {
+                    var deptName = $("#departmentId option:selected").text();
+                    filterText.push(`phòng ban: ${deptName}`);
+                } else {
+                    filterText.push(`phòng ban: Tất cả phòng ban`);
+                }
+                if (timeType === "dateRange") {
+                    var fromDate = $("#fromDate").val();
+                    var toDate = $("#toDate").val();
+                    if (fromDate && toDate) {
+                        filterText.push(`từ ${fromDate.split("-").reverse().join("/")} đến ${toDate.split("-").reverse().join("/")}`);
+                    } else {
+                        filterText.push("theo khoảng thời gian");
+                    }
+                } else if (timeType === "month") {
+                    var time = $("#time").val();
+                    if (time) {
+                        var parts = time.split("-");
+                        filterText.push(`tháng ${parts[1]}/${parts[0]}`);
+                    } else {
+                        filterText.push(`tháng ${new Date().getMonth() + 1}/${new Date().getFullYear()}`);
+                    }
+                } else if (timeType === "quarter") {
+                    var quarter = $("#quarter").val();
+                    var quarterYear = $("#quarterYear").val();
+                    if (quarter && quarterYear) {
+                        filterText.push(`quý ${quarter}/${quarterYear}`);
+                    } else {
+                        filterText.push("theo quý");
+                    }
+                } else if (timeType === "year") {
+                    var year = $("#year").val();
+                    if (year) {
+                        filterText.push(`năm ${year}`);
+                    } else {
+                        filterText.push("theo năm");
+                    }
+                } else {
+                    filterText.push("tổng hợp tất cả thời gian");
+                }
+                if (sortOrder) {
+                    const sortOptions = {
+                        "total_asc": "tổng số tăng",
+                        "total_desc": "tổng số giảm",
+                        "ontime_asc": "đúng hạn tăng",
+                        "ontime_desc": "đúng hạn giảm",
+                        "late_asc": "trễ hạn tăng",
+                        "late_desc": "trễ hạn giảm",
+                        "overdue_asc": "quá hạn tăng",
+                        "overdue_desc": "quá hạn giảm",
+                        "processing_asc": "đang xử lý tăng",
+                        "processing_desc": "đang xử lý giảm"
+                    };
+                    filterText.push(`sắp xếp: ${sortOptions[sortOrder] || "mặc định"}`);
+                }
+                description = "theo " + filterText.join(" và ");
+            }
+            $("#filterDescription").text(description);
+        }
+    </script>
+
+    <style>
+        canvas {
+            width: 95% !important;
+            height: auto;
+            float: right;
+        }
+
+        .mt-4 {
+            margin-top: 2rem;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        #summaryTable th, #summaryTable td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 0px;
+        }
+
+        #summaryTable .first-col {
+            width: 7.5%;
+            font-size: 12px;
+        }
+
+        #summaryTable {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        #summaryTable th, #summaryTable td {
+            word-wrap: break-word;
+        }
+
+        #analysisTable td {
+            text-align: center;
+        }
+    </style>
+}

@@ -1,0 +1,105 @@
+﻿@model WorkTrackingSystem.Models.Score
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Score</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="JobMapEmployeeId" class="control-label"></label>
+                <select asp-for="JobMapEmployeeId" class="form-control" asp-items="ViewBag.JobMapEmployeeId"></select>
+                <span asp-validation-for="JobMapEmployeeId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CompletionDate" class="control-label"></label>
+                <input asp-for="CompletionDate" class="form-control" />
+                <span asp-validation-for="CompletionDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VolumeAssessment" class="control-label"></label>
+                <input asp-for="VolumeAssessment" class="form-control" />
+                <span asp-validation-for="VolumeAssessment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProgressAssessment" class="control-label"></label>
+                <input asp-for="ProgressAssessment" class="form-control" />
+                <span asp-validation-for="ProgressAssessment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="QualityAssessment" class="control-label"></label>
+                <input asp-for="QualityAssessment" class="form-control" />
+                <span asp-validation-for="QualityAssessment" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SummaryOfReviews" class="control-label"></label>
+                <input asp-for="SummaryOfReviews" class="form-control" />
+                <span asp-validation-for="SummaryOfReviews" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Progress" class="control-label"></label>
+                <input asp-for="Progress" class="form-control" />
+                <span asp-validation-for="Progress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Time" class="control-label"></label>
+                <input asp-for="Time" class="form-control" />
+                <span asp-validation-for="Time" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsDelete" class="control-label"></label>
+                <input asp-for="IsDelete" class="form-control" />
+                <span asp-validation-for="IsDelete" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsActive" class="control-label"></label>
+                <input asp-for="IsActive" class="form-control" />
+                <span asp-validation-for="IsActive" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreateDate" class="control-label"></label>
+                <input asp-for="CreateDate" class="form-control" />
+                <span asp-validation-for="CreateDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UpdateDate" class="control-label"></label>
+                <input asp-for="UpdateDate" class="form-control" />
+                <span asp-validation-for="UpdateDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreateBy" class="control-label"></label>
+                <input asp-for="CreateBy" class="form-control" />
+                <span asp-validation-for="CreateBy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UpdateBy" class="control-label"></label>
+                <input asp-for="UpdateBy" class="form-control" />
+                <span asp-validation-for="UpdateBy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

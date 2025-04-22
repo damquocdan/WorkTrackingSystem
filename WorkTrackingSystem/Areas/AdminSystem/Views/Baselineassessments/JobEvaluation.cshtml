@@ -5,23 +5,27 @@
     ViewData["Title"] = "Đánh giá công việc";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 }
-
-
 <form id="assign-job-form" action="@Url.Action("AssignEmployee", "Baselineassessments")" method="post" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="jobId" id="form-job-id" />
     <input type="hidden" name="employeeId" id="form-employee-id" />
 </form>
-
-
 <div class="row">
     <div class="col-md-12" id="list-section">
         <div class="card-body">
             <div class="table-responsive">
                 <h3 class="text-center">Danh sách công việc</h3>
-                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                    Tìm kiếm
-                </button>
+                <p>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                       Lọc
+                    </button>
+             
+                    <a id="exportExcel" class="btn btn-success">
+                        <i class="bi bi-file-earmark-excel"></i> Excel
+                    </a>
+                
+                </p>
+               
                 <div class="collapse" id="collapseExample">
                     <div class="card card-body">
                         <div class="row">
@@ -123,11 +127,7 @@
                             <th>Đánh giá tiến độ</th>
                             <th>Đánh giá chất lượng</th>
                             <th>Tổng hợp đánh giá</th>
-                            <th width="100px">
-                                <a id="exportExcel" class="btn btn-success">
-                                    <i class="bi bi-file-earmark-excel"></i> Excel
-                                </a>
-                            </th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -362,7 +362,7 @@
                 var showCompletedZeroReview = $("#showCompletedZeroReview").is(":checked");
                 var dueToday = $("#dueToday").is(":checked");
 
-                var url = "@Url.Action("ExportToExcel", "Scores")" +
+                var url = "@Url.Action("ExportToExcel", "Jobs")" +
                     "?searchText=" + encodeURIComponent(searchText) +
                     "&month=" + encodeURIComponent(month) +
                     "&day=" + encodeURIComponent(day) +

@@ -13,6 +13,8 @@ using System.Net.Mail;
 using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using X.PagedList.Extensions;
+using Microsoft.Data.SqlClient;
+using WorkTrackingSystem.Areas.ProjectManager.Models;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
@@ -161,7 +163,168 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.SortOrder = sortOrder;
             return View(finalAnalyses.ToPagedList(page, limit));
         }
+        public async Task<IActionResult> AnalysesEmployees(string search, int? positionId, string departmentId, string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? quarterYear, int? year, string sortOrder, int page = 1)
+        {
+            var limit = 10;
 
+            // Get list of departments managed by the manager
+            var managedDepartments = await _context.Departments
+                .Select(d => d.Id)
+                .ToListAsync();
+
+            // Handle time parameters
+            int? month = null;
+            int? monthYear = null;
+
+            if (timeType == "month" && !string.IsNullOrEmpty(time) && DateTime.TryParse(time + "-01", out var parsedTime))
+            {
+                month = parsedTime.Month;
+                monthYear = parsedTime.Year;
+                fromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
+                toDate = fromDate.Value.AddMonths(1).AddDays(-1);
+            }
+            else if (timeType == "quarter" && quarter.HasValue && quarterYear.HasValue)
+            {
+                fromDate = new DateTime(quarterYear.Value, (quarter.Value - 1) * 3 + 1, 1);
+                toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+            }
+            else if (timeType == "year" && year.HasValue)
+            {
+                fromDate = new DateTime(year.Value, 1, 1);
+                toDate = new DateTime(year.Value, 12, 31);
+            }
+            else if (timeType != "dateRange")
+            {
+                // For "total", clear all time parameters
+                fromDate = null;
+                toDate = null;
+                quarter = null;
+                quarterYear = null;
+                month = null;
+                monthYear = null;
+                year = null;
+            }
+
+            // Handle departmentId: Convert from string to long
+            long? departmentToQuery = null;
+            if (!string.IsNullOrEmpty(departmentId) && long.TryParse(departmentId, out long parsedDepartmentId))
+            {
+                if (managedDepartments.Contains(parsedDepartmentId))
+                {
+                    departmentToQuery = parsedDepartmentId;
+                }
+            }
+
+            // If no valid departmentId, use all managed departments
+            var departmentsToQuery = departmentToQuery.HasValue
+                ? new List<long> { departmentToQuery.Value }
+                : managedDepartments;
+
+            // Call stored procedure for each department
+            var employeeScores = new List<EmployeeScoreSummary>();
+            foreach (var deptId in departmentsToQuery)
+            {
+                var parameters = new List<SqlParameter>
+        {
+            new SqlParameter("@DepartmentId", deptId),
+            new SqlParameter("@FromDate", (object)fromDate ?? DBNull.Value),
+            new SqlParameter("@ToDate", (object)toDate ?? DBNull.Value),
+            new SqlParameter("@Quarter", (object)quarter ?? DBNull.Value),
+            new SqlParameter("@QuarterYear", (object)quarterYear ?? DBNull.Value),
+            new SqlParameter("@Month", (object)month ?? DBNull.Value),
+            new SqlParameter("@MonthYear", (object)monthYear ?? DBNull.Value),
+            new SqlParameter("@Year", (object)year ?? DBNull.Value)
+        };
+
+                var deptScores = await _context.Set<EmployeeScoreSummary>()
+                    .FromSqlRaw("EXEC sp_GetEmployeeScoreSummary @DepartmentId, @FromDate, @ToDate, @Quarter, @QuarterYear, @Month, @MonthYear, @Year", parameters.ToArray())
+                    .ToListAsync();
+
+                employeeScores.AddRange(deptScores);
+            }
+
+            // Filter by search term
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.Trim().ToLower();
+                employeeScores = employeeScores
+                    .Where(e => e.EmployeeName.ToLower().Contains(search))
+                    .ToList();
+            }
+
+            // Apply sorting
+            switch (sortOrder)
+            {
+                case "total_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.TotalJobs).ToList();
+                    break;
+                case "total_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.TotalJobs).ToList();
+                    break;
+                case "ontime_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.OnTimeCount).ToList();
+                    break;
+                case "ontime_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.OnTimeCount).ToList();
+                    break;
+                case "late_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.LateCount).ToList();
+                    break;
+                case "late_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.LateCount).ToList();
+                    break;
+                case "overdue_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.OverdueCount).ToList();
+                    break;
+                case "overdue_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.OverdueCount).ToList();
+                    break;
+                case "processing_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.ProcessingCount).ToList();
+                    break;
+                case "processing_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.ProcessingCount).ToList();
+                    break;
+                default:
+                    employeeScores = employeeScores.OrderBy(e => e.EmployeeName).ToList();
+                    break;
+            }
+
+            // Pagination
+            var pagedEmployeeScores = employeeScores.ToPagedList(page, limit);
+
+            // Calculate totals for all employees in selected departments
+            var totalSum = employeeScores.Sum(e => e.TotalJobs);
+            var ontimeSum = employeeScores.Sum(e => e.OnTimeCount);
+            var lateSum = employeeScores.Sum(e => e.LateCount);
+            var overdueSum = employeeScores.Sum(e => e.OverdueCount);
+            var processingSum = employeeScores.Sum(e => e.ProcessingCount);
+
+            // Prepare data for view
+            ViewBag.Search = search;
+            ViewBag.DepartmentId = departmentId;
+            ViewBag.PositionId = positionId;
+            ViewBag.TimeType = timeType ?? "total";
+            ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+            ViewBag.Time = time;
+            ViewBag.Quarter = quarter;
+            ViewBag.QuarterYear = quarterYear;
+            ViewBag.Year = year;
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.TotalSum = totalSum;
+            ViewBag.OntimeSum = ontimeSum;
+            ViewBag.LateSum = lateSum;
+            ViewBag.OverdueSum = overdueSum;
+            ViewBag.ProcessingSum = processingSum;
+            ViewBag.DepartmentName = departmentToQuery.HasValue
+                ? _context.Departments.Where(d => d.Id == departmentToQuery.Value).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
+                : "All Departments";
+            ViewBag.Departments = new SelectList(_context.Departments.Where(d => managedDepartments.Contains(d.Id)), "Id", "Name");
+            ViewBag.Positions = new SelectList(_context.Positions, "Id", "Name");
+
+            return View(pagedEmployeeScores);
+        }
         public async Task<IActionResult> ExportToExcel(string searchText, string time, string sortOrder, string filterType)
         {
             //var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");

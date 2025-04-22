@@ -1,20 +1,21 @@
-﻿@using X.PagedList.Mvc.Core
-@model X.PagedList.IPagedList<WorkTrackingSystem.Models.Baselineassessment>
+﻿@model X.PagedList.IPagedList<WorkTrackingSystem.Areas.ProjectManager.Models.ScoreSummary>
+@using X.PagedList.Mvc.Core
+
 @{
-    ViewData["Title"] = "Danh sách đánh giá cơ bản";
+    ViewData["Title"] = "Danh sách đánh giá nhân viên";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
 
     var totalEvaluations = Model.TotalItemCount;
-    var passedEvaluations = Model.Count(x => x.Evaluate.GetValueOrDefault());
+    var passedEvaluations = Model.Count(x => x.EvaluationResult == "Đạt");
     var failedEvaluations = totalEvaluations - passedEvaluations;
     var passRate = totalEvaluations > 0 ? (passedEvaluations * 100.0 / totalEvaluations) : 0;
 
     var pieChartData = Model
-        .GroupBy(x => $"{x.Employee.Code} - {x.Employee.FirstName} {x.Employee.LastName}")
+        .GroupBy(x => x.EmployeeName)
         .Select(g => new
         {
             EmployeeName = g.Key,
-            TotalVolume = g.Sum(x => x.VolumeAssessment ?? 0)
+            TotalVolume = g.Sum(x => x.TotalVolume)
         })
         .ToList();
 
@@ -22,40 +23,65 @@
     var pieValues = pieChartData.Select(x => x.TotalVolume).ToList();
 }
 
-<h1 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.DisplayMonth ?? "Toàn bộ")</h1>
+<h1 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "Toàn bộ")</h1>
+
 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
     Tìm kiếm
 </button>
 @if (Model.Any())
 {
-    <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
+    <a id="exportExcelScore" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
         <i class="bi bi-file-earmark-excel"></i> Xuất Excel
     </a>
 }
+
 <div class="collapse" id="collapseExample">
     <div class="card card-body">
         <div class="row g-3">
-            <div class="col-md-4">
-                <input type="text" id="employeeName" name="employeeName" class="form-control" value="@ViewBag.EmployeeName" placeholder="Nhập tên nhân viên">
+            <div class="col-md-3">
+                <input type="text" id="search" name="search" class="form-control" value="@ViewBag.Search" placeholder="Nhập tên nhân viên">
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <select id="evaluate" name="evaluate" class="form-select">
                     <option value="">Trạng thái đánh giá</option>
-                    <option value="true">Đạt</option>
-                    <option value="false">Chưa đạt</option>
+                    <option value="Đạt" selected="@(ViewBag.Evaluate == "Đạt" ? "selected" : null)">Đạt</option>
+                    <option value="Chưa đạt" selected="@(ViewBag.Evaluate == "Chưa đạt" ? "selected" : null)">Chưa đạt</option>
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <select id="timeType" name="timeType" class="form-control" onchange="toggleTimeFields()">
+                    <option value="total" selected="@(ViewBag.TimeType == "total" ? "selected" : null)">Tổng</option>
+                    <option value="dateRange" selected="@(ViewBag.TimeType == "dateRange" ? "selected" : null)">Từ ngày - Đến ngày</option>
+                    <option value="month" selected="@(ViewBag.TimeType == "month" ? "selected" : null)">Tháng</option>
+                    <option value="quarter" selected="@(ViewBag.TimeType == "quarter" ? "selected" : null)">Quý</option>
+                    <option value="year" selected="@(ViewBag.TimeType == "year" ? "selected" : null)">Năm</option>
+                </select>
+            </div>
+            <div class="col-md-3 time-field" id="monthField" style="display: @(ViewBag.TimeType == "month" ? "block" : "none");">
                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
             </div>
-            <div class="col-md-4">
-                <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
+            <div class="col-md-3 time-field" id="quarterField" style="display: @(ViewBag.TimeType == "quarter" ? "block" : "none");">
+                <select id="quarter" name="quarter" class="form-control">
+                    <option value="">Chọn quý</option>
+                    <option value="1" selected="@(ViewBag.Quarter == 1 ? "selected" : null)">Quý 1</option>
+                    <option value="2" selected="@(ViewBag.Quarter == 2 ? "selected" : null)">Quý 2</option>
+                    <option value="3" selected="@(ViewBag.Quarter == 3 ? "selected" : null)">Quý 3</option>
+                    <option value="4" selected="@(ViewBag.Quarter == 4 ? "selected" : null)">Quý 4</option>
+                </select>
+                <input type="number" id="year" name="year" class="form-control mt-2" value="@ViewBag.Year" placeholder="Nhập năm, ví dụ: 2025">
+            </div>
+            <div class="col-md-3 time-field" id="yearField" style="display: @(ViewBag.TimeType == "year" ? "block" : "none");">
+                <input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Nhập năm, ví dụ: 2025">
+            </div>
+            <div class="col-md-3 time-field" id="dateRangeField" style="display: @(ViewBag.TimeType == "dateRange" ? "block" : "none");">
+                <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate">
+                <input type="date" id="toDate" name="toDate" class="form-control mt-2" value="@ViewBag.ToDate">
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="row mt-4">
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-12" id="list-section">
@@ -63,14 +89,13 @@
                     <table class="table table-bordered text-left table-hover" id="assessmentTable">
                         <thead class="text-center">
                             <tr>
-                                <th>STT</th>
+                                <th>                <a href="@Url.Action("EmployeeScoreSummary")" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a></th>
                                 <th>Nhân viên</th>
                                 <th>Tổng đ.giá khối lượng</th>
                                 <th>Tổng đ.giá tiến độ</th>
                                 <th>Tổng đ.giá chất lượng</th>
                                 <th>Tổng đ.giá tổng hợp</th>
                                 <th>Đánh giá</th>
-                                @*                                 <th></th> *@
                             </tr>
                         </thead>
                         <tbody>
@@ -80,34 +105,22 @@
                             @foreach (var item in Model)
                             {
                                 index++;
-                                <tr class="@(item.Evaluate.GetValueOrDefault() ? "table-success" : "table-danger")">
+                                <tr class="@(item.EvaluationResult == "Đạt" ? "table-success" : "table-danger")">
                                     <td>@index</td>
-                                    <td>@Html.DisplayFor(modelItem => item.Employee.Code) - @Html.DisplayFor(modelItem => item.Employee.FirstName) @Html.DisplayFor(modelItem => item.Employee.LastName)</td>
-                                    <td>@(item.VolumeAssessment?.ToString("F2") ?? "0.00")</td>
-                                    <td>@(item.ProgressAssessment?.ToString("F2") ?? "0.00")</td>
-                                    <td>@(item.QualityAssessment?.ToString("F2") ?? "0.00")</td>
-                                    <td>@(item.SummaryOfReviews != null ? item.SummaryOfReviews.Value.ToString("F2") : "0.00")</td>
-                                    <td>
-                                        @if (item.Evaluate.GetValueOrDefault())
-                                        {
-                                            <p>Đạt</p>
-                                        }
-                                        else
-                                        {
-                                            <p>Chưa đạt</p>
-                                        }
-                                    </td>
-                                    @*                                     <td>
-                                <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-                                </td> *@
+                                    <td>@item.EmployeeName</td>
+                                    <td>@item.TotalVolume.ToString("F2")</td>
+                                    <td>@item.TotalProgress.ToString("F2")</td>
+                                    <td>@item.TotalQuality.ToString("F2")</td>
+                                    <td>@item.SummaryScore.ToString("F2")</td>
+                                    <td>@item.EvaluationResult</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
                 </div>
-                <!-- Phân trang -->
+                <!-- Pagination -->
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("Index", new { page, employeeName = ViewBag.EmployeeName, evaluate = ViewBag.Evaluate, time = ViewBag.Time }), new PagedListRenderOptions
+                    @Html.PagedListPager(Model, page => Url.Action("EmployeeScoreSummary", new { page, search = ViewBag.Search, evaluate = ViewBag.Evaluate, timeType = ViewBag.TimeType, time = ViewBag.Time, quarter = ViewBag.Quarter, year = ViewBag.Year, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate }), new PagedListRenderOptions
                {
                    LiElementClasses = new string[] { "page-item" },
                    PageClasses = new string[] { "page-link" },
@@ -119,9 +132,6 @@
                    MaximumPageNumbersToDisplay = 5
                })
                 </div>
-            </div>
-            <div class="col-md-4 d-none" id="detail-section">
-                <div class="actionCustomers"></div>
             </div>
         </div>
     </div>
@@ -146,21 +156,28 @@
         var pieValues = @Html.Raw(Json.Serialize(pieValues));
         var volumePieChart = null;
 
-        // Function to format yyyy-MM to Tháng MM/yyyy
-        function formatMonthDisplay(time) {
-            if (!time) return "Toàn bộ";
-            var parts = time.split('-');
-            if (parts.length === 2) {
-                var year = parts[0];
-                var month = parts[1];
-                return "Tháng " + month + "/" + year;
+        // Function to format title based on timeType
+        function formatTitleDisplay(timeType, time, quarter, year, fromDate, toDate) {
+            if (timeType === "month" && time) {
+                var parts = time.split('-');
+                if (parts.length === 2) {
+                    var year = parts[0];
+                    var month = parts[1];
+                    return "Tháng " + month + "/" + year;
+                }
+            } else if (timeType === "quarter" && quarter && year) {
+                return "Quý " + quarter + "/" + year;
+            } else if (timeType === "year" && year) {
+                return "Năm " + year;
+            } else if (timeType === "dateRange" && fromDate && toDate) {
+                return "Từ " + fromDate.split('-').reverse().join('/') + " Đến " + toDate.split('-').reverse().join('/');
             }
             return "Toàn bộ";
         }
 
         function initializeCharts() {
-            var ctx3 = document.getElementById('volumePieChart').getContext('2d');
-            volumePieChart = new Chart(ctx3, {
+            var ctx = document.getElementById('volumePieChart').getContext('2d');
+            volumePieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: pieLabels.length ? pieLabels : ['Không có dữ liệu'],
@@ -194,7 +211,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function (context) {
+                                label: function(context) {
                                     let label = context.label || '';
                                     let value = context.raw || 0;
                                     let sum = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -208,24 +225,30 @@
             });
         }
 
-        $(document).ready(function () {
-            initializeCharts();
+        function toggleTimeFields() {
+            var timeType = document.getElementById("timeType").value;
+            var fields = ["monthField", "quarterField", "yearField", "dateRangeField"];
 
-            $(document).on("click", ".ajax-action", function (e) {
-                e.preventDefault();
-                var url = $(this).data("url");
-                if ($("#detail-section").hasClass("d-none")) {
-                    $("#list-section").removeClass("col-md-12").addClass("col-md-8");
-                    $("#detail-section").removeClass("d-none").addClass("col-md-4");
-                }
-                $(".actionCustomers").load(url, function (response, status, xhr) {
-                    if (status === "error") {
-                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
-                    }
-                });
+            fields.forEach(function (field) {
+                document.getElementById(field).style.display = "none";
             });
 
-            $("#employeeName, #evaluate, #time").on("input change", function () {
+            if (timeType === "month") {
+                document.getElementById("monthField").style.display = "block";
+            } else if (timeType === "quarter") {
+                document.getElementById("quarterField").style.display = "block";
+            } else if (timeType === "year") {
+                document.getElementById("yearField").style.display = "block";
+            } else if (timeType === "dateRange") {
+                document.getElementById("dateRangeField").style.display = "block";
+            }
+        }
+
+        $(document).ready(function () {
+            initializeCharts();
+            toggleTimeFields(); // Initialize field visibility
+
+            $("#search, #evaluate, #timeType, #time, #quarter, #year, #fromDate, #toDate").on("input change", function () {
                 applyFilters();
             });
 
@@ -235,25 +258,45 @@
                 loadTable(url);
             });
 
-            $(document).on("click", "#exportExcel", function (e) {
+            $(document).on("click", "#exportExcelScore", function (e) {
                 e.preventDefault();
-                var employeeName = $("#employeeName").val();
+                var search = $("#search").val();
                 var evaluate = $("#evaluate").val();
+                var timeType = $("#timeType").val();
                 var time = $("#time").val();
-                var url = "@Url.Action("ExportToExcel")" + "?employeeName=" + encodeURIComponent(employeeName) +
+                var quarter = $("#quarter").val();
+                var year = $("#year").val();
+                var fromDate = $("#fromDate").val();
+                var toDate = $("#toDate").val();
+                var url = "@Url.Action("ExportToExcelScore")" + "?search=" + encodeURIComponent(search) +
                     "&evaluate=" + encodeURIComponent(evaluate) +
-                    "&time=" + encodeURIComponent(time);
+                    "&timeType=" + encodeURIComponent(timeType) +
+                    "&time=" + encodeURIComponent(time) +
+                    "&quarter=" + encodeURIComponent(quarter) +
+                    "&year=" + encodeURIComponent(year) +
+                    "&fromDate=" + encodeURIComponent(fromDate) +
+                    "&toDate=" + encodeURIComponent(toDate);
                 window.location.href = url;
             });
         });
 
         function applyFilters() {
-            var employeeName = $("#employeeName").val();
+            var search = $("#search").val();
             var evaluate = $("#evaluate").val();
+            var timeType = $("#timeType").val();
             var time = $("#time").val();
-            var url = "@Url.Action("Index")" + "?employeeName=" + encodeURIComponent(employeeName) +
+            var quarter = $("#quarter").val();
+            var year = $("#year").val();
+            var fromDate = $("#fromDate").val();
+            var toDate = $("#toDate").val();
+            var url = "@Url.Action("EmployeeScoreSummary")" + "?search=" + encodeURIComponent(search) +
                 "&evaluate=" + encodeURIComponent(evaluate) +
-                "&time=" + encodeURIComponent(time);
+                "&timeType=" + encodeURIComponent(timeType) +
+                "&time=" + encodeURIComponent(time) +
+                "&quarter=" + encodeURIComponent(quarter) +
+                "&year=" + encodeURIComponent(year) +
+                "&fromDate=" + encodeURIComponent(fromDate) +
+                "&toDate=" + encodeURIComponent(toDate);
             loadTable(url);
         }
 
@@ -271,9 +314,14 @@
                     $(".pagination").html(newPagination);
                     updateCharts(data);
 
-                    // Update the page title based on the time filter
+                    // Update the page title based on filters
+                    var timeType = $("#timeType").val();
                     var time = $("#time").val();
-                    $("#pageTitle").text("Danh sách đánh giá " + formatMonthDisplay(time));
+                    var quarter = $("#quarter").val();
+                    var year = $("#year").val();
+                    var fromDate = $("#fromDate").val();
+                    var toDate = $("#toDate").val();
+                    $("#pageTitle").text("Danh sách đánh giá " + formatTitleDisplay(timeType, time, quarter, year, fromDate, toDate));
                 },
                 error: function (xhr, status, error) {
                     console.error("Lỗi tải dữ liệu:", status, error);
@@ -286,7 +334,7 @@
             var tableRows = $(data).find("#assessmentTable tbody tr");
             var pieData = {};
 
-            tableRows.each(function () {
+            tableRows.each(function() {
                 var employeeName = $(this).find("td").eq(1).text().trim();
                 var volumeAssessment = parseFloat($(this).find("td").eq(2).text().trim()) || 0;
 
@@ -320,11 +368,6 @@
                 'rgba(255, 159, 64, 1)'
             ] : ['rgba(200, 200, 200, 1)'];
             volumePieChart.update();
-        }
-
-        function closeDetailSection() {
-            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
-            $("#detail-section").addClass("d-none");
         }
     </script>
 }

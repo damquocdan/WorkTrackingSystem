@@ -191,7 +191,12 @@
                                 <p>Thống kê đánh giá</p>
                             </a>
                         </li>
-
+                        <li class="nav-item">
+                            <a asp-controller="Baselineassessments" asp-action="EmployeeScoreSummary" class="nav-link">
+                             @*    <i class="far fa-circle nav-icon"></i> *@
+                                <p>Thống kê đánh giá theo nhân viên</p>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a asp-controller="Baselineassessments" asp-action="JobEvaluation" class="nav-link">
                                 <p>Đánh giá</p>
@@ -202,12 +207,26 @@
                 <li class="nav-item">
                     <a asp-controller="Analyses" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
-
                         <p>
                             Quản lý phân tích
-                           
+                            <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
+                                    <p>Thống kê đánh giá</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Analyses" asp-action="AnalysesEmployees" class="nav-link">
+                                  
+                                    <p>Bảng phân tích theo nhân viên</p>
+                                </a>
+                            </li>
+                           
+                        </ul>
+                   
                     
                 </li>
             </ul>

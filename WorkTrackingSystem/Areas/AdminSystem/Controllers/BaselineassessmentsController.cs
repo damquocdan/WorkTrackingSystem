@@ -12,6 +12,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml;
 using WorkTrackingSystem.Models;
 using X.PagedList.Extensions;
+using WorkTrackingSystem.Areas.ProjectManager.Models;
 
 namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 {
@@ -25,56 +26,53 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             _context = context;
         }
         // GET: AdminSystem/Baselineassessments
-        public async Task<IActionResult> Index(string employeeName, string evaluate, string time, int page = 1)
+        public async Task<IActionResult> Index(
+             string employeeName,
+             string evaluate,
+             string time,
+             int page = 1)
         {
             var limit = 10;
-            //var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
-
-            //if (string.IsNullOrEmpty(managerUsername))
-            //{
-            //    return RedirectToAction("Index", "Login");
-            //}
-
-            //var manager = await _context.Users
-            //    .Where(u => u.UserName == managerUsername)
-            //    .Select(u => u.Employee)
-            //    .FirstOrDefaultAsync();
-
-            //if (manager == null)
-            //{
-            //    return RedirectToAction("Index", "Login");
-            //}
-
-            //var managedDepartments = await _context.Employees
-            //    .Where(e => e.DepartmentId == manager.DepartmentId)
-            //    .Select(e => e.Id)
-            //    .ToListAsync();
+         
+            var managedEmployeeIds = await _context.Employees
+             
+                .Select(e => e.Id)
+                .ToListAsync();
 
             var assessments = _context.Baselineassessments
                 .Include(b => b.Employee)
-                .Where(b => b.EmployeeId.HasValue);
+                .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
 
-            // Lọc theo tên nhân viên
+            // Set default time to current month if not provided
+            if (string.IsNullOrEmpty(time))
+            {
+                time = DateTime.Now.ToString("yyyy-MM");
+            }
+
+            // Format display month for the view
+            string displayMonth = "Toàn bộ";
+            if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
+            {
+                displayMonth = $"Tháng {selectedTime:MM/yyyy}";
+            }
+            ViewBag.DisplayMonth = displayMonth;
+
+
             if (!string.IsNullOrEmpty(employeeName))
             {
                 assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
             }
 
-            // Lọc theo trạng thái đánh giá
             if (!string.IsNullOrEmpty(evaluate) && bool.TryParse(evaluate, out bool evaluateVal))
             {
                 assessments = assessments.Where(b => b.Evaluate == evaluateVal);
             }
 
-            // Lọc theo tháng/năm
-            if (!string.IsNullOrEmpty(time))
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTimeForFilter))
             {
-                if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
-                {
-                    assessments = assessments.Where(b => b.Time.HasValue &&
-                                                         b.Time.Value.Year == selectedTime.Year &&
-                                                         b.Time.Value.Month == selectedTime.Month);
-                }
+                assessments = assessments.Where(b => b.Time.HasValue &&
+                                                    b.Time.Value.Year == selectedTimeForFilter.Year &&
+                                                    b.Time.Value.Month == selectedTimeForFilter.Month);
             }
 
             var assessmentsList = await assessments.ToListAsync();
@@ -87,9 +85,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.Evaluate = evaluate;
             ViewBag.Time = time;
 
-            return View(assessments.OrderByDescending(x => x.Time ?? DateTime.MinValue).ToPagedList(page, limit));
+            return View(assessments.OrderBy(x => x.EmployeeId).ToPagedList(page, limit));
         }
-      
+
         public async Task<IActionResult> JobEvaluation(
 string searchText = "",
 string month = "",
@@ -102,26 +100,7 @@ bool dueToday = false,
 long? jobId = null, int page = 1)
         {
             var limit = 8;
-            //var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
-            //if (string.IsNullOrEmpty(managerUsername))
-            //{
-            //    return RedirectToAction("Index", "Login");
-            //}
-
-            //var manager = await _context.Users
-            //    .Where(u => u.UserName == managerUsername)
-            //    .Include(u => u.Employee)
-            //    .Select(u => u.Employee)
-            //    .FirstOrDefaultAsync();
-            //if (manager == null)
-            //{
-            //    return RedirectToAction("Index", "Login");
-            //}
-
-            //var managedDepartments = await _context.Departments
-            //    .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-            //    .Select(d => d.Id)
-            //    .ToListAsync();
+           
 
             var employeesInManagedDepartments = await _context.Employees
                 //.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
@@ -220,27 +199,7 @@ long? jobId = null, int page = 1)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            //var managerUsername = HttpContext.Session.GetString("AdminLogin");
-            //if (string.IsNullOrEmpty(managerUsername))
-            //{
-            //    return RedirectToAction("Index", "Login");
-            //}
-
-            //var manager = await _context.Users
-            //    .Where(u => u.UserName == managerUsername)
-            //    .Select(u => u.Employee)
-            //    .FirstOrDefaultAsync();
-
-            //if (manager == null)
-            //{
-            //    return RedirectToAction("Index", "Login");
-            //}
-
-            //var managedDepartments = await _context.Departments
-            //    .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-            //    .Select(d => d.Id)
-            //    .ToListAsync();
-
+           
             var assessments = _context.Baselineassessments
                 .Include(b => b.Employee)
                 .Where(b => b.Employee != null &&
@@ -355,6 +314,313 @@ long? jobId = null, int page = 1)
             }
         }
 
+        public async Task<IActionResult> EmployeeScoreSummary(string search, int? departmentId, string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? year, string sortOrder, string evaluate, int page = 1)
+        {
+            var limit = 10;
+            // Handle time parameters
+            int? month = null;
+            if (timeType == "month" && !string.IsNullOrEmpty(time) && DateTime.TryParse(time + "-01", out var parsedTime))
+            {
+                month = parsedTime.Month;
+                year = parsedTime.Year;
+                fromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
+                toDate = fromDate.Value.AddMonths(1).AddDays(-1);
+            }
+            else if (timeType == "quarter" && quarter.HasValue && year.HasValue)
+            {
+                fromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
+                toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+            }
+            else if (timeType == "year" && year.HasValue)
+            {
+                fromDate = new DateTime(year.Value, 1, 1);
+                toDate = new DateTime(year.Value, 12, 31);
+            }
+            else if (timeType != "dateRange")
+            {
+                // For "total", clear all time parameters
+                fromDate = null;
+                toDate = null;
+                quarter = null;
+                month = null;
+                year = null;
+            }
+
+            // Query to aggregate scores by employee, restricted to managed departments
+            var employeeScoresQuery = from s in _context.Scores
+                                      join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
+                                      join e in _context.Employees on jme.EmployeeId equals e.Id
+                                      join d in _context.Departments on e.DepartmentId equals d.Id
+                                      where  // Restrict to managed departments
+                                             departmentId == null || d.Id == departmentId // Filter by selected department
+                                            && (fromDate == null || s.CreateDate >= fromDate)
+                                            && (toDate == null || s.CreateDate <= toDate)
+                                      group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
+                                      select new ScoreSummary
+                                      {
+                                          EmployeeId = (int)g.Key.Id,
+                                          EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
+                                          TotalVolume = (int)(g.Sum(x => x.s.VolumeAssessment ?? 0)),
+                                          TotalProgress = (int)(g.Sum(x => x.s.ProgressAssessment ?? 0)),
+                                          TotalQuality = (int)(g.Sum(x => x.s.QualityAssessment ?? 0)),
+                                          SummaryScore = g.Sum(x =>
+                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m),
+                                          EvaluationResult = g.Sum(x =>
+                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m) >= 4.5m ? "Đạt" : "Chưa đạt"
+                                      };
+
+            // Execute query and apply additional filters
+            var employeeScores = await employeeScoresQuery.ToListAsync();
+
+            // Apply search filter
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.Trim().ToLower();
+                employeeScores = employeeScores
+                    .Where(e => e.EmployeeName.ToLower().Contains(search))
+                    .ToList();
+            }
+
+            // Apply evaluation filter
+            if (!string.IsNullOrEmpty(evaluate))
+            {
+                employeeScores = employeeScores
+                    .Where(e => e.EvaluationResult == evaluate)
+                    .ToList();
+            }
+
+            // Apply sorting
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.EmployeeName).ToList();
+                    break;
+                case "volume_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.TotalVolume).ToList();
+                    break;
+                case "volume_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.TotalVolume).ToList();
+                    break;
+                case "progress_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.TotalProgress).ToList();
+                    break;
+                case "progress_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.TotalProgress).ToList();
+                    break;
+                case "quality_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.TotalQuality).ToList();
+                    break;
+                case "quality_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.TotalQuality).ToList();
+                    break;
+                case "summary_asc":
+                    employeeScores = employeeScores.OrderBy(e => e.SummaryScore).ToList();
+                    break;
+                case "summary_desc":
+                    employeeScores = employeeScores.OrderByDescending(e => e.SummaryScore).ToList();
+                    break;
+                default:
+                    employeeScores = employeeScores.OrderBy(e => e.EmployeeName).ToList();
+                    break;
+            }
+
+            // Pagination
+            var pagedEmployeeScores = employeeScores.ToPagedList(page, limit);
+
+            // Prepare view data
+            ViewBag.Search = search;
+            ViewBag.DepartmentId = departmentId;
+            ViewBag.TimeType = timeType ?? "total";
+            ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
+            ViewBag.Time = time;
+            ViewBag.Quarter = quarter;
+            ViewBag.Year = year;
+            ViewBag.SortOrder = sortOrder;
+            ViewBag.Evaluate = evaluate;
+            ViewBag.DepartmentName = departmentId.HasValue
+                ? _context.Departments.Where(d => d.Id == departmentId).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
+                : "All Departments";
+            //ViewBag.Departments = new SelectList(_context.Departments.Where(d => managedDepartments.Contains(d.Id)), "Id", "Name");
+
+            return View(pagedEmployeeScores);
+        }
+        public async Task<IActionResult> ExportToExcelScore(string search, string evaluate, string timeType, string time, int? quarter, int? year, string fromDate, string toDate)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+      
+
+            // Handle time parameters
+            DateTime? parsedFromDate = null;
+            DateTime? parsedToDate = null;
+            string selectedPeriod = "Toàn bộ";
+
+            if (timeType == "month" && !string.IsNullOrEmpty(time) && DateTime.TryParse(time + "-01", out var parsedTime))
+            {
+                parsedFromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
+                parsedToDate = parsedFromDate.Value.AddMonths(1).AddDays(-1);
+                selectedPeriod = parsedTime.ToString("MM/yyyy");
+            }
+            else if (timeType == "quarter" && quarter.HasValue && year.HasValue)
+            {
+                parsedFromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
+                parsedToDate = parsedFromDate.Value.AddMonths(3).AddDays(-1);
+                selectedPeriod = $"Quý {quarter}/{year}";
+            }
+            else if (timeType == "year" && year.HasValue)
+            {
+                parsedFromDate = new DateTime(year.Value, 1, 1);
+                parsedToDate = new DateTime(year.Value, 12, 31);
+                selectedPeriod = $"Năm {year}";
+            }
+            else if (timeType == "dateRange" && !string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) &&
+                     DateTime.TryParse(fromDate, out var parsedFrom) && DateTime.TryParse(toDate, out var parsedTo))
+            {
+                parsedFromDate = parsedFrom;
+                parsedToDate = parsedTo;
+                selectedPeriod = $"Từ {parsedFrom.ToString("dd/MM/yyyy")} Đến {parsedTo.ToString("dd/MM/yyyy")}";
+            }
+            else
+            {
+                // Default to "Toàn bộ" if no valid time filter is provided
+                timeType = "total";
+            }
+
+            // Query to aggregate scores by employee
+            var employeeScoresQuery = from s in _context.Scores
+                                      join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
+                                      join e in _context.Employees on jme.EmployeeId equals e.Id
+                                      join d in _context.Departments on e.DepartmentId equals d.Id
+                                      where( (parsedFromDate == null || s.CreateDate >= parsedFromDate) &&
+                                            (parsedToDate == null || s.CreateDate <= parsedToDate))
+                                      group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
+                                      select new ScoreSummary
+                                      {
+                                          EmployeeId = (int)g.Key.Id,
+                                          EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
+                                          TotalVolume = (int)(g.Sum(x => x.s.VolumeAssessment ?? 0)),
+                                          TotalProgress = (int)(g.Sum(x => x.s.ProgressAssessment ?? 0)),
+                                          TotalQuality = (int)(g.Sum(x => x.s.QualityAssessment ?? 0)),
+                                          SummaryScore = g.Sum(x =>
+                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m),
+                                          EvaluationResult = g.Sum(x =>
+                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m) >= 4.5m ? "Đạt" : "Chưa đạt"
+                                      };
+
+            // Apply search and evaluation filters
+            var employeeScores = await employeeScoresQuery.ToListAsync();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.Trim().ToLower();
+                employeeScores = employeeScores
+                    .Where(e => e.EmployeeName.ToLower().Contains(search))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(evaluate))
+            {
+                employeeScores = employeeScores
+                    .Where(e => e.EvaluationResult == evaluate)
+                    .ToList();
+            }
+
+            // Order by EmployeeId for consistency
+            employeeScores = employeeScores.OrderBy(x => x.EmployeeId).ToList();
+
+            if (!employeeScores.Any())
+            {
+                TempData["NoDataMessage"] = "Không có dữ liệu để xuất Excel.";
+                return RedirectToAction("EmployeeScoreSummary");
+            }
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Danh sách đánh giá");
+
+                // Title
+                worksheet.Cells[1, 1, 1, 7].Merge = true;
+                worksheet.Cells[1, 1].Value = $"Bảng tổng hợp đánh giá {selectedPeriod}";
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
+                worksheet.Cells[1, 1].Style.Font.Size = 14;
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                // Headers
+                worksheet.Cells[2, 1].Value = "STT";
+                worksheet.Cells[2, 2].Value = "Nhân viên";
+                worksheet.Cells[2, 3].Value = "Tổng đánh giá khối lượng";
+                worksheet.Cells[2, 4].Value = "Tổng đánh giá tiến độ";
+                worksheet.Cells[2, 5].Value = "Tổng đánh giá chất lượng";
+                worksheet.Cells[2, 6].Value = "Tổng đánh giá tổng hợp";
+                worksheet.Cells[2, 7].Value = "Đánh giá";
+
+                using (var range = worksheet.Cells[2, 1, 2, 7])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // Data
+                int row = 3;
+                int index = 0;
+                foreach (var item in employeeScores)
+                {
+                    index++;
+                    worksheet.Cells[row, 1].Value = index;
+                    worksheet.Cells[row, 2].Value = item.EmployeeName;
+                    worksheet.Cells[row, 3].Value = item.TotalVolume;
+                    worksheet.Cells[row, 4].Value = item.TotalProgress;
+                    worksheet.Cells[row, 5].Value = item.TotalQuality;
+                    worksheet.Cells[row, 6].Value = Math.Round(item.SummaryScore, 2);
+                    worksheet.Cells[row, 6].Style.Numberformat.Format = "0.00";
+                    worksheet.Cells[row, 7].Value = item.EvaluationResult;
+                    worksheet.Cells[row, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[row, 3, row, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    row++;
+                }
+
+                // Auto-fit columns
+                worksheet.Cells.AutoFitColumns();
+
+                // Add pie chart
+                if (employeeScores.Any())
+                {
+                    var chart = worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart;
+                    chart.SetPosition(1, 0, 9, 0);
+                    chart.SetSize(500, 350);
+
+                    var dataRange = worksheet.Cells[3, 3, employeeScores.Count + 2, 3];
+                    var labelRange = worksheet.Cells[3, 2, employeeScores.Count + 2, 2];
+
+                    var series = chart.Series.Add(dataRange, labelRange) as ExcelPieChartSerie;
+                    chart.Title.Text = "Đánh giá khối lượng";
+                    chart.Legend.Position = eLegendPosition.Left;
+
+                    if (series != null)
+                    {
+                        series.DataLabel.ShowPercent = true;
+                        series.DataLabel.Position = eLabelPosition.Center;
+                    }
+                }
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"DanhSachDanhGia_{selectedPeriod.Replace("/", "_").Replace(" ", "_")}.xlsx");
+            }
+        }
 
         // GET: AdminSystem/Baselineassessments/Details/5
         public async Task<IActionResult> Details(long? id)
@@ -604,7 +870,7 @@ long? jobId = null, int page = 1)
             {
                 JobId = jobId,
                 EmployeeId = employeeId,
-                CreateBy = HttpContext.Session.GetString("ProjectManagerLogin"),
+                CreateBy = HttpContext.Session.GetString("AdminLogin"),
                 CreateDate = DateTime.Now,
                 IsActive = true,
                 IsDelete = false
@@ -636,7 +902,7 @@ long? jobId = null, int page = 1)
                 Time = parsedTime ?? DateTime.Now,
                 Status = 0,
                 CreateDate = job.Deadline1?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Now,
-                CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
+                CreateBy = HttpContext.Session.GetString("AdminLogin")
             };
             _context.Scores.Add(score);
             await _context.SaveChangesAsync();
@@ -680,7 +946,7 @@ long? jobId = null, int page = 1)
                                          (score.QualityAssessment ?? 0) * 0.25f;
 
                 score.UpdateDate = DateTime.Now;
-                score.UpdateBy = HttpContext.Session.GetString("ProjectManagerLogin");
+                score.UpdateBy = HttpContext.Session.GetString("AdminLogin");
 
                 // Update related assessments if EmployeeId exists
                 if (score.JobMapEmployee != null)
