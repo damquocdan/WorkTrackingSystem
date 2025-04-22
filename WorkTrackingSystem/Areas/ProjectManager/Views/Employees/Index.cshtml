@@ -4,47 +4,54 @@
 @{
     ViewData["Title"] = "Quản lý nhân viên";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<div class="row">
-    <div class="col-md-12">
-        <ol class="breadcrumb float-sm-end bg-light">
-            <li class="breadcrumb-item">Project Manager</li>
-            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
-        </ol>
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h1 class="m-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Form tìm kiếm -->
+<div class="row mb-2">
+    <div class="col-lg-9 col-md-9 col-sm-12">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" id="searchInput" name="searchTerm" class="form-control" placeholder="Nhập mã nhân viên, họ hoặc tên..." value="@ViewBag.Search" />
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="positionId" name="positionId" asp-items="@ViewBag.Positions">
+                    <option value="" selected>Tất cả vị trí</option>
+                    @foreach (var position in ViewBag.Positions)
+                    {
+                        <option value="@position.Value">
+                            @position.Text
+                        </option>
+                    }
+                </select>
+             
+            </div>
+           
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12 hide-on-detail" id="list-section">
-
-        <!-- Form tìm kiếm -->
-        <div class="row mb-2">
-            <div class="col-lg-9 col-md-9 col-sm-12">
-                <div class="row">
-            <div class="col-md-4">
-                        <input type="text" id="searchInput" name="searchTerm" class="form-control" placeholder="Nhập mã nhân viên, họ hoặc tên..." value="@ViewBag.Search" />
-            </div>
-            <div class="col-md-4">
-                        <select class="form-select" id="positionId" name="positionId" asp-items="@ViewBag.Positions">
-                            <option value="" selected>Tất cả vị trí</option>
-                            @foreach (var position in ViewBag.Positions)
-                            {
-                                <option value="@position.Value">
-                                    @position.Text
-                                </option>
-                            }
-                        </select>
-                        @* <select name="positionId" id="positionId" class="form-control" asp-items="@ViewBag.Positions">
-                            <option value="">-- Chọn vị trí --</option>
-                        </select> *@
-            </div>
-            @* <div class="col-md-4">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm kiếm</button>
-                <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i> Reset</a>
-            </div> *@
-                 </div>
-             </div>
-        </div>
-
+        <h2 class="text-center text-uppercase">Danh sách nhân viên</h2>
+     
         <div class="table-responsive mt-4">
             <table class="table table-bordered text-left table-hover " id="employeeTable">
                 <thead class="text-center">
@@ -92,7 +99,9 @@
             </table>
         </div>
         <div class="pagination">
-            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = ViewBag.Search, positionId = ViewBag.PositionId }), new PagedListRenderOptions
+              @if (Model.TotalItemCount > Model.PageSize)
+            {
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = ViewBag.Search, positionId = ViewBag.PositionId }), new PagedListRenderOptions
        {
            LiElementClasses = new string[] { "page-item" },
            PageClasses = new string[] { "page-link" },
@@ -103,6 +112,7 @@
            DisplayEllipsesWhenNotShowingAllPageNumbers = true,
            MaximumPageNumbersToDisplay = 5
        })
+            }
         </div>
 
     </div>

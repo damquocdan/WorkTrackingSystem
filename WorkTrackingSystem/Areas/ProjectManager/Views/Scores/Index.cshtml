@@ -4,15 +4,26 @@
 @{
     ViewData["Title"] = "Quản lý công việc";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<div class="row">
-    <div class="col-md-12">
-        <ol class="breadcrumb float-sm-end bg-light">
-            <li class="breadcrumb-item">ProjectManager</li>
-            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
-        </ol>
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h1 class="m-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
     </div>
 </div>
+
 <p>
     <button class="btn btn-primary" id="btn-create-job" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
         Giao C.việc
@@ -26,7 +37,7 @@
     <div class="card card-body">
         <div class="row">
             <div class="col-md-12">
-                <div class="card shadow-sm">
+                <div class="">
                     <form method="get" action="">
                         <div class="row gx-2 gy-2 align-items-end">
 
@@ -207,12 +218,13 @@
     <input type="hidden" name="employeeId" id="form-employee-id" />
 </form>
 <div class="actionCreate collapse" id="collapsecreate"></div>
-<br />
+
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <div class="card-body">
+
+        <div class="">
             <div class="table-responsive">
-                <h1 class="text-center">DANH SÁCH CÔNG VIỆC</h1>
+                <h2 class="text-center">DANH SÁCH CÔNG VIỆC</h2>
 
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
                     <thead class="text-center">
@@ -226,6 +238,7 @@
                             <th>Trạng thái</th>
                             <th>Tổng hợp đánh giá</th>
                             <th width="100px">
+                                Hành động
                             </th>
                         </tr>
                     </thead>
@@ -236,14 +249,14 @@
                         @foreach (var item in Model)
                         {
                             index++;
-                            <tr class="text-center
+                            <tr class="
                                 @(item.Status == 1 ? "table-success" :
                                 item.Status == 2 ? "table-warning" :
                                 item.Status == 3 ? "table-danger" :
                                 item.Status == 4 ? "table-primary" :
                                 item.Status == 0 ? "table-secondary" : "")">
-                                <td>@index</td>
-                                <td>
+                                <td class="text-center">@index</td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
@@ -253,9 +266,9 @@
                                         <span class="text-danger">Chưa giao việc</span>
                                     }
                                 </td>
-                                <td>@item.JobMapEmployee.Job.Category.Name</td>
+                                <td class="text-center">@item.JobMapEmployee.Job.Category.Name</td>
                                 <td>@item.JobMapEmployee.Job.Name</td>
-                                <td>
+                                <td class="text-center">
                                     @{
                                         var createDate = item.CreateDate?.Date;
                                         var deadline1 = item.JobMapEmployee?.Job?.Deadline1;
@@ -275,8 +288,8 @@
                                         <span class=""></span>
                                     }
                                 </td>
-                                <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td>
+                                <td class="text-center">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                <td class="text-center">
                                     <span class="badge
                                         @(item.Status == 1 ? "bg-success" :
                                         item.Status == 2 ? "bg-warning" :
@@ -306,7 +319,7 @@
                                         }
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <span class="summary-display" data-id="@item.Id">
@@ -314,7 +327,7 @@
                                         </span>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="d-flex gap-2 ms-auto justify-content-end">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
                                         {
@@ -339,9 +352,11 @@
                 </table>
             </div>
             <div class="pagination">
-                @Html.PagedListPager(Model, page => Url.Action("Index", new
-                    {
-                        page,
+                  @if (Model.TotalItemCount > Model.PageSize)
+                {
+                    @Html.PagedListPager(Model, page => Url.Action("Index", new
+                        {
+                            page,
                         searchText = ViewBag.SearchText,
                         month = ViewBag.Month,
                         status = ViewBag.Status,
@@ -360,6 +375,7 @@
                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                MaximumPageNumbersToDisplay = 5
            })
+                }
             </div>
         </div>
     </div>

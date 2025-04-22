@@ -51,7 +51,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
         {
             HttpContext.Session.Remove("EmployeeSystem"); // huỷ session với key AdminLogin đã lưu trước đó
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home", new { area = "" });
         }
 
 

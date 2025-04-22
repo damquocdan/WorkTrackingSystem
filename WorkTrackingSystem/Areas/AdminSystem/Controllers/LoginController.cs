@@ -49,7 +49,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             HttpContext.Session.Remove("AdminLogin"); // huỷ session với key AdminLogin đã lưu trước đó
 
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home", new { area = "" });
         }
     }
 }

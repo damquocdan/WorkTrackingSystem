@@ -3,15 +3,31 @@
 @{
     ViewData["Title"] = "Quản lý danh mục";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h1 class="m-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<p>
+    <button class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="fas fa-plus"></i> <span> Tạo mới</span></button>
+</p>
 <div class="row">
     <div class="col-md-12" id="list-section">
-    @* <h1 class="mb-4">Danh sách danh mục</h1> *@
-
-    <p>
-            <button class="btn btn-primary ajax-action" data-url="@Url.Action("Create")"><i class="fas fa-plus"></i> <span> Tạo mới</span></button>
-    </p>
-
+  <h2 class="text-center text-uppercase">Danh sách danh mục</h2> 
     <div class="table-responsive">
             <table class="table table-bordered text-left table-hover ">
                 <thead class="text-center">

@@ -59,7 +59,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         {
             HttpContext.Session.Remove("ProjectManagerLogin"); // huỷ session với key AdminLogin đã lưu trước đó
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "Home", new { area = "" });
         }
     }
 }

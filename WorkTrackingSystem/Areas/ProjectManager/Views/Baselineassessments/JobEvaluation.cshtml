@@ -4,7 +4,26 @@
 @{
     ViewData["Title"] = "Đánh giá công việc";
     Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h1 class="m-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
 <p>
 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
     Tìm kiếm
@@ -17,7 +36,7 @@
     <div class="card card-body">
         <div class="row">
             <div class="col-md-12">
-                <div class="card shadow-sm p-3 mb-3">
+                <div class="">
                     <div class="row gx-2 gy-2 align-items-end">
                         <!-- Tìm kiếm -->
                         <div class="col-md-4">
@@ -109,9 +128,9 @@
 
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <div class="card-body">
+        <div class="">
             <div class="table-responsive">
-                <h3 class="text-center">Danh sách công việc</h3>
+                <h2 class="text-center text-uppercase">Danh sách công việc</h2>
                 
               
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
@@ -128,11 +147,7 @@
                             <th>Đánh giá tiến độ</th>
                             <th>Đánh giá chất lượng</th>
                             <th>Tổng hợp đánh giá</th>
-                            <th width="100px">
-                                <a id="exportExcel" class="btn btn-success">
-                                    <i class="bi bi-file-earmark-excel"></i> Excel
-                                </a>
-                            </th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -286,9 +301,11 @@
                 </table>
             </div>
             <div class="pagination">
-                @Html.PagedListPager(Model, page => Url.Action("JobEvaluation", new
-                    {
-                        page,
+                  @if (Model.TotalItemCount > Model.PageSize)
+                {
+                    @Html.PagedListPager(Model, page => Url.Action("JobEvaluation", new
+                        {
+                            page,
                         searchText = ViewBag.SearchText,
                         month = ViewBag.Month,
                         status = ViewBag.Status,
@@ -307,6 +324,7 @@
                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                MaximumPageNumbersToDisplay = 5
            })
+                }
             </div>
         </div>
     </div>

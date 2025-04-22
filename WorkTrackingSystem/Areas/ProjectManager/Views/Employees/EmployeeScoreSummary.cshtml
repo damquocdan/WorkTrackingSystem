@@ -21,19 +21,37 @@
 
     var pieLabels = pieChartData.Select(x => x.EmployeeName).ToList();
     var pieValues = pieChartData.Select(x => x.TotalVolume).ToList();
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<h1 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "Toàn bộ")</h1>
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h1 class="m-0">@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 
-<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-    Tìm kiếm
-</button>
+
 @if (Model.Any())
 {
     <a id="exportExcelScore" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
         <i class="bi bi-file-earmark-excel"></i> Xuất Excel
     </a>
 }
+
+<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Tìm kiếm
+</button>
 
 <div class="collapse" id="collapseExample">
     <div class="card card-body">
@@ -85,6 +103,8 @@
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-12" id="list-section">
+                <h2 class="text-center text-uppercase" id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "Toàn bộ")</h2>
+
                 <div class="table-responsive">
                     <table class="table table-bordered text-left table-hover" id="assessmentTable">
                         <thead class="text-center">
@@ -120,7 +140,9 @@
                 </div>
                 <!-- Pagination -->
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("EmployeeScoreSummary", new { page, search = ViewBag.Search, evaluate = ViewBag.Evaluate, timeType = ViewBag.TimeType, time = ViewBag.Time, quarter = ViewBag.Quarter, year = ViewBag.Year, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate }), new PagedListRenderOptions
+                     @if (Model.TotalItemCount > Model.PageSize)
+                    {
+                        @Html.PagedListPager(Model, page => Url.Action("EmployeeScoreSummary", new { page, search = ViewBag.Search, evaluate = ViewBag.Evaluate, timeType = ViewBag.TimeType, time = ViewBag.Time, quarter = ViewBag.Quarter, year = ViewBag.Year, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate }), new PagedListRenderOptions
                {
                    LiElementClasses = new string[] { "page-item" },
                    PageClasses = new string[] { "page-link" },
@@ -131,6 +153,7 @@
                    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                    MaximumPageNumbersToDisplay = 5
                })
+                    }
                 </div>
             </div>
         </div>
