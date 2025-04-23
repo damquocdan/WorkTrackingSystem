@@ -41,7 +41,7 @@
                         @Html.DisplayNameFor(model => model.Status)
                     </th>
                     <th>
-                        <i class="bi bi-gear"></i> Hành động
+                       Hành động
                     </th>
                 </tr>
             </thead>
@@ -59,10 +59,10 @@
                             @(item.Status ?? false ? "Có quyền quản lý" : "Không có quyền quản lý")
                         </td>
                         <td>
-                            <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-                            <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
+                            <a class="btn-green btn-event ajax-action m-0" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
+                            <a class="btn-yellow btn-event ajax-action m-0" data-url="@Url.Action("Edit", new { id = item.Id })"><i class="bi bi-pencil-square"></i></a>
                             <a class="btn-red btn-event btn-delete" data-id="@item.Id"><i class="bi bi-trash"></i></a>
-                            @* <a class="btn-red btn-event ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a> *@
+                            @* <a class="btn-red btn-event ajax-action m-0" data-url="@Url.Action("Delete", new { id = item.Id })"><i class="bi bi-trash"></i></a> *@
                         </td>
                     </tr>
                 }

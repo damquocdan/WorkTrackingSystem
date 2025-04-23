@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Models;
+//using WorkTrackingSystem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AppDBConnection") ?? throw new InvalidOperationException("Connection string 'AppDBConnection' not found.");
@@ -21,6 +22,8 @@ builder.Services.AddAuthentication();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
+//////builder.Services.AddScoped<WorkTrackingSystem.Areas.EmployeeSystem.Services.EmailNotificationService>();
+//////builder.Services.AddHostedService<WorkTrackingSystem.Areas.EmployeeSystem.Services.DeadlineReminderBackgroundService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

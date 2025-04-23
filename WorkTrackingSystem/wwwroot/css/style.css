@@ -1,4 +1,9 @@
-﻿table.table th, table.table td {
+﻿/*Header*/
+.content-header {
+    padding: 15px 0rem;
+}
+/*table*/
+table.table th, table.table td {
    
     vertical-align: middle;
 }
@@ -16,6 +21,12 @@ table.table.table-bordered.table-hover {
     border-radius: 0.25rem;
     overflow: hidden;
 }
+.table th, .table td {
+    padding: 0.2em 1em 0.1em 1em;
+    font-size: 0.95rem;
+    vertical-align: middle;
+    height: 2.5rem;
+}
 .table > tbody {
     
     background-color: white;
@@ -23,7 +34,10 @@ table.table.table-bordered.table-hover {
 .table > :not(:last-child) > :last-child > * {
     border-bottom: 1px solid #dee2e6;
 }
-.progress-bar {
+/*.btn-event {
+    margin:0 !important;
+}*/
+    .progress-bar {
     font-size: 20px;
 }
 .btn-event {

@@ -8,10 +8,10 @@ public partial class Department
 {
     public long Id { get; set; }
 
-	[Display(Name = "Mã danh mục")]
+	[Display(Name = "Mã phòng ban")]
 	public string Code { get; set; } = null!;
 
-	[Display(Name = "Tên danh mục")]
+	[Display(Name = "Tên phòng ban")]
 	public string? Name { get; set; }
 
 	[Display(Name = "Mô tả")]

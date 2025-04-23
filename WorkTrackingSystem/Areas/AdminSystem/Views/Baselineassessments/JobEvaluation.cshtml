@@ -185,7 +185,7 @@
                             <th>Hạng mục</th>
                             <th>Công việc</th>
                             <th>Deadline</th>
-                            <th>Ngày hoàn thành thực tế</th>
+                            <th>Ngày hoàn thành </th>
                             <th>Trạng thái</th>
                             <th>Đánh giá khối lượng</th>
                             <th>Đánh giá tiến độ</th>
@@ -201,14 +201,14 @@
                         @foreach (var item in Model)
                         {
                             index++;
-                            <tr class="text-center
+                            <tr class="
                                 @(item.Status == 1 ? "table-success" :
                                 item.Status == 2 ? "table-warning" :
                                 item.Status == 3 ? "table-danger" :
                                 item.Status == 4 ? "table-primary" :
                                 item.Status == 0 ? "table-secondary" : "")">
-                                <td>@index</td>
-                                <td>
+                                <td class="text-center">@index</td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
@@ -218,9 +218,9 @@
                                         <span class="text-danger">Chưa giao việc</span>
                                     }
                                 </td>
-                                <td>@item.JobMapEmployee.Job.Category.Name</td>
+                                <td class="text-center">@item.JobMapEmployee.Job.Category.Name</td>
                                 <td>@item.JobMapEmployee.Job.Name</td>
-                                <td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @Html.DisplayFor(modelItem => item.CreateDate)
@@ -230,14 +230,14 @@
                                         <span class=""></span>
                                     }
                                 </td>
-                                <td>@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td>
+                                <td class="text-center">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                <td class="text-center">
                                     <span class="badge
                                         @(item.Status == 1 ? "bg-success" :
                                         item.Status == 2 ? "bg-warning" :
                                         item.Status == 3 ? "bg-danger" :
                                         item.Status == 4 ? "bg-primary" :
-                                        "bg-secondary")" style="padding:10px;">
+                                        "bg-secondary")" style="padding:7px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
@@ -261,7 +261,7 @@
                                         }
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <select class="form-control assessment-input"
@@ -284,7 +284,7 @@
                                         </select>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <select class="form-control assessment-input"
@@ -307,7 +307,7 @@
                                         </select>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <select class="form-control assessment-input"
@@ -330,7 +330,7 @@
                                         </select>
                                     }
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <span class="summary-display" data-id="@item.Id">

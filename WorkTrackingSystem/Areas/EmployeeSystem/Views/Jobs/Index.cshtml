@@ -23,71 +23,75 @@
 </div>
 <p>
 	<button class="btn btn-primary " type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" title="Bộ lọc">
-		<i class="fa-solid fa-filter "></i>
+		Tìm kiếm
 	</button>
 </p>
-<div class="collapse" id="collapseExample">
+<div class="collapse show" id="collapseExample">
 	<div class="card card-body">
-<div class="card shadow-sm p-3 mb-3">
-	<form asp-controller="Jobs" asp-action="Index" method="get">
-		<div class="row gx-2 gy-2 align-items-end">
-			<!-- Ô tìm kiếm -->
-			<div class="col-md-4">
-				<label class="form-label fw-bold">Tìm kiếm</label>
-				<div class="input-group">
-					<input type="text" class="form-control" name="search" placeholder="Nhập tên công việc / Code" value="@Context.Request.Query["search"]">
+		<div class=" ">
+			<form asp-controller="Jobs" asp-action="Index" method="get">
+				<div class="row gx-2 gy-2 align-items-end">
+					<!-- Ô tìm kiếm -->
+					<div class="col-md-4">
+						<label class="form-label fw-bold">Tìm kiếm</label>
+						<div class="input-group">
+							<input type="text" class="form-control" name="search" placeholder="Nhập tên công việc / Code" value="@Context.Request.Query["search"]">
+						</div>
+					</div>
+
+					<!-- Lọc theo Deadline -->
+					<div class="col-md-4">
+						<label class="form-label fw-bold">Deadline</label>
+						<div class="input-group">
+							<input type="date" name="deadlineStartDate" class="form-control" value="@ViewBag.DeadlineStartDate">
+							<span class="input-group-text">→</span>
+							<input type="date" name="deadlineEndDate" class="form-control" value="@ViewBag.DeadlineEndDate">
+						</div>
+					</div>
+
+					<!-- Lọc theo Ngày hoàn thành -->
+					<div class="col-md-4">
+						<label class="form-label fw-bold">Hoàn thành</label>
+						<div class="input-group">
+							<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
+							<span class="input-group-text">→</span>
+							<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
+						</div>
+					</div>
+
+					<!-- Lọc theo Tháng -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Deadline tháng</label>
+						<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
+					</div>
+
+					<!-- Lọc theo Trạng thái -->
+					<div class="col-md-3">
+						<label class="form-label fw-bold">Trạng thái</label>
+						<select id="filterStatus" class="form-select">
+							<option value="">Tất cả trạng thái</option>
+							<option value="1">Hoàn thành</option>
+							<option value="2">Chưa hoàn thành</option>
+							<option value="3">Hoàn thành muộn</option>
+							<option value="4">Đang xử lý</option>
+							<option value="0">Chưa bắt đầu</option>
+						</select>
+					</div>
+
+					<!-- Nút Lọc & Reset -->
+					<div class="col-md-2 d-flex justify-content-end mt-4">
+						<a href="#" id="resetButton" class="btn btn-secondary me-2">
+							<i class="bi bi-arrow-repeat"></i>
+						</a>
+						<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+							<i class="fa-solid fa-chevron-up"></i>
+						</button>
+					</div>
 				</div>
-			</div>
-
-			<!-- Lọc theo Deadline -->
-			<div class="col-md-4">
-				<label class="form-label fw-bold">Deadline</label>
-				<div class="input-group">
-					<input type="date" name="deadlineStartDate" class="form-control" value="@ViewBag.DeadlineStartDate">
-					<span class="input-group-text">→</span>
-					<input type="date" name="deadlineEndDate" class="form-control" value="@ViewBag.DeadlineEndDate">
-				</div>
-			</div>
-
-			<!-- Lọc theo Ngày hoàn thành -->
-			<div class="col-md-4">
-				<label class="form-label fw-bold">Hoàn thành</label>
-				<div class="input-group">
-					<input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate">
-					<span class="input-group-text">→</span>
-					<input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate">
-				</div>
-			</div>
-
-			<!-- Lọc theo Tháng -->
-			<div class="col-md-3">
-				<label class="form-label fw-bold">Deadline tháng</label>
-				<input type="month" name="selectedMonth" class="form-control" value="@ViewBag.SelectedMonth">
-			</div>
-
-			<!-- Lọc theo Trạng thái -->
-			<div class="col-md-3">
-				<label class="form-label fw-bold">Trạng thái</label>
-				<select id="filterStatus" class="form-select">
-					<option value="">Tất cả trạng thái</option>
-					<option value="1">Hoàn thành</option>
-					<option value="2">Chưa hoàn thành</option>
-					<option value="3">Hoàn thành muộn</option>
-					<option value="4">Đang xử lý</option>
-					<option value="0">Chưa bắt đầu</option>
-				</select>
-			</div>
-
-			<!-- Nút Lọc & Reset -->
-			<div class="col-md-6 d-flex justify-content-between">
-				
-				<a href="#" id="resetButton" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i> </a>
-			</div>
+			</form>
 		</div>
-	</form>
-</div>
 
-</div>
+	</div>
 </div>
 
 <div id="jobListContainer">
@@ -115,7 +119,17 @@
 					}
 				});
 			}
-
+			// Hàm lấy class trạng thái
+			function getStatusClass(status) {
+				switch (status) {
+					case 1: return "table-success";
+					case 2: return "table-warning";
+					case 3: return "table-danger";
+					case 4: return "table-primary";
+					case 0: return "table-secondary";
+					default: return "";
+				}
+			}
 			// Xử lý tìm kiếm
 			$("input[name='search']").on("input", function () {
 				let url = new URL(window.location.href);
@@ -212,6 +226,10 @@
 											: newStatus === 4 ? "Đang xử lý"
 												: "Chưa bắt đầu");
 								$row.attr('data-status', newStatus);
+
+								// 🔥 Cập nhật lớp CSS của hàng
+								$row.removeClass("table-success table-warning table-danger table-primary table-secondary");
+								$row.addClass(getStatusClass(newStatus));
 							}
 							let $completionDateCell = $row.find('td:nth-child(4)');
 							if ($completionDateCell.length) {
@@ -233,7 +251,6 @@
 		});
 		document.addEventListener('DOMContentLoaded', function () {
 			document.querySelectorAll('.progress-slider').forEach(slider => {
-
 				slider.addEventListener('input', function () {
 					console.log('Sự kiện input đã được kích hoạt!');
 					let jobId = parseInt(this.dataset.jobId);
@@ -249,10 +266,8 @@
 						.then(data => {
 							if (data.success) {
 								console.log("Cập nhật tiến độ thành công!");
-
-								// 🔥 Tìm hàng công việc đúng cách 🔥
 								let slider = document.querySelector(`.progress-slider[data-job-id="${jobId}"]`);
-								let row = slider ? slider.closest('.job-row') : null;  // Tìm thẻ <tr> cha
+								let row = slider ? slider.closest('.job-row') : null;
 								if (row) {
 									let statusSpan = row.querySelector("td:nth-child(5) span");
 									if (statusSpan) {
@@ -262,11 +277,11 @@
 												: newStatus === 3 ? "Hoàn thành muộn"
 													: newStatus === 4 ? "Đang xử lý"
 														: "Chưa bắt đầu";
-										// Cập nhật `data-status`
 										row.setAttribute('data-status', newStatus);
 
-									} else {
-										console.warn(`Không tìm thấy phần tử trạng thái trong hàng có jobId = ${jobId}`);
+										// 🔥 Cập nhật lớp CSS của hàng
+										row.classList.remove("table-success", "table-warning", "table-danger", "table-primary", "table-secondary");
+										row.classList.add(getStatusClass(newStatus));
 									}
 									let completionDateCell = row.querySelector("td:nth-child(4)");
 									if (completionDateCell) {
@@ -276,8 +291,6 @@
 											completionDateCell.textContent = "-";
 										}
 									}
-								} else {
-									console.warn(`Không tìm thấy hàng công việc cho jobId = ${jobId}`);
 								}
 							} else {
 								console.error("Lỗi cập nhật:", data.message);
@@ -286,7 +299,8 @@
 						.catch(error => console.error('Lỗi:', error));
 				});
 			});
-		})
+		});
+
 	</script>
 }
 

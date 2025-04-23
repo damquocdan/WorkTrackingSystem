@@ -12,7 +12,7 @@
     <div class="container-fluid">
         <div class="row ">
             <div class="col-sm-6">
-                <h1 class="m-0">@ViewData["Title"]</h1>
+                 <h5 class="m-0">@ViewData["Title"]</h5>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -228,10 +228,10 @@
                             <th>Hạng mục</th>
                             <th>Công việc</th>
                             <th>Deadline</th>
-                            <th>Ngày hoàn thành thực tế</th>
+                            <th>Ngày hoàn thành </th>
                             <th>Trạng thái</th>
                             <th>Tổng hợp đánh giá</th>
-                            <th width="100px">
+                            <th width="170px">
                                 Hành động
                             </th>
                         </tr>
@@ -249,8 +249,8 @@
                                 item.Status == 3 ? "table-danger" :
                                 item.Status == 4 ? "table-primary" :
                                 item.Status == 0 ? "table-secondary" : "")">
-                                    <td class="text-center" style="padding:0px;">@index</td>
-                                <td class="text-center p-0" style="padding:0px;">
+                                    <td class="text-center" >@index</td>
+                                <td class="text-center p-0">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
@@ -260,9 +260,9 @@
                                                 <span class="text-danger">Chưa giao việc</span>
                                     }
                                     </td>
-                                <td class="text-center p-0" style="padding:0px;">@item.JobMapEmployee.Job.Category.Name</td>
-                                <td style="padding:0px;">&nbsp;@item.JobMapEmployee.Job.Name</td>
-                                <td class="text-center p-0" style="padding:0px;">
+                                <td class="text-center p-0" >@item.JobMapEmployee.Job.Category.Name</td>
+                                <td >&nbsp;@item.JobMapEmployee.Job.Name</td>
+                                <td class="text-center p-0">
                                     @{
                                         var createDate = item.CreateDate?.Date;
                                         var deadline1 = item.JobMapEmployee?.Job?.Deadline1;
@@ -282,14 +282,14 @@
                                                 <span class=""></span>
                                     }
                                     </td>
-                                <td class="text-center p-0" style="padding:0px;">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td class="text-center p-0" style="padding:0px;">
+                                <td class="text-center p-0" >@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                <td class="text-center p-0" >
                                         <span class="badge
                                         @(item.Status == 1 ? "bg-success" :
                                         item.Status == 2 ? "bg-warning" :
                                         item.Status == 3 ? "bg-danger" :
                                         item.Status == 4 ? "bg-primary" :
-                                        "bg-secondary") w-100" style="padding:10px;">
+                                        "bg-secondary") " style="padding:7px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
@@ -313,7 +313,7 @@
                                         }
                                         </span>
                                     </td>
-                                <td class="text-center p-0" style="padding:0px;">
+                                <td class="text-center p-0" >
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                                 <span class="summary-display" data-id="@item.Id">
@@ -321,21 +321,21 @@
                                                 </span>
                                     }
                                     </td>
-                                <td class="text-center p-0" style="padding:0px;">
-                                        <div class="d-flex gap-2 ms-auto justify-content-end">
+                                <td class="text-center p-0" >
+                                        <div class="d-flex  justify-content-around mx-2">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
                                         {
                                                     <a class="btn btn-primary btn-sm ajax-action" data-url="@Url.Action("Create", new { currentJobMapEmployeeId = item.JobMapEmployee.Id })" title="Giao cho người khác">
                                                         <i class="fas fa-people-arrows"></i>
                                                     </a>
                                         }
-                                            <a class="btn-yellow btn-event ajax-action" data-url="@Url.Action("Edit", new { id = item.Id })" title="Sửa">
+                                            <a class="btn-yellow btn-event ajax-action m-0" data-url="@Url.Action("Edit", new { id = item.Id })" title="Sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a class="btn-green btn-event ajax-action" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
+                                            <a class="btn-green btn-event ajax-action m-0" data-url="@Url.Action("Details", new { id = item.Id })" title="Chi tiết">
                                                 <i class="fas fa-info-circle"></i>
                                             </a>
-                                            <a class="btn-red btn-event ajax-action" data-url="@Url.Action("Delete", new { id = item.Id })" title="Xoá">
+                                            <a class="btn-red btn-event ajax-action m-0" data-url="@Url.Action("Delete", new { id = item.Id })" title="Xoá">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
