@@ -236,7 +236,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody style="padding:0;">
                         @{
                             int index = (Model.PageNumber - 1) * Model.PageSize;
                         }
@@ -289,7 +289,7 @@
                                         item.Status == 2 ? "bg-warning" :
                                         item.Status == 3 ? "bg-danger" :
                                         item.Status == 4 ? "bg-primary" :
-                                        "bg-secondary")" style="padding:10px;">
+                                        "bg-secondary") w-100" style="padding:10px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
