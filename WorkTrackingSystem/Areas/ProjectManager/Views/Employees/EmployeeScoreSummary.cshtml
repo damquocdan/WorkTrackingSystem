@@ -53,13 +53,13 @@
     Tìm kiếm
 </button>
 
-<div class="collapse" id="collapseExample">
+<div class="collapse show" id="collapseExample">
     <div class="card card-body">
-        <div class="row g-3">
+        <div class="row g-3" id="searchForm">
             <div class="col-md-3">
                 <input type="text" id="search" name="search" class="form-control" value="@ViewBag.Search" placeholder="Nhập tên nhân viên">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="evaluate" name="evaluate" class="form-select">
                     <option value="">Trạng thái đánh giá</option>
                     <option value="Đạt" selected="@(ViewBag.Evaluate == "Đạt" ? "selected" : null)">Đạt</option>
@@ -95,6 +95,14 @@
                 <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate">
                 <input type="date" id="toDate" name="toDate" class="form-control mt-2" value="@ViewBag.ToDate">
             </div>
+            <div class="col-md-1">
+                <a href="#" id="resetButton" class="btn btn-secondary">
+                    <i class="bi bi-arrow-repeat"></i>
+                </a>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -109,7 +117,9 @@
                     <table class="table table-bordered text-left table-hover" id="assessmentTable">
                         <thead class="text-center">
                             <tr>
-                                <th>                <a href="@Url.Action("EmployeeScoreSummary")" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a></th>
+                                <th>                
+                                    STT
+                                    </th>
                                 <th>Nhân viên</th>
                                 <th>Tổng đ.giá khối lượng</th>
                                 <th>Tổng đ.giá tiến độ</th>
@@ -301,8 +311,20 @@
                     "&toDate=" + encodeURIComponent(toDate);
                 window.location.href = url;
             });
-        });
 
+        });
+                    $(document).on("click", "#resetButton", function (e) {
+                e.preventDefault();
+                // Reset tất cả các giá trị trong form về mặc định
+                $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
+                $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+                // Xóa các tham số trên URL
+                    let url = "@Url.Action("EmployeeScoreSummary", "Employees", new { area = "ProjectManager" })";
+                loadTable(url);
+                url.search = ''; // Xóa toàn bộ query params
+                // Gửi AJAX để tải lại danh sách công việc
+                loadJobs(url.toString());
+            });
         function applyFilters() {
             var search = $("#search").val();
             var evaluate = $("#evaluate").val();
@@ -392,5 +414,6 @@
             ] : ['rgba(200, 200, 200, 1)'];
             volumePieChart.update();
         }
+
     </script>
 }
