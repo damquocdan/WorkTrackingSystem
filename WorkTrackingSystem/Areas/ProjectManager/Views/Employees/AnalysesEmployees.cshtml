@@ -38,13 +38,13 @@
     </a>
 </p>
 <p id="noDataMessage" style="display: @(Model.Any() ? "none" : "block");">Không có dữ liệu để xuất Excel.</p>
-<div class="collapse" id="collapseExample">
+<div class="collapse show" id="collapseExample">
     <div class="card card-body">
         <div class="row">
             <div class="col-md-3">
                 <input type="text" id="search" name="search" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.Search" />
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="sortOrder" name="sortOrder" class="form-control">
                     <option value="">-- Sắp xếp theo --</option>
                     <option value="total_asc">Tổng số ↑</option>
@@ -71,27 +71,34 @@
             <div class="col-md-3" id="timeInputContainer">
                 <!-- Placeholder for dynamic time inputs -->
             </div>
-
+            <div class="col-md-1">
+                <a href="#" id="resetButton" class="btn btn-secondary">
+                    <i class="bi bi-arrow-repeat"></i>
+                </a>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
+<h2 class="text-center text-uppercase">
+    Bảng tổng hợp phân tích
+    <span id="filterDescription"></span>
+</h2>
+
 <div class="row">
     <div class="col-md-6">
         <div class="row">
             <div class="col-md-12" id="list-section">
                 <div class="table-responsive">
-                    <div>
-                        <h2 class="text-center text-uppercase">
-                            Bảng tổng hợp phân tích
-                            <span id="filterDescription"></span>
-                        </h2>
-                    </div>
-                    
-                   
+
+
+
                     <table class="table table-bordered text-center table-hover" id="analysisTable">
                         <thead class="text-center">
                             <tr>
-                                <th><a href="@Url.Action("AnalysesEmployees")" class="btn btn-secondary"><i class="bi bi-arrow-clockwise"></i></a></th>
+                                <th></th>
                                 <th>Nhân sự</th>
                                 <th>Tổng số</th>
                                 <th>Đúng hạn</th>
@@ -135,19 +142,19 @@
                     </table>
                 </div>
                 <div class="pagination">
-                     @if (Model.TotalItemCount > Model.PageSize)
+                    @if (Model.TotalItemCount > Model.PageSize)
                     {
                         @Html.PagedListPager(Model, page => Url.Action("AnalysesEmployees", new { page, search = ViewBag.Search, timeType = ViewBag.TimeType, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, time = ViewBag.Time, quarter = ViewBag.Quarter, quarterYear = ViewBag.QuarterYear, year = ViewBag.Year, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
-                    {
-                        LiElementClasses = new string[] { "page-item" },
-                        PageClasses = new string[] { "page-link" },
-                        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                        MaximumPageNumbersToDisplay = 5
-                    })
+               {
+                   LiElementClasses = new string[] { "page-item" },
+                   PageClasses = new string[] { "page-link" },
+                   DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                   DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                   DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                   DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                   DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                   MaximumPageNumbersToDisplay = 5
+               })
                     }
                 </div>
             </div>
@@ -171,7 +178,7 @@
                     <canvas id="pieChartTasks"></canvas>
                 </div>
             </div>
-            
+
         }
         else
         {
@@ -182,7 +189,7 @@
 <div class="row">
     @if (Model.Any())
     {
-        
+
         <div class="row mt-4">
             <div class="col-md-12">
                 <h5>Tổng hợp</h5>
@@ -727,9 +734,9 @@
             width: 100%;
         }
 
-        #summaryTable th, #summaryTable td {
-            word-wrap: break-word;
-        }
+            #summaryTable th, #summaryTable td {
+                word-wrap: break-word;
+            }
 
         #analysisTable td {
             text-align: center;
