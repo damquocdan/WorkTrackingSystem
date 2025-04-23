@@ -50,7 +50,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
 
             // Format display month for the view
-            string displayMonth = "Toàn bộ";
+            string displayMonth = "toàn bộ";
             if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
             {
                 displayMonth = $"Tháng {selectedTime:MM/yyyy}";
@@ -220,7 +220,7 @@ long? jobId = null, int page = 1)
             {
                 assessments = assessments.Where(b => b.Evaluate == evaluate.Value);
             }
-            string selectedMonth = "Toàn bộ";
+            string selectedMonth = "toàn bộ";
             if (!string.IsNullOrEmpty(time))
             {
                 if (DateTime.TryParseExact(time, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedTime))
@@ -458,7 +458,7 @@ long? jobId = null, int page = 1)
             // Handle time parameters
             DateTime? parsedFromDate = null;
             DateTime? parsedToDate = null;
-            string selectedPeriod = "Toàn bộ";
+            string selectedPeriod = "toàn bộ";
 
             if (timeType == "month" && !string.IsNullOrEmpty(time) && DateTime.TryParse(time + "-01", out var parsedTime))
             {

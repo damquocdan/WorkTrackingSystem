@@ -4,18 +4,168 @@
 @{
     ViewData["Title"] = "Đánh giá công việc";
     Layout = "~/Areas/AdminSystem/Views/Shared/_Admin.cshtml";
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h5 class="m-0">@ViewData["Title"]</h5>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form id="assign-job-form" action="@Url.Action("AssignEmployee", "Baselineassessments")" method="post" style="display: none;">
     @Html.AntiForgeryToken()
     <input type="hidden" name="jobId" id="form-job-id" />
     <input type="hidden" name="employeeId" id="form-employee-id" />
 </form>
+<p>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        Tìm kiếm
+    </button>
+    @if (Model.Any())
+    {
+        <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
+    }
+</p>
+<div class="collapse show" id="collapseExample">
+    <div class="card card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <form method="get" action="">
+                    <div class="row gx-2 gy-2 align-items-end">
+                        <!-- Tìm kiếm chính -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Tìm kiếm</label>
+                            <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên / công việc" value="@ViewBag.SearchText">
+                        </div>
+
+                        <!-- Danh mục -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Danh mục</label>
+                            <select id="categoryId" name="categoryId" class="form-select">
+                                <option value="">-- Chọn danh mục --</option>
+                                @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Trạng thái -->
+                        <div class="col-md-1">
+                            <label class="form-label fw-bold">Trạng thái</label>
+                            <select id="status" name="status" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                <option value="1">Hoàn thành</option>
+                                <option value="2">Chưa hoàn thành</option>
+                                <option value="3">Hoàn thành muộn</option>
+                                <option value="4">Đang xử lý</option>
+                                <option value="0">Chưa bắt đầu</option>
+                            </select>
+                        </div>
+
+                        <!-- Sắp xếp -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Sắp xếp</label>
+                            <select id="sortOrder" name="sortOrder" class="form-select">
+                                <option value="">-- Mặc định --</option>
+                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
+                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                                <option value="review_asc">Đánh giá tăng dần</option>
+                                <option value="review_desc">Đánh giá giảm dần</option>
+                            </select>
+                        </div>
+
+                        <!-- Thời gian: Từ ngày - Đến ngày -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Từ ngày</label>
+                            <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Đến ngày</label>
+                            <input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Ngày</label>
+                            <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
+                        </div>
+                        <!-- Tháng - Ngày -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Tháng</label>
+                            <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
+                        </div>
+
+
+                        <!-- Năm - Quý -->
+
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Quý</label>
+                            <select id="quarter" name="quarter" class="form-select">
+                                <option value="">-- Chọn quý --</option>
+                                <option value="1">Quý 1</option>
+                                <option value="2">Quý 2</option>
+                                <option value="3">Quý 3</option>
+                                <option value="4">Quý 4</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Năm</label>
+                            <select id="year" name="year" class="form-select">
+                                <option value="">-- Chọn năm --</option>
+                                @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <!-- Checkbox -->
+                        <div class="col-md-1">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="showCompletedZeroReview" name="showCompletedZeroReview" value="true" @(ViewBag.ShowCompletedZeroReview ? "checked" : "")>
+                                <label class="form-check-label" for="showCompletedZeroReview">Chưa đ.giá</label>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
+                                <label class="form-check-label" for="dueToday">CV theo ngày</label>
+                            </div>
+                        </div>
+
+                        <!-- Nút Tìm kiếm & Reset -->
+                        <div class="col-md-2 d-flex justify-content-end mt-4">
+                            <a href="#" id="resetButton" class="btn btn-secondary me-2">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </a>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12" id="list-section">
-        <div class="card-body">
+        <div class="">
             <div class="table-responsive">
-                <h3 class="text-center">Danh sách công việc</h3>
-                <p>
+                <h2 class="text-center">Danh sách công việc</h2>
+                @* <p>
                     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                        Lọc
                     </button>
@@ -24,95 +174,9 @@
                         <i class="bi bi-file-earmark-excel"></i> Excel
                     </a>
                 
-                </p>
+                </p> *@
                
-                <div class="collapse" id="collapseExample">
-                    <div class="card card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class=" p-3 mb-3">
-                                    <div id="searchForm" class="row gx-2 gy-2 align-items-end">
-                                        <!-- Tìm kiếm -->
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-bold">Tìm kiếm</label>
-                                            <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Nhập mã / tên nhân viên / công việc" value="@ViewBag.SearchText">
-                                        </div>
-
-                                        <!-- Tháng -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Tháng</label>
-                                            <input type="month" id="month" name="month" class="form-control" value="@ViewBag.Month" />
-                                        </div>
-                                        <!-- Ngày -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Ngày</label>
-                                            <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
-                                        </div>
-                                        <!-- Trạng thái -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Trạng thái</label>
-                                            <select id="status" name="status" class="form-select">
-                                                <option value="">-- Tất cả --</option>
-                                                <option value="1">Hoàn thành</option>
-                                                <option value="2">Chưa hoàn thành</option>
-                                                <option value="3">Hoàn thành muộn</option>
-                                                <option value="4">Đang xử lý</option>
-                                                <option value="0">Chưa bắt đầu</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Danh mục -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Danh mục</label>
-                                            <select id="categoryId" name="categoryId" class="form-select">
-                                                <option value="">-- Chọn danh mục --</option>
-                                                @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
-                                                {
-                                                    <option value="@category.Id">@category.Name</option>
-                                                }
-                                            </select>
-                                        </div>
-
-                                        <!-- Sắp xếp -->
-                                        <div class="col-md-2">
-                                            <label class="form-label fw-bold">Sắp xếp</label>
-                                            <select id="sortOrder" name="sortOrder" class="form-select">
-                                                <option value="">-- Mặc định --</option>
-                                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
-                                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
-                                                <option value="review_asc">Đánh giá tăng dần</option>
-                                                <option value="review_desc">Đánh giá giảm dần</option>
-                                            </select>
-                                        </div>
-
-                                        <!-- Chưa đánh giá -->
-                                        <div class="col-md-2">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="showCompletedZeroReview" name="showCompletedZeroReview" value="true" @(ViewBag.ShowCompletedZeroReview ? "checked" : "")>
-                                                <label class="form-check-label" for="showCompletedZeroReview">Chưa đánh giá</label>
-                                            </div>
-                                        </div>
-
-                                        <!-- Hạn hôm nay -->
-                                        <div class="col-md-2">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="dueToday" name="dueToday" value="true" @(ViewBag.DueToday ? "checked" : "")>
-                                                <label class="form-check-label" for="dueToday">Công việc theo ngày</label>
-                                            </div>
-                                        </div>
-
-                                        <!-- Nút Tìm kiếm & Reset -->
-                                        <div class="col-md-4 d-flex justify-content-end mt-4">
-                                            <a href="@Url.Action("JobEvaluation")" id="resetButton" class="btn btn-secondary">
-                                                <i class="bi bi-arrow-repeat"></i> Reset
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              
                 <table class="table table-bordered text-left table-hover" id="scoreTable">
                     <thead class="text-center">
                         <tr>
@@ -320,19 +384,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            //xử lý nút reset
-            $(document).on("click", "#resetButton", function (e) {
-                e.preventDefault();
-                // Reset tất cả các giá trị trong form về mặc định
-                $("#searchForm").find("input[type=text], input[type=month], select").val('');
-                $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-                // Xóa các tham số trên URL
-                let url = "@Url.Action("Index", "Jobs", new { area = "AdminSystem" })";
-                loadTable(url);
-                url.search = ''; // Xóa toàn bộ query params
-                // Gửi AJAX để tải lại danh sách công việc
-                loadJobs(url.toString());
-            });
+            
             // Xử lý tìm kiếm và lọc
             $("#searchText, #month, #day, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
                 applyFilters();
@@ -754,7 +806,14 @@
                 showSelectedEmployee(employee);
             }
         });
-
+        //xử lý nút reset
+        $(document).on("click", "#resetButton", function (e) {
+            e.preventDefault();
+            $("#collapseExample").find("input[type=text], input[type=month], input[type=date], select, input[type=checkbox]").val('');
+            $("#collapseExample").find("input[type=checkbox]").prop("checked", false);
+            let url = "@Url.Action("JobEvaluation", "Baselineassessments", new { area = "AdminSystem" })";
+            loadTable(url);
+        });
         function applyFilters() {
             var searchText = $("#searchText").val();
             var month = $("#month").val();

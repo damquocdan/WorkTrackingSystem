@@ -20,9 +20,27 @@
 
     var pieLabels = pieChartData.Select(x => x.EmployeeName).ToList();
     var pieValues = pieChartData.Select(x => x.TotalVolume).ToList();
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<h1 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.DisplayMonth ?? "Toàn bộ")</h1>
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h5 class="m-0">@ViewData["Title"]</h5>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p>
 <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
     Tìm kiếm
 </button>
@@ -32,9 +50,10 @@
         <i class="bi bi-file-earmark-excel"></i> Xuất Excel
     </a>
 }
-<div class="collapse" id="collapseExample">
+</p>
+<div class="collapse show" id="collapseExample">
     <div class="card card-body">
-        <div class="row g-3">
+        <div class="row g-3" id="searchForm">
             <div class="col-md-4">
                 <input type="text" id="employeeName" name="employeeName" class="form-control" value="@ViewBag.EmployeeName" placeholder="Nhập tên nhân viên">
             </div>
@@ -45,11 +64,16 @@
                     <option value="false">Chưa đạt</option>
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
             </div>
-            <div class="col-md-4">
-                <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="bi bi-arrow-repeat"></i></a>
+            <div class="col-md-1">
+                <a href="#" id="resetButton" class="btn btn-secondary">
+                    <i class="bi bi-arrow-repeat"></i>
+                </a>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -59,6 +83,7 @@
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-12" id="list-section">
+                <h1 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.DisplayMonth ?? "toàn bộ")</h1>
                 <div class="table-responsive">
                     <table class="table table-bordered text-left table-hover" id="assessmentTable">
                         <thead class="text-center">
@@ -70,7 +95,7 @@
                                 <th>Tổng đ.giá chất lượng</th>
                                 <th>Tổng đ.giá tổng hợp</th>
                                 <th>Đánh giá</th>
-                                @*                                 <th></th> *@
+                               
                             </tr>
                         </thead>
                         <tbody>
@@ -148,14 +173,14 @@
 
         // Function to format yyyy-MM to Tháng MM/yyyy
         function formatMonthDisplay(time) {
-            if (!time) return "Toàn bộ";
+            if (!time) return "toàn bộ";
             var parts = time.split('-');
             if (parts.length === 2) {
                 var year = parts[0];
                 var month = parts[1];
-                return "Tháng " + month + "/" + year;
+                return "tháng " + month + "/" + year;
             }
-            return "Toàn bộ";
+            return "toàn bộ";
         }
 
         function initializeCharts() {
@@ -246,7 +271,19 @@
                 window.location.href = url;
             });
         });
-
+        //nút reset
+        $(document).on("click", "#resetButton", function (e) {
+            e.preventDefault();
+            // Reset tất cả các giá trị trong form về mặc định
+            $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
+            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+            // Xóa các tham số trên URL
+            let url = "@Url.Action("Index", "Baselineassessment", new { area = "AdminSystem" })";
+            loadTable(url);
+            url.search = ''; // Xóa toàn bộ query params
+            // Gửi AJAX để tải lại danh sách công việc
+            loadJobs(url.toString());
+        });
         function applyFilters() {
             var employeeName = $("#employeeName").val();
             var evaluate = $("#evaluate").val();
