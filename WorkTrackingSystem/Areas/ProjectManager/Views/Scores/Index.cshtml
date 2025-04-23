@@ -236,7 +236,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody style="padding:0;">
+                    <tbody>
                         @{
                             int index = (Model.PageNumber - 1) * Model.PageSize;
                         }
@@ -249,8 +249,8 @@
                                 item.Status == 3 ? "table-danger" :
                                 item.Status == 4 ? "table-primary" :
                                 item.Status == 0 ? "table-secondary" : "")">
-                                    <td class="text-center">@index</td>
-                                    <td class="text-center">
+                                    <td class="text-center" style="padding:0px;">@index</td>
+                                <td class="text-center p-0" style="padding:0px;">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
@@ -260,9 +260,9 @@
                                                 <span class="text-danger">Chưa giao việc</span>
                                     }
                                     </td>
-                                    <td class="text-center">@item.JobMapEmployee.Job.Category.Name</td>
-                                    <td>@item.JobMapEmployee.Job.Name</td>
-                                    <td class="text-center">
+                                <td class="text-center p-0" style="padding:0px;">@item.JobMapEmployee.Job.Category.Name</td>
+                                <td style="padding:0px;">&nbsp;@item.JobMapEmployee.Job.Name</td>
+                                <td class="text-center p-0" style="padding:0px;">
                                     @{
                                         var createDate = item.CreateDate?.Date;
                                         var deadline1 = item.JobMapEmployee?.Job?.Deadline1;
@@ -282,8 +282,8 @@
                                                 <span class=""></span>
                                     }
                                     </td>
-                                    <td class="text-center">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                    <td class="text-center">
+                                <td class="text-center p-0" style="padding:0px;">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                <td class="text-center p-0" style="padding:0px;">
                                         <span class="badge
                                         @(item.Status == 1 ? "bg-success" :
                                         item.Status == 2 ? "bg-warning" :
@@ -313,7 +313,7 @@
                                         }
                                         </span>
                                     </td>
-                                    <td class="text-center">
+                                <td class="text-center p-0" style="padding:0px;">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                                 <span class="summary-display" data-id="@item.Id">
@@ -321,7 +321,7 @@
                                                 </span>
                                     }
                                     </td>
-                                    <td class="text-center">
+                                <td class="text-center p-0" style="padding:0px;">
                                         <div class="d-flex gap-2 ms-auto justify-content-end">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
                                         {
