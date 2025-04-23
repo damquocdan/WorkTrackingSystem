@@ -59,10 +59,10 @@
                         <label class="form-label fw-bold">Quý</label>
                         <select id="quarter" name="quarter" class="form-select">
                             <option value="">-- Chọn quý --</option>
-                            <option value="1" @* @@(quarter == "1" ? "selected" : "") *@>Quý 1</option>
-                            <option value="2" @* @@(quarter == "2" ? "selected" : "") *@>Quý 2</option>
-                            <option value="3" @* @@(quarter == "3" ? "selected" : "") *@>Quý 3</option>
-                            <option value="4" @* @@(quarter == "4" ? "selected" : "") *@>Quý 4</option>
+                            <option value="1" >Quý 1</option>
+                            <option value="2">Quý 2</option>
+                            <option value="3">Quý 3</option>
+                            <option value="4">Quý 4</option>
                         </select>
                     </div>
                     <!-- Năm -->
@@ -72,7 +72,7 @@
                             <option value="">-- Chọn năm --</option>
                             @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
                             {
-                                <option value="@i" @* @@(year == i.ToString() ? "selected" : "") *@>@i</option>
+                                <option value="@i">@i</option>
                             }
                         </select>
                     </div>
