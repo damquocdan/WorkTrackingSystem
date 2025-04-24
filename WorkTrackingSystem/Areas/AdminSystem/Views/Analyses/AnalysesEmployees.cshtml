@@ -139,7 +139,9 @@
                     </table>
                 </div>
                 <div class="pagination">
-                    @Html.PagedListPager(Model, page => Url.Action("AnalysesEmployees", new { page, search = ViewBag.Search, departmentId = ViewBag.DepartmentId, timeType = ViewBag.TimeType, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, time = ViewBag.Time, quarter = ViewBag.Quarter, quarterYear = ViewBag.QuarterYear, year = ViewBag.Year, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
+                        @if (Model.TotalItemCount > Model.PageSize)
+                    {
+                        @Html.PagedListPager(Model, page => Url.Action("AnalysesEmployees", new { page, search = ViewBag.Search, departmentId = ViewBag.DepartmentId, timeType = ViewBag.TimeType, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, time = ViewBag.Time, quarter = ViewBag.Quarter, quarterYear = ViewBag.QuarterYear, year = ViewBag.Year, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
                     {
                         LiElementClasses = new string[] { "page-item" },
                         PageClasses = new string[] { "page-link" },
@@ -150,6 +152,7 @@
                         DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                         MaximumPageNumbersToDisplay = 5
                     })
+                    }
                 </div>
             </div>
             <div class="col-md-6 d-none" id="detail-section">
@@ -180,7 +183,7 @@
         }
     </div>
 </div>
-<div class="row">
+<div class="row analysis-diag">
     @if (Model.Any())
     {
        

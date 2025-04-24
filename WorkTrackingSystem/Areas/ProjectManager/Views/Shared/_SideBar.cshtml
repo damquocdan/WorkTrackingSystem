@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="form-inline">
+       @*  <div class="form-inline">
             <div class="input-group" data-widget="sidebar-search">
                 <input class="form-control form-control-sidebar" type="search" placeholder="Tìm kiếm" aria-label="Search">
                 <div class="input-group-append">
@@ -33,7 +33,7 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </div> *@
 
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
@@ -91,7 +91,7 @@
                         </p>
                     </a>
                 </li>
-                <li class="nav-item menu-open">
+                <li class="nav-item ">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
                         <p>
@@ -101,27 +101,27 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
+                        <li class="nav-item pl-3">
                             <a asp-controller="Baselineassessments" asp-action="Index" class="nav-link">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-circle fa-2xs"></i>
+                                 <i class="fa-solid fa-circle fa-2xs"></i>
                                 <p>Thống kê đánh giá</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item pl-3">
                             <a asp-controller="Employees" asp-action="EmployeeScoreSummary" class="nav-link">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-circle fa-2xs"></i>
-                                <p>Thống kê đánh giá theo nhân viên</p>
+                                <i class="fa-solid fa-circle fa-2xs"></i>
+                                <p>Thống kê đánh giá theo nv</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item pl-3">
                             <a asp-controller="Baselineassessments" asp-action="JobEvaluation" class="nav-link">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-circle fa-2xs"></i>
+                                 <i class="fa-solid fa-circle fa-2xs"></i>
                                 <p>Đánh giá công việc</p>
                             </a>
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item menu-open">
+                <li class="nav-item ">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-star"></i>
                         <p>
@@ -131,16 +131,16 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
+                        <li class="nav-item  pl-3">
                             <a asp-controller="Analyses" asp-action="Index" class="nav-link">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-circle fa-2xs"></i>
-                                <p>Bảng phân tích theo tháng</p>
+                                <i class="fa-solid fa-circle fa-2xs"></i>
+                                <p>Phân tích theo tháng</p>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item  pl-3">
                             <a asp-controller="Employees" asp-action="AnalysesEmployees" class="nav-link">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-circle fa-2xs"></i>
-                                <p>Bảng phân tích theo nhân viên</p>
+                                 <i class="fa-solid fa-circle fa-2xs"></i>
+                                <p>Phân tích theo nhân viên</p>
                             </a>
                         </li>
                     </ul>

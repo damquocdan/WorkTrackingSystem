@@ -4,13 +4,18 @@
 @{
     ViewData["Title"] = "Chi tiết nhân viên";
 }
-
+<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmp" aria-expanded="false" aria-controls="collapseEmp">
+    Chi tiết 
+</button>
+<div class="collapse show" id="collapseEmp">
 <h1 class="text-center">Chi tiết nhân viên</h1>
 
 <div class="card shadow-lg p-4">
     <div class="d-flex justify-content-between align-items-center">
         <h4 class="card-title">Thông tin nhân viên</h4>
-        <button class="btn btn-danger" onclick="closeDetailSection()">Đóng</button>
+            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEmp" aria-expanded="false" aria-controls="collapseEmp">
+                <i class="fa-solid fa-chevron-up"></i>
+            </button>
     </div>
     <hr />
 
@@ -34,7 +39,7 @@
         </div>
     </div>
 </div>
-
+</div>
 <!-- Danh sách công việc -->
 <div class="card shadow-lg mt-4 p-4">
     <h4 class="card-title">Công việc được giao</h4>
@@ -48,7 +53,7 @@
                     <th class="text-center">Danh mục</th>
                     <th class="text-center">Công việc</th>
                     <th class="text-center">Trạng thái</th>
-                    <th class="text-center">Bắt đầu</th>
+                    @* <th class="text-center">Bắt đầu</th> *@
                     <th class="text-center">Hạn chót</th>
                     <th class="text-center">Ngày hoàn thành</th>
                     <th class="text-center">Tổng đánh giá</th>
@@ -91,10 +96,10 @@
                                     break;
                             }
                         </td>
-                        <td>@(latestScore?.Time?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
-                        <td>@(jobMap.Job?.Deadline1?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                        <td>@(latestScore?.CompletionDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                        <td>@(latestScore?.SummaryOfReviews?.ToString("F2") ?? "N/A")</td>
+                        @* <td>@(latestScore?.Time?.ToString("dd/MM/yyyy HH:mm") ?? "")</td> *@
+                        <td>@(jobMap.Job?.Deadline1?.ToString("dd/MM/yyyy") ?? "")</td>
+                        <td>@(latestScore?.CompletionDate?.ToString("dd/MM/yyyy") ?? "")</td>
+                        <td>@(latestScore?.SummaryOfReviews?.ToString("F2") ?? "")</td>
                     </tr>
                 }
             </tbody>

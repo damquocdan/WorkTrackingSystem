@@ -90,7 +90,7 @@
                         </div>
 
                         <!-- Thời gian: Từ ngày - Đến ngày -->
-                        <div class="col-md-2">
+                        @* <div class="col-md-2">
                             <label class="form-label fw-bold">Từ ngày</label>
                             <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
                         </div>
@@ -101,7 +101,7 @@
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Ngày</label>
                             <input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
-                        </div>
+                        </div> *@
                         <!-- Tháng - Ngày -->
                         <div class="col-md-2">
                             <label class="form-label fw-bold">Tháng</label>
@@ -111,7 +111,7 @@
 
                         <!-- Năm - Quý -->
 
-                        <div class="col-md-2">
+                      @*   <div class="col-md-2">
                             <label class="form-label fw-bold">Quý</label>
                             <select id="quarter" name="quarter" class="form-select">
                                 <option value="">-- Chọn quý --</option>
@@ -130,7 +130,7 @@
                                     <option value="@i">@i</option>
                                 }
                             </select>
-                        </div>
+                        </div> *@
                         <!-- Checkbox -->
                         <div class="col-md-1">
                             <div class="form-check mt-4">
@@ -146,7 +146,7 @@
                         </div>
 
                         <!-- Nút Tìm kiếm & Reset -->
-                        <div class="col-md-2 d-flex justify-content-end mt-4">
+                        <div class="col-md-12 d-flex justify-content-end mt-4">
                             <a href="#" id="resetButton" class="btn btn-secondary me-2">
                                 <i class="bi bi-arrow-repeat"></i>
                             </a>

@@ -24,32 +24,33 @@
     </div>
 </div>
 
-<!-- Form tìm kiếm -->
-<div class="row mb-2">
-    <div class="col-lg-9 col-md-9 col-sm-12">
-        <div class="row">
-            <div class="col-md-4">
-                <input type="text" id="searchInput" name="searchTerm" class="form-control" placeholder="Nhập mã nhân viên, họ hoặc tên..." value="@ViewBag.Search" />
-            </div>
-            <div class="col-md-4">
-                <select class="form-select" id="positionId" name="positionId" asp-items="@ViewBag.Positions">
-                    <option value="" selected>Tất cả vị trí</option>
-                    @foreach (var position in ViewBag.Positions)
-                    {
-                        <option value="@position.Value">
-                            @position.Text
-                        </option>
-                    }
-                </select>
-             
-            </div>
-           
-        </div>
-    </div>
-</div>
+
 
 <div class="row">
     <div class="col-md-12 hide-on-detail" id="list-section">
+        <!-- Form tìm kiếm -->
+        <div class="row mb-2">
+            <div class="col-lg-9 col-md-9 col-sm-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" id="searchInput" name="searchTerm" class="form-control" placeholder="Nhập mã nhân viên, họ hoặc tên..." value="@ViewBag.Search" />
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="positionId" name="positionId" asp-items="@ViewBag.Positions">
+                            <option value="" selected>Tất cả vị trí</option>
+                            @foreach (var position in ViewBag.Positions)
+                            {
+                                <option value="@position.Value">
+                                    @position.Text
+                                </option>
+                            }
+                        </select>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
         <h2 class="text-center text-uppercase">Danh sách nhân viên</h2>
      
         <div class="table-responsive mt-4">
