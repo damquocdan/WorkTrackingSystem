@@ -25,36 +25,29 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         public async Task<IActionResult> Index(
-    string day = "",
-    string fromDate = "",
-    string toDate = "",
-    string month = "",
-    string quarter = "",
-    string year = "",
-    int? departmentId = null)
+            string day = "",
+            string fromDate = "",
+            string toDate = "",
+            string month = "",
+            string quarter = "",
+            string year = "",
+            string departmentId = "")
         {
-            // Lưu trạng thái bộ lọc vào ViewBag
+            // Store filter state in ViewBag
             ViewBag.Day = day;
             ViewBag.FromDate = fromDate;
             ViewBag.ToDate = toDate;
             ViewBag.Month = month;
             ViewBag.Quarter = quarter;
             ViewBag.Year = year;
-            ViewBag.DepartmentId = departmentId?.ToString();
+            ViewBag.DepartmentId = departmentId;
 
-            // Populate departments for dropdown
-            ViewBag.Departments = await _context.Departments
-                .Where(d => d.IsActive == true && d.IsDelete == false)
-                .Select(d => new { d.Id, d.Name })
-                .OrderBy(d => d.Name)
-                .ToListAsync();
-
-            // Kiểm tra xem có lọc theo khoảng thời gian không
+            // Check if filtering by date range
             bool isDateRange = !string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate);
             ViewBag.Date1 = fromDate;
             ViewBag.Date2 = toDate;
 
-            // Xác định kiểu thời gian và khoảng thời gian dựa trên CreateDate
+            // Determine time period and grouping based on CreateDate
             DateTime? filterFromDate = null;
             DateTime? filterToDate = null;
             bool isDailyGrouping = false;
@@ -90,32 +83,21 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 filterToDate = new DateTime(selectedYearForYear, 12, 31);
                 isDailyGrouping = false;
             }
-            else
+
+            // Default to monthly/yearly grouping if no filters are applied
+            if (string.IsNullOrEmpty(day) && string.IsNullOrEmpty(fromDate) && string.IsNullOrEmpty(toDate) &&
+                string.IsNullOrEmpty(month) && string.IsNullOrEmpty(quarter) && string.IsNullOrEmpty(year))
             {
-                // Default case: Show all data, grouped by month/year
                 isDailyGrouping = false;
-                filterFromDate = null; // No time filter
-                filterToDate = null;
             }
 
-            // Check session
-            var managerUsername = HttpContext.Session.GetString("AdminLogin");
-            if (string.IsNullOrEmpty(managerUsername))
-            {
-                return RedirectToAction("Index", "Login");
-            }
+            // Get all departments for filter dropdown
+            var departments = await _context.Departments
+                .Select(d => new { d.Id, d.Name })
+                .ToListAsync();
+            ViewBag.Departments = departments;
 
-            var manager = await _context.Users
-                .Where(u => u.UserName == managerUsername)
-                .Select(u => u.Employee)
-                .FirstOrDefaultAsync();
-
-            if (manager == null)
-            {
-                return RedirectToAction("Index", "Login");
-            }
-
-            // Query scores for all departments (or filtered by departmentId)
+            // Query scores, restricted to selected department(s) or all if none selected
             var scoresQuery = _context.Scores
                 .Include(s => s.JobMapEmployee)
                 .ThenInclude(jme => jme.Job)
@@ -129,9 +111,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                             s.JobMapEmployee.Employee.DepartmentId.HasValue);
 
             // Apply department filter if specified
-            if (departmentId.HasValue)
+            if (!string.IsNullOrEmpty(departmentId) && int.TryParse(departmentId, out int deptId))
             {
-                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Employee.DepartmentId == departmentId.Value);
+                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Employee.DepartmentId == deptId);
             }
 
             // Apply time filters based on CreateDate
@@ -140,19 +122,19 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.Value.Date >= filterFromDate.Value.Date && s.CreateDate.Value.Date <= filterToDate.Value.Date);
             }
 
-            // Tổng quan
+            // Overview statistics
             var totalJobs = await _context.Jobs.CountAsync(j => j.IsActive == true && j.IsDelete == false);
             var completedJobs = await scoresQuery.CountAsync(s => s.Status == 1);
             var overdueJobs = await scoresQuery.CountAsync(s => s.Status == 2);
             var totalCategories = await _context.Categories.CountAsync(c => c.IsActive == true && c.IsDelete == false);
 
-            // Trạng thái công việc cho biểu đồ tròn
+            // Job status for pie chart
             var jobStatusOntime = await scoresQuery.CountAsync(s => s.Status == 1);
             var jobStatusOverdue = await scoresQuery.CountAsync(s => s.Status == 2);
             var jobStatusLate = await scoresQuery.CountAsync(s => s.Status == 3);
             var jobStatusProcessing = await scoresQuery.CountAsync(s => s.Status == 4);
 
-            // Thống kê công việc theo tháng/năm hoặc ngày
+            // Jobs by period (monthly/yearly or daily)
             var jobsByPeriod = await scoresQuery
                 .Select(s => new { s.CreateDate })
                 .ToListAsync();
@@ -178,17 +160,18 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var jobMonths = jobsByPeriodGrouped.Select(j => j.Period).ToList();
             var jobCounts = jobsByPeriodGrouped.Select(j => j.TotalJobs).ToList();
 
-            // Dữ liệu lịch
+            // Calendar data with status
             var calendarJobs = await scoresQuery
-    .GroupBy(s => s.CreateDate)
-    .Select(g => new
-    {
-        CreateDate = g.Key,
-        Count = g.Count()
-    })
-    .ToListAsync();
+                .GroupBy(s => new { s.CreateDate.Value.Date, s.Status })
+                .Select(g => new
+                {
+                    title = $"{g.Count()} CV đến hạn",
+                    start = g.Key.Date.ToString("yyyy-MM-dd"),
+                    status = g.Key.Status
+                })
+                .ToListAsync();
 
-            // Dữ liệu cho biểu đồ đánh giá
+            // Score summary for charts
             var scoreSummaryRaw = await scoresQuery
                 .Select(s => new
                 {
@@ -235,7 +218,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             var sumQuality = scoreSummary.Select(s => s.TotalQuality).ToList();
             var sumSummary = scoreSummary.Select(s => s.SummaryScore).ToList();
 
-            // Check if the request is AJAX
+            // Handle AJAX request
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return Json(new
@@ -246,7 +229,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                     month,
                     quarter,
                     year,
-                    departmentId = departmentId?.ToString(),
+                    departmentId,
                     isDateRange,
                     labels,
                     sumVolume,
@@ -295,11 +278,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             string month = "",
             string quarter = "",
             string year = "",
-            int? departmentId = null)
+            string departmentId = "")
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            var managerUsername = HttpContext.Session.GetString("AdminLogin");
+            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (string.IsNullOrEmpty(managerUsername))
             {
                 return RedirectToAction("Index", "Login");
@@ -363,9 +346,15 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                             s.JobMapEmployee.Employee != null &&
                             s.JobMapEmployee.Employee.DepartmentId.HasValue);
 
-            if (departmentId.HasValue)
+            // Apply department filter if specified
+            if (!string.IsNullOrEmpty(departmentId) && int.TryParse(departmentId, out int deptId))
             {
-                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Employee.DepartmentId == departmentId.Value);
+                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Employee.DepartmentId == deptId);
+                selectedPeriod += $" - Phòng ban: {(_context.Departments.FirstOrDefault(d => d.Id == deptId)?.Name ?? "Unknown")}";
+            }
+            else
+            {
+                selectedPeriod += " - Tất cả phòng ban";
             }
 
             if (filterFromDate.HasValue && filterToDate.HasValue)
@@ -541,11 +530,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
 
                 var ws3 = package.Workbook.Worksheets.Add("Analysis Summary");
-                var departmentName = departmentId.HasValue
-                    ? _context.Departments
-                        .Where(d => d.Id == departmentId.Value)
-                        .Select(d => d.Name)
-                        .FirstOrDefault() ?? "All Departments"
+                var departmentName = !string.IsNullOrEmpty(departmentId) && int.TryParse(departmentId, out int parsedDeptId)
+                    ? _context.Departments.FirstOrDefault(d => d.Id == parsedDeptId)?.Name ?? "Unknown"
                     : "All Departments";
 
                 ws3.Cells[1, 1].Value = $"Bảng tổng hợp phân tích - {selectedPeriod}";
