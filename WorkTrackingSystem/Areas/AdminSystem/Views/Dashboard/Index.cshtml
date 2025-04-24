@@ -16,84 +16,87 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Thống kê</h1>
+                <h1 class="m-0">Thống kê - @ViewBag.DepartmentName</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Admin System</a></li>
+                    <li class="breadcrumb-item"><a href="#">Project Manager</a></li>
                     <li class="breadcrumb-item active">Thống kê</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Filter Buttons -->
 <p>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
         Tìm kiếm
     </button>
     <a href="@Url.Action("ExportToExcel", new { day = day, fromDate = fromDate, toDate = toDate, month = month, quarter = quarter, year = year, departmentId = departmentId })" class="btn btn-success btn-export"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
 </p>
+
 <!-- Filter Form -->
 <section class="content">
     <div class="collapse show" id="collapseExample">
         <div class="card card-body mb-3">
             <form method="get" action="@Url.Action("Index")" id="filterForm">
                 <div class="row gx-2 gy-2 align-items-end">
-                    <!-- Phòng ban -->
+                    <!-- Department -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Phòng ban</label>
                         <select id="departmentId" name="departmentId" class="form-select">
                             <option value="">Tất cả phòng ban</option>
                             @foreach (var dept in ViewBag.Departments)
                             {
-                                <option value="@dept.Id">@dept.Name</option>
+                                <option value="@dept.Id" selected="@(dept.Id.ToString() == departmentId ? "selected" : null)">@dept.Name</option>
                             }
                         </select>
                     </div>
-                    <!-- Ngày -->
+                    <!-- Day -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Ngày</label>
                         <input type="date" id="day" name="day" class="form-control" value="@day" />
                     </div>
-                    <!-- Từ ngày -->
+                    <!-- From Date -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Từ ngày</label>
                         <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
                     </div>
-                    <!-- Đến ngày -->
+                    <!-- To Date -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Đến ngày</label>
                         <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
                     </div>
-                    <!-- Tháng -->
+                    <!-- Month -->
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Tháng</label>
                         <input type="month" id="month" name="month" class="form-control" value="@month" />
                     </div>
-                    <!-- Quý -->
+                    <!-- Quarter -->
                     <div class="col-md-1">
                         <label class="form-label fw-bold">Quý</label>
                         <select id="quarter" name="quarter" class="form-select">
-                            <option value="" >Chọn quý</option>
-                            <option value="1" >Quý 1</option>
-                            <option value="2" >Quý 2</option>
-                            <option value="3">Quý 3</option>
-                            <option value="4">Quý 4</option>
+                            <option value="">Chọn quý</option>
+                            <option value="1" selected="@(quarter == "1" ? "selected" : null)">Quý 1</option>
+                            <option value="2" selected="@(quarter == "2" ? "selected" : null)">Quý 2</option>
+                            <option value="3" selected="@(quarter == "3" ? "selected" : null)">Quý 3</option>
+                            <option value="4" selected="@(quarter == "4" ? "selected" : null)">Quý 4</option>
                         </select>
                     </div>
-                    <!-- Năm -->
-                    <div class="col-md-1">
+                    <!-- Year -->
+                    <div class="col-md-2">
                         <label class="form-label fw-bold">Năm</label>
                         <select id="year" name="year" class="form-select">
-                            <option value="" >Chọn năm</option>
+                            <option value="">Chọn năm</option>
                             @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
                             {
-                                <option value="@i" >@i</option>
+                                <option value="@i" selected="@(year == i.ToString() ? "selected" : null)">@i</option>
                             }
                         </select>
                     </div>
-                    <!-- Nút Reset và Collapse -->
-                    <div class="col-md-2 d-flex align-items-end gap-2">
+                    <!-- Reset and Collapse Buttons -->
+                    <div class="col-md-1 d-flex float-right gap-2">
                         <a href="@Url.Action("Index")" class="btn btn-secondary btn-reset"><i class="bi bi-arrow-repeat"></i></a>
                         <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                             <i class="fa-solid fa-chevron-up"></i>
@@ -159,7 +162,6 @@
                 </div>
             </div>
         </div>
-        <!-- /.row -->
         <!-- Main row -->
         <div class="row">
             <section class="col-lg-7 connectedSortable">
@@ -181,6 +183,9 @@
                     </div>
                     <div class="card-body pt-0">
                         <div id="calendar" style="width: 100%; min-height:530px !important;"></div>
+                        <div id="noCalendarDataMessage" class="text-center" style="@(ViewBag.CalendarJobs == "[]" ? "" : "display: none;")">
+                            Không có sự kiện để hiển thị.
+                        </div>
                     </div>
                 </div>
             </section>
@@ -226,6 +231,9 @@
                     </div>
                     <div class="card-body">
                         <canvas id="jobStatusPieChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
+                        <div id="noJobStatusDataMessage" class="text-center" style="@((ViewBag.JobStatusOntime == 0 && ViewBag.JobStatusOverdue == 0 && ViewBag.JobStatusLate == 0 && ViewBag.JobStatusProcessing == 0) ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
+                        </div>
                     </div>
                 </div>
                 <!-- Bar Chart: Jobs by Period -->
@@ -238,6 +246,9 @@
                     </div>
                     <div class="card-body">
                         <canvas id="jobsByPeriodBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
+                        <div id="noJobPeriodDataMessage" class="text-center" style="@(ViewBag.JobMonths.Count == 0 ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
+                        </div>
                     </div>
                 </div>
             </section>
@@ -247,7 +258,6 @@
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
@@ -268,29 +278,13 @@
         var jobStatusLate = @ViewBag.JobStatusLate;
         var jobStatusProcessing = @ViewBag.JobStatusProcessing;
         var calendarJobs = @Html.Raw(ViewBag.CalendarJobs);
+        var departmentId = '@departmentId';
 
         // Global chart variables
         var scoreTrendChart, summaryScoreChart, jobStatusPieChart, jobsByPeriodBarChart, calendar;
 
-        // Function to calculate job counts per day
-        function getJobCountsPerDay(jobs) {
-            const jobCounts = {};
-            jobs.forEach(job => {
-                const date = job.start.split('T')[0]; // Extract date (yyyy-mm-dd)
-                jobCounts[date] = (jobCounts[date] || 0) + 1;
-            });
-            return jobCounts;
-        }
-
         // Function to initialize or update charts and calendar
         function initializeCharts(data) {
-            // Destroy existing charts and calendar if they exist
-            if (scoreTrendChart) scoreTrendChart.destroy();
-            if (summaryScoreChart) summaryScoreChart.destroy();
-            if (jobStatusPieChart) jobStatusPieChart.destroy();
-            if (jobsByPeriodBarChart) jobsByPeriodBarChart.destroy();
-            if (calendar) calendar.destroy();
-
             // Update variables with new data
             labels = data.labels || [];
             sumVolume = data.sumVolume || [];
@@ -305,6 +299,7 @@
             jobStatusProcessing = data.jobStatusProcessing || 0;
             calendarJobs = data.calendarJobs || [];
             isDateRange = data.isDateRange || false;
+            departmentId = data.departmentId || '';
 
             // Update stat boxes
             $('#totalJobs').text(data.totalJobs || 0);
@@ -313,142 +308,178 @@
             $('#totalCategories').text(data.totalCategories || 0);
 
             // Show/hide no data messages
-            $('#noDataMessage').css('display', labels.length === 0 ? 'block' : 'none');
-            $('#noSummaryDataMessage').css('display', labels.length === 0 ? 'block' : 'none');
+            const hasData = labels.length > 0;
+            const hasJobStatusData = jobStatusOntime > 0 || jobStatusOverdue > 0 || jobStatusLate > 0 || jobStatusProcessing > 0;
+            const hasJobPeriodData = jobMonths.length > 0 && jobCounts.length > 0;
+            const hasCalendarData = calendarJobs.length > 0;
 
-            // Score Trend Chart
-            var ctx1 = document.getElementById('scoreTrendChart').getContext('2d');
-            scoreTrendChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Tổng Điểm Khối Lượng', data: sumVolume, borderColor: 'blue', fill: false },
-                        { label: 'Tổng Điểm Tiến Độ', data: sumProgress, borderColor: 'green', fill: false },
-                        { label: 'Tổng Điểm Chất Lượng', data: sumQuality, borderColor: 'red', fill: false }
-                    ]
-                },
-                options: {
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
-                        x: {
-                            title: {
-                                display: true,
-                                text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
+            $('#noDataMessage').css('display', hasData ? 'none' : 'block');
+            $('#noSummaryDataMessage').css('display', hasData ? 'none' : 'block');
+            $('#noJobStatusDataMessage').css('display', hasJobStatusData ? 'none' : 'block');
+            $('#noJobPeriodDataMessage').css('display', hasJobPeriodData ? 'none' : 'block');
+            $('#noCalendarDataMessage').css('display', hasCalendarData ? 'none' : 'block');
+
+            // Initialize or update Score Trend Chart
+            if (!scoreTrendChart) {
+                var ctx1 = document.getElementById('scoreTrendChart').getContext('2d');
+                scoreTrendChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: hasData ? [
+                            { label: 'Tổng Điểm Khối Lượng', data: sumVolume, borderColor: 'blue', fill: false },
+                            { label: 'Tổng Điểm Tiến Độ', data: sumProgress, borderColor: 'green', fill: false },
+                            { label: 'Tổng Điểm Chất Lượng', data: sumQuality, borderColor: 'red', fill: false }
+                        ] : []
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                scoreTrendChart.data.labels = labels;
+                scoreTrendChart.data.datasets = hasData ? [
+                    { label: 'Tổng Điểm Khối Lượng', data: sumVolume, borderColor: 'blue', fill: false },
+                    { label: 'Tổng Điểm Tiến Độ', data: sumProgress, borderColor: 'green', fill: false },
+                    { label: 'Tổng Điểm Chất Lượng', data: sumQuality, borderColor: 'red', fill: false }
+                ] : [];
+                scoreTrendChart.options.scales.x.title.text = isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm';
+                scoreTrendChart.update();
+            }
 
-            // Summary Score Chart
-            var ctx2 = document.getElementById('summaryScoreChart').getContext('2d');
-            summaryScoreChart = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{ label: 'Tổng Điểm Đánh Giá', data: sumSummary, backgroundColor: 'orange' }]
-                },
-                options: {
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
-                        x: {
-                            title: {
-                                display: true,
-                                text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
+            // Initialize or update Summary Score Chart
+            if (!summaryScoreChart) {
+                var ctx2 = document.getElementById('summaryScoreChart').getContext('2d');
+                summaryScoreChart = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: hasData ? [
+                            { label: 'Tổng Điểm Đánh Giá', data: sumSummary, backgroundColor: 'orange' }
+                        ] : []
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                summaryScoreChart.data.labels = labels;
+                summaryScoreChart.data.datasets = hasData ? [
+                    { label: 'Tổng Điểm Đánh Giá', data: sumSummary, backgroundColor: 'orange' }
+                ] : [];
+                summaryScoreChart.options.scales.x.title.text = isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm';
+                summaryScoreChart.update();
+            }
 
-            // Job Status Pie Chart
-            var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
-            jobStatusPieChart = new Chart(pieCtx, {
-                type: 'pie',
-                data: {
-                    labels: ['Hoàn thành', 'Chưa hoàn thành', 'Hoàn thành muộn', 'Đang xử lý'],
-                    datasets: [{
-                        data: [jobStatusOntime, jobStatusOverdue, jobStatusLate, jobStatusProcessing],
-                        backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: { callbacks: { label: function(context) { return context.raw + ' công việc'; } } }
+            // Initialize or update Job Status Pie Chart
+            if (!jobStatusPieChart) {
+                var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
+                jobStatusPieChart = new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Hoàn thành', 'Chưa hoàn thành', 'Hoàn thành muộn', 'Đang xử lý'],
+                        datasets: hasJobStatusData ? [{
+                            data: [jobStatusOntime, jobStatusOverdue, jobStatusLate, jobStatusProcessing],
+                            backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
+                            borderWidth: 1
+                        }] : []
+                    },
+                    options: {
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: { callbacks: { label: function(context) { return context.raw + ' công việc'; } } }
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                jobStatusPieChart.data.datasets = hasJobStatusData ? [{
+                    data: [jobStatusOntime, jobStatusOverdue, jobStatusLate, jobStatusProcessing],
+                    backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
+                    borderWidth: 1
+                }] : [];
+                jobStatusPieChart.update();
+            }
 
-            // Jobs by Period Bar Chart
-            var barCtx = document.getElementById('jobsByPeriodBarChart').getContext('2d');
-            jobsByPeriodBarChart = new Chart(barCtx, {
-                type: 'bar',
-                data: {
-                    labels: jobMonths,
-                    datasets: [{
-                        label: 'Số lượng công việc',
-                        data: jobCounts,
-                        backgroundColor: '#007bff',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } },
-                        x: {
-                            title: {
-                                display: true,
-                                text: isDateRange || (jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
+            // Initialize or update Jobs by Period Bar Chart
+            if (!jobsByPeriodBarChart) {
+                var barCtx = document.getElementById('jobsByPeriodBarChart').getContext('2d');
+                jobsByPeriodBarChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: jobMonths,
+                        datasets: hasJobPeriodData ? [{
+                            label: 'Số lượng công việc',
+                            data: jobCounts,
+                            backgroundColor: '#007bff',
+                            borderWidth: 1
+                        }] : []
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: isDateRange || (jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
+                                }
                             }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            } else {
+                jobsByPeriodBarChart.data.labels = jobMonths;
+                jobsByPeriodBarChart.data.datasets = hasJobPeriodData ? [{
+                    label: 'Số lượng công việc',
+                    data: jobCounts,
+                    backgroundColor: '#007bff',
+                    borderWidth: 1
+                }] : [];
+                jobsByPeriodBarChart.options.scales.x.title.text = isDateRange || (jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm';
+                jobsByPeriodBarChart.update();
+            }
+
+            // Initialize or update Calendar
+            if (!calendar) {
+                var calendarEl = document.getElementById('calendar');
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    events: calendarJobs,
+                    eventBackgroundColor: function(event) {
+                        switch (event.extendedProps.status) {
+                            case 1: return '#28a745'; // Hoàn thành
+                            case 2: return '#dc3545'; // Chưa hoàn thành
+                            case 3: return '#ffc107'; // Hoàn thành muộn
+                            case 4: return '#007bff'; // Đang xử lý
+                            default: return '#6c757d';
                         }
                     },
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            // Calculate job counts per day
-            var jobCountsPerDay = getJobCountsPerDay(calendarJobs);
-
-            // Calendar
-            var calendarEl = document.getElementById('calendar');
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                initialDate: new Date(), // Default to current month
-                events: calendarJobs,
-                eventBackgroundColor: function(event) {
-                    switch (event.extendedProps.status) {
-                        case 1: return '#28a745'; // Hoàn thành
-                        case 2: return '#dc3545'; // Chưa hoàn thành
-                        case 3: return '#ffc107'; // Hoàn thành muộn
-                        case 4: return '#007bff'; // Đang xử lý
-                        default: return '#6c757d';
-                    }
-                },
-                eventBorderColor: function(event) { return event.backgroundColor; },
-                height: 530,
-                eventDidMount: function(info) { info.el.title = info.event.title; },
-                dayCellDidMount: function(info) {
-                    var dateStr = info.date.toISOString().split('T')[0]; // Format as yyyy-mm-dd
-                    var jobCount = jobCountsPerDay[dateStr] || 0;
-                    if (jobCount > 0) {
-                        var countElement = document.createElement('div');
-                        countElement.style.position = 'absolute';
-                        countElement.style.top = '5px';
-                        countElement.style.right = '5px';
-                        countElement.style.backgroundColor = '#007bff';
-                        countElement.style.color = 'white';
-                        countElement.style.borderRadius = '10px';
-                        countElement.style.padding = '2px 6px';
-                        countElement.style.fontSize = '12px';
-                        countElement.innerText = jobCount;
-                        info.el.appendChild(countElement);
-                    }
-                }
-            });
-            calendar.render();
+                    eventBorderColor: function(event) { return event.backgroundColor; },
+                    height: 350,
+                    eventDidMount: function(info) { info.el.title = info.event.title; }
+                });
+                calendar.render();
+            } else {
+                calendar.getEvents().forEach(event => event.remove());
+                calendar.addEventSource(calendarJobs);
+                calendar.render();
+            }
         }
 
         $(document).ready(function () {
@@ -467,6 +498,7 @@
                 jobStatusProcessing: jobStatusProcessing,
                 calendarJobs: calendarJobs,
                 isDateRange: isDateRange,
+                departmentId: departmentId,
                 totalJobs: @ViewBag.TotalJobs,
                 completedJobs: @ViewBag.CompletedJobs,
                 overdueJobs: @ViewBag.OverdueJobs,
@@ -475,6 +507,33 @@
 
             // Handle form input changes with AJAX
             $('#filterForm input, #filterForm select').on('change', function() {
+                // Validate form inputs
+                const day = $('#day').val();
+                const fromDate = $('#fromDate').val();
+                const toDate = $('#toDate').val();
+                const month = $('#month').val();
+                const quarter = $('#quarter').val();
+                const year = $('#year').val();
+
+                // Check for conflicting filters
+                const activeFilters = [day, fromDate, toDate, month, quarter].filter(val => val).length;
+                if (activeFilters > 1 && !((fromDate && toDate) && activeFilters === 2)) {
+                    alert('Vui lòng chỉ chọn một loại bộ lọc thời gian (Ngày, Khoảng thời gian, Tháng, hoặc Quý).');
+                    return;
+                }
+
+                // Ensure toDate is not before fromDate
+                if (fromDate && toDate && new Date(toDate) < new Date(fromDate)) {
+                    alert('Ngày kết thúc phải sau ngày bắt đầu.');
+                    return;
+                }
+
+                // Ensure year is selected when quarter is selected
+                if (quarter && !year) {
+                    alert('Vui lòng chọn năm khi chọn quý.');
+                    return;
+                }
+
                 var formData = $('#filterForm').serialize();
                 $.ajax({
                     url: '@Url.Action("Index")',
@@ -483,25 +542,43 @@
                     dataType: 'json',
                     success: function(response) {
                         // Update form fields to persist selected values
-                        $('#departmentId').val(response.departmentId || '');
                         $('#day').val(response.day || '');
                         $('#fromDate').val(response.fromDate || '');
                         $('#toDate').val(response.toDate || '');
                         $('#month').val(response.month || '');
                         $('#quarter').val(response.quarter || '');
                         $('#year').val(response.year || '');
+                        $('#departmentId').val(response.departmentId || '');
 
                         // Update export button href with new filter values
                         $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
+
+                        // Update page title based on department selection
+                        var deptName = response.departmentId ?
+        @Html.Raw(Json.Serialize(ViewBag.Departments))
+                                .find(d => d.Id == response.departmentId)?.Name || 'Unknown' :
+                            'Tất cả phòng ban';
+                        $('.content-header h1').text('Thống kê - ' + deptName);
 
                         // Reinitialize charts with new data
                         initializeCharts(response);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        alert('Đã xảy ra lỗi khi lọc dữ liệu.');
+                        $('#noDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
+                        $('#noSummaryDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
+                        $('#noJobStatusDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
+                        $('#noJobPeriodDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
+                        $('#noCalendarDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
                     }
                 });
+            });
+
+            // Handle reset button
+            $('.btn-reset').on('click', function(e) {
+                e.preventDefault();
+                $('#filterForm')[0].reset();
+                $('#filterForm input, #filterForm select').trigger('change');
             });
         });
     </script>
