@@ -172,13 +172,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             // Dữ liệu lịch
             var calendarJobs = await scoresQuery
-                .Select(s => new
-                {
-                    Title = s.JobMapEmployee.Job.Name,
-                    Start = s.CreateDate.Value.ToString("yyyy-MM-dd"),
-                    Status = s.Status
-                })
-                .ToListAsync();
+    .GroupBy(s => new { s.CreateDate.Value.Date})
+    .Select(g => new
+    {
+        title = $"{g.Count()} CV đến hạn", // Display count as event title
+        start = g.Key.Date.ToString("yyyy-MM-dd"), // Format date for FullCalendar
+    })
+    .ToListAsync();
+
 
             // Dữ liệu cho biểu đồ đánh giá
             var scoreSummaryRaw = await scoresQuery

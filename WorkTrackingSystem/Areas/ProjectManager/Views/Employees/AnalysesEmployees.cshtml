@@ -88,7 +88,7 @@
 </h2>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <div class="row">
             <div class="col-md-12" id="list-section">
                 <div class="table-responsive">
@@ -163,7 +163,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div>
             <h3 class="text-center">
                 Biểu đồ tổng hợp phân tích
@@ -193,7 +193,7 @@
         <div class="row mt-4">
             <div class="col-md-12">
                 <h5>Tổng hợp</h5>
-                <canvas id="histogramTasks"></canvas>
+                <canvas id="histogramTasks" style="height:592px!important;"></canvas>
             </div>
         </div>
         <div class="row">
@@ -482,16 +482,18 @@
                 var fromDate = $("#fromDate").val();
                 var toDate = $("#toDate").val();
                 if (fromDate && toDate) {
-                    return `từ ${fromDate.split("-").reverse().join("/")} đến ${toDate.split("-").reverse().join("/")}`;
+                    return `từ ${formatDateToDDMMYYYY(fromDate)} đến ${formatDateToDDMMYYYY(toDate)}`;
                 }
                 return "theo khoảng thời gian";
             } else if (timeType === "month") {
                 var time = $("#time").val();
                 if (time) {
                     var parts = time.split("-");
-                    return `tháng ${parts[1]}/${parts[0]}`;
+                    var year = parts[0];
+                    var month = parts[1];
+                    return `${getVietnameseMonth(month)} ${year}`;
                 }
-                return `tháng ${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
+                return `${getVietnameseMonth(new Date().getMonth() + 1)} ${new Date().getFullYear()}`;
             } else if (timeType === "quarter") {
                 var quarter = $("#quarter").val();
                 var quarterYear = $("#quarterYear").val();
@@ -512,6 +514,9 @@
         function updateTimeInput() {
             var timeType = $("#timeType").val();
             var inputHtml = "";
+            const currentYear = new Date().getFullYear();
+            const years = Array.from({ length: 10 }, (_, i) => currentYear - i); // Tạo danh sách 10 năm từ hiện tại trở xuống
+
             if (timeType === "total") {
                 inputHtml = "";
             } else if (timeType === "dateRange") {
@@ -527,16 +532,40 @@
                                 <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
                                 <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
                              </select>` +
-                            `<input type="number" id="quarterYear" name="quarterYear" class="form-control" value="@ViewBag.QuarterYear" placeholder="Năm" min="2000" max="2100" />`;
+                            `<select id="quarterYear" name="quarterYear" class="form-control">
+                                <option value="">Chọn năm</option>`;
+                years.forEach(year => {
+                    inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
+                });
+                inputHtml += `</select>`;
             } else if (timeType === "year") {
-                inputHtml = `<input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Năm" min="2000" max="2100" />`;
+                inputHtml = `<select id="year" name="year" class="form-control">
+                                <option value="">Chọn năm</option>`;
+                years.forEach(year => {
+                    inputHtml += `<option value="${year}" ${year == "@ViewBag.Year" ? "selected" : ""}>${year}</option>`;
+                });
+                inputHtml += `</select>`;
             }
             $("#timeInputContainer").html(inputHtml);
             $("#timeInputContainer").find("input, select").on("input change", function() {
                 applyFilters();
             });
         }
-
+        function formatDateToDDMMYYYY(dateStr) {
+            if (!dateStr) return "";
+            const date = new Date(dateStr);
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        function getVietnameseMonth(month) {
+            const months = [
+                "tháng Một", "tháng Hai", "tháng Ba", "tháng Tư", "tháng Năm", "tháng Sáu",
+                "tháng Bảy", "tháng Tám", "tháng Chín", "tháng Mười", "tháng Mười Một", "tháng Mười Hai"
+            ];
+            return months[parseInt(month) - 1] || "";
+        }
         $(document).ready(function() {
             renderTableCells();
             reloadChartsAndSummary(document.documentElement.outerHTML);
@@ -649,75 +678,77 @@
         }
 
         function updateFilterDescription() {
-            var search = $("#search").val();
-            var timeType = $("#timeType").val();
-            var sortOrder = $("#sortOrder").val();
-            var description = "";
+             var search = $("#search").val();
+             var timeType = $("#timeType").val();
+             var sortOrder = $("#sortOrder").val();
+             var description = "";
 
-            if (!search && timeType === "total" && !sortOrder) {
-                description = "tổng hợp tất cả thời gian";
-            } else {
-                var filterText = [];
-                if (search) filterText.push(`nhân viên: ${search}`);
-                if (timeType === "dateRange") {
-                    var fromDate = $("#fromDate").val();
-                    var toDate = $("#toDate").val();
-                    if (fromDate && toDate) {
-                        filterText.push(`từ ${fromDate.split("-").reverse().join("/")} đến ${toDate.split("-").reverse().join("/")}`);
-                    } else {
-                        filterText.push("theo khoảng thời gian");
-                    }
-                } else if (timeType === "month") {
-                    var time = $("#time").val();
-                    if (time) {
-                        var parts = time.split("-");
-                        filterText.push(`tháng ${parts[1]}/${parts[0]}`);
-                    } else {
-                        filterText.push(`tháng ${new Date().getMonth() + 1}/${new Date().getFullYear()}`);
-                    }
-                } else if (timeType === "quarter") {
-                    var quarter = $("#quarter").val();
-                    var quarterYear = $("#quarterYear").val();
-                    if (quarter && quarterYear) {
-                        filterText.push(`quý ${quarter}/${quarterYear}`);
-                    } else {
-                        filterText.push("theo quý");
-                    }
-                } else if (timeType === "year") {
-                    var year = $("#year").val();
-                    if (year) {
-                        filterText.push(`năm ${year}`);
-                    } else {
-                        filterText.push("theo năm");
-                    }
-                } else {
-                    filterText.push("tổng hợp tất cả thời gian");
-                }
-                if (sortOrder) {
-                    const sortOptions = {
-                        "total_asc": "tổng số tăng",
-                        "total_desc": "tổng số giảm",
-                        "ontime_asc": "đúng hạn tăng",
-                        "ontime_desc": "đúng hạn giảm",
-                        "late_asc": "trễ hạn tăng",
-                        "late_desc": "trễ hạn giảm",
-                        "overdue_asc": "quá hạn tăng",
-                        "overdue_desc": "quá hạn giảm",
-                        "processing_asc": "đang xử lý tăng",
-                        "processing_desc": "đang xử lý giảm"
-                    };
-                    filterText.push(`sắp xếp: ${sortOptions[sortOrder] || "mặc định"}`);
-                }
-                description = "theo " + filterText.join(" và ");
-            }
-            $("#filterDescription").text(description);
-        }
+             if (!search && timeType === "total" && !sortOrder) {
+                 description = "tổng hợp tất cả thời gian";
+             } else {
+                 var filterText = [];
+                 if (search) filterText.push(`nhân viên: ${search}`);
+                 if (timeType === "dateRange") {
+                     var fromDate = $("#fromDate").val();
+                     var toDate = $("#toDate").val();
+                     if (fromDate && toDate) {
+                         filterText.push(`từ ${formatDateToDDMMYYYY(fromDate)} đến ${formatDateToDDMMYYYY(toDate)}`);
+                     } else {
+                         filterText.push("theo khoảng thời gian");
+                     }
+                 } else if (timeType === "month") {
+                     var time = $("#time").val();
+                     if (time) {
+                         var parts = time.split("-");
+                         var year = parts[0];
+                         var month = parts[1];
+                         filterText.push(`${getVietnameseMonth(month)} ${year}`);
+                     } else {
+                         filterText.push(`${getVietnameseMonth(new Date().getMonth() + 1)} ${new Date().getFullYear()}`);
+                     }
+                 } else if (timeType === "quarter") {
+                     var quarter = $("#quarter").val();
+                     var quarterYear = $("#quarterYear").val();
+                     if (quarter && quarterYear) {
+                         filterText.push(`quý ${quarter}/${quarterYear}`);
+                     } else {
+                         filterText.push("theo quý");
+                     }
+                 } else if (timeType === "year") {
+                     var year = $("#year").val();
+                     if (year) {
+                         filterText.push(`năm ${year}`);
+                     } else {
+                         filterText.push("theo năm");
+                     }
+                 } else {
+                     filterText.push("tổng hợp tất cả thời gian");
+                 }
+                 if (sortOrder) {
+                     const sortOptions = {
+                         "total_asc": "tổng số tăng",
+                         "total_desc": "tổng số giảm",
+                         "ontime_asc": "đúng hạn tăng",
+                         "ontime_desc": "đúng hạn giảm",
+                         "late_asc": "trễ hạn tăng",
+                         "late_desc": "trễ hạn giảm",
+                         "overdue_asc": "quá hạn tăng",
+                         "overdue_desc": "quá hạn giảm",
+                         "processing_asc": "đang xử lý tăng",
+                         "processing_desc": "đang xử lý giảm"
+                     };
+                     filterText.push(`sắp xếp: ${sortOptions[sortOrder] || "mặc định"}`);
+                 }
+                 description = "theo " + filterText.join(" và ");
+             }
+             $("#filterDescription").text(description);
+         }
     </script>
 
     <style>
         canvas {
             width: 95% !important;
-            height: auto;
+
             float: right;
         }
 
