@@ -94,7 +94,7 @@
                 <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate">
                 <input type="date" id="toDate" name="toDate" class="form-control mt-2" value="@ViewBag.ToDate">
             </div>
-            <div class="col-md-1">
+            <div class="col-md-1 d-flex justify-content-end ">
                 <a href="#" id="resetButton" class="btn btn-secondary">
                     <i class="bi bi-arrow-repeat"></i>
                 </a>
@@ -120,7 +120,6 @@
                                 <th>Tổng đ.giá tiến độ</th>
                                 <th>Tổng đ.giá chất lượng</th>
                                 <th>Tổng đ.giá tổng hợp</th>
-                                <th>Đánh giá</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -137,7 +136,6 @@
                                     <td>@item.TotalProgress.ToString("F2")</td>
                                     <td>@item.TotalQuality.ToString("F2")</td>
                                     <td>@item.SummaryScore.ToString("F2")</td>
-                                    <td>@item.EvaluationResult</td>
                                 </tr>
                             }
                         </tbody>

@@ -68,7 +68,7 @@
                     <option value="processing_desc">Đang xử lý ↓</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="timeType" name="timeType" class="form-control">
                     <option value="total">Tổng</option>
                     <option value="dateRange">Từ ngày - Đến ngày</option>
@@ -80,7 +80,14 @@
             <div class="col-md-3" id="timeInputContainer">
                 <!-- Placeholder for dynamic time inputs -->
             </div>
-
+            <div class="col-md-1 d-flex justify-content-end">
+                <a href="#" id="resetButton" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-repeat"></i>
+                </a>
+                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fa-solid fa-chevron-up"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -89,8 +96,8 @@
         <div class="row">
             <div class="col-md-12" id="list-section">
                 <div class="table-responsive">
-                
-                   
+
+
                     <div>
                         <h3 class="text-center">
                             Bảng tổng hợp phân tích
@@ -139,19 +146,19 @@
                     </table>
                 </div>
                 <div class="pagination">
-                        @if (Model.TotalItemCount > Model.PageSize)
+                    @if (Model.TotalItemCount > Model.PageSize)
                     {
                         @Html.PagedListPager(Model, page => Url.Action("AnalysesEmployees", new { page, search = ViewBag.Search, departmentId = ViewBag.DepartmentId, timeType = ViewBag.TimeType, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, time = ViewBag.Time, quarter = ViewBag.Quarter, quarterYear = ViewBag.QuarterYear, year = ViewBag.Year, sortOrder = ViewBag.SortOrder }), new PagedListRenderOptions
-                    {
-                        LiElementClasses = new string[] { "page-item" },
-                        PageClasses = new string[] { "page-link" },
-                        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                        MaximumPageNumbersToDisplay = 5
-                    })
+               {
+                   LiElementClasses = new string[] { "page-item" },
+                   PageClasses = new string[] { "page-link" },
+                   DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                   DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                   DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                   DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                   DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+                   MaximumPageNumbersToDisplay = 5
+               })
                     }
                 </div>
             </div>
@@ -175,7 +182,7 @@
                     <canvas id="pieChartTasks"></canvas>
                 </div>
             </div>
-          
+
         }
         else
         {
@@ -186,7 +193,7 @@
 <div class="row ">
     @if (Model.Any())
     {
-       
+
         <div class="row mt-4">
             <div class="col-md-12">
                 <h5>Tổng hợp</h5>
@@ -752,9 +759,9 @@
             width: 100%;
         }
 
-        #summaryTable th, #summaryTable td {
-            word-wrap: break-word;
-        }
+            #summaryTable th, #summaryTable td {
+                word-wrap: break-word;
+            }
 
         #analysisTable td {
             text-align: center;
