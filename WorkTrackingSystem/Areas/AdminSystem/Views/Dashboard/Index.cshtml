@@ -17,7 +17,7 @@
     <div class="container-fluid">
         <div class="row ">
             <div class="col-sm-6">
-                <h5 class="m-0">@ViewData["Title"]- @ViewBag.DepartmentName</h5>
+                <h5 class="m-0">@ViewData["Title"]</h5>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -62,7 +62,7 @@
             <form method="get" action="@Url.Action("Index")" id="filterForm">
                 <div class="row gx-2 gy-2 align-items-end">
                     <!-- Department -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Phòng ban</label>
                         <select id="departmentId" name="departmentId" class="form-select">
                             <option value="">Tất cả phòng ban</option>
@@ -73,27 +73,27 @@
                         </select>
                     </div>
                     <!-- Day -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Ngày</label>
                         <input type="date" id="day" name="day" class="form-control" value="@day" />
                     </div>
                     <!-- From Date -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Từ ngày</label>
                         <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
                     </div>
                     <!-- To Date -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Đến ngày</label>
                         <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
                     </div>
                     <!-- Month -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Tháng</label>
                         <input type="month" id="month" name="month" class="form-control" value="@month" />
                     </div>
                     <!-- Quarter -->
-                    <div class="col-md-1">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Quý</label>
                         <select id="quarter" name="quarter" class="form-select">
                             <option value="">Chọn quý</option>
@@ -104,7 +104,7 @@
                         </select>
                     </div>
                     <!-- Year -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <label class="form-label fw-bold">Năm</label>
                         <select id="year" name="year" class="form-select">
                             <option value="">Chọn năm</option>
@@ -115,7 +115,7 @@
                         </select>
                     </div>
                     <!-- Reset and Collapse Buttons -->
-                    <div class="col-md-1 d-flex float-right gap-2">
+                    <div class="col-md-3 d-flex float-right gap-2 justify-content-end">
                         <a href="@Url.Action("Index")" class="btn btn-secondary btn-reset"><i class="bi bi-arrow-repeat"></i></a>
                         <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
                             <i class="fa-solid fa-chevron-up"></i>
@@ -153,7 +153,7 @@
                     <div class="icon">
                         <i class="ion ion-checkmark"></i>
                     </div>
-                    <a asp-controller="Jobs" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                    <a asp-controller="Jobs" asp-action="Index" asp-route-status="1" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-6">
@@ -165,7 +165,7 @@
                     <div class="icon">
                         <i class="ion ion-alert"></i>
                     </div>
-                    <a asp-controller="Jobs" asp-action="Index" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+                    <a asp-controller="Jobs" asp-action="Index" asp-route-status="3" class="small-box-footer">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></a>
                 </div>
             </div>
             <div class="col-lg-3 col-6">
