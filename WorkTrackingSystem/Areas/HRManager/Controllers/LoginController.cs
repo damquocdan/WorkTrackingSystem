@@ -42,6 +42,7 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
             {
                 HttpContext.Session.SetString("HRManagerLogin", model.UserName);
                 HttpContext.Session.SetString("HRUserId", dataLogin.Id.ToString());
+                HttpContext.Session.SetString("UserAvatar", dataLogin.Employee?.Avatar ?? "~/images/avatar.png");
                 return RedirectToAction("Index", "Dashboard");
             }
             else

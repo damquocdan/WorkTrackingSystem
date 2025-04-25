@@ -38,6 +38,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {   
                 HttpContext.Session.SetString("AdminLogin", model.UserName);
                 HttpContext.Session.SetString("AdminUserId", dataLogin.Id.ToString());
+                HttpContext.Session.SetString("UserAvatar", dataLogin.Employee?.Avatar ?? "~/images/avatar.png");
                 return RedirectToAction("Index", "Dashboard");
             }
             ModelState.AddModelError(string.Empty, "Thông tin đăng nhập không chính xác.");

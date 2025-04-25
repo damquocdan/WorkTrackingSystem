@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Thống kê";
 
     var isDateRange = !string.IsNullOrEmpty(ViewBag.FromDate) && !string.IsNullOrEmpty(ViewBag.ToDate);
     var quarter = Context.Request.Query["quarter"].ToString();
@@ -9,10 +9,29 @@
     var toDate = Context.Request.Query["toDate"].ToString();
     var month = Context.Request.Query["month"].ToString();
     var departmentId = Context.Request.Query["departmentId"].ToString();
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <!-- Content Header (Page header) -->
 <div class="content-header">
+    <div class="container-fluid">
+        <div class="row ">
+            <div class="col-sm-6">
+                <h5 class="m-0">@ViewData["Title"]- @ViewBag.DepartmentName</h5>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
+                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Content Header (Page header) -->
+@* <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
@@ -26,7 +45,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
 <!-- Filter Buttons -->
 <p>

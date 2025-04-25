@@ -282,7 +282,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            var managerUsername = HttpContext.Session.GetString("AdminLogin");
             if (string.IsNullOrEmpty(managerUsername))
             {
                 return RedirectToAction("Index", "Login");

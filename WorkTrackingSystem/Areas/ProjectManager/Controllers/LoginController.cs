@@ -43,6 +43,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 HttpContext.Session.SetString("ProjectManagerLogin", model.UserName);
                 HttpContext.Session.SetString("ProjectManageUserId", dataLogin.Id.ToString());
+                HttpContext.Session.SetString("UserAvatar", dataLogin.Employee?.Avatar ?? "~/images/avatar.png");
                 return RedirectToAction("Index", "Dashboard");
             }
             else
