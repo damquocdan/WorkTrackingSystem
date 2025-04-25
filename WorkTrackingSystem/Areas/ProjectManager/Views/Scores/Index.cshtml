@@ -79,8 +79,8 @@
                             <label class="form-label fw-bold">Sắp xếp</label>
                             <select id="sortOrder" name="sortOrder" class="form-select">
                                 <option value="">-- Mặc định --</option>
-                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
-                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                                <option value="due_asc">Hạn chót tăng dần</option>
+                                <option value="due_desc">Hạn chót giảm dần</option>
                                 <option value="review_asc">Đánh giá tăng dần</option>
                                 <option value="review_desc">Đánh giá giảm dần</option>
                             </select>
@@ -304,7 +304,7 @@
                                                         item.Status == 2 ? "bg-warning" :
                                                         item.Status == 3 ? "bg-danger" :
                                                         item.Status == 4 ? "bg-primary" :
-                                                        "bg-secondary")" style="padding:7px;">
+                                                        "bg-secondary") w-100" style="padding:7px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
@@ -910,6 +910,7 @@
                 const year = d.getFullYear();
                 return `${day}/${month}/${year}`;
             }
+            
         });
     </script>
 }

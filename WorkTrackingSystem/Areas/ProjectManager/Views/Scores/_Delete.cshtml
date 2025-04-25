@@ -7,60 +7,110 @@
 <div class="modal-content">
     <form asp-action="Delete" method="post" id="deleteScoreForm">
         <div class="modal-header">
-            <h2 class="text-center"> Xóa đánh giá </h2>
+            <h2 class="text-center">Xóa công việc</h2>
             <button type="button" class="close" onclick="closeDetailSection()">×</button>
         </div>
 
-        <div class="modal-body">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+        <div class="card-body">
             <input type="hidden" asp-for="Id" />
 
-            <dl class="row">
-                <dt class="col-sm-4 fw-bold">Nhân viên</dt>
-                <dd class="col-sm-8">
-                    @Html.DisplayFor(model => model.JobMapEmployee.Employee.Code)
-                    @Html.DisplayFor(model => model.JobMapEmployee.Employee.FirstName)
-                    @Html.DisplayFor(model => model.JobMapEmployee.Employee.LastName)
-                </dd>
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Nhân viên</label>
+                    <p class="form-control bg-light">
+                        @Model.JobMapEmployee.Employee.Code - @Model.JobMapEmployee.Employee.FirstName @Model.JobMapEmployee.Employee.LastName
+                    </p>
+                </div>
+            </div>
 
-                <dt class="col-sm-4 fw-bold">Công việc</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.JobMapEmployee.Job.Name)</dd>
+            <div class="row mt-2">
+                <label class="form-label fw-bold">Công việc</label>
+                <textarea readonly class="form-control bg-light">@Model.JobMapEmployee.Job.Name</textarea>
+            </div>
 
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.CompletionDate)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.CompletionDate)</dd>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    <p class="form-control bg-light">
+                        @switch (Model.Status)
+                        {
+                            case 1:
+                                <text>Hoàn thành (@Model.CompletionDate?.ToString("dd/MM/yyyy"))</text>
+                                ; break;
+                            case 2:
+                                <text>Chưa hoàn thành</text>
+                                ; break;
+                            case 3:
+                                <text>Hoàn thành muộn (@Model.CompletionDate?.ToString("dd/MM/yyyy"))</text>
+                                ; break;
+                            case 4:
+                                <text>Đang xử lý</text>
+                                ; break;
+                            case 0:
+                                <text>Chưa bắt đầu</text>
+                                ; break;
+                            default:
+                                <text>Không xác định</text>
+                                ; break;
+                        }
+                    </p>
+                </div>
 
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Status)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.Status)</dd>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Tiến độ</label>
+                    <p class="form-control bg-light">@Model.Progress%</p>
+                </div>
+            </div>
 
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.VolumeAssessment)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.VolumeAssessment)</dd>
+            <div class="row mt-2">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm K.lượng</label>
+                    <p class="form-control bg-light">@Model.VolumeAssessment</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm C.lượng</label>
+                    <p class="form-control bg-light">@Model.QualityAssessment</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm T.độ</label>
+                    <p class="form-control bg-light">@Model.ProgressAssessment</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Tổng Đ.giá</label>
+                    <p class="form-control bg-light">@Model.SummaryOfReviews?.ToString("N2")</p>
+                </div>
+            </div>
 
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.ProgressAssessment)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.ProgressAssessment)</dd>
-
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.QualityAssessment)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.QualityAssessment)</dd>
-
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.SummaryOfReviews)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.SummaryOfReviews)</dd>
-
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Progress)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.Progress)</dd>
-
-                <dt class="col-sm-4 fw-bold">@Html.DisplayNameFor(model => model.Time)</dt>
-                <dd class="col-sm-8">@Html.DisplayFor(model => model.Time)</dd>
-            </dl>
+            <div class="row mt-2">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Ngày bắt đầu</label>
+                    <p class="form-control bg-light">@Model.Time?.ToString("dd/MM/yyyy")</p>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Hạn chót</label>
+                    <p class="form-control bg-light">@Model.CreateDate?.ToString("dd/MM/yyyy")</p>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Ngày hoàn thành</label>
+                    <p class="form-control bg-light">
+                        @(Model.CompletionDate?.ToString("dd/MM/yyyy") ?? "Chưa hoàn thành")
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-danger">Xóa</button>
+        <div class="modal-footer d-flex justify-content-between">
+            <span class="text-danger fw-bold">Bạn có chắc muốn xóa đánh giá này không?</span>
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash-fill"></i> Xóa
+            </button>
         </div>
     </form>
 </div>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
+<script>
+    function closeDetailSection() {
+            $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+            $("#detail-section").addClass("d-none");
+        }
+</script>

@@ -195,11 +195,25 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             // Sắp xếp: công việc chưa được giao (null) hiển thị lên đầu, sau đó theo ngày mới nhất
-            if (string.IsNullOrEmpty(sortOrder))
+            switch (sortOrder)
             {
-                scoresQuery = scoresQuery
-                    .OrderBy(s => s.JobMapEmployee.EmployeeId.HasValue) // false (null) lên đầu
-                    .ThenByDescending(s => s.CreateDate);
+                case "due_asc":
+                    scoresQuery = scoresQuery.OrderBy(s => s.JobMapEmployee.Job.Deadline1);
+                    break;
+                case "due_desc":
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.JobMapEmployee.Job.Deadline1);
+                    break;
+                case "review_asc":
+                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews ?? 0); // Handle null reviews
+                    break;
+                case "review_desc":
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews ?? 0); // Handle null reviews
+                    break;
+                default:
+                    scoresQuery = scoresQuery
+                        .OrderBy(s => s.JobMapEmployee.EmployeeId.HasValue) // false (null) lên đầu
+                        .ThenByDescending(s => s.CreateDate);
+                    break;
             }
 
             var scores = scoresQuery.ToPagedList(page, limit);
