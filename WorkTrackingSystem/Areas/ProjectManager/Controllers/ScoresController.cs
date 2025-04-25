@@ -195,11 +195,25 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             // Sắp xếp: công việc chưa được giao (null) hiển thị lên đầu, sau đó theo ngày mới nhất
-            if (string.IsNullOrEmpty(sortOrder))
+            switch (sortOrder)
             {
-                scoresQuery = scoresQuery
-                    .OrderBy(s => s.JobMapEmployee.EmployeeId.HasValue) // false (null) lên đầu
-                    .ThenByDescending(s => s.CreateDate);
+                case "due_asc":
+                    scoresQuery = scoresQuery.OrderBy(s => s.JobMapEmployee.Job.Deadline1);
+                    break;
+                case "due_desc":
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.JobMapEmployee.Job.Deadline1);
+                    break;
+                case "review_asc":
+                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews ?? 0); // Handle null reviews
+                    break;
+                case "review_desc":
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews ?? 0); // Handle null reviews
+                    break;
+                default:
+                    scoresQuery = scoresQuery
+                        .OrderBy(s => s.JobMapEmployee.EmployeeId.HasValue) // false (null) lên đầu
+                        .ThenByDescending(s => s.CreateDate);
+                    break;
             }
 
             var scores = scoresQuery.ToPagedList(page, limit);
@@ -614,7 +628,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 var worksheet = package.Workbook.Worksheets.Add("Scores");
                 worksheet.Cells[1, 1].Value = "STT";
-                worksheet.Cells[1, 2].Value = "Nhân viên";
+                worksheet.Cells[1, 2].Value = "Người triển khai";
                 worksheet.Cells[1, 3].Value = "Hạng mục";
                 worksheet.Cells[1, 4].Value = "Công việc";
                 worksheet.Cells[1, 5].Value = "Ngày tạo";
@@ -631,7 +645,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     var score = scoreList[i];
                     worksheet.Cells[i + 2, 1].Value = i + 1; // STT
                     worksheet.Cells[i + 2, 2].Value = score.JobMapEmployee.Employee != null
-                        ? $"{score.JobMapEmployee.Employee.Code} {score.JobMapEmployee.Employee.FirstName} {score.JobMapEmployee.Employee.LastName}"
+                        ? $"{score.JobMapEmployee.Employee.FirstName} {score.JobMapEmployee.Employee.LastName}"
                         : "N/A";
                     worksheet.Cells[i + 2, 3].Value = score.JobMapEmployee.Job.Category?.Name ?? "N/A";
                     worksheet.Cells[i + 2, 4].Value = score.JobMapEmployee.Job?.Name ?? "N/A";
@@ -648,7 +662,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[i + 2, 8].Value = score.VolumeAssessment;
                     worksheet.Cells[i + 2, 9].Value = score.ProgressAssessment;
                     worksheet.Cells[i + 2, 10].Value = score.QualityAssessment;
-                    worksheet.Cells[i + 2, 11].Value = score.SummaryOfReviews;
+                    worksheet.Cells[i + 2, 11].Value = score.SummaryOfReviews.HasValue
+    ? score.SummaryOfReviews.Value.ToString("0.00")
+    : "0.00";
                 }
 
                 // Định dạng cột

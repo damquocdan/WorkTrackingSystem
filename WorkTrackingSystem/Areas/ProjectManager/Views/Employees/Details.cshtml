@@ -29,7 +29,7 @@
                 <p class="fs-4"><strong>Nhân viên:</strong> @Model.Code - @Model.FirstName @Model.LastName</p>
                 <p class="fs-4">
                     <strong>Giới tính:</strong>
-                    @(Model.Gender == "male" ? "Nam" : Model.Gender == "female" ? "Nữ" : "Khác")
+                    @(Model.Gender == "Male" ? "Nam" : Model.Gender == "Female" ? "Nữ" : "Khác")
                 </p>
 
                 <p class="fs-4"><strong>Ngày sinh:</strong> @Model.Birthday</p>
@@ -55,7 +55,6 @@
         <table class="table table-bordered text-left table-hover" id="employeeTable">
             <thead class="text-center">
                 <tr>
-                    <th class="text-center">Nhân viên</th>
                     <th class="text-center">Danh mục</th>
                     <th class="text-center">Công việc</th>
                     <th class="text-center">Trạng thái</th>
@@ -74,37 +73,40 @@
                                 latestScore?.Status == 3 ? "table-danger" :
                                 latestScore?.Status == 4 ? "table-primary" :
                                 latestScore?.Status == 0 ? "table-secondary" : "")">
-                        <td>
-                            @Model.Code - @Model.FirstName @Model.LastName
-                        </td>
                         <td>@(jobMap.Job?.Category?.Name ?? "N/A")</td>
                         <td>@(jobMap.Job?.Name ?? "N/A")</td>
                         <td>
-                            @switch (latestScore?.Status)
-                            {
-                                case 1:
-                                    <span class="text-bold">Hoàn thành</span>
-                                    break;
-                                case 2:
-                                    <span class="text-bold">Chưa hoàn thành</span>
-                                    break;
-                                case 3:
-                                    <span class="text-bold">Hoàn thành muộn</span>
-                                    break;
-                                case 4:
-                                    <span class="text-bold">Đang xử lý</span>
-                                    break;
-                                case 0:
-                                    <span class="text-bold">Chưa bắt đầu</span>
-                                    break;
-                                default:
-                                    <span class="text-bold">Không xác định</span>
-                                    break;
-                            }
+                            <span class="badge @(latestScore.Status == 1 ? "bg-success" :
+                                                        latestScore.Status == 2 ? "bg-warning" :
+                                                        latestScore.Status == 3 ? "bg-danger" :
+                                                        latestScore.Status == 4 ? "bg-primary" :
+                                                        "bg-secondary") w-100" style="padding:7px;">
+                                @switch (latestScore.Status)
+                                {
+                                    case 1:
+                                        @:Hoàn thành
+                                        break;
+                                    case 2:
+                                        @:Chưa hoàn thành
+                                        break;
+                                    case 3:
+                                        @:Hoàn thành muộn
+                                        break;
+                                    case 4:
+                                        @:Đang xử lý
+                                        break;
+                                    case 0:
+                                        @:Chưa bắt đầu
+                                        break;
+                                    default:
+                                        @:Chưa bắt đầu
+                                        break;
+                                }
+                            </span>
                         </td>
-                        <td>@(latestScore?.Time?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                        <td>@(latestScore?.Time?.ToString("dd/MM/yyyy") ?? "N/A")</td>
                         <td>@(jobMap.Job?.Deadline1?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                        <td>@(latestScore?.CompletionDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                        <td>@(latestScore?.CompletionDate?.ToString("dd/MM/yyyy") ?? "Chưa hoàn thành")</td>
                         <td>@(latestScore?.SummaryOfReviews?.ToString("F2") ?? "N/A")</td>
                     </tr>
                 }

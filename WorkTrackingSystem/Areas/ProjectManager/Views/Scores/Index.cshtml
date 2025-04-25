@@ -79,8 +79,8 @@
                             <label class="form-label fw-bold">Sắp xếp</label>
                             <select id="sortOrder" name="sortOrder" class="form-select">
                                 <option value="">-- Mặc định --</option>
-                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
-                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                                <option value="due_asc">Hạn chót tăng dần</option>
+                                <option value="due_desc">Hạn chót giảm dần</option>
                                 <option value="review_asc">Đánh giá tăng dần</option>
                                 <option value="review_desc">Đánh giá giảm dần</option>
                             </select>
@@ -180,8 +180,11 @@
 <!-- Phần còn lại của giao diện giữ nguyên -->
 <div class="collapse collapse-horizontal" id="collapseWidthExample">
     <div class="card card-body">
-        <div id="search-employee-section" class="d-none">
+        <div id="search-employee-section" class="d-flex align-items-center gap-2">
             <input type="text" id="employee-search" class="form-control" placeholder="Tìm kiếm nhân viên...">
+            <button class="btn btn-secondary" id="btn-create-job" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+                ×
+            </button>
             <div id="employee-suggestions" class="d-flex flex-wrap mt-2"></div>
         </div>
     </div>
@@ -304,7 +307,7 @@
                                                         item.Status == 2 ? "bg-warning" :
                                                         item.Status == 3 ? "bg-danger" :
                                                         item.Status == 4 ? "bg-primary" :
-                                                        "bg-secondary")" style="padding:7px;">
+                                                        "bg-secondary") w-100" style="padding:7px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
@@ -910,6 +913,7 @@
                 const year = d.getFullYear();
                 return `${day}/${month}/${year}`;
             }
+            
         });
     </script>
 }
