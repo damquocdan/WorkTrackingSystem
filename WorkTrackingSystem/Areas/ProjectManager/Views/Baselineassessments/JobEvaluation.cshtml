@@ -411,6 +411,13 @@
             function toggleTimeFilters() {
                 var timeType = $("#timeType").val();
                 $(".time-filter").hide();
+                $("#day").val('');
+        $("#fromDate").val('');
+        $("#toDate").val('');
+        $("#month").val('');
+        $("#quarter").val('');
+        $("#quarterYear").val('');
+        $("#year").val('');
                 switch (timeType) {
                     case "day":
                         $(".day-filter").show();
