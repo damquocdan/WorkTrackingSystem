@@ -28,6 +28,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string day = "",
     string year = "", // Thêm tham số year
     string quarter = "", // Thêm tham số quarter
+    string quarterYear = "",
     string fromDate = "", // Thêm tham số fromDate
     string toDate = "", // Thêm tham số toDate
     string status = "",
@@ -132,7 +133,16 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 var startMonth = (selectedQuarter - 1) * 3 + 1;
                 var endMonth = startMonth + 2;
                 scoresQuery = scoresQuery.Where(s =>
-                    s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+                    s.CreateDate.HasValue &&
+                    s.CreateDate.Value.Month >= startMonth &&
+                    s.CreateDate.Value.Month <= endMonth);
+
+                // Thêm lọc theo năm của quý
+                if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
+                {
+                    scoresQuery = scoresQuery.Where(s =>
+                        s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
+                }
             }
 
             // Lọc theo tháng

@@ -56,7 +56,7 @@
                                 <option value="">-- Chọn danh mục --</option>
                                 @foreach (var category in ViewData["Categories"] as List<WorkTrackingSystem.Models.Category>)
                                 {
-                                    <option value="@category.Id" >@category.Name</option>
+                                    <option value="@category.Id">@category.Name</option>
                                 }
                             </select>
                         </div>
@@ -66,11 +66,11 @@
                             <label class="form-label fw-bold">Trạng thái</label>
                             <select id="status" name="status" class="form-select">
                                 <option value="">-- Tất cả --</option>
-                                <option value="1" >Hoàn thành</option>
-                                <option value="2" >Chưa hoàn thành</option>
-                                <option value="3" >Hoàn thành muộn</option>
-                                <option value="4" >Đang xử lý</option>
-                                <option value="0" >Chưa bắt đầu</option>
+                                <option value="1">Hoàn thành</option>
+                                <option value="2">Chưa hoàn thành</option>
+                                <option value="3">Hoàn thành muộn</option>
+                                <option value="4">Đang xử lý</option>
+                                <option value="0">Chưa bắt đầu</option>
                             </select>
                         </div>
 
@@ -79,10 +79,10 @@
                             <label class="form-label fw-bold">Sắp xếp</label>
                             <select id="sortOrder" name="sortOrder" class="form-select">
                                 <option value="">-- Mặc định --</option>
-                                <option value="due_asc" >Hạn hoàn thành tăng dần</option>
-                                <option value="due_desc" >Hạn hoàn thành giảm dần</option>
-                                <option value="review_asc" >Đánh giá tăng dần</option>
-                                <option value="review_desc" >Đánh giá giảm dần</option>
+                                <option value="due_asc">Hạn hoàn thành tăng dần</option>
+                                <option value="due_desc">Hạn hoàn thành giảm dần</option>
+                                <option value="review_asc">Đánh giá tăng dần</option>
+                                <option value="review_desc">Đánh giá giảm dần</option>
                             </select>
                         </div>
 
@@ -91,9 +91,9 @@
                             <label class="form-label fw-bold">Loại thời gian</label>
                             <select id="timeType" name="timeType" class="form-select">
                                 <option value="total">Tổng</option>
-                                <option value="day" >Ngày</option>
-                                <option value="dateRange" >Từ ngày - Đến ngày</option>
-                                <option value="month" >Tháng</option>
+                                <option value="day">Ngày</option>
+                                <option value="dateRange">Từ ngày - Đến ngày</option>
+                                <option value="month">Tháng</option>
                                 <option value="quarter">Quý</option>
                                 <option value="year">Năm</option>
                             </select>
@@ -121,9 +121,9 @@
                             <select id="quarter" name="quarter" class="form-select">
                                 <option value="">-- Chọn quý --</option>
                                 <option value="1">Quý 1</option>
-                                <option value="2" >Quý 2</option>
-                                <option value="3" >Quý 3</option>
-                                <option value="4" >Quý 4</option>
+                                <option value="2">Quý 2</option>
+                                <option value="3">Quý 3</option>
+                                <option value="4">Quý 4</option>
                             </select>
                         </div>
                         <div class="col-md-3 time-filter quarter-filter" style="display: none;">
@@ -287,9 +287,9 @@
                                         var deadline3 = item.JobMapEmployee?.Job?.Deadline3;
                                     }
                                     @if (item.JobMapEmployee?.Employee != null
-                                        && ((createDate.HasValue && deadline1.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline1.Value)
-                                        || (createDate.HasValue && deadline2.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline2.Value)
-                                        || (createDate.HasValue && deadline3.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline3.Value)))
+                                   && ((createDate.HasValue && deadline1.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline1.Value)
+                                   || (createDate.HasValue && deadline2.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline2.Value)
+                                   || (createDate.HasValue && deadline3.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline3.Value)))
                                     {
                                         @Html.DisplayFor(modelItem => item.CreateDate)
                                     }
@@ -364,33 +364,33 @@
                 @if (Model.TotalItemCount > Model.PageSize)
                 {
                     @Html.PagedListPager(Model, page => Url.Action("Index", new
-                    {
-                        page,
-                        searchText = ViewBag.SearchText,
-                        timeType = ViewBag.TimeType,
-                        day = ViewBag.Day,
-                        fromDate = ViewBag.FromDate,
-                        toDate = ViewBag.ToDate,
-                        month = ViewBag.Month,
-                        quarter = ViewBag.Quarter,
-                        quarterYear = ViewBag.QuarterYear,
-                        year = ViewBag.Year,
-                        status = ViewBag.Status,
-                        categoryId = ViewBag.CategoryId,
-                        sortOrder = ViewBag.SortOrder,
-                        showCompletedZeroReview = ViewBag.ShowCompletedZeroReview,
-                        dueToday = ViewBag.DueToday
-                    }), new PagedListRenderOptions
-                    {
-                        LiElementClasses = new string[] { "page-item" },
-                        PageClasses = new string[] { "page-link" },
-                        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-                        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                        DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-                        MaximumPageNumbersToDisplay = 5
-                    })
+                        {
+                            page,
+                            searchText = ViewBag.SearchText,
+                            timeType = ViewBag.TimeType,
+                            day = ViewBag.Day,
+                            fromDate = ViewBag.FromDate,
+                            toDate = ViewBag.ToDate,
+                            month = ViewBag.Month,
+                            quarter = ViewBag.Quarter,
+                            quarterYear = ViewBag.QuarterYear,
+                            year = ViewBag.Year,
+                            status = ViewBag.Status,
+                            categoryId = ViewBag.CategoryId,
+                            sortOrder = ViewBag.SortOrder,
+                            showCompletedZeroReview = ViewBag.ShowCompletedZeroReview,
+                            dueToday = ViewBag.DueToday
+                        }), new PagedListRenderOptions
+           {
+               LiElementClasses = new string[] { "page-item" },
+               PageClasses = new string[] { "page-link" },
+               DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+               DisplayLinkToLastPage = PagedListDisplayMode.Always,
+               DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+               DisplayLinkToNextPage = PagedListDisplayMode.Always,
+               DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+               MaximumPageNumbersToDisplay = 5
+           })
                 }
             </div>
         </div>
@@ -415,6 +415,13 @@
             function toggleTimeFilters() {
                 var timeType = $("#timeType").val();
                 $(".time-filter").hide();
+                $("#day").val('');
+        $("#fromDate").val('');
+        $("#toDate").val('');
+        $("#month").val('');
+        $("#quarter").val('');
+        $("#quarterYear").val('');
+        $("#year").val('');
                 switch (timeType) {
                     case "day":
                         $(".day-filter").show();
@@ -551,13 +558,13 @@
 
             // Autocomplete tìm kiếm nhân viên
             var employees = [
-                @if (ViewBag.EmployeeList != null)
-                {
-                    foreach (var employee in (IEnumerable<dynamic>)ViewBag.EmployeeList)
-                    {
-                        @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
-                    }
-                }
+        @if (ViewBag.EmployeeList != null)
+        {
+            foreach (var employee in (IEnumerable<dynamic>)ViewBag.EmployeeList)
+            {
+                @Html.Raw($"{{ id: '{employee.Value}', name: '{employee.Text}', avatar: '{employee.Avatar}' }},")
+            }
+        }
             ];
 
             $("#employee-search").autocomplete({
