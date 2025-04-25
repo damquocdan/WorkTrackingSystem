@@ -90,9 +90,7 @@
                             <td class="hide-on-detail">@Html.DisplayFor(modelItem => item.Position.Name)</td>
 
                             <td>
-                                <a class="btn-green btn-event ajax-action m-0" data-url="@Url.Action("Details", new { id = item.Id })"><i class="bi bi-info-circle"></i></a>
-
-                           
+                                <a class="btn-green btn-event m-0" asp-action="Details" asp-route-id="@item.Id" ><i class="bi bi-info-circle"></i></a>
                             </td>
                         </tr>
                     }

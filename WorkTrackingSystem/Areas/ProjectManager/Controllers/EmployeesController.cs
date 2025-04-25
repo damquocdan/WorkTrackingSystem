@@ -886,12 +886,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             ViewBag.JobMaps = pagedJobMaps;
 
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_Details", employee);
-            }
-
-            return View(employee);
+            return View(employee); // Pass the employee object as the model
         }
 
         // GET: ProjectManager/Employees/Create
