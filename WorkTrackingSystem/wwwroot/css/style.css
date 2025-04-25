@@ -85,3 +85,12 @@ thead.table-dark.text-white.text-center {
 a.fc-col-header-cell-cushion {
     color: white;
 }
+/*Sơ đồ*/
+.analysis-diag{
+    width:70%;
+    margin:auto;
+}
+/*phân trang*/
+div > .pagination {
+    margin: 0;
+}

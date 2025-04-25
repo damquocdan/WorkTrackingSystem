@@ -5,26 +5,39 @@
 <div class="index-background">
     <div class="overlay">
         <div class="overlay-content">
-            <h1>Đánh giá công việc nhân viên</h1>
+           @*  <h1>Đánh giá công việc nhân viên</h1>
             <div class="intro-text">
                 <p>Chào mừng đến với <strong>ABC Corp</strong>, đơn vị hàng đầu trong quản lý và đánh giá hiệu suất nhân viên. Với hơn <strong>10 năm kinh nghiệm</strong>, chúng tôi cung cấp giải pháp tối ưu để nâng cao hiệu quả làm việc. Công ty tự hào hỗ trợ hơn 150 doanh nghiệp trên toàn quốc, mang đến công cụ đánh giá hiện đại, chính xác và dễ sử dụng. Đội ngũ chuyên gia của chúng tôi luôn đồng hành cùng bạn, đảm bảo mọi công việc được hoàn thành xuất sắc.</p>
-            </div>
+            </div> *@
             <div class="stats">
                 <div class="stat-item">
-                    <h3>ABC Corp</h3>
-                    <p>Tên công ty</p>
+                   
+                
+                        <a class="nav-link nav-link-custom" asp-area="EmployeeSystem" asp-controller="Dashboard">
+                            <i class="fas fa-user"></i> Nhân viên
+                        </a>
+                
                 </div>
                 <div class="stat-item">
-                    <h3>150</h3>
-                    <p>Số nhân viên</p>
+                  
+                        <a class="nav-link nav-link-custom" asp-area="HRManager" asp-controller="Dashboard">
+                            <i class="fas fa-users"></i> Quản lý nhân sự
+                        </a>
+                  
                 </div>
                 <div class="stat-item">
-                    <h3>320</h3>
-                    <p>Công việc đã đánh giá</p>
+                  
+                        <a class="nav-link nav-link-custom" asp-area="ProjectManager" asp-controller="Dashboard">
+                            <i class="fas fa-tasks"></i> Quản lý công việc
+                        </a>
+                  
                 </div>
                 <div class="stat-item">
-                    <h3>2025</h3>
-                    <p>Năm hoạt động</p>
+                   
+                        <a class="nav-link nav-link-custom" asp-area="AdminSystem" asp-controller="Dashboard">
+                            <i class="fas fa-cogs"></i> Quản lý hệ thống
+                        </a>
+                
                 </div>
             </div>
         </div>
@@ -34,7 +47,7 @@
 <style>
     /* Background Styling */
     .index-background {
-        background-image: url('/images/job.jpg'); /* Correct path for wwwroot */
+        background-image: url('/images/bg-home.jpg'); /* Correct path for wwwroot */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -67,6 +80,10 @@
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Shadow for readability */
     }
 
+    .overlay-content{
+        width:50%;
+        margin: auto;
+    }
     /* Intro Text Styling */
     .intro-text {
         max-width: 700px;
@@ -96,6 +113,7 @@
         border-radius: 10px;
         margin: 1rem;
         min-width: 200px;
+        width:20rem;
     }
 
         .overlay-content .stat-item h3 {
