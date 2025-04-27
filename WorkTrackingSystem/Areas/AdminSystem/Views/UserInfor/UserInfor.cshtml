@@ -18,7 +18,8 @@
         <div class="text-start">
             <p><i class="fas fa-building"></i> <strong>Phòng ban:</strong> @(Model.Department?.Name ?? "Chưa cập nhật")</p>
             <p><i class="fas fa-user-tie"></i> <strong>Chức vụ:</strong> @(Model.Position?.Name ?? "Chưa cập nhật")</p>
-            <p><i class="fas fa-venus-mars"></i> <strong>Giới tính:</strong> @(Model.Gender ?? "Chưa cập nhật")</p>
+            <p><i class="fas fa-venus-mars"></i> <strong>Giới tính:</strong> @(Model.Gender == "Male" ? "Nam" : Model.Gender == "Female" ? "Nữ" : "Khác")</p>
+
             <p><i class="fas fa-birthday-cake"></i> <strong>Ngày sinh:</strong> @Model.Birthday?.ToString("dd/MM/yyyy")</p>
             <p><i class="fas fa-phone"></i> <strong>Số điện thoại:</strong> @Model.Phone</p>
             <p><i class="fas fa-envelope"></i> <strong>Email:</strong> @Model.Email</p>

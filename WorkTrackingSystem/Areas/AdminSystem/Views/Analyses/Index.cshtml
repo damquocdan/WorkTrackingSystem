@@ -545,6 +545,7 @@
             // Reset tất cả các giá trị trong form về mặc định
             $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
             $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+            $("#time").val('@(ViewBag.Time ?? "")');
             // Xóa các tham số trên URL
             let url = "@Url.Action("Index", "Analyses", new { area = "AdminSystem" })";
             loadTable(url);

@@ -92,9 +92,9 @@
                                     break;
                             }
                         </td>
-                        <td class="birthday-column">@Html.DisplayFor(modelItem => item.Birthday)</td>
+                        <td class="birthday-column">@((item.Birthday.HasValue ? item.Birthday.Value.ToString("dd/MM/yyyy") : ""))</td>
                         <td class="email-column">@Html.DisplayFor(modelItem => item.Email)</td>
-                        <td>@Html.DisplayFor(modelItem => item.HireDate)</td>
+                        <td>@((item.HireDate.HasValue ? item.HireDate.Value.ToString("dd/MM/yyyy") : ""))</td>
                         <td class="address-column">@Html.DisplayFor(modelItem => item.Address)</td>
                         <td class="text-center">
                             @if (!string.IsNullOrEmpty(item.Avatar))

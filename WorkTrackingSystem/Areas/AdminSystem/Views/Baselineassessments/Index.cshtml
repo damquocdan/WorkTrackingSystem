@@ -275,17 +275,24 @@
             });
         });
         //nút reset
+        // $(document).on("click", "#resetButton", function (e) {
+        //     e.preventDefault();
+        //     // Reset tất cả các giá trị trong form về mặc định
+        //     $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
+        //     $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+        //     // Xóa các tham số trên URL
+        //     let url = "@Url.Action("Index", "Baselineassessment", new { area = "AdminSystem" })";
+        //     loadTable(url);
+        //     url.search = ''; // Xóa toàn bộ query params
+        //     // Gửi AJAX để tải lại danh sách công việc
+        //     loadJobs(url.toString());
+        // });
         $(document).on("click", "#resetButton", function (e) {
             e.preventDefault();
-            // Reset tất cả các giá trị trong form về mặc định
-            $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
-            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-            // Xóa các tham số trên URL
-            let url = "@Url.Action("Index", "Baselineassessment", new { area = "AdminSystem" })";
-            loadTable(url);
-            url.search = ''; // Xóa toàn bộ query params
-            // Gửi AJAX để tải lại danh sách công việc
-            loadJobs(url.toString());
+            $("#employeeName").val('@(ViewBag.EmployeeName ?? "")');
+            $("#evaluate").val('@(ViewBag.Evaluate ?? "")');
+            $("#time").val('@(ViewBag.Time ?? "")');
+            applyFilters();
         });
         function applyFilters() {
             var employeeName = $("#employeeName").val();

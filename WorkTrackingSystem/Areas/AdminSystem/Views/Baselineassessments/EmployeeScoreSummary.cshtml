@@ -40,32 +40,34 @@
         </div>
     </div>
 </div>
-<h2 class="text-center" id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "toàn bộ")</h2>
 
-<button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-    Tìm kiếm
-</button>
-@if (Model.Any())
-{
-    <a id="exportExcelScore" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
-        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
-    </a>
-}
 
-<div class="collapse" id="collapseExample">
+
+<p>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        Tìm kiếm
+    </button>
+    @if (Model.Any())
+    {
+        <a id="exportExcelScore" class="btn btn-success" title="Xuất dữ liệu ra file Excel">
+            <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </a>
+    }
+</p>
+<div class="collapse show" id="collapseExample">
     <div class="card card-body">
-        <div class="row g-3">
+        <div class="row g-3" id="searchForm">
             <div class="col-md-3">
                 <input type="text" id="search" name="search" class="form-control" value="@ViewBag.Search" placeholder="Nhập tên nhân viên">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="evaluate" name="evaluate" class="form-select">
                     <option value="">Trạng thái đánh giá</option>
                     <option value="Đạt" selected="@(ViewBag.Evaluate == "Đạt" ? "selected" : null)">Đạt</option>
                     <option value="Chưa đạt" selected="@(ViewBag.Evaluate == "Chưa đạt" ? "selected" : null)">Chưa đạt</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <select id="timeType" name="timeType" class="form-control" onchange="toggleTimeFields()">
                     <option value="total" selected="@(ViewBag.TimeType == "total" ? "selected" : null)">Tổng</option>
                     <option value="dateRange" selected="@(ViewBag.TimeType == "dateRange" ? "selected" : null)">Từ ngày - Đến ngày</option>
@@ -94,7 +96,7 @@
                 <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate">
                 <input type="date" id="toDate" name="toDate" class="form-control mt-2" value="@ViewBag.ToDate">
             </div>
-            <div class="col-md-1 d-flex justify-content-end ">
+            <div class="col-md-1 d-flex justify-content-end mt-4 ms-auto">
                 <a href="#" id="resetButton" class="btn btn-secondary">
                     <i class="bi bi-arrow-repeat"></i>
                 </a>
@@ -110,16 +112,20 @@
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-12" id="list-section">
+                <h2 class="text-center text-uppercase" id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "Toàn bộ")</h2>
+
                 <div class="table-responsive">
                     <table class="table table-bordered text-left table-hover" id="assessmentTable">
                         <thead class="text-center">
                             <tr>
-                                <th>           </th>
+                                <th>
+                                    STT
+                                </th>
                                 <th>Nhân viên</th>
-                                <th>Tổng đ.giá khối lượng</th>
-                                <th>Tổng đ.giá tiến độ</th>
-                                <th>Tổng đ.giá chất lượng</th>
-                                <th>Tổng đ.giá tổng hợp</th>
+                                <th>Tổng Đ.giá K.lượng</th>
+                                <th>Tổng Đ.giá T.độ</th>
+                                <th>Tổng Đ.giá C.lượng</th>
+                                <th>Tổng hợp đ.giá</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -143,7 +149,7 @@
                 </div>
                 <!-- Pagination -->
                 <div class="pagination">
-                        @if (Model.TotalItemCount > Model.PageSize)
+                    @if (Model.TotalItemCount > Model.PageSize)
                     {
                         @Html.PagedListPager(Model, page => Url.Action("EmployeeScoreSummary", new { page, search = ViewBag.Search, evaluate = ViewBag.Evaluate, timeType = ViewBag.TimeType, time = ViewBag.Time, quarter = ViewBag.Quarter, year = ViewBag.Year, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate }), new PagedListRenderOptions
                {
@@ -198,7 +204,7 @@
             } else if (timeType === "dateRange" && fromDate && toDate) {
                 return "Từ " + fromDate.split('-').reverse().join('/') + " Đến " + toDate.split('-').reverse().join('/');
             }
-            return "toàn bộ";
+            return "Toàn bộ";
         }
 
         function initializeCharts() {
@@ -237,7 +243,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     let label = context.label || '';
                                     let value = context.raw || 0;
                                     let sum = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -304,19 +310,31 @@
                     "&toDate=" + encodeURIComponent(toDate);
                 window.location.href = url;
             });
+
         });
-         //nút reset
+        // $(document).on("click", "#resetButton", function (e) {
+        //     e.preventDefault();
+        //     // Reset tất cả các giá trị trong form về mặc định
+        //     $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
+        //     $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+        //     // Xóa các tham số trên URL
+        //     let url = "@Url.Action("EmployeeScoreSummary", "Baselineassessments", new { area = "ProjectManager" })";
+        //     loadTable(url);
+        //     url.search = ''; // Xóa toàn bộ query params
+        //     // Gửi AJAX để tải lại danh sách công việc
+        //     loadJobs(url.toString());
+        // });
         $(document).on("click", "#resetButton", function (e) {
             e.preventDefault();
-            // Reset tất cả các giá trị trong form về mặc định
-            $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
-            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-            // Xóa các tham số trên URL
-            let url = "@Url.Action("EmployeeScoreSummary", "Baselineassessments", new { area = "AdminSystem" })";
-            loadTable(url);
-            url.search = ''; // Xóa toàn bộ query params
-            // Gửi AJAX để tải lại danh sách công việc
-            loadJobs(url.toString());
+            $("#search").val('@(ViewBag.Search ?? "")');
+            $("#evaluate").val('@(ViewBag.Evaluate ?? "")');
+            $("#timeType").val('@(ViewBag.TimeType ?? "")');
+            $("#time").val('@(ViewBag.Time ?? "")');
+            $("#quarter").val('@(ViewBag.Quarter ?? "")');
+            $("#year").val('@(ViewBag.Year ?? "")');
+            $("#fromDate").val('@(ViewBag.FromDate ?? "")');
+            $("#toDate").val('@(ViewBag.ToDate ?? "")');
+            applyFilters();
         });
         function applyFilters() {
             var search = $("#search").val();
@@ -372,7 +390,7 @@
             var tableRows = $(data).find("#assessmentTable tbody tr");
             var pieData = {};
 
-            tableRows.each(function() {
+            tableRows.each(function () {
                 var employeeName = $(this).find("td").eq(1).text().trim();
                 var volumeAssessment = parseFloat($(this).find("td").eq(2).text().trim()) || 0;
 
@@ -407,5 +425,6 @@
             ] : ['rgba(200, 200, 200, 1)'];
             volumePieChart.update();
         }
+
     </script>
 }

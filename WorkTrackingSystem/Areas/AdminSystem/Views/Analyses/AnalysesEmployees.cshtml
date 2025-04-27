@@ -23,10 +23,10 @@
         </div>
     </div>
 </div>
-@if (TempData["NoDataMessage"] != null)
+@* @if (TempData["NoDataMessage"] == null)
 {
     <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
-}
+} *@
 @* <p>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
         Tìm kiếm
@@ -49,7 +49,7 @@
 <p id="noDataMessage" style="display: @(Model.Any() ? "none" : "block");">Không có dữ liệu để xuất Excel.</p>
 <div class="collapse" id="collapseExample">
     <div class="card card-body">
-        <div class="row">
+        <div class="row" id="searchForm">
             <div class="col-md-3">
                 <input type="text" id="search" name="search" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.Search" />
             </div>
@@ -483,6 +483,12 @@
             // Reset tất cả các giá trị trong form về mặc định
             $("#searchForm").find("input[type=text], input[type=month], select").val('');
             $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+            $("#timeType").val('@(ViewBag.TimeType ?? "")');
+            $("#time").val('@(ViewBag.Time ?? "")');
+            $("#quarter").val('@(ViewBag.Quarter ?? "")');
+            $("#year").val('@(ViewBag.Year ?? "")');
+            $("#fromDate").val('@(ViewBag.FromDate ?? "")');
+            $("#toDate").val('@(ViewBag.ToDate ?? "")');
             // Xóa các tham số trên URL
             let url = "@Url.Action("AnalysesEmployees", "Analyses", new { area = "AdminSystem" })";
             loadTable(url);

@@ -89,28 +89,37 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
 
         public async Task<IActionResult> JobEvaluation(
-string searchText = "",
-string month = "",
-string day = "",
-string status = "",
-string categoryId = "",
-string sortOrder = "",
-bool showCompletedZeroReview = false,
-bool dueToday = false,
-long? jobId = null, int page = 1)
+       string searchText = "",
+       string month = "",
+       string day = "",
+       string fromDate = "", // Thêm tham số từ ngày
+       string toDate = "",   // Thêm tham số đến ngày
+       string quarter = "",  // Thêm tham số quý
+       string year = "",     // Thêm tham số năm
+       string status = "",
+       string categoryId = "",
+       string sortOrder = "",
+       bool showCompletedZeroReview = false,
+       bool dueToday = false,
+       long? jobId = null,
+       int page = 1)
         {
             var limit = 8;
-           
+   
+
+            var managedEmployeeIds = await _context.Employees
+               
+                .Select(e => e.Id)
+                .ToListAsync();
 
             var employeesInManagedDepartments = await _context.Employees
-                //.Where(e => e.DepartmentId.HasValue && managedDepartments.Contains(e.DepartmentId.Value))
+                .Where(e => managedEmployeeIds.Contains(e.Id))
                 .Select(e => new { Value = e.Id.ToString(), Text = $"{e.Code} {e.FirstName} {e.LastName}", Avatar = e.Avatar ?? "/images/default-avatar.png" })
                 .ToListAsync();
             ViewBag.EmployeeList = employeesInManagedDepartments;
 
             ViewData["Categories"] = await _context.Categories.ToListAsync();
 
-            // Lấy danh sách JobId đã được gán cho bất kỳ nhân viên nào (EmployeeId không null)
             var assignedJobIds = await _context.Jobmapemployees
                 .Where(jme => jme.EmployeeId != null)
                 .Select(jme => jme.JobId)
@@ -125,10 +134,9 @@ long? jobId = null, int page = 1)
                         .ThenInclude(j => j.Category)
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
                 .Where(s =>
-                    (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value))
+                    (s.JobMapEmployee.EmployeeId.HasValue && managedEmployeeIds.Contains(s.JobMapEmployee.EmployeeId.Value))
                     || (s.JobMapEmployee.EmployeeId == null  && !assignedJobIds.Contains(s.JobMapEmployee.JobId)));
 
-            // Apply the filter only if jobId is provided (keeping the original jobId-specific logic)
             if (jobId.HasValue)
             {
                 bool hasAssignedJob = await _context.Jobmapemployees
@@ -142,7 +150,7 @@ long? jobId = null, int page = 1)
                 }
             }
 
-            // 1. Tìm kiếm theo mã / tên nhân viên / công việc
+            // Lọc theo từ khóa tìm kiếm
             if (!string.IsNullOrEmpty(searchText))
             {
                 searchText = searchText.ToLower();
@@ -153,47 +161,109 @@ long? jobId = null, int page = 1)
                     s.JobMapEmployee.Job.Name.ToLower().Contains(searchText));
             }
 
-            // 2. Lọc theo tháng
+            // Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedMonth.Year && s.CreateDate.Value.Month == selectedMonth.Month);
             }
+
+            // Lọc theo ngày cụ thể
             if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
             }
-            // 3. Lọc theo trạng thái
+
+            // Lọc theo từ ngày - đến ngày
+            if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, out DateTime startDate))
+            {
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date);
+            }
+
+            if (!string.IsNullOrEmpty(toDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            {
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date <= endDate.Date);
+            }
+
+            // Lọc theo năm
+            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
+            {
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
+            }
+
+            // Lọc theo quý
+            if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
+            {
+                var startMonth = (selectedQuarter - 1) * 3 + 1;
+                var endMonth = startMonth + 2;
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+            }
+
+            // Lọc theo trạng thái
             if (!string.IsNullOrEmpty(status) && byte.TryParse(status, out byte statusValue))
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == statusValue);
             }
 
-            // 4. Lọc theo danh mục
+            // Lọc theo danh mục
             if (!string.IsNullOrEmpty(categoryId) && long.TryParse(categoryId, out long catId))
             {
                 scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == catId);
             }
 
-            // 5. Hiển thị công việc hoàn thành nhưng chưa đánh giá
+            // Lọc công việc hoàn thành nhưng chưa đánh giá
             if (showCompletedZeroReview)
             {
                 scoresQuery = scoresQuery.Where(s => s.SummaryOfReviews == 0);
             }
+
+            // Lọc công việc có deadline là hôm nay
             if (dueToday)
             {
                 scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
             }
-            var scores = scoresQuery.ToPagedList(page, limit);
+
+            // Sắp xếp
+            switch (sortOrder)
+            {
+                case "due_asc":
+                    scoresQuery = scoresQuery.OrderBy(s => s.CreateDate);
+                    break;
+                case "due_desc":
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.CreateDate);
+                    break;
+                case "review_asc":
+                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews);
+                    break;
+                case "review_desc":
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews);
+                    break;
+                default:
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.CreateDate);
+                    break;
+            }
+
+            // Materialize the query asynchronously
+            var scoresList = await scoresQuery.ToListAsync();
+            // Apply paging synchronously
+            var scores = scoresList.ToPagedList(page, limit);
+
+            // Lưu các giá trị tìm kiếm để hiển thị lại trong view
             ViewBag.SearchText = searchText;
             ViewBag.Month = month;
             ViewBag.Day = day;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
+            ViewBag.Year = year;
+            ViewBag.Quarter = quarter;
             ViewBag.Status = status?.ToString();
             ViewBag.CategoryId = categoryId?.ToString();
             ViewBag.SortOrder = sortOrder;
             ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
             ViewBag.DueToday = dueToday;
+
             return View(scores);
         }
+
 
         public async Task<IActionResult> ExportToExcel(string employeeCode, string employeeName, bool? evaluate, string time)
         {
@@ -317,6 +387,10 @@ long? jobId = null, int page = 1)
         public async Task<IActionResult> EmployeeScoreSummary(string search, int? departmentId, string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? year, string sortOrder, string evaluate, int page = 1)
         {
             var limit = 10;
+           
+       
+
+          
             // Handle time parameters
             int? month = null;
             if (timeType == "month" && !string.IsNullOrEmpty(time) && DateTime.TryParse(time + "-01", out var parsedTime))
@@ -351,10 +425,9 @@ long? jobId = null, int page = 1)
                                       join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
                                       join e in _context.Employees on jme.EmployeeId equals e.Id
                                       join d in _context.Departments on e.DepartmentId equals d.Id
-                                      where  // Restrict to managed departments
-                                             departmentId == null || d.Id == departmentId // Filter by selected department
+                                      where ( (departmentId == null || d.Id == departmentId) // Filter by selected department
                                             && (fromDate == null || s.CreateDate >= fromDate)
-                                            && (toDate == null || s.CreateDate <= toDate)
+                                            && (toDate == null || s.CreateDate <= toDate))
                                       group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
                                       select new ScoreSummary
                                       {
@@ -445,7 +518,7 @@ long? jobId = null, int page = 1)
             ViewBag.DepartmentName = departmentId.HasValue
                 ? _context.Departments.Where(d => d.Id == departmentId).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
                 : "All Departments";
-            //ViewBag.Departments = new SelectList(_context.Departments.Where(d => managedDepartments.Contains(d.Id)), "Id", "Name");
+            ViewBag.Departments = new SelectList(_context.Departments, "Id", "Name");
 
             return View(pagedEmployeeScores);
         }
