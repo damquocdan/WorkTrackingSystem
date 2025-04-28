@@ -47,21 +47,105 @@
                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />
             </div>
             <div class="col-md-3">
-                <select id="sortOrder" name="sortOrder" class="form-control">
-                    <option value="">-- Sắp xếp theo --</option>
-                    <option value="total_asc">Tổng số ↑</option>
-                    <option value="total_desc">Tổng số ↓</option>
-                    <option value="ontime_asc">Đúng hạn ↑</option>
-                    <option value="ontime_desc">Đúng hạn ↓</option>
-                    <option value="late_asc">Trễ hạn ↑</option>
-                    <option value="late_desc">Trễ hạn ↓</option>
-                    <option value="overdue_asc">Quá hạn ↑</option>
-                    <option value="overdue_desc">Quá hạn ↓</option>
-                    <option value="processing_asc">Đang xử lý ↑</option>
-                    <option value="processing_desc">Đang xử lý ↓</option>
-                    <option value="time_asc">Thời gian ↑</option>
-                    <option value="time_desc">Thời gian ↓</option>
-                </select>
+             <select id="sortOrder" name="sortOrder" class="form-control">
+    <option value="" >-- Sắp xếp theo --</option>
+    @if (Context.Request.Query["sortOrder"] == "total_asc")
+    {
+        <option value="total_asc" selected>Tổng số ↑</option>
+    }
+    else
+    {
+        <option value="total_asc">Tổng số ↑</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "total_desc")
+    {
+        <option value="total_desc" selected>Tổng số ↓</option>
+    }
+    else
+    {
+        <option value="total_desc">Tổng số ↓</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "ontime_asc")
+    {
+        <option value="ontime_asc" selected>Đúng hạn ↑</option>
+    }
+    else
+    {
+        <option value="ontime_asc">Đúng hạn ↑</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "ontime_desc")
+    {
+        <option value="ontime_desc" selected>Đúng hạn ↓</option>
+    }
+    else
+    {
+        <option value="ontime_desc">Đúng hạn ↓</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "late_asc")
+    {
+        <option value="late_asc" selected>Trễ hạn ↑</option>
+    }
+    else
+    {
+        <option value="late_asc">Trễ hạn ↑</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "late_desc")
+    {
+        <option value="late_desc" selected>Trễ hạn ↓</option>
+    }
+    else
+    {
+        <option value="late_desc">Trễ hạn ↓</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "overdue_asc")
+    {
+        <option value="overdue_asc" selected>Quá hạn ↑</option>
+    }
+    else
+    {
+        <option value="overdue_asc">Quá hạn ↑</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "overdue_desc")
+    {
+        <option value="overdue_desc" selected>Quá hạn ↓</option>
+    }
+    else
+    {
+        <option value="overdue_desc">Quá hạn ↓</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "processing_asc")
+    {
+        <option value="processing_asc" selected>Đang xử lý ↑</option>
+    }
+    else
+    {
+        <option value="processing_asc">Đang xử lý ↑</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "processing_desc")
+    {
+        <option value="processing_desc" selected>Đang xử lý ↓</option>
+    }
+    else
+    {
+        <option value="processing_desc">Đang xử lý ↓</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "time_asc")
+    {
+        <option value="time_asc" selected>Thời gian ↑</option>
+    }
+    else
+    {
+        <option value="time_asc">Thời gian ↑</option>
+    }
+    @if (Context.Request.Query["sortOrder"] == "time_desc")
+    {
+        <option value="time_desc" selected>Thời gian ↓</option>
+    }
+    else
+    {
+        <option value="time_desc">Thời gian ↓</option>
+    }
+</select>
             </div>
             <div class="col-md-1">
                 <a href="#" id="resetButton" class="btn btn-secondary">
