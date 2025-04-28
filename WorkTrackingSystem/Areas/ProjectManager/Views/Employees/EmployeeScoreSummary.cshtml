@@ -54,6 +54,7 @@
     </a>
 }
 </p>
+<!-- Search Form Section -->
 <div class="collapse show" id="collapseExample">
     <div class="card card-body">
         <div class="row g-3" id="searchForm">
@@ -67,7 +68,7 @@
                     <option value="Chưa đạt" selected="@(ViewBag.Evaluate == "Chưa đạt" ? "selected" : null)">Chưa đạt</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="timeType" name="timeType" class="form-control" onchange="toggleTimeFields()">
                     <option value="total" selected="@(ViewBag.TimeType == "total" ? "selected" : null)">Tổng</option>
                     <option value="dateRange" selected="@(ViewBag.TimeType == "dateRange" ? "selected" : null)">Từ ngày - Đến ngày</option>
@@ -76,28 +77,32 @@
                     <option value="year" selected="@(ViewBag.TimeType == "year" ? "selected" : null)">Năm</option>
                 </select>
             </div>
-            <div class="col-md-3 time-field" id="monthField" style="display: @(ViewBag.TimeType == "month" ? "block" : "none");">
+            <div class="col-md-2" id="monthField" style="display: @(ViewBag.TimeType == "month" ? "block" : "none");">
                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
             </div>
-            <div class="col-md-3 time-field" id="quarterField" style="display: @(ViewBag.TimeType == "quarter" ? "block" : "none");">
-                <select id="quarter" name="quarter" class="form-control">
-                    <option value="">Chọn quý</option>
-                    <option value="1" selected="@(ViewBag.Quarter == 1 ? "selected" : null)">Quý 1</option>
-                    <option value="2" selected="@(ViewBag.Quarter == 2 ? "selected" : null)">Quý 2</option>
-                    <option value="3" selected="@(ViewBag.Quarter == 3 ? "selected" : null)">Quý 3</option>
-                    <option value="4" selected="@(ViewBag.Quarter == 4 ? "selected" : null)">Quý 4</option>
-                </select>
-                <input type="number" id="year" name="year" class="form-control mt-2" value="@ViewBag.Year" placeholder="Nhập năm, ví dụ: 2025">
+            <div class="col-md-4" id="quarterField" style="display: @(ViewBag.TimeType == "quarter" ? "block" : "none");">
+                <div class="d-flex gap-2">
+                    <select id="quarter" name="quarter" class="form-control">
+                        <option value="">Chọn quý</option>
+                        <option value="1" selected="@(ViewBag.Quarter == 1 ? "selected" : null)">Quý 1</option>
+                        <option value="2" selected="@(ViewBag.Quarter == 2 ? "selected" : null)">Quý 2</option>
+                        <option value="3" selected="@(ViewBag.Quarter == 3 ? "selected" : null)">Quý 3</option>
+                        <option value="4" selected="@(ViewBag.Quarter == 4 ? "selected" : null)">Quý 4</option>
+                    </select>
+                    <input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Nhập năm">
+                </div>
             </div>
-            <div class="col-md-3 time-field" id="yearField" style="display: @(ViewBag.TimeType == "year" ? "block" : "none");">
+            <div class="col-md-2" id="yearField" style="display: @(ViewBag.TimeType == "year" ? "block" : "none");">
                 <input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Nhập năm, ví dụ: 2025">
             </div>
-            <div class="col-md-3 time-field" id="dateRangeField" style="display: @(ViewBag.TimeType == "dateRange" ? "block" : "none");">
-                <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate">
-                <input type="date" id="toDate" name="toDate" class="form-control mt-2" value="@ViewBag.ToDate">
+            <div class="col-md-4" id="dateRangeField" style="display: @(ViewBag.TimeType == "dateRange" ? "block" : "none");">
+                <div class="d-flex gap-2">
+                    <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" placeholder="Từ ngày">
+                    <input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" placeholder="Đến ngày">
+                </div>
             </div>
-            <div class="col-md-1 d-flex justify-content-end mt-4 ms-auto">
-                <a href="#" id="resetButton" class="btn btn-secondary">
+            <div class="col-md-1 d-flex justify-content-end ms-auto">
+                <a href="#" id="resetButton" class="btn btn-secondary me-2">
                     <i class="bi bi-arrow-repeat"></i>
                 </a>
                 <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
@@ -317,6 +322,8 @@
                 // Reset tất cả các giá trị trong form về mặc định
                 $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
                 $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+                $("#timeType").val('total');
+                toggleTimeFields();
                 // Xóa các tham số trên URL
                     let url = "@Url.Action("EmployeeScoreSummary", "Employees", new { area = "ProjectManager" })";
                 loadTable(url);

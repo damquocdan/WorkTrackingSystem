@@ -14,7 +14,14 @@
             <div class="col-md-12">
                 <label class="form-label fw-bold">Nhân viên</label>
                 <p class="form-control bg-light">
-                    @Model.JobMapEmployee.Employee.Code - @Model.JobMapEmployee.Employee.FirstName @Model.JobMapEmployee.Employee.LastName
+                    @if (Model.JobMapEmployee?.Employee != null)
+                    {
+                        @($"{Model.JobMapEmployee.Employee.Code} - {Model.JobMapEmployee.Employee.FirstName} {Model.JobMapEmployee.Employee.LastName}")
+                    }
+                    else
+                    {
+                        <text>Chưa giao</text>
+                    }
                 </p>
             </div>
         </div>

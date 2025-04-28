@@ -260,6 +260,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string fromDate = "", // Thêm tham số từ ngày
     string toDate = "",   // Thêm tham số đến ngày
     string quarter = "",  // Thêm tham số quý
+    string quarterYear = "", // Thêm tham số năm của quý
     string year = "",     // Thêm tham số năm
     string status = "",
     string categoryId = "",
@@ -372,7 +373,25 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 var startMonth = (selectedQuarter - 1) * 3 + 1;
                 var endMonth = startMonth + 2;
-                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+
+                if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
+                {
+                    // Lọc theo cả quý và năm
+                    scoresQuery = scoresQuery.Where(s =>
+                        s.CreateDate.HasValue &&
+                        s.CreateDate.Value.Year == selectedQuarterYear &&
+                        s.CreateDate.Value.Month >= startMonth &&
+                        s.CreateDate.Value.Month <= endMonth);
+                }
+                else
+                {
+                    // Lọc chỉ theo quý, qua tất cả các năm (giới hạn 10 năm gần nhất để tối ưu hiệu suất)
+                    scoresQuery = scoresQuery.Where(s =>
+                        s.CreateDate.HasValue &&
+                        s.CreateDate.Value.Year >= DateTime.Now.Year - 10 &&
+                        s.CreateDate.Value.Month >= startMonth &&
+                        s.CreateDate.Value.Month <= endMonth);
+                }
             }
 
             // Lọc theo trạng thái
@@ -432,6 +451,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             ViewBag.ToDate = toDate;
             ViewBag.Year = year;
             ViewBag.Quarter = quarter;
+            ViewBag.QuarterYear = quarterYear;
             ViewBag.Status = status?.ToString();
             ViewBag.CategoryId = categoryId?.ToString();
             ViewBag.SortOrder = sortOrder;

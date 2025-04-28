@@ -574,8 +574,8 @@
                     renderTableCells();
                     var newPagination = $(data).find(".pagination").html();
                     $(".pagination").html(newPagination);
-                    var newSortOrder = $(data).find("#sortOrder").val() || "";
-                    $("#sortOrder").val(newSortOrder);
+                    // var newSortOrder = $(data).find("#sortOrder").val() || "";
+                    // $("#sortOrder").val(newSortOrder);
                     reloadChartsAndSummary(data);
                     updateFilterDescription();
 

@@ -481,10 +481,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string searchText = "",
     string month = "",
     string day = "",
-    string year = "", // Thêm tham số year
-    string quarter = "", // Thêm tham số quarter
-    string fromDate = "", // Thêm tham số fromDate
-    string toDate = "", // Thêm tham số toDate
+    string year = "",
+    string quarter = "",
+    string quarterYear = "", // Thêm tham số quarterYear
+    string fromDate = "",
+    string toDate = "",
     int? status = null,
     int? categoryId = null,
     bool dueToday = false,
@@ -526,7 +527,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         .ThenInclude(j => j.Category)
                 .Where(s => s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Contains(s.JobMapEmployee.EmployeeId.Value));
 
-            // Áp dụng các bộ lọc giống như trong Index
+            // Áp dụng các bộ lọc
 
             // Tìm kiếm theo mã / tên nhân viên / công việc
             if (!string.IsNullOrEmpty(searchText))
@@ -542,8 +543,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             // Lọc theo năm
             if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
             {
-                scoresQuery = scoresQuery.Where(s =>
-                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
             }
 
             // Lọc theo quý
@@ -551,8 +551,13 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 var startMonth = (selectedQuarter - 1) * 3 + 1;
                 var endMonth = startMonth + 2;
-                scoresQuery = scoresQuery.Where(s =>
-                    s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Month >= startMonth && s.CreateDate.Value.Month <= endMonth);
+
+                // Kiểm tra năm của quý
+                if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
+                {
+                    scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
+                }
             }
 
             // Lọc theo tháng
@@ -570,11 +575,14 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             // Lọc theo khoảng thời gian
-            if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) &&
-                DateTime.TryParse(fromDate, out DateTime startDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, out DateTime startDate))
             {
-                scoresQuery = scoresQuery.Where(s =>
-                    s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date && s.CreateDate.Value.Date <= endDate.Date);
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date);
+            }
+
+            if (!string.IsNullOrEmpty(toDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            {
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date <= endDate.Date);
             }
 
             // Lọc theo trạng thái
@@ -663,8 +671,8 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[i + 2, 9].Value = score.ProgressAssessment;
                     worksheet.Cells[i + 2, 10].Value = score.QualityAssessment;
                     worksheet.Cells[i + 2, 11].Value = score.SummaryOfReviews.HasValue
-    ? score.SummaryOfReviews.Value.ToString("0.00")
-    : "0.00";
+                        ? score.SummaryOfReviews.Value.ToString("0.00")
+                        : "0.00";
                 }
 
                 // Định dạng cột
