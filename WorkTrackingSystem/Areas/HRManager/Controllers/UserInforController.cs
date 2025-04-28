@@ -208,8 +208,20 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                 if (files.Count > 0 && files[0].Length > 0)
                 {
                     var file = files[0];
-                    var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}"; // Đặt tên duy nhất
-                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+                    // Kiểm tra định dạng file
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".jfif" };
+                    var extension = Path.GetExtension(file.FileName).ToLower();
+                    if (!allowedExtensions.Contains(extension))
+                    {
+                        ModelState.AddModelError("", "Chỉ hỗ trợ định dạng ảnh .jpg, .jpeg, .png.");
+                        ViewData["DepartmentId"] = new SelectList(_context.Departments, "Id", "Name", employee.DepartmentId);
+                        ViewData["PositionId"] = new SelectList(_context.Positions, "Id", "Name", employee.PositionId);
+                        return View(employee);
+                    }
+
+                    // Tạo tên file duy nhất với đuôi .jpg
+                    var fileName = $"{Guid.NewGuid()}.jpg"; // Thay đổi đuôi thành .jpg
+                    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/employees", fileName);
 
                     // Xóa ảnh cũ nếu có
                     if (!string.IsNullOrEmpty(existingEmployee.Avatar))
@@ -222,12 +234,14 @@ namespace WorkTrackingSystem.Areas.HRManager.Controllers
                     }
 
                     // Lưu ảnh mới
+                    // Lưu file với tên mới
                     using (var stream = new FileStream(path, FileMode.Create))
                     {
                         await file.CopyToAsync(stream);
                     }
 
-                    existingEmployee.Avatar = "/images/" + fileName;
+                    // Cập nhật đường dẫn avatar
+                    existingEmployee.Avatar = "/images/employees/" + fileName;
                 }
                 else
                 {
