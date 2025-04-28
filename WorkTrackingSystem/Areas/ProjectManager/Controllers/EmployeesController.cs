@@ -795,7 +795,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 worksheet.Cells[2, 4].Value = "Tổng đánh giá tiến độ";
                 worksheet.Cells[2, 5].Value = "Tổng đánh giá chất lượng";
                 worksheet.Cells[2, 6].Value = "Tổng đánh giá tổng hợp";
-                worksheet.Cells[2, 7].Value = "Đánh giá";
 
                 using (var range = worksheet.Cells[2, 1, 2, 7])
                 {
@@ -818,7 +817,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     worksheet.Cells[row, 5].Value = item.TotalQuality;
                     worksheet.Cells[row, 6].Value = Math.Round(item.SummaryScore, 2);
                     worksheet.Cells[row, 6].Style.Numberformat.Format = "0.00";
-                    worksheet.Cells[row, 7].Value = item.EvaluationResult;
                     worksheet.Cells[row, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[row, 3, row, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     row++;
