@@ -80,6 +80,10 @@
             <div class="col-md-2" id="monthField" style="display: @(ViewBag.TimeType == "month" ? "block" : "none");">
                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time">
             </div>
+            @{
+                int currentYear = DateTime.Now.Year;
+            }
+
             <div class="col-md-4" id="quarterField" style="display: @(ViewBag.TimeType == "quarter" ? "block" : "none");">
                 <div class="d-flex gap-2">
                     <select id="quarter" name="quarter" class="form-control">
@@ -89,12 +93,27 @@
                         <option value="3" selected="@(ViewBag.Quarter == 3 ? "selected" : null)">Quý 3</option>
                         <option value="4" selected="@(ViewBag.Quarter == 4 ? "selected" : null)">Quý 4</option>
                     </select>
-                    <input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Nhập năm">
+
+                    <select id="year" name="year" class="form-control">
+                        <option value="">Chọn năm</option>
+                        @for (int i = currentYear; i >= currentYear - 9; i--)
+                        {
+                            <option value="@i" selected="@(ViewBag.Year == i ? "selected" : null)">@i</option>
+                        }
+                    </select>
                 </div>
             </div>
+
             <div class="col-md-2" id="yearField" style="display: @(ViewBag.TimeType == "year" ? "block" : "none");">
-                <input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Nhập năm, ví dụ: 2025">
+                <select id="yearOnly" name="year" class="form-control">
+                    <option value="">Chọn năm</option>
+                    @for (int i = currentYear; i >= currentYear - 9; i--)
+                    {
+                        <option value="@i" selected="@(ViewBag.Year == i ? "selected" : null)">@i</option>
+                    }
+                </select>
             </div>
+
             <div class="col-md-4" id="dateRangeField" style="display: @(ViewBag.TimeType == "dateRange" ? "block" : "none");">
                 <div class="d-flex gap-2">
                     <input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" placeholder="Từ ngày">
@@ -195,20 +214,24 @@
 
         // Function to format title based on timeType
         function formatTitleDisplay(timeType, time, quarter, year, fromDate, toDate) {
-            if (timeType === "month" && time) {
-                var parts = time.split('-');
-                if (parts.length === 2) {
-                    var year = parts[0];
-                    var month = parts[1];
-                    return "Tháng " + month + "/" + year;
-                }
-            } else if (timeType === "quarter" && quarter && year) {
-                return "Quý " + quarter + "/" + year;
-            } else if (timeType === "year" && year) {
-                return "Năm " + year;
-            } else if (timeType === "dateRange" && fromDate && toDate) {
-                return "Từ " + fromDate.split('-').reverse().join('/') + " Đến " + toDate.split('-').reverse().join('/');
+                if (timeType === "month" && time) {
+            var parts = time.split('-');
+            if (parts.length === 2) {
+                var year = parts[0];
+                var month = parts[1];
+                return "Tháng " + month + "/" + year;
             }
+        } else if (timeType === "quarter" && quarter) {
+            if (year) {
+                return "Quý " + quarter + "/" + year;
+            } else {
+                return "Quý " + quarter + " (Tất cả các năm)";
+            }
+        } else if (timeType === "year" && year) {
+            return "Năm " + year;
+        } else if (timeType === "dateRange" && fromDate && toDate) {
+            return "Từ " + fromDate.split('-').reverse().join('/') + " Đến " + toDate.split('-').reverse().join('/');
+        }
             return "Toàn bộ";
         }
 

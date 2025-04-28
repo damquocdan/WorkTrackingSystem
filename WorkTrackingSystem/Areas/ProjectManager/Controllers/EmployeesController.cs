@@ -127,19 +127,51 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 fromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
                 toDate = fromDate.Value.AddMonths(1).AddDays(-1);
             }
-            else if (timeType == "quarter" && quarter.HasValue && quarterYear.HasValue)
+            else if (timeType == "quarter")
             {
-                fromDate = new DateTime(quarterYear.Value, (quarter.Value - 1) * 3 + 1, 1);
-                toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                if (quarter.HasValue && year.HasValue)
+                {
+                    // Both quarter and year specified
+                    fromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
+                    toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                }
+                else if (quarter.HasValue)
+                {
+                    // Only quarter specified, filter by quarter across all years
+                    fromDate = null;
+                    toDate = null;
+                }
+                else if (year.HasValue)
+                {
+                    // Only year specified, filter by entire year
+                    fromDate = new DateTime(year.Value, 1, 1);
+                    toDate = new DateTime(year.Value, 12, 31);
+                }
+                else
+                {
+                    // Neither quarter nor year specified, show all data
+                    fromDate = null;
+                    toDate = null;
+                    quarter = null;
+                }
             }
             else if (timeType == "year" && year.HasValue)
             {
                 fromDate = new DateTime(year.Value, 1, 1);
                 toDate = new DateTime(year.Value, 12, 31);
             }
-            else if (timeType != "dateRange")
+            else if (timeType == "dateRange" && fromDate.HasValue && toDate.HasValue)
             {
-                // For "total", clear all time parameters
+                // Nếu chọn khoảng thời gian, sử dụng fromDate và toDate trực tiếp
+                quarter = null;
+                quarterYear = null;
+                month = null;
+                monthYear = null;
+                year = null;
+            }
+            else
+            {
+                // Mặc định (total), xóa tất cả tham số thời gian
                 fromDate = null;
                 toDate = null;
                 quarter = null;
@@ -147,6 +179,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 month = null;
                 monthYear = null;
                 year = null;
+                timeType = "total";
             }
 
             // Gọi stored procedure với các tham số
@@ -219,7 +252,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             // Chuẩn bị dữ liệu cho view
             ViewBag.Search = search;
             ViewBag.PositionId = positionId;
-            ViewBag.TimeType = timeType ?? "total";
+            ViewBag.TimeType = timeType;
             ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
             ViewBag.Time = time;
@@ -277,10 +310,33 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 fromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
                 toDate = fromDate.Value.AddMonths(1).AddDays(-1);
             }
-            else if (timeType == "quarter" && quarter.HasValue && year.HasValue)
+            else if (timeType == "quarter")
             {
-                fromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
-                toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                if (quarter.HasValue && year.HasValue)
+                {
+                    // Both quarter and year specified
+                    fromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
+                    toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                }
+                else if (quarter.HasValue)
+                {
+                    // Only quarter specified, filter by quarter across all years
+                    fromDate = null;
+                    toDate = null;
+                }
+                else if (year.HasValue)
+                {
+                    // Only year specified, filter by entire year
+                    fromDate = new DateTime(year.Value, 1, 1);
+                    toDate = new DateTime(year.Value, 12, 31);
+                }
+                else
+                {
+                    // Neither quarter nor year specified, show all data
+                    fromDate = null;
+                    toDate = null;
+                    quarter = null;
+                }
             }
             else if (timeType == "year" && year.HasValue)
             {
@@ -306,26 +362,36 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                                             && (departmentId == null || d.Id == departmentId) // Filter by selected department
                                             && (fromDate == null || s.CreateDate >= fromDate)
                                             && (toDate == null || s.CreateDate <= toDate)
-                                      group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
-                                      select new ScoreSummary
-                                      {
-                                          EmployeeId = (int)g.Key.Id,
-                                          EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
-                                          TotalVolume = (int)(g.Sum(x => x.s.VolumeAssessment ?? 0)),
-                                          TotalProgress = (int)(g.Sum(x => x.s.ProgressAssessment ?? 0)),
-                                          TotalQuality = (int)(g.Sum(x => x.s.QualityAssessment ?? 0)),
-                                          SummaryScore = g.Sum(x =>
-                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
-                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
-                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m),
-                                          EvaluationResult = g.Sum(x =>
-                                              (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
-                                              (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
-                                              (decimal)(x.s.QualityAssessment ?? 0) * 0.25m) >= 4.5m ? "Đạt" : "Chưa đạt"
-                                      };
+                                      select new { s, e, d };
 
-            // Execute query and apply additional filters
-            var employeeScores = await employeeScoresQuery.ToListAsync();
+            // Apply quarter filter across all years if only quarter is specified
+            if (timeType == "quarter" && quarter.HasValue && !year.HasValue)
+            {
+                employeeScoresQuery = employeeScoresQuery.Where(x => x.s.CreateDate.HasValue &&
+                    x.s.CreateDate.Value.Month >= (quarter.Value - 1) * 3 + 1 &&
+                    x.s.CreateDate.Value.Month <= quarter.Value * 3);
+            }
+
+            // Execute query and group by employee
+            var employeeScores = await employeeScoresQuery
+                .GroupBy(x => new { x.e.Id, x.e.FirstName, x.e.LastName })
+                .Select(g => new ScoreSummary
+                {
+                    EmployeeId = (int)g.Key.Id,
+                    EmployeeName = (g.Key.FirstName + " " + g.Key.LastName).Trim(),
+                    TotalVolume = (int)(g.Sum(x => x.s.VolumeAssessment ?? 0)),
+                    TotalProgress = (int)(g.Sum(x => x.s.ProgressAssessment ?? 0)),
+                    TotalQuality = (int)(g.Sum(x => x.s.QualityAssessment ?? 0)),
+                    SummaryScore = g.Sum(x =>
+                        (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                        (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                        (decimal)(x.s.QualityAssessment ?? 0) * 0.25m),
+                    EvaluationResult = g.Sum(x =>
+                        (decimal)(x.s.VolumeAssessment ?? 0) * 0.6m +
+                        (decimal)(x.s.ProgressAssessment ?? 0) * 0.15m +
+                        (decimal)(x.s.QualityAssessment ?? 0) * 0.25m) >= 4.5m ? "Đạt" : "Chưa đạt"
+                })
+                .ToListAsync();
 
             // Apply search filter
             if (!string.IsNullOrEmpty(search))

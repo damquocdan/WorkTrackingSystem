@@ -362,36 +362,35 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date <= endDate.Date);
             }
 
-            // Lọc theo năm
-            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
-            {
-                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
-            }
-
             // Lọc theo quý
             if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
             {
                 var startMonth = (selectedQuarter - 1) * 3 + 1;
                 var endMonth = startMonth + 2;
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue &&
+                    s.CreateDate.Value.Month >= startMonth &&
+                    s.CreateDate.Value.Month <= endMonth);
 
+                // Nếu có chọn năm của quý, lọc thêm theo năm
                 if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
                 {
-                    // Lọc theo cả quý và năm
                     scoresQuery = scoresQuery.Where(s =>
-                        s.CreateDate.HasValue &&
-                        s.CreateDate.Value.Year == selectedQuarterYear &&
-                        s.CreateDate.Value.Month >= startMonth &&
-                        s.CreateDate.Value.Month <= endMonth);
+                        s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
                 }
-                else
-                {
-                    // Lọc chỉ theo quý, qua tất cả các năm (giới hạn 10 năm gần nhất để tối ưu hiệu suất)
-                    scoresQuery = scoresQuery.Where(s =>
-                        s.CreateDate.HasValue &&
-                        s.CreateDate.Value.Year >= DateTime.Now.Year - 10 &&
-                        s.CreateDate.Value.Month >= startMonth &&
-                        s.CreateDate.Value.Month <= endMonth);
-                }
+            }
+            else if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
+            {
+                // Nếu chỉ chọn năm của quý mà không chọn quý, hiển thị toàn bộ dữ liệu của năm đó
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
+            }
+
+            // Lọc theo năm (nếu không phải là năm của quý)
+            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear) && string.IsNullOrEmpty(quarterYear))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
             }
 
             // Lọc theo trạng thái

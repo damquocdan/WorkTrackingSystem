@@ -10,9 +10,9 @@
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row ">
+        <div class="row">
             <div class="col-sm-6">
-                 <h5 class="m-0">@ViewData["Title"]</h5>
+                <h5 class="m-0">@ViewData["Title"]</h5>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -24,11 +24,6 @@
     </div>
 </div>
 
-
-@if (TempData["NoDataMessage"] != null)
-{
-    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
-}
 <p>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
         Tìm kiếm
@@ -47,7 +42,7 @@
             <div class="col-md-2">
                 <select id="sortOrder" name="sortOrder" class="form-control">
                     <option value="">-- Sắp xếp theo --</option>
-                    <option value="total_asc">Tổng số ↑</option>
+                    <option value="total_asc" >Tổng số ↑</option>
                     <option value="total_desc">Tổng số ↓</option>
                     <option value="ontime_asc">Đúng hạn ↑</option>
                     <option value="ontime_desc">Đúng hạn ↓</option>
@@ -92,9 +87,6 @@
         <div class="row">
             <div class="col-md-12" id="list-section">
                 <div class="table-responsive">
-
-
-
                     <table class="table table-bordered text-center table-hover" id="analysisTable">
                         <thead class="text-center">
                             <tr>
@@ -178,7 +170,6 @@
                     <canvas id="pieChartTasks"></canvas>
                 </div>
             </div>
-
         }
         else
         {
@@ -186,10 +177,9 @@
         }
     </div>
 </div>
-<div class="row ">
+<div class="row">
     @if (Model.Any())
     {
-
         <div class="row mt-4">
             <div class="col-md-12">
                 <h5>Tổng hợp</h5>
@@ -262,6 +252,7 @@
         <p>Không có dữ liệu để hiển thị biểu đồ.</p>
     }
 </div>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -499,6 +490,8 @@
                 var quarterYear = $("#quarterYear").val();
                 if (quarter && quarterYear) {
                     return `quý ${quarter}/${quarterYear}`;
+                } else if (quarter) {
+                    return `quý ${quarter} (tất cả các năm)`;
                 }
                 return "theo quý";
             } else if (timeType === "year") {
@@ -517,47 +510,49 @@
             const currentYear = new Date().getFullYear();
             const years = Array.from({ length: 10 }, (_, i) => currentYear - i); // Tạo danh sách 10 năm từ hiện tại trở xuống
 
-                    if (timeType === "total") {
-            inputHtml = "";
-        } else if (timeType === "dateRange") {
-            inputHtml = `
-            <div class="d-flex">
-                <input type="date" id="fromDate" name="fromDate" class="form-control  me-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />
-                <input type="date" id="toDate" name="toDate" class="form-control " value="@ViewBag.ToDate" placeholder="Đến ngày" />
-            </div>`;
-        } else if (timeType === "month") {
-            inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
-        } else if (timeType === "quarter") {
-            inputHtml = `
-            <div class="d-flex">
-                <select id="quarter" name="quarter" class="form-control me-2">
-                    <option value="">Chọn quý</option>
-                    <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
-                    <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
-                    <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
-                    <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
-                </select>
-                <select id="quarterYear" name="quarterYear" class="form-control">
-                    <option value="">Chọn năm</option>`;
-            years.forEach(year => {
-                inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
-            });
-            inputHtml += `</select>
-            </div>`;
-        } else if (timeType === "year") {
-            inputHtml = `<select id="year" name="year" class="form-control">
-                            <option value="">Chọn năm</option>`;
-            years.forEach(year => {
-                inputHtml += `<option value="${year}" ${year == "@ViewBag.Year" ? "selected" : ""}>${year}</option>`;
-            });
-            inputHtml += `</select>`;
-        }
+            if (timeType === "total") {
+                inputHtml = "";
+            } else if (timeType === "dateRange") {
+                inputHtml = `
+                    <div class="d-flex">
+                        <input type="date" id="fromDate" name="fromDate" class="form-control me-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />
+                        <input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" placeholder="Đến ngày" />
+                    </div>`;
+            } else if (timeType === "month") {
+                inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
+            } else if (timeType === "quarter") {
+                inputHtml = `
+                    <div class="d-flex">
+                        <select id="quarter" name="quarter" class="form-control me-2">
+                            <option value="">Chọn quý</option>
+                            <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
+                            <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
+                            <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
+                            <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
+                        </select>
+                        <select id="quarterYear" name="quarterYear" class="form-control">
+                            <option value="">Tất cả các năm</option>`;
+                years.forEach(year => {
+                    inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
+                });
+                inputHtml += `</select>
+                    </div>`;
+            } else if (timeType === "year") {
+                inputHtml = `
+                    <select id="year" name="year" class="form-control">
+                        <option value="">Chọn năm</option>`;
+                years.forEach(year => {
+                    inputHtml += `<option value="${year}" ${year == "@ViewBag.Year" ? "selected" : ""}>${year}</option>`;
+                });
+                inputHtml += `</select>`;
+            }
 
             $("#timeInputContainer").html(inputHtml);
             $("#timeInputContainer").find("input, select").on("input change", function() {
                 applyFilters();
             });
         }
+
         function formatDateToDDMMYYYY(dateStr) {
             if (!dateStr) return "";
             const date = new Date(dateStr);
@@ -566,6 +561,7 @@
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
         }
+
         function getVietnameseMonth(month) {
             const months = [
                 "tháng Một", "tháng Hai", "tháng Ba", "tháng Tư", "tháng Năm", "tháng Sáu",
@@ -573,6 +569,7 @@
             ];
             return months[parseInt(month) - 1] || "";
         }
+
         $(document).ready(function() {
             renderTableCells();
             reloadChartsAndSummary(document.documentElement.outerHTML);
@@ -584,6 +581,41 @@
                     updateTimeInput();
                 }
                 applyFilters();
+            });
+
+            $(document).on("click", ".ajax-action", function(e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                var params = getFilterParams();
+                if (params) {
+                    url += (url.includes("?") ? "&" : "?") + params;
+                }
+                if ($("#detail-section").hasClass("d-none")) {
+                    $("#list-section").removeClass("col-md-12").addClass("col-md-6");
+                    $("#detail-section").removeClass("d-none").addClass("col-md-6");
+                }
+                $(".actionCustomers").load(url, function(response, status, xhr) {
+                    if (status === "error") {
+                        alert("Lỗi khi tải dữ liệu: " + xhr.status + " " + xhr.statusText);
+                    }
+                });
+                const columnsToHide = [2, 3, 4, 5, 6];
+                $("#analysisTable").find("tr").each(function() {
+                    $(this).find("th, td").each(function(index) {
+                        if (columnsToHide.includes(index)) $(this).hide();
+                    });
+                });
+            });
+
+            $(document).on("click", "#resetButton", function(e) {
+                e.preventDefault();
+                $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
+                $("#searchForm").find("input[type=checkbox]").prop("checked", false);
+                $("#timeType").val('total');
+                updateTimeInput();
+                updateFilterDescription();
+                let url = "@Url.Action("AnalysesEmployees", "Employees", new { area = "ProjectManager" })";
+                loadTable(url);
             });
 
             $(document).on("click", ".page-link", function(e) {
@@ -603,27 +635,7 @@
                 window.location.href = url;
             });
         });
-                $(document).on("click", "#resetButton", function (e) {
-            e.preventDefault();
 
-            // Đặt lại giá trị của các input và select về mặc định
-            $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
-            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-
-            // Đặt lại timeType về "total"
-            $("#timeType").val('total');
-
-            // Cập nhật lại ô nhập thời gian tương ứng
-            updateTimeInput();
-
-            // Cập nhật lại mô tả bộ lọc (nếu có)
-            updateFilterDescription();
-
-            // Xóa các tham số trên URL và reload bảng dữ liệu
-            let url = "@Url.Action("AnalysesEmployees", "Employees", new { area = "ProjectManager" })";
-            loadTable(url);
-            loadJobs(url);
-        });
         function getFilterParams() {
             var params = [];
             var search = $("#search").val();
@@ -667,22 +679,13 @@
                     $("#analysisTable").html('<div class="text-center">Đang tải...</div>');
                 },
                 success: function(data) {
-                    // Update table
                     var newTable = $(data).find("#analysisTable").html();
                     $("#analysisTable").html(newTable);
                     renderTableCells();
-
-                    // Update pagination
                     var newPagination = $(data).find(".pagination").html();
                     $(".pagination").html(newPagination);
-
-                    // Update charts and summary table
                     reloadChartsAndSummary(data);
-
-                    // Update filter description
                     updateFilterDescription();
-
-                    // Show/hide export button and no-data message
                     var hasData = $(data).find("#analysisTable tbody tr").length > 1;
                     $("#exportExcel").toggle(hasData);
                     $("#noDataMessage").toggle(!hasData);
@@ -694,77 +697,78 @@
         }
 
         function updateFilterDescription() {
-             var search = $("#search").val();
-             var timeType = $("#timeType").val();
-             var sortOrder = $("#sortOrder").val();
-             var description = "";
+            var search = $("#search").val();
+            var timeType = $("#timeType").val();
+            var sortOrder = $("#sortOrder").val();
+            var description = "";
 
-             if (!search && timeType === "total" && !sortOrder) {
-                 description = "tổng hợp tất cả thời gian";
-             } else {
-                 var filterText = [];
-                 if (search) filterText.push(`nhân viên: ${search}`);
-                 if (timeType === "dateRange") {
-                     var fromDate = $("#fromDate").val();
-                     var toDate = $("#toDate").val();
-                     if (fromDate && toDate) {
-                         filterText.push(`từ ${formatDateToDDMMYYYY(fromDate)} đến ${formatDateToDDMMYYYY(toDate)}`);
-                     } else {
-                         filterText.push("theo khoảng thời gian");
-                     }
-                 } else if (timeType === "month") {
-                     var time = $("#time").val();
-                     if (time) {
-                         var parts = time.split("-");
-                         var year = parts[0];
-                         var month = parts[1];
-                         filterText.push(`${getVietnameseMonth(month)} ${year}`);
-                     } else {
-                         filterText.push(`${getVietnameseMonth(new Date().getMonth() + 1)} ${new Date().getFullYear()}`);
-                     }
-                 } else if (timeType === "quarter") {
-                     var quarter = $("#quarter").val();
-                     var quarterYear = $("#quarterYear").val();
-                     if (quarter && quarterYear) {
-                         filterText.push(`quý ${quarter}/${quarterYear}`);
-                     } else {
-                         filterText.push("theo quý");
-                     }
-                 } else if (timeType === "year") {
-                     var year = $("#year").val();
-                     if (year) {
-                         filterText.push(`năm ${year}`);
-                     } else {
-                         filterText.push("theo năm");
-                     }
-                 } else {
-                     filterText.push("tổng hợp tất cả thời gian");
-                 }
-                 if (sortOrder) {
-                     const sortOptions = {
-                         "total_asc": "tổng số tăng",
-                         "total_desc": "tổng số giảm",
-                         "ontime_asc": "đúng hạn tăng",
-                         "ontime_desc": "đúng hạn giảm",
-                         "late_asc": "trễ hạn tăng",
-                         "late_desc": "trễ hạn giảm",
-                         "overdue_asc": "quá hạn tăng",
-                         "overdue_desc": "quá hạn giảm",
-                         "processing_asc": "đang xử lý tăng",
-                         "processing_desc": "đang xử lý giảm"
-                     };
-                     filterText.push(`sắp xếp: ${sortOptions[sortOrder] || "mặc định"}`);
-                 }
-                 description = "theo " + filterText.join(" và ");
-             }
-             $("#filterDescription").text(description);
-         }
+            if (!search && timeType === "total" && !sortOrder) {
+                description = "tổng hợp tất cả thời gian";
+            } else {
+                var filterText = [];
+                if (search) filterText.push(`nhân viên: ${search}`);
+                if (timeType === "dateRange") {
+                    var fromDate = $("#fromDate").val();
+                    var toDate = $("#toDate").val();
+                    if (fromDate && toDate) {
+                        filterText.push(`từ ${formatDateToDDMMYYYY(fromDate)} đến ${formatDateToDDMMYYYY(toDate)}`);
+                    } else {
+                        filterText.push("theo khoảng thời gian");
+                    }
+                } else if (timeType === "month") {
+                    var time = $("#time").val();
+                    if (time) {
+                        var parts = time.split("-");
+                        var year = parts[0];
+                        var month = parts[1];
+                        filterText.push(`${getVietnameseMonth(month)} ${year}`);
+                    } else {
+                        filterText.push(`${getVietnameseMonth(new Date().getMonth() + 1)} ${new Date().getFullYear()}`);
+                    }
+                } else if (timeType === "quarter") {
+                    var quarter = $("#quarter").val();
+                    var quarterYear = $("#quarterYear").val();
+                    if (quarter && quarterYear) {
+                        filterText.push(`quý ${quarter}/${quarterYear}`);
+                    } else if (quarter) {
+                        filterText.push(`quý ${quarter} (tất cả các năm)`);
+                    } else {
+                        filterText.push("theo quý");
+                    }
+                } else if (timeType === "year") {
+                    var year = $("#year").val();
+                    if (year) {
+                        filterText.push(`năm ${year}`);
+                    } else {
+                        filterText.push("theo năm");
+                    }
+                } else {
+                    filterText.push("tổng hợp tất cả thời gian");
+                }
+                if (sortOrder) {
+                    const sortOptions = {
+                        "total_asc": "tổng số tăng",
+                        "total_desc": "tổng số giảm",
+                        "ontime_asc": "đúng hạn tăng",
+                        "ontime_desc": "đúng hạn giảm",
+                        "late_asc": "trễ hạn tăng",
+                        "late_desc": "trễ hạn giảm",
+                        "overdue_asc": "quá hạn tăng",
+                        "overdue_desc": "quá hạn giảm",
+                        "processing_asc": "đang xử lý tăng",
+                        "processing_desc": "đang xử lý giảm"
+                    };
+                    filterText.push(`sắp xếp: ${sortOptions[sortOrder] || "mặc định"}`);
+                }
+                description = "theo " + filterText.join(" và ");
+            }
+            $("#filterDescription").text(description);
+        }
     </script>
 
     <style>
         canvas {
             width: 95% !important;
-
             float: right;
         }
 

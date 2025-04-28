@@ -120,13 +120,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 );
             }
 
-            // Lọc theo năm
-            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear))
-            {
-                scoresQuery = scoresQuery.Where(s =>
-                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
-            }
-
             // Lọc theo quý
             if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
             {
@@ -137,12 +130,25 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.CreateDate.Value.Month >= startMonth &&
                     s.CreateDate.Value.Month <= endMonth);
 
-                // Thêm lọc theo năm của quý
+                // Nếu có chọn năm của quý, lọc thêm theo năm
                 if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
                 {
                     scoresQuery = scoresQuery.Where(s =>
                         s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
                 }
+            }
+            else if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
+            {
+                // Nếu chỉ chọn năm của quý mà không chọn quý, hiển thị toàn bộ dữ liệu của năm đó
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
+            }
+
+            // Lọc theo năm (nếu không phải là năm của quý)
+            if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear) && string.IsNullOrEmpty(quarterYear))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
             }
 
             // Lọc theo tháng
