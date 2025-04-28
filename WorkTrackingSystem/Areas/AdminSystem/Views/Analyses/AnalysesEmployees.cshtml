@@ -10,7 +10,7 @@
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row ">
+        <div class="row">
             <div class="col-sm-6">
                 <h5 class="m-0">@ViewData["Title"]</h5>
             </div>
@@ -23,18 +23,7 @@
         </div>
     </div>
 </div>
-@* @if (TempData["NoDataMessage"] == null)
-{
-    <div class="alert alert-warning">@TempData["NoDataMessage"]</div>
-} *@
-@* <p>
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-        Tìm kiếm
-    </button>
-    <a id="exportExcel" class="btn btn-success" title="Xuất dữ liệu ra file Excel" style="display: @(Model.Any() ? "inline-block" : "none");">
-        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
-    </a>
-</p> *@
+
 <p>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
         Tìm kiếm
@@ -47,13 +36,13 @@
     }
 </p>
 <p id="noDataMessage" style="display: @(Model.Any() ? "none" : "block");">Không có dữ liệu để xuất Excel.</p>
-<div class="collapse" id="collapseExample">
+<div class="collapse show" id="collapseExample">
     <div class="card card-body">
         <div class="row" id="searchForm">
             <div class="col-md-3">
                 <input type="text" id="search" name="search" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.Search" />
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="sortOrder" name="sortOrder" class="form-control">
                     <option value="">-- Sắp xếp theo --</option>
                     <option value="total_asc">Tổng số ↑</option>
@@ -77,10 +66,10 @@
                     <option value="year">Năm</option>
                 </select>
             </div>
-            <div class="col-md-3" id="timeInputContainer">
+            <div class="col-md-4" id="timeInputContainer">
                 <!-- Placeholder for dynamic time inputs -->
             </div>
-            <div class="col-md-1 d-flex justify-content-end">
+            <div class="col-md-1 d-flex justify-content-end ms-auto">
                 <a href="#" id="resetButton" class="btn btn-secondary me-2">
                     <i class="bi bi-arrow-repeat"></i>
                 </a>
@@ -96,8 +85,6 @@
         <div class="row">
             <div class="col-md-12" id="list-section">
                 <div class="table-responsive">
-
-
                     <div>
                         <h3 class="text-center">
                             Bảng tổng hợp phân tích
@@ -182,7 +169,6 @@
                     <canvas id="pieChartTasks"></canvas>
                 </div>
             </div>
-
         }
         else
         {
@@ -190,10 +176,9 @@
         }
     </div>
 </div>
-<div class="row ">
+<div class="row">
     @if (Model.Any())
     {
-
         <div class="row mt-4">
             <div class="col-md-12">
                 <h5>Tổng hợp</h5>
@@ -272,6 +257,9 @@
 
 @section Scripts {
     <script>
+        // Define years array for quarterYear and year dropdowns
+        const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+
         let pieChartTasks = null;
         let histogramTasks = null;
 
@@ -374,7 +362,7 @@
             if (pieChartTasks) pieChartTasks.destroy();
             if (histogramTasks) histogramTasks.destroy();
 
-            if (newLabels.length > 1) { // Ensure there are employees to display
+            if (newLabels.length > 1) {
                 const employeeTotalSum = newTotalTasks.slice(1).reduce((a, b) => a + b, 0);
 
                 pieChartTasks = new Chart(document.getElementById('pieChartTasks'), {
@@ -477,25 +465,17 @@
                 });
             }
         }
-        //nút reset
-        $(document).on("click", "#resetButton", function (e) {
+
+        $(document).on("click", "#resetButton", function(e) {
             e.preventDefault();
-            // Reset tất cả các giá trị trong form về mặc định
             $("#searchForm").find("input[type=text], input[type=month], select").val('');
             $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-            $("#timeType").val('@(ViewBag.TimeType ?? "")');
-            $("#time").val('@(ViewBag.Time ?? "")');
-            $("#quarter").val('@(ViewBag.Quarter ?? "")');
-            $("#year").val('@(ViewBag.Year ?? "")');
-            $("#fromDate").val('@(ViewBag.FromDate ?? "")');
-            $("#toDate").val('@(ViewBag.ToDate ?? "")');
-            // Xóa các tham số trên URL
+            $("#timeType").val('total');
+            updateTimeInput();
             let url = "@Url.Action("AnalysesEmployees", "Analyses", new { area = "AdminSystem" })";
             loadTable(url);
-            url.search = ''; // Xóa toàn bộ query params
-            // Gửi AJAX để tải lại danh sách công việc
-            loadJobs(url.toString());
         });
+
         function getFilterPeriodText() {
             var timeType = $("#timeType").val();
             if (timeType === "total") {
@@ -519,6 +499,10 @@
                 var quarterYear = $("#quarterYear").val();
                 if (quarter && quarterYear) {
                     return `quý ${quarter}/${quarterYear}`;
+                } else if (quarter) {
+                    return `quý ${quarter} tất cả năm`;
+                } else if (quarterYear) {
+                    return `năm ${quarterYear}`;
                 }
                 return "theo quý";
             } else if (timeType === "year") {
@@ -531,28 +515,48 @@
             return "";
         }
 
-        function updateTimeInput() {
+         function updateTimeInput() {
             var timeType = $("#timeType").val();
             var inputHtml = "";
-            if (timeType === "total") {
-                inputHtml = "";
-            } else if (timeType === "dateRange") {
-                inputHtml = `<input type="date" id="fromDate" name="fromDate" class="form-control mb-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />` +
-                            `<input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" placeholder="Đến ngày" />`;
-            } else if (timeType === "month") {
-                inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
-            } else if (timeType === "quarter") {
-                inputHtml = `<select id="quarter" name="quarter" class="form-control mb-2">
-                                <option value="">Chọn quý</option>
-                                <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
-                                <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
-                                <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
-                                <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
-                             </select>` +
-                            `<input type="number" id="quarterYear" name="quarterYear" class="form-control" value="@ViewBag.QuarterYear" placeholder="Năm" min="2000" max="2100" />`;
-            } else if (timeType === "year") {
-                inputHtml = `<input type="number" id="year" name="year" class="form-control" value="@ViewBag.Year" placeholder="Năm" min="2000" max="2100" />`;
-            }
+            const currentYear = new Date().getFullYear();
+            const years = Array.from({ length: 10 }, (_, i) => currentYear - i); // Tạo danh sách 10 năm từ hiện tại trở xuống
+
+                    if (timeType === "total") {
+            inputHtml = "";
+        } else if (timeType === "dateRange") {
+            inputHtml = `
+            <div class="d-flex">
+                <input type="date" id="fromDate" name="fromDate" class="form-control  me-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />
+                <input type="date" id="toDate" name="toDate" class="form-control " value="@ViewBag.ToDate" placeholder="Đến ngày" />
+            </div>`;
+        } else if (timeType === "month") {
+            inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
+        } else if (timeType === "quarter") {
+            inputHtml = `
+            <div class="d-flex">
+                <select id="quarter" name="quarter" class="form-control me-2">
+                    <option value="">Chọn quý</option>
+                    <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
+                    <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
+                    <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
+                    <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
+                </select>
+                <select id="quarterYear" name="quarterYear" class="form-control">
+                    <option value="">Chọn năm</option>`;
+            years.forEach(year => {
+                inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
+            });
+            inputHtml += `</select>
+            </div>`;
+        } else if (timeType === "year") {
+            inputHtml = `<select id="year" name="year" class="form-control">
+                            <option value="">Chọn năm</option>`;
+            years.forEach(year => {
+                inputHtml += `<option value="${year}" ${year == "@ViewBag.Year" ? "selected" : ""}>${year}</option>`;
+            });
+            inputHtml += `</select>`;
+        }
+
             $("#timeInputContainer").html(inputHtml);
             $("#timeInputContainer").find("input, select").on("input change", function() {
                 applyFilters();
@@ -569,6 +573,10 @@
                 if ($(this).attr("id") === "timeType") {
                     updateTimeInput();
                 }
+                applyFilters();
+            });
+
+            $("#timeInputContainer").on("input change", "input, select", function() {
                 applyFilters();
             });
 
@@ -590,7 +598,7 @@
             });
         });
 
-        function getFilterParams() {
+                function getFilterParams() {
             var params = [];
             var search = $("#search").val();
             var departmentId = $("#departmentId").val();
@@ -624,10 +632,11 @@
 
         function applyFilters() {
             var url = "@Url.Action("AnalysesEmployees")" + "?" + getFilterParams();
+            console.log("Applying filters with URL:", url);
             loadTable(url);
         }
 
-        function loadTable(url) {
+                function loadTable(url) {
             $.ajax({
                 url: url,
                 method: "GET",
@@ -635,28 +644,34 @@
                     $("#analysisTable").html('<div class="text-center">Đang tải...</div>');
                 },
                 success: function(data) {
-                    // Update table
+                    console.log("Data received:", $(data).find("#analysisTable").html());
+                    var hasData = $(data).find("#analysisTable tbody tr").length > 1;
+                    if (!hasData) {
+                        $("#analysisTable").html('<div class="text-center">Không có dữ liệu cho bộ lọc đã chọn.</div>');
+                        $("#exportExcel").hide();
+                        $("#noDataMessage").show();
+                        if (pieChartTasks) pieChartTasks.destroy();
+                        if (histogramTasks) histogramTasks.destroy();
+                        $("#summaryTable").html('');
+                        return;
+                    }
+
                     var newTable = $(data).find("#analysisTable").html();
                     $("#analysisTable").html(newTable);
                     renderTableCells();
 
-                    // Update pagination
                     var newPagination = $(data).find(".pagination").html();
                     $(".pagination").html(newPagination);
 
-                    // Update charts and summary table
                     reloadChartsAndSummary(data);
-
-                    // Update filter description
                     updateFilterDescription();
 
-                    // Show/hide export button and no-data message
-                    var hasData = $(data).find("#analysisTable tbody tr").length > 1;
                     $("#exportExcel").toggle(hasData);
                     $("#noDataMessage").toggle(!hasData);
                 },
                 error: function(xhr, status, error) {
                     console.error("Lỗi tải dữ liệu:", status, error);
+                    $("#analysisTable").html('<div class="text-center">Đã xảy ra lỗi khi tải dữ liệu.</div>');
                 }
             });
         }
@@ -700,6 +715,10 @@
                     var quarterYear = $("#quarterYear").val();
                     if (quarter && quarterYear) {
                         filterText.push(`quý ${quarter}/${quarterYear}`);
+                    } else if (quarter) {
+                        filterText.push(`quý ${quarter} tất cả năm`);
+                    } else if (quarterYear) {
+                        filterText.push(`năm ${quarterYear}`);
                     } else {
                         filterText.push("theo quý");
                     }

@@ -163,7 +163,19 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.SortOrder = sortOrder;
             return View(finalAnalyses.ToPagedList(page, limit));
         }
-        public async Task<IActionResult> AnalysesEmployees(string search, int? positionId, string departmentId, string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? quarterYear, int? year, string sortOrder, int page = 1)
+        public async Task<IActionResult> AnalysesEmployees(
+    string search,
+    int? positionId,
+    string departmentId,
+    string timeType,
+    DateTime? fromDate,
+    DateTime? toDate,
+    string time,
+    int? quarter,
+    int? quarterYear,
+    int? year,
+    string sortOrder,
+    int page = 1)
         {
             var limit = 10;
 
@@ -183,10 +195,34 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 fromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
                 toDate = fromDate.Value.AddMonths(1).AddDays(-1);
             }
-            else if (timeType == "quarter" && quarter.HasValue && quarterYear.HasValue)
+            else if (timeType == "quarter")
             {
-                fromDate = new DateTime(quarterYear.Value, (quarter.Value - 1) * 3 + 1, 1);
-                toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                if (quarter.HasValue && quarterYear.HasValue)
+                {
+                    // Both quarter and year
+                    fromDate = new DateTime(quarterYear.Value, (quarter.Value - 1) * 3 + 1, 1);
+                    toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                }
+                else if (quarter.HasValue)
+                {
+                    // Only quarter: rely on stored procedure to filter by month
+                    fromDate = null;
+                    toDate = null;
+                }
+                else if (quarterYear.HasValue)
+                {
+                    // Only year
+                    fromDate = new DateTime(quarterYear.Value, 1, 1);
+                    toDate = new DateTime(quarterYear.Value, 12, 31);
+                }
+                else
+                {
+                    // No quarter or year: treat as total
+                    fromDate = null;
+                    toDate = null;
+                    quarter = null;
+                    quarterYear = null;
+                }
             }
             else if (timeType == "year" && year.HasValue)
             {
@@ -235,12 +271,10 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             new SqlParameter("@MonthYear", (object)monthYear ?? DBNull.Value),
             new SqlParameter("@Year", (object)year ?? DBNull.Value)
         };
-
-                var deptScores = await _context.Set<EmployeeScoreSummary>()
-                    .FromSqlRaw("EXEC sp_GetEmployeeScoreSummary @DepartmentId, @FromDate, @ToDate, @Quarter, @QuarterYear, @Month, @MonthYear, @Year", parameters.ToArray())
-                    .ToListAsync();
-
-                employeeScores.AddRange(deptScores);
+                    var deptScores = await _context.Set<EmployeeScoreSummary>()
+                        .FromSqlRaw("EXEC sp_GetEmployeeScoreSummary @DepartmentId, @FromDate, @ToDate, @Quarter, @QuarterYear, @Month, @MonthYear, @Year", parameters.ToArray())
+                        .ToListAsync();
+                    employeeScores.AddRange(deptScores);
             }
 
             // Filter by search term
@@ -308,9 +342,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
             ViewBag.Time = time;
-            ViewBag.Quarter = quarter;
-            ViewBag.QuarterYear = quarterYear;
-            ViewBag.Year = year;
+            ViewBag.Quarter = quarter?.ToString();
+            ViewBag.QuarterYear = quarterYear?.ToString();
+            ViewBag.Year = year?.ToString();
             ViewBag.SortOrder = sortOrder;
             ViewBag.TotalSum = totalSum;
             ViewBag.OntimeSum = ontimeSum;
