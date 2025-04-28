@@ -112,7 +112,7 @@
     <div class="col-md-8">
         <div class="row">
             <div class="col-md-12" id="list-section">
-                <h2 class="text-center text-uppercase" id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "Toàn bộ")</h2>
+                <h2 class="text-center " id="pageTitle">Danh sách đánh giá @(ViewBag.TimeType == "month" && ViewBag.Time != null ? "Tháng " + DateTime.Parse(ViewBag.Time + "-01").ToString("MM/yyyy") : ViewBag.TimeType == "quarter" && ViewBag.Quarter != null && ViewBag.Year != null ? "Quý " + ViewBag.Quarter + "/" + ViewBag.Year : ViewBag.TimeType == "year" && ViewBag.Year != null ? "Năm " + ViewBag.Year : ViewBag.TimeType == "dateRange" && ViewBag.FromDate != null && ViewBag.ToDate != null ? "Từ " + DateTime.Parse(ViewBag.FromDate).ToString("dd/MM/yyyy") + " Đến " + DateTime.Parse(ViewBag.ToDate).ToString("dd/MM/yyyy") : "Toàn bộ")</h2>
 
                 <div class="table-responsive">
                     <table class="table table-bordered text-left table-hover" id="assessmentTable">

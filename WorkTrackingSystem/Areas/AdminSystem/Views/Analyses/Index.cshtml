@@ -158,7 +158,7 @@
         </div>
     </div>
 </div>
-<h2 class="text-center text-uppercase">
+<h2 class="text-center ">
     Bảng tổng hợp phân tích
     <span id="filterDescription"></span>
 </h2>
@@ -343,6 +343,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 @section Scripts {
+ 
     <script>
         let pieChartTasks = null;
         let histogramTasks = null;
@@ -366,197 +367,220 @@
                 const $row = $(this);
                 const total = parseInt($row.find("td:eq(2)").data("total")) || 0;
 
-                // Total column
                 $row.find("td:eq(2)").text(total);
-
-                // Ontime column
                 const ontime = parseInt($row.find("td:eq(3)").data("ontime")) || 0;
                 $row.find("td:eq(3)").text(formatCell(ontime, total));
-
-                // Late column
                 const late = parseInt($row.find("td:eq(4)").data("late")) || 0;
                 $row.find("td:eq(4)").text(formatCell(late, total));
-
-                // Overdue column
                 const overdue = parseInt($row.find("td:eq(5)").data("overdue")) || 0;
                 $row.find("td:eq(5)").text(formatCell(overdue, total));
-
-                // Processing column
                 const processing = parseInt($row.find("td:eq(6)").data("processing")) || 0;
                 $row.find("td:eq(6)").text(formatCell(processing, total));
             });
         }
 
-        function reloadChartsAndSummary(data) {
-            const newLabels = [];
-            const newTotalTasks = [];
-            const newOntimeTasks = [];
-            const newLateTasks = [];
-            const newOverdueTasks = [];
-            const newProcessingTasks = [];
+        function reloadChartsAndSummary() {
+            var searchText = $("#searchText").val();
+            var time = $("#time").val();
+            var sortOrder = $("#sortOrder").val();
+            var baseUrl = "@Url.Action("Index", "Analyses", new { area = "AdminSystem" })";
+            // Lấy tổng số trang từ phân trang
+            var totalPages = 1;
+            var lastPageLink = $(".pagination").find(".page-link").last().text().trim();
+            if (lastPageLink && !isNaN(parseInt(lastPageLink))) {
+                totalPages = parseInt(lastPageLink);
+            }
+            var allData = [];
 
-            const $data = $(data);
-            const departmentName = "@ViewBag.DepartmentName";
-            newLabels.push(departmentName);
+            function fetchPage(page) {
+                var url = baseUrl + "?searchText=" + encodeURIComponent(searchText) +
+                    "&time=" + encodeURIComponent(time) +
+                    "&sortOrder=" + encodeURIComponent(sortOrder) +
+                    "&page=" + page;
 
-            let totalSum = 0, ontimeSum = 0, lateSum = 0, overdueSum = 0, processingSum = 0;
-            $data.find("#analysisTable tbody tr").each(function (index) {
-                if (index === 0) {
-                    totalSum = parseInt($(this).find("td:eq(2)").data("total")) || 0;
-                    ontimeSum = parseInt($(this).find("td:eq(3)").data("ontime")) || 0;
-                    lateSum = parseInt($(this).find("td:eq(4)").data("late")) || 0;
-                    overdueSum = parseInt($(this).find("td:eq(5)").data("overdue")) || 0;
-                    processingSum = parseInt($(this).find("td:eq(6)").data("processing")) || 0;
-                } else {
-                    const employeeName = $(this).find("td:eq(1)").text().trim();
-                    newLabels.push(employeeName);
-                    newTotalTasks.push(parseInt($(this).find("td:eq(2)").data("total")) || 0);
-                    newOntimeTasks.push(parseInt($(this).find("td:eq(3)").data("ontime")) || 0);
-                    newLateTasks.push(parseInt($(this).find("td:eq(4)").data("late")) || 0);
-                    newOverdueTasks.push(parseInt($(this).find("td:eq(5)").data("overdue")) || 0);
-                    newProcessingTasks.push(parseInt($(this).find("td:eq(6)").data("processing")) || 0);
+                return $.ajax({
+                    url: url,
+                    method: "GET",
+                    success: function (data) {
+                        var $data = $(data);
+                        $data.find("#analysisTable tbody tr").each(function (index) {
+                            if (index > 0) { // Bỏ qua hàng tổng hợp
+                                var employeeName = $(this).find("td:eq(1)").text().trim();
+                                var total = parseInt($(this).find("td:eq(2)").data("total")) || 0;
+                                var ontime = parseInt($(this).find("td:eq(3)").data("ontime")) || 0;
+                                var late = parseInt($(this).find("td:eq(4)").data("late")) || 0;
+                                var overdue = parseInt($(this).find("td:eq(5)").data("overdue")) || 0;
+                                var processing = parseInt($(this).find("td:eq(6)").data("processing")) || 0;
+                                // Tránh trùng lặp
+                                if (!allData.some(d => d.employeeName === employeeName)) {
+                                    allData.push({ employeeName, total, ontime, late, overdue, processing });
+                                }
+                            }
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(`Lỗi khi tải trang ${page}: ${status} - ${error}`);
+                    }
+                });
+            }
+
+            var promises = [];
+            for (var page = 1; page <= totalPages; page++) {
+                promises.push(fetchPage(page));
+            }
+
+            $.when.apply($, promises).done(function () {
+                const departmentName = "@ViewBag.DepartmentName";
+                const newLabels = [departmentName];
+                const newTotalTasks = [allData.reduce((sum, item) => sum + item.total, 0)];
+                const newOntimeTasks = [allData.reduce((sum, item) => sum + item.ontime, 0)];
+                const newLateTasks = [allData.reduce((sum, item) => sum + item.late, 0)];
+                const newOverdueTasks = [allData.reduce((sum, item) => sum + item.overdue, 0)];
+                const newProcessingTasks = [allData.reduce((sum, item) => sum + item.processing, 0)];
+
+                allData.forEach(item => {
+                    newLabels.push(item.employeeName);
+                    newTotalTasks.push(item.total);
+                    newOntimeTasks.push(item.ontime);
+                    newLateTasks.push(item.late);
+                    newOverdueTasks.push(item.overdue);
+                    newProcessingTasks.push(item.processing);
+                });
+
+                let summaryHtml = '<thead><tr><th class="first-col"></th><th class="data-col">' + departmentName + '</th>';
+                for (let i = 1; i < newLabels.length; i++) {
+                    summaryHtml += '<th class="data-col">' + newLabels[i] + '</th>';
+                }
+                summaryHtml += '</tr></thead><tbody>';
+                summaryHtml += '<tr><td class="first-col">Tổng</td><td class="data-col">' + newTotalTasks[0] + '</td>';
+                for (let i = 1; i < newTotalTasks.length; i++) {
+                    summaryHtml += '<td class="data-col">' + newTotalTasks[i] + '</td>';
+                }
+                summaryHtml += '</tr><tr><td class="first-col">Đúng hạn</td><td class="data-col">' + newOntimeTasks[0] + '</td>';
+                for (let i = 1; i < newOntimeTasks.length; i++) {
+                    summaryHtml += '<td class="data-col">' + newOntimeTasks[i] + '</td>';
+                }
+                summaryHtml += '</tr><tr><td class="first-col">Trễ hạn</td><td class="data-col">' + newLateTasks[0] + '</td>';
+                for (let i = 1; i < newLateTasks.length; i++) {
+                    summaryHtml += '<td class="data-col">' + newLateTasks[i] + '</td>';
+                }
+                summaryHtml += '</tr><tr><td class="first-col">Quá hạn</td><td class="data-col">' + newOverdueTasks[0] + '</td>';
+                for (let i = 1; i < newOverdueTasks.length; i++) {
+                    summaryHtml += '<td class="data-col">' + newOverdueTasks[i] + '</td>';
+                }
+                summaryHtml += '</tr><tr><td class="first-col">Đang xử lý</td><td class="data-col">' + newProcessingTasks[0] + '</td>';
+                for (let i = 1; i < newProcessingTasks.length; i++) {
+                    summaryHtml += '<td class="data-col">' + newProcessingTasks[i] + '</td>';
+                }
+                summaryHtml += '</tbody>';
+                $("#summaryTable").html(summaryHtml);
+
+                if (pieChartTasks) pieChartTasks.destroy();
+                if (histogramTasks) histogramTasks.destroy();
+
+                if (newLabels.length > 0) {
+                    const employeeTotalSum = newTotalTasks.slice(1).reduce((a, b) => a + b, 0);
+
+                    pieChartTasks = new Chart(document.getElementById('pieChartTasks'), {
+                        type: 'pie',
+                        data: {
+                            labels: newLabels.slice(1).map(label => decodeHtmlEntities(label)),
+                            datasets: [{
+                                data: newTotalTasks.slice(1),
+                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'right' },
+                                title: { display: true, text: 'Theo số lượng công việc' },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            let value = context.raw;
+                                            let percentage = ((value / employeeTotalSum) * 100).toFixed(1);
+                                            return `${context.label}: ${percentage}% (${value} công việc)`;
+                                        }
+                                    }
+                                }
+                            },
+                            animation: {
+                                onComplete: function () {
+                                    const chart = this;
+                                    const ctx = chart.ctx;
+                                    ctx.font = 'bold 12px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'middle';
+                                    const dataset = chart.data.datasets[0].data;
+                                    const meta = chart.getDatasetMeta(0);
+                                    const total = dataset.reduce((a, b) => a + b, 0);
+                                    meta.data.forEach((element, index) => {
+                                        const value = dataset[index];
+                                        const percentage = ((value / total) * 100).toFixed(1) + '%';
+                                        const pos = element.tooltipPosition();
+                                        ctx.fillStyle = '#000';
+                                        ctx.fillText(percentage, pos.x, pos.y);
+                                    });
+                                }
+                            }
+                        }
+                    });
+
+                    histogramTasks = new Chart(document.getElementById('histogramTasks'), {
+                        type: 'bar',
+                        data: {
+                            labels: Array(newLabels.length).fill(""),
+                            datasets: [
+                                { label: 'Tổng', data: newTotalTasks, backgroundColor: '#36A2EB' },
+                                { label: 'Đúng hạn', data: newOntimeTasks, backgroundColor: '#4BC0C0' },
+                                { label: 'Trễ hạn', data: newLateTasks, backgroundColor: '#FFCE56' },
+                                { label: 'Quá hạn', data: newOverdueTasks, backgroundColor: '#FF6384' },
+                                { label: 'Đang xử lý', data: newProcessingTasks, backgroundColor: '#9966FF' }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: { stacked: false, ticks: { display: false } },
+                                y: { beginAtZero: true }
+                            },
+                            plugins: {
+                                legend: { position: 'top' },
+                                title: {
+                                    display: true,
+                                    text: 'Tổng hợp tháng ' + getFilterPeriodText()
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return `${context.dataset.label}: ${context.raw}`;
+                                        }
+                                    }
+                                }
+                            },
+                            animation: {
+                                onComplete: function () {
+                                    const chart = this;
+                                    const ctx = chart.ctx;
+                                    ctx.font = 'bold 12px Arial';
+                                    ctx.textAlign = 'center';
+                                    ctx.fillStyle = '#000';
+                                    chart.data.datasets.forEach((dataset, i) => {
+                                        const meta = chart.getDatasetMeta(i);
+                                        meta.data.forEach((bar, index) => {
+                                            const value = dataset.data[index];
+                                            if (value > 0) {
+                                                ctx.fillText(value, bar.x, bar.y - 5);
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                    });
                 }
             });
-
-            newTotalTasks.unshift(totalSum);
-            newOntimeTasks.unshift(ontimeSum);
-            newLateTasks.unshift(lateSum);
-            newOverdueTasks.unshift(overdueSum);
-            newProcessingTasks.unshift(processingSum);
-
-            let summaryHtml = '<thead><tr><th class="first-col"></th><th class="data-col">' + departmentName + '</th>';
-            for (let i = 1; i < newLabels.length; i++) {
-                summaryHtml += '<th class="data-col">' + newLabels[i] + '</th>';
-            }
-            summaryHtml += '</tr></thead><tbody>';
-            summaryHtml += '<tr><td class="first-col">Tổng</td><td class="data-col">' + totalSum + '</td>';
-            for (let i = 0; i < newTotalTasks.length - 1; i++) {
-                summaryHtml += '<td class="data-col">' + newTotalTasks[i + 1] + '</td>';
-            }
-            summaryHtml += '</tr><tr><td class="first-col">Đúng hạn</td><td class="data-col">' + ontimeSum + '</td>';
-            for (let i = 0; i < newOntimeTasks.length - 1; i++) {
-                summaryHtml += '<td class="data-col">' + newOntimeTasks[i + 1] + '</td>';
-            }
-            summaryHtml += '</tr><tr><td class="first-col">Trễ hạn</td><td class="data-col">' + lateSum + '</td>';
-            for (let i = 0; i < newLateTasks.length - 1; i++) {
-                summaryHtml += '<td class="data-col">' + newLateTasks[i + 1] + '</td>';
-            }
-            summaryHtml += '</tr><tr><td class="first-col">Quá hạn</td><td class="data-col">' + overdueSum + '</td>';
-            for (let i = 0; i < newOverdueTasks.length - 1; i++) {
-                summaryHtml += '<td class="data-col">' + newOverdueTasks[i + 1] + '</td>';
-            }
-            summaryHtml += '</tr><tr><td class="first-col">Đang xử lý</td><td class="data-col">' + processingSum + '</td>';
-            for (let i = 0; i < newProcessingTasks.length - 1; i++) {
-                summaryHtml += '<td class="data-col">' + newProcessingTasks[i + 1] + '</td>';
-            }
-            summaryHtml += '</tr></tbody>';
-            $("#summaryTable").html(summaryHtml);
-
-            if (pieChartTasks) pieChartTasks.destroy();
-            if (histogramTasks) histogramTasks.destroy();
-
-            if (newLabels.length > 0) {
-                const employeeTotalSum = newTotalTasks.slice(1).reduce((a, b) => a + b, 0);
-
-                pieChartTasks = new Chart(document.getElementById('pieChartTasks'), {
-                    type: 'pie',
-                    data: {
-                        labels: newLabels.slice(1).map(label => decodeHtmlEntities(label)),
-                        datasets: [{
-                            data: newTotalTasks.slice(1),
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#C9CBCF', '#8B4513']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'right' },
-                            title: { display: true, text: 'Theo số lượng công việc' },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        let value = context.raw;
-                                        let percentage = ((value / employeeTotalSum) * 100).toFixed(1);
-                                        return `${context.label}: ${percentage}% (${value} công việc)`;
-                                    }
-                                }
-                            }
-                        },
-                        animation: {
-                            onComplete: function () {
-                                const chart = this;
-                                const ctx = chart.ctx;
-                                ctx.font = 'bold 12px Arial';
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'middle';
-                                const dataset = chart.data.datasets[0].data;
-                                const meta = chart.getDatasetMeta(0);
-                                const total = dataset.reduce((a, b) => a + b, 0);
-                                meta.data.forEach((element, index) => {
-                                    const value = dataset[index];
-                                    const percentage = ((value / total) * 100).toFixed(1) + '%';
-                                    const pos = element.tooltipPosition();
-                                    ctx.fillStyle = '#000';
-                                    ctx.fillText(percentage, pos.x, pos.y);
-                                });
-                            }
-                        }
-                    }
-                });
-
-                histogramTasks = new Chart(document.getElementById('histogramTasks'), {
-                    type: 'bar',
-                    data: {
-                        labels: Array(newLabels.length).fill(""),
-                        datasets: [
-                            { label: 'Tổng', data: newTotalTasks, backgroundColor: '#36A2EB' },
-                            { label: 'Đúng hạn', data: newOntimeTasks, backgroundColor: '#4BC0C0' },
-                            { label: 'Trễ hạn', data: newLateTasks, backgroundColor: '#FFCE56' },
-                            { label: 'Quá hạn', data: newOverdueTasks, backgroundColor: '#FF6384' },
-                            { label: 'Đang xử lý', data: newProcessingTasks, backgroundColor: '#9966FF' }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: { stacked: false, ticks: { display: false } },
-                            y: { beginAtZero: true }
-                        },
-                        plugins: {
-                            legend: { position: 'top' },
-                            title: {
-                                display: true,
-                                text: 'Tổng hợp tháng ' + getFilterPeriodText()
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        return `${context.dataset.label}: ${context.raw}`;
-                                    }
-                                }
-                            }
-                        },
-                        animation: {
-                            onComplete: function () {
-                                const chart = this;
-                                const ctx = chart.ctx;
-                                ctx.font = 'bold 12px Arial';
-                                ctx.textAlign = 'center';
-                                ctx.fillStyle = '#000';
-                                chart.data.datasets.forEach((dataset, i) => {
-                                    const meta = chart.getDatasetMeta(i);
-                                    meta.data.forEach((bar, index) => {
-                                        const value = dataset.data[index];
-                                        if (value > 0) {
-                                            ctx.fillText(value, bar.x, bar.y - 5);
-                                        }
-                                    });
-                                });
-                            }
-                        }
-                    }
-                });
-            }
         }
 
         function getFilterPeriodText() {
@@ -569,8 +593,9 @@
         }
 
         $(document).ready(function () {
+            // Khởi tạo bảng và biểu đồ
             renderTableCells();
-            reloadChartsAndSummary(document.documentElement.outerHTML);
+            reloadChartsAndSummary();
             updateFilterDescription();
 
             $(document).on("click", ".ajax-action", function (e) {
@@ -622,26 +647,23 @@
                     "&sortOrder=" + encodeURIComponent(sortOrder);
                 window.location.href = url;
             });
+
+            $(document).on("click", "#resetButton", function (e) {
+                e.preventDefault();
+                $("#searchText").val('');
+                $("#time").val('');
+                $("#sortOrder").val('');
+                var url = "@Url.Action("Index", "Analyses", new { area = "AdminSystem" })";
+                loadTable(url);
+            });
         });
-         //nút reset
-        $(document).on("click", "#resetButton", function (e) {
-            e.preventDefault();
-            // Reset tất cả các giá trị trong form về mặc định
-            $("#searchForm").find("input[type=text], input[type=month], input[type=date], select").val('');
-            $("#searchForm").find("input[type=checkbox]").prop("checked", false);
-            $("#time").val('@(ViewBag.Time ?? "")');
-            // Xóa các tham số trên URL
-            let url = "@Url.Action("Index", "Analyses", new { area = "AdminSystem" })";
-            loadTable(url);
-            url.search = ''; // Xóa toàn bộ query params
-            // Gửi AJAX để tải lại danh sách công việc
-            loadJobs(url.toString());
-        });
+
         function applyFilters() {
             var searchText = $("#searchText").val();
             var time = $("#time").val();
             var sortOrder = $("#sortOrder").val();
-            var url = "@Url.Action("Index")" + "?searchText=" + encodeURIComponent(searchText) +
+            var url = "@Url.Action("Index", "Analyses", new { area = "AdminSystem" })" +
+                "?searchText=" + encodeURIComponent(searchText) +
                 "&time=" + encodeURIComponent(time) +
                 "&sortOrder=" + encodeURIComponent(sortOrder);
             loadTable(url);
@@ -655,22 +677,24 @@
                     $("#analysisTable").html('<div class="text-center">Đang tải...</div>');
                 },
                 success: function (data) {
-                    var newTable = $(data).find("#analysisTable").html();
+                    var $data = $(data);
+                    var newTable = $data.find("#analysisTable").html();
                     $("#analysisTable").html(newTable);
                     renderTableCells();
-                    var newPagination = $(data).find(".pagination").html();
+                    var newPagination = $data.find(".pagination").html() || '';
                     $(".pagination").html(newPagination);
-                    var newSortOrder = $(data).find("#sortOrder").val() || "";
+                    var newSortOrder = $data.find("#sortOrder").val() || "";
                     $("#sortOrder").val(newSortOrder);
-                    reloadChartsAndSummary(data);
                     updateFilterDescription();
+                    reloadChartsAndSummary(); // Cập nhật biểu đồ sau khi tải bảng
 
-                    var hasData = $(data).find("#analysisTable tbody tr").length > 1;
+                    var hasData = $data.find("#analysisTable tbody tr").length > 1;
                     $("#exportExcel").toggle(hasData);
                     $("#noDataMessage").toggle(!hasData);
                 },
                 error: function (xhr, status, error) {
                     console.error("Lỗi tải dữ liệu:", status, error);
+                    $("#analysisTable").html('<div class="text-center text-danger">Lỗi khi tải dữ liệu. Vui lòng thử lại.</div>');
                 }
             });
         }
@@ -680,6 +704,8 @@
             var time = $("#time").val();
             var sortOrder = $("#sortOrder").val();
             var description = "";
+
+
             if (!searchText && !time && !sortOrder) {
                 description = `tháng ${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
             } else {
