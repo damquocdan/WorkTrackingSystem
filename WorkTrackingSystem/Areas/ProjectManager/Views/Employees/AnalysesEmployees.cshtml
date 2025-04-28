@@ -59,7 +59,7 @@
                     <option value="processing_desc">Đang xử lý ↓</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select id="timeType" name="timeType" class="form-control">
                     <option value="total">Tổng</option>
                     <option value="dateRange">Từ ngày - Đến ngày</option>
@@ -68,11 +68,11 @@
                     <option value="year">Năm</option>
                 </select>
             </div>
-            <div class="col-md-3" id="timeInputContainer">
+            <div class="col-md-4" id="timeInputContainer">
                 <!-- Placeholder for dynamic time inputs -->
             </div>
-            <div class="col-md-1">
-                <a href="#" id="resetButton" class="btn btn-secondary">
+            <div class="col-md-1 d-flex justify-content-end ms-auto">
+                <a href="#" id="resetButton" class="btn btn-secondary me-2">
                     <i class="bi bi-arrow-repeat"></i>
                 </a>
                 <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
@@ -517,35 +517,42 @@
             const currentYear = new Date().getFullYear();
             const years = Array.from({ length: 10 }, (_, i) => currentYear - i); // Tạo danh sách 10 năm từ hiện tại trở xuống
 
-            if (timeType === "total") {
-                inputHtml = "";
-            } else if (timeType === "dateRange") {
-                inputHtml = `<input type="date" id="fromDate" name="fromDate" class="form-control mb-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />` +
-                            `<input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" placeholder="Đến ngày" />`;
-            } else if (timeType === "month") {
-                inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
-            } else if (timeType === "quarter") {
-                inputHtml = `<select id="quarter" name="quarter" class="form-control mb-2">
-                                <option value="">Chọn quý</option>
-                                <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
-                                <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
-                                <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
-                                <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
-                             </select>` +
-                            `<select id="quarterYear" name="quarterYear" class="form-control">
-                                <option value="">Chọn năm</option>`;
-                years.forEach(year => {
-                    inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
-                });
-                inputHtml += `</select>`;
-            } else if (timeType === "year") {
-                inputHtml = `<select id="year" name="year" class="form-control">
-                                <option value="">Chọn năm</option>`;
-                years.forEach(year => {
-                    inputHtml += `<option value="${year}" ${year == "@ViewBag.Year" ? "selected" : ""}>${year}</option>`;
-                });
-                inputHtml += `</select>`;
-            }
+                    if (timeType === "total") {
+            inputHtml = "";
+        } else if (timeType === "dateRange") {
+            inputHtml = `
+            <div class="d-flex">
+                <input type="date" id="fromDate" name="fromDate" class="form-control  me-2" value="@ViewBag.FromDate" placeholder="Từ ngày" />
+                <input type="date" id="toDate" name="toDate" class="form-control " value="@ViewBag.ToDate" placeholder="Đến ngày" />
+            </div>`;
+        } else if (timeType === "month") {
+            inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
+        } else if (timeType === "quarter") {
+            inputHtml = `
+            <div class="d-flex">
+                <select id="quarter" name="quarter" class="form-control me-2">
+                    <option value="">Chọn quý</option>
+                    <option value="1" @(ViewBag.Quarter == 1 ? "selected" : "")>Quý 1</option>
+                    <option value="2" @(ViewBag.Quarter == 2 ? "selected" : "")>Quý 2</option>
+                    <option value="3" @(ViewBag.Quarter == 3 ? "selected" : "")>Quý 3</option>
+                    <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
+                </select>
+                <select id="quarterYear" name="quarterYear" class="form-control">
+                    <option value="">Chọn năm</option>`;
+            years.forEach(year => {
+                inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
+            });
+            inputHtml += `</select>
+            </div>`;
+        } else if (timeType === "year") {
+            inputHtml = `<select id="year" name="year" class="form-control">
+                            <option value="">Chọn năm</option>`;
+            years.forEach(year => {
+                inputHtml += `<option value="${year}" ${year == "@ViewBag.Year" ? "selected" : ""}>${year}</option>`;
+            });
+            inputHtml += `</select>`;
+        }
+
             $("#timeInputContainer").html(inputHtml);
             $("#timeInputContainer").find("input, select").on("input change", function() {
                 applyFilters();
