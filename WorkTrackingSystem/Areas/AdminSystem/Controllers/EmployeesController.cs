@@ -32,7 +32,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         //}
         public async Task<IActionResult> Index(string search, int? DepartmentId, int page = 1)
         {
-            Console.WriteLine($"Search: {search}, DepartmentId: {DepartmentId}, Page: {page}");
+          
 
             int limit = 10;
             var query = _context.Employees

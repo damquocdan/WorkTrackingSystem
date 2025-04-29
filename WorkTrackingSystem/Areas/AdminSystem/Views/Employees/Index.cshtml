@@ -44,12 +44,7 @@
                 <div class="col-md-3">
                         <select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="@ViewBag.Department">
                         <option value="" selected>Tất cả phòng ban</option>
-                        @foreach (var department in ViewBag.Department)
-                        {
-                            <option value="@department.Value" >
-                                @department.Text
-                            </option>
-                        }
+                     
                     </select>
                 </div>
             </div>

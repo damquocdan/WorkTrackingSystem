@@ -27,6 +27,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             _context = context;
         }
         public async Task<IActionResult> Index(
+            int? DepartmentId,
 string searchText = "",
 string month = "",
 string day = "",
@@ -70,6 +71,7 @@ int page = 1)
             var scoresQuery = _context.Scores
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Employee)
+                    .ThenInclude(e=>e.Department)
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Job)
                         .ThenInclude(j => j.Category)
@@ -105,6 +107,11 @@ int page = 1)
                     )) ||
                     s.JobMapEmployee.Job.Name.ToLower().Contains(searchText)
                 );
+            }
+            //lọc theo phòng ban
+            if (DepartmentId.HasValue && DepartmentId > 0)
+            {
+                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Employee.DepartmentId == DepartmentId);
             }
 
             // Lọc theo năm
@@ -204,9 +211,9 @@ int page = 1)
             }
 
             var scores = scoresQuery.ToPagedList(page, limit);
-
-            // Gán ViewBag để giữ trạng thái lọc/sắp xếp
-            ViewBag.SearchText = searchText;
+			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+			// Gán ViewBag để giữ trạng thái lọc/sắp xếp
+			ViewBag.SearchText = searchText;
             ViewBag.Month = month;
             ViewBag.Day = day;
             ViewBag.Year = year; // Thêm ViewBag cho năm
@@ -218,8 +225,8 @@ int page = 1)
             ViewBag.SortOrder = sortOrder;
             ViewBag.ShowCompletedZeroReview = showCompletedZeroReview;
             ViewBag.DueToday = dueToday;
-
-            return View(scores);
+			ViewBag.DepartmentId = DepartmentId;
+			return View(scores);
         }
 
         public async Task<IActionResult> GetJobsByEmployee(long employeeId)
@@ -865,13 +872,24 @@ int page = 1)
 			return View(pagedEmployees);
 		}
 
-		public IActionResult EmployeeWork(long id, int? page, string search, string filterStatus)
+        public async Task<IActionResult> EmployeeWork(long id, int? page, string search, string filterStatus)
         {
             int pageSize = 10;
             int pageNumber = page ?? 1;
 
             // Xử lý search
             search = string.IsNullOrEmpty(search) ? "" : Uri.UnescapeDataString(search).Trim();
+
+            // Lấy thông tin nhân viên
+            var employee = await _context.Employees
+                .Include(e => e.Department) 
+                .Include(e=>e.Position)// Bao gồm thông tin phòng ban nếu cần
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (employee == null)
+            {
+                return NotFound("Không tìm thấy nhân viên.");
+            }
 
             // Lấy danh sách công việc
             var jobs = _context.Jobmapemployees
@@ -916,6 +934,7 @@ int page = 1)
             ViewBag.EmployeeId = id;
             ViewBag.Search = search;
             ViewBag.FilterStatus = filterStatus;
+            ViewBag.Employee = employee; // Truyền thông tin nhân viên
 
             // Nếu là yêu cầu AJAX, trả về PartialView thay vì toàn bộ View
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -925,7 +944,6 @@ int page = 1)
 
             return View(jobList);
         }
-     
         public async Task<IActionResult> ExportToExcel(string searchText, int? status, int? categoryId, bool dueToday, string sortOrder, string month)
 		{
 			//var managerUsername = HttpContext.Session.GetString("AdminLogin");

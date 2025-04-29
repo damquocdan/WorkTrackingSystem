@@ -19,7 +19,11 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr class="job-row" data-status="@item.ScoreStatus">
+            <tr class="job-row @(item.ScoreStatus == 1 ? "table-success" :
+                                item.ScoreStatus == 2 ? "table-warning" :
+                                item.ScoreStatus == 3 ? "table-danger" :
+                                item.ScoreStatus == 4 ? "table-primary" :
+                                item.ScoreStatus == 0 ? "table-secondary" : "")" data-status="@item.ScoreStatus">
                 <td class="category-name">@item.CategoryName</td>
                 <td class="job-name">@item.JobName</td>
                 <td>@item.Deadline?.ToString("dd/MM/yyyy")</td>
@@ -33,8 +37,12 @@
                         <text>-</text>
                     }
                 </td>
-                <td class="text-center">
-                    <span>
+                <td  class="text-center ">
+                    <span class="badge @(item.ScoreStatus == 1 ? "bg-success" :
+                                                        item.ScoreStatus == 2 ? "bg-warning" :
+                                                        item.ScoreStatus == 3 ? "bg-danger" :
+                                                        item.ScoreStatus == 4 ? "bg-primary" :
+                                                        "bg-secondary") w-100" style="padding:7px;">
                         @if (item.ScoreStatus == 1)
                         {
                             <text>Hoàn thành</text>
@@ -57,11 +65,11 @@
                         }
                     </span>
                 </td>
-                <td class="text-center"><p class="progress-value">@item.Progress%</p></td>
-                <td class="text-center"><p class="progress-value">@item.VolumeAssessment</p></td>
-                <td class="text-center"><p class="progress-value">@item.ProgressAssessment</p></td>
-                <td class="text-center"><p class="progress-value">@item.QualityAssessment</p></td>
-                <td class="text-center"><p class="progress-value">@Math.Round(item.SummaryOfReviews ?? 0, 1)</p></td>
+                <td class="text-center"><p class="progress-value m-0">@item.Progress%</p></td>
+                <td class="text-center"><p class="progress-value m-0">@item.VolumeAssessment</p></td>
+                <td class="text-center"><p class="progress-value m-0">@item.ProgressAssessment</p></td>
+                <td class="text-center"><p class="progress-value m-0">@item.QualityAssessment</p></td>
+                <td class="text-center"><p class="progress-value m-0">@Math.Round(item.SummaryOfReviews ?? 0, 1)</p></td>
             </tr>
         }
     </tbody>

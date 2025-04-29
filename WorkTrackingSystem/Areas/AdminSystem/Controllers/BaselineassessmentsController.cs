@@ -27,6 +27,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         }
         // GET: AdminSystem/Baselineassessments
         public async Task<IActionResult> Index(
+             int? DepartmentId,
              string employeeName,
              string evaluate,
              string time,
@@ -41,8 +42,13 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             var assessments = _context.Baselineassessments
                 .Include(b => b.Employee)
+                .ThenInclude(e=>e.Department)
                 .Where(b => b.EmployeeId.HasValue && managedEmployeeIds.Contains(b.EmployeeId.Value));
-
+            //lọc theo phòng ban
+            if (DepartmentId.HasValue && DepartmentId > 0)
+            {
+                assessments = assessments.Where(s => s.Employee.DepartmentId == DepartmentId);
+            }
             // Set default time to current month if not provided
             if (string.IsNullOrEmpty(time))
             {
@@ -80,7 +86,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-
+            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+            ViewBag.DepartmentId = DepartmentId;
             ViewBag.EmployeeName = employeeName;
             ViewBag.Evaluate = evaluate;
             ViewBag.Time = time;
@@ -384,7 +391,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             }
         }
 
-        public async Task<IActionResult> EmployeeScoreSummary(string search, int? departmentId, string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? year, string sortOrder, string evaluate, int page = 1)
+        public async Task<IActionResult> EmployeeScoreSummary(string search ,int? DepartmentId , string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? year, string sortOrder, string evaluate, int page = 1)
         {
             var limit = 10;
            
@@ -425,7 +432,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                                       join jme in _context.Jobmapemployees on s.JobMapEmployeeId equals jme.Id
                                       join e in _context.Employees on jme.EmployeeId equals e.Id
                                       join d in _context.Departments on e.DepartmentId equals d.Id
-                                      where ( (departmentId == null || d.Id == departmentId) // Filter by selected department
+                                      where ( (DepartmentId == null || d.Id == DepartmentId) // Filter by selected department
                                             && (fromDate == null || s.CreateDate >= fromDate)
                                             && (toDate == null || s.CreateDate <= toDate))
                                       group new { s, e } by new { e.Id, e.FirstName, e.LastName } into g
@@ -448,9 +455,13 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             // Execute query and apply additional filters
             var employeeScores = await employeeScoresQuery.ToListAsync();
-
-            // Apply search filter
-            if (!string.IsNullOrEmpty(search))
+			//lọc theo phòng ban
+			//if (DepartmentId.HasValue && DepartmentId > 0)
+			//{
+   //             employeeScores = employeeScores.Where(e => e.DepartmentId == DepartmentId);
+   //         }
+			// Apply search filter
+			if (!string.IsNullOrEmpty(search))
             {
                 search = search.Trim().ToLower();
                 employeeScores = employeeScores
@@ -506,7 +517,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             // Prepare view data
             ViewBag.Search = search;
-            ViewBag.DepartmentId = departmentId;
+			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+			
+			ViewBag.DepartmentId = DepartmentId;
             ViewBag.TimeType = timeType ?? "total";
             ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
@@ -515,9 +528,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.Year = year;
             ViewBag.SortOrder = sortOrder;
             ViewBag.Evaluate = evaluate;
-            ViewBag.DepartmentName = departmentId.HasValue
-                ? _context.Departments.Where(d => d.Id == departmentId).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
-                : "All Departments";
+            //ViewBag.DepartmentName = departmentId.HasValue
+            //    ? _context.Departments.Where(d => d.Id == departmentId).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
+            //    : "All Departments";
             ViewBag.Departments = new SelectList(_context.Departments, "Id", "Name");
 
             return View(pagedEmployeeScores);

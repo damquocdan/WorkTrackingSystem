@@ -30,6 +30,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
         // GET: AdminSystem/Analyses
         public async Task<IActionResult> Index(
+             int? DepartmentId,
    string searchText,
    string time,
    string sortOrder,
@@ -62,6 +63,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
 
             var analyses = _context.Analyses
                 .Include(a => a.Employee)
+                .ThenInclude(e=>e.Department)
                 .Where(a => a.EmployeeId.HasValue && employeeIdsInManagedDepartment.Contains(a.EmployeeId.Value));
 
             // Tìm kiếm theo mã/tên nhân viên
@@ -72,7 +74,11 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                     a.Employee.FirstName.Contains(searchText) ||
                     a.Employee.LastName.Contains(searchText));
             }
-
+            //lọc theo phòng ban
+            if (DepartmentId.HasValue && DepartmentId > 0)
+            {
+                analyses = analyses.Where(s => s.Employee.DepartmentId == DepartmentId);
+            }
             IEnumerable<Analysis> finalAnalyses; // Sử dụng IEnumerable thay vì IQueryable
 
             // Nếu không có time, tính tổng toàn bộ các tháng
@@ -157,7 +163,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             {
                 TempData["NoDataMessage"] = "Không có dữ liệu để hiển thị hoặc xuất Excel.";
             }
-
+            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+            ViewBag.DepartmentId = DepartmentId;
             ViewBag.SearchText = searchText;
             ViewBag.Time = time;
             ViewBag.SortOrder = sortOrder;
@@ -353,8 +360,8 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.ProcessingSum = processingSum;
             ViewBag.DepartmentName = departmentToQuery.HasValue
                 ? _context.Departments.Where(d => d.Id == departmentToQuery.Value).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
-                : "All Departments";
-            ViewBag.Departments = new SelectList(_context.Departments.Where(d => managedDepartments.Contains(d.Id)), "Id", "Name");
+                : "Tất cả phòng ban";
+            ViewBag.Departments = new SelectList(_context.Departments, "Id", "Name");
             ViewBag.Positions = new SelectList(_context.Positions, "Id", "Name");
 
             return View(pagedEmployeeScores);

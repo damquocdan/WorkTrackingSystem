@@ -43,10 +43,18 @@
             <div class="col-md-4">
                 <input type="text" id="searchText" name="searchText" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.SearchText" />
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />
             </div>
-            <div class="col-md-3">
+            @* bộ lọc phòng ban *@
+            <div class="col-md-2">
+
+                <select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="@ViewBag.Department">
+                    <option value="" selected>Tất cả phòng ban</option>
+
+                </select>
+            </div>
+            <div class="col-md-2">
              <select id="sortOrder" name="sortOrder" class="form-control">
     <option value="" >-- Sắp xếp theo --</option>
     @if (Context.Request.Query["sortOrder"] == "total_asc")
@@ -622,7 +630,7 @@
                 });
             });
 
-            $("#searchText, #time, #sortOrder").on("input change", function () {
+            $("#searchText,#DepartmentId, #time, #sortOrder").on("input change", function () {
                 applyFilters();
             });
 
@@ -639,10 +647,11 @@
                     alert("Không có dữ liệu để xuất Excel.");
                     return;
                 }
+                var departmentId = $("#DepartmentId").val();
                 var searchText = $("#searchText").val();
                 var time = $("#time").val();
                 var sortOrder = $("#sortOrder").val();
-                var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) +
+                var url = "@Url.Action("ExportToExcel")" + "?searchText=" + encodeURIComponent(searchText) + "&DepartmentId=" + departmentId +
                     "&time=" + encodeURIComponent(time) +
                     "&sortOrder=" + encodeURIComponent(sortOrder);
                 window.location.href = url;
@@ -650,6 +659,7 @@
 
             $(document).on("click", "#resetButton", function (e) {
                 e.preventDefault();
+                $("#DepartmentId").val('');
                 $("#searchText").val('');
                 $("#time").val('');
                 $("#sortOrder").val('');
@@ -659,11 +669,12 @@
         });
 
         function applyFilters() {
+            var departmentId = $("#DepartmentId").val();
             var searchText = $("#searchText").val();
             var time = $("#time").val();
             var sortOrder = $("#sortOrder").val();
             var url = "@Url.Action("Index", "Analyses", new { area = "AdminSystem" })" +
-                "?searchText=" + encodeURIComponent(searchText) +
+                "?searchText=" + encodeURIComponent(searchText) + "&DepartmentId=" + departmentId +
                 "&time=" + encodeURIComponent(time) +
                 "&sortOrder=" + encodeURIComponent(sortOrder);
             loadTable(url);

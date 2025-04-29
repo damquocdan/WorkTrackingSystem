@@ -10,7 +10,7 @@
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row ">
+        <div class="row">
             <div class="col-sm-6">
                 <h5 class="m-0">@ViewData["Title"]</h5>
             </div>
@@ -24,6 +24,47 @@
     </div>
 </div>
 
+<!-- Thông tin nhân viên -->
+
+<h1 class="text-center">
+    Chi tiết nhân viên
+    <a data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        @ViewBag.Employee.FirstName @ViewBag.Employee.LastName
+    </a>
+</h1>
+<div class="collapse show" id="collapseExample">
+    <div class="card shadow-lg p-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title">Thông tin nhân viên</h4>
+            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample"><i class="fa-solid fa-chevron-up"></i></button>
+        </div>
+        <hr />
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center mb-3">
+                    <img src="@ViewBag.Employee.Avatar" alt="Avatar" class="rounded-circle" style="width: 50%; border: 3px solid #ddd;">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p class=""><strong>Nhân viên:</strong> @ViewBag.Employee.Code - @ViewBag.Employee.FirstName @ViewBag.Employee.LastName</p>
+                <p class="">
+                    <strong>Giới tính:</strong>
+                    @(ViewBag.Employee.Gender == "Male" ? "Nam" : ViewBag.Employee.Gender == "Female" ? "Nữ" : "Khác")
+                </p>
+
+                <p class=""><strong>Ngày sinh:</strong> @ViewBag.Employee.Birthday</p>
+                <p class=""><strong>TT liên lạc:</strong>(+84) @ViewBag.Employee.Phone <br /> @ViewBag.Employee.Email</p>
+            </div>
+            <div class="col-md-4">
+                <p class=""><strong>Ngày vào làm:</strong> @ViewBag.Employee.HireDate</p>
+                <p class=""><strong>Địa chỉ:</strong> @ViewBag.Employee.Address</p>
+                <p class=""><strong>Phòng ban:</strong> @ViewBag.Employee.Department?.Name</p>
+                <p class=""><strong>Chức vụ:</strong> @ViewBag.Employee.Position?.Name</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row mb-3">
     <div class="col-md-2">

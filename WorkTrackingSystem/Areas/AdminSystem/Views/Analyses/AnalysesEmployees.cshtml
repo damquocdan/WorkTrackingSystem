@@ -39,10 +39,16 @@
 <div class="collapse show" id="collapseExample">
     <div class="card card-body">
         <div class="row" id="searchForm">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <input type="text" id="search" name="search" class="form-control" placeholder="Tìm nhân viên" value="@ViewBag.Search" />
             </div>
+            @* bộ lọc phòng ban *@
             <div class="col-md-2">
+                <select class="form-select" id="departmentId" name="departmentId" asp-items="@ViewBag.Departments">
+                    <option value="" selected>Tất cả phòng ban</option>
+                </select>
+            </div>
+            <div class="col-md-1">
                 <select id="sortOrder" name="sortOrder" class="form-control">
                     <option value="">-- Sắp xếp theo --</option>
                     <option value="total_asc">Tổng số ↑</option>

@@ -50,7 +50,7 @@
 						</div>
 
 						<!-- Danh mục -->
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<label class="form-label fw-bold">Danh mục</label>
 							<select id="categoryId" name="categoryId" class="form-select">
 								<option value="">-- Chọn danh mục --</option>
@@ -60,9 +60,16 @@
 								}
 							</select>
 						</div>
-
+						@* bộ lọc phòng ban *@
+						<div class="col-md-2">
+							<label class="form-label fw-bold">Phòng ban</label>
+							<select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="@ViewBag.Department">
+								<option value="" selected>Tất cả phòng ban</option>
+								
+							</select>
+						</div>
 						<!-- Trạng thái -->
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<label class="form-label fw-bold">Trạng thái</label>
 							<select id="status" name="status" class="form-select">
 								<option value="">-- Tất cả --</option>
@@ -75,7 +82,7 @@
 						</div>
 
 						<!-- Sắp xếp -->
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<label class="form-label fw-bold">Sắp xếp</label>
 							<select id="sortOrder" name="sortOrder" class="form-select">
 								<option value="">-- Mặc định --</option>
@@ -87,7 +94,7 @@
 						</div>
 
 						<!-- Bộ lọc thời gian -->
-						<div class="col-md-3">
+						<div class="col-md-2">
 							<label class="form-label fw-bold">Loại thời gian</label>
 							<select id="timeType" name="timeType" class="form-select">
 								<option value="total">Tổng</option>
@@ -98,17 +105,17 @@
 								<option value="year">Năm</option>
 							</select>
 						</div>
-
+						
 						<!-- Các trường thời gian (ẩn/hiện theo timeType) -->
-						<div class="col-md-3 time-filter day-filter" style="display: none;">
+						<div class="col-md-2 time-filter day-filter" style="display: none;">
 							<label class="form-label fw-bold">Ngày</label>
 							<input type="date" id="day" name="day" class="form-control" value="@ViewBag.Day" />
 						</div>
-						<div class="col-md-3 time-filter dateRange-filter" style="display: none;">
+						<div class="col-md-2 time-filter dateRange-filter" style="display: none;">
 							<label class="form-label fw-bold">Từ ngày</label>
 							<input type="date" id="fromDate" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
 						</div>
-						<div class="col-md-3 time-filter dateRange-filter" style="display: none;">
+						<div class="col-md-2 time-filter dateRange-filter" style="display: none;">
 							<label class="form-label fw-bold">Đến ngày</label>
 							<input type="date" id="toDate" name="toDate" class="form-control" value="@ViewBag.ToDate" />
 						</div>
@@ -270,7 +277,7 @@
                                         item.Status == 4 ? "table-primary" :
                                         item.Status == 0 ? "table-secondary" : "")">
 								<td class="text-center">@index</td>
-								<td class="text-center p-0">
+								<td class="text-center ">
 									@if (item.JobMapEmployee?.Employee != null)
 									{
 										@item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
@@ -280,9 +287,9 @@
 										<span class="text-danger">Chưa giao việc</span>
 									}
 								</td>
-								<td class="text-center p-0">@item.JobMapEmployee.Job.Category.Name</td>
+								<td class="text-center ">@item.JobMapEmployee.Job.Category.Name</td>
 								<td>@item.JobMapEmployee.Job.Name</td>
-								<td class="text-center p-0">
+								<td class="text-center ">
 									@{
 										var createDate = item.CreateDate?.Date;
 										var deadline1 = item.JobMapEmployee?.Job?.Deadline1;
@@ -301,8 +308,8 @@
 										<span></span>
 									}
 								</td>
-								<td class="text-center p-0">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-								<td class="text-center p-0">
+								<td class="text-center ">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+								<td class="text-center">
 									<span class="badge @(item.Status == 1 ? "bg-success" :
                                                         item.Status == 2 ? "bg-warning" :
                                                         item.Status == 3 ? "bg-danger" :
@@ -331,7 +338,7 @@
 										}
 									</span>
 								</td>
-								<td class="text-center p-0">
+								<td class="text-center ">
 									@if (item.JobMapEmployee?.Employee != null)
 									{
 										<span class="summary-display" data-id="@item.Id">
@@ -339,7 +346,7 @@
 										</span>
 									}
 								</td>
-								<td class="text-center p-0">
+								<td class="text-center ">
 									<div class="d-flex justify-content-around mx-2">
 										@if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
 										{
@@ -369,6 +376,7 @@
 					@Html.PagedListPager(Model, page => Url.Action("Index", new
 						{
 							page,
+							DepartmentId = ViewBag.DepartmentId,
 							searchText = ViewBag.SearchText,
 							timeType = ViewBag.TimeType,
 							day = ViewBag.Day,
@@ -456,7 +464,7 @@
 			});
 
 			// Xử lý tìm kiếm và lọc
-			$("#searchText, #timeType, #day, #fromDate, #toDate, #month, #quarter, #quarterYear, #year, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
+			$("#searchText,#DepartmentId, #timeType, #day, #fromDate, #toDate, #month, #quarter, #quarterYear, #year, #status, #categoryId, #sortOrder, #showCompletedZeroReview, #dueToday").on("input change", function () {
 				applyFilters();
 			});
 
@@ -482,6 +490,7 @@
 			$(document).on("click", "#exportExcel", function (e) {
 				e.preventDefault();
 				var searchText = $("#searchText").val();
+				var departmentId = $("#DepartmentId").val();
 				var timeType = $("#timeType").val();
 				var day = $("#day").val();
 				var fromDate = $("#fromDate").val();
@@ -497,7 +506,7 @@
 				var dueToday = $("#dueToday").is(":checked");
 
 				var url = "@Url.Action("ExportToExcel", "Jobs")" +
-					"?searchText=" + encodeURIComponent(searchText) +
+					"?searchText=" + encodeURIComponent(searchText) + "&DepartmentId=" + departmentId +
 					"&timeType=" + encodeURIComponent(timeType) +
 					"&day=" + encodeURIComponent(day) +
 					"&fromDate=" + encodeURIComponent(fromDate) +
@@ -849,6 +858,7 @@
 
 			// Hàm áp dụng bộ lọc
 			function applyFilters() {
+				var departmentId = $("#DepartmentId").val();
 				var searchText = $("#searchText").val();
 				var timeType = $("#timeType").val();
 				var day = $("#day").val();
@@ -865,7 +875,7 @@
 				var dueToday = $("#dueToday").is(":checked");
 
 				var url = "@Url.Action("Index")" +
-					"?searchText=" + encodeURIComponent(searchText) +
+					"?searchText=" + encodeURIComponent(searchText) + "&DepartmentId=" + departmentId +
 					"&timeType=" + encodeURIComponent(timeType) +
 					"&day=" + encodeURIComponent(day) +
 					"&fromDate=" + encodeURIComponent(fromDate) +

@@ -24,6 +24,7 @@
 </div>
 
 
+
 <div class="row">
 	<div class="col-md-12" id="list-section">
 
@@ -35,15 +36,9 @@
 							<input type="text" class="form-control" id="searchInput" placeholder="Nhập tên / mã nhân viên" value="@ViewBag.Search" />
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-3">
 						<select class="form-select" id="DepartmentId" name="DepartmentId" asp-items="@ViewBag.Department">
 							<option value="" selected>Tất cả phòng ban</option>
-							@foreach (var department in ViewBag.Department)
-							{
-								<option value="@department.Value">
-									@department.Text
-								</option>
-							}
 						</select>
 					</div>
 				</div>
