@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Thống kê";
+    Layout = "~/Areas/ProjectManager/Views/Shared/_ProjectManager.cshtml";
 
     var isDateRange = !string.IsNullOrEmpty(ViewBag.FromDate) && !string.IsNullOrEmpty(ViewBag.ToDate);
     var quarter = Context.Request.Query["quarter"].ToString();
@@ -9,120 +10,112 @@
     var toDate = Context.Request.Query["toDate"].ToString();
     var month = Context.Request.Query["month"].ToString();
     var departmentId = Context.Request.Query["departmentId"].ToString();
-    var areaName = ViewContext.RouteData.Values["area"]?.ToString();
+    var filterType = Context.Request.Query["filterType"].ToString();
 }
 
 <!-- Content Header (Page header) -->
 <div class="content-header">
     <div class="container-fluid">
-        <div class="row ">
+        <div class="row mb-2">
             <div class="col-sm-6">
-                <h5 class="m-0">@ViewData["Title"]</h5>
+                <h1 class="m-0">Thống kê</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = areaName })">@areaName</a></li>
-                    <li class="breadcrumb-item active">@ViewData["Title"]</li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard", new { area = "ProjectManager" })">Project Manager</a></li>
+                    <li class="breadcrumb-item active">Thống kê</li>
                 </ol>
             </div>
         </div>
     </div>
 </div>
 
-
-<!-- Content Header (Page header) -->
-@* <div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Thống kê - @ViewBag.DepartmentName</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Project Manager</a></li>
-                    <li class="breadcrumb-item active">Thống kê</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</div> *@
-
-<!-- Filter Buttons -->
-<p>
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-        Tìm kiếm
-    </button>
-    <a href="@Url.Action("ExportToExcel", new { day = day, fromDate = fromDate, toDate = toDate, month = month, quarter = quarter, year = year, departmentId = departmentId })" class="btn btn-success btn-export"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
-</p>
-
-<!-- Filter Form -->
+<!-- Filter and Export Section -->
 <section class="content">
-    <div class="collapse show" id="collapseExample">
-        <div class="card card-body mb-3">
-            <form method="get" action="@Url.Action("Index")" id="filterForm">
-                <div class="row gx-2 gy-2 align-items-end">
-                    <!-- Department -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Phòng ban</label>
-                        <select id="departmentId" name="departmentId" class="form-select">
-                            <option value="">Tất cả phòng ban</option>
-                            @foreach (var dept in ViewBag.Departments)
-                            {
-                                <option value="@dept.Id" selected="@(dept.Id.ToString() == departmentId ? "selected" : null)">@dept.Name</option>
-                            }
-                        </select>
-                    </div>
-                    <!-- Day -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Ngày</label>
-                        <input type="date" id="day" name="day" class="form-control" value="@day" />
-                    </div>
-                    <!-- From Date -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Từ ngày</label>
-                        <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
-                    </div>
-                    <!-- To Date -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Đến ngày</label>
-                        <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
-                    </div>
-                    <!-- Month -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Tháng</label>
-                        <input type="month" id="month" name="month" class="form-control" value="@month" />
-                    </div>
-                    <!-- Quarter -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Quý</label>
-                        <select id="quarter" name="quarter" class="form-select">
-                            <option value="">Chọn quý</option>
-                            <option value="1" selected="@(quarter == "1" ? "selected" : null)">Quý 1</option>
-                            <option value="2" selected="@(quarter == "2" ? "selected" : null)">Quý 2</option>
-                            <option value="3" selected="@(quarter == "3" ? "selected" : null)">Quý 3</option>
-                            <option value="4" selected="@(quarter == "4" ? "selected" : null)">Quý 4</option>
-                        </select>
-                    </div>
-                    <!-- Year -->
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Năm</label>
-                        <select id="year" name="year" class="form-select">
-                            <option value="">Chọn năm</option>
-                            @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
-                            {
-                                <option value="@i" selected="@(year == i.ToString() ? "selected" : null)">@i</option>
-                            }
-                        </select>
-                    </div>
-                    <!-- Reset and Collapse Buttons -->
-                    <div class="col-md-3 d-flex float-right gap-2 justify-content-end">
-                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-reset"><i class="bi bi-arrow-repeat"></i></a>
-                        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                            <i class="fa-solid fa-chevron-up"></i>
-                        </button>
+    <div class="container-fluid">
+        <div class="row align-items-end mb-3">
+            <div class="col-auto">
+                <a href="@Url.Action("ExportToExcel", new { day = day, fromDate = fromDate, toDate = toDate, month = month, quarter = quarter, year = year, filterType = filterType, departmentId = departmentId })" class="btn btn-success btn-export"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+                    Lọc
+                </button>
+            </div>
+            <!-- Department Filter (outside collapsible form) -->
+            <div class="col-auto">
+                <select id="departmentId" name="departmentId" class="form-select">
+                    <option value="">Tất cả phòng ban</option>
+                    @foreach (var dept in ViewBag.Departments)
+                    {
+                        <option value="@dept.Id">@dept.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col">
+                <div class="collapse collapse-horizontal" id="collapseWidthExample">
+                    <div class="">
+                        <form method="get" action="@Url.Action("Index")" id="filterForm">
+                            <div class="row gx-2 gy-2 align-items-end">
+                                <!-- Loại lọc -->
+                                <div class="col-md-2" id="filterTypeContainer">
+                                    <select id="filterType" name="filterType" class="form-select">
+                                        <option value="">Chọn loại lọc</option>
+                                        <option value="day">Ngày</option>
+                                        <option value="dateRange">Từ ngày/Đến ngày</option>
+                                        <option value="month">Tháng</option>
+                                        <option value="quarter">Quý</option>
+                                        <option value="year">Năm</option>
+                                    </select>
+                                </div>
+                                <!-- Ngày -->
+                                <div class="col-md-2" id="dayFilter" style="display: none;">
+                                    <input type="date" id="day" name="day" class="form-control" value="@day" />
+                                </div>
+                                <!-- Từ ngày -->
+                                <div class="col-md-2" id="fromDateFilter" style="display: none;">
+                                    <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
+                                </div>
+                                <!-- Đến ngày -->
+                                <div class="col-md-2" id="toDateFilter" style="display: none;">
+                                    <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
+                                </div>
+                                <!-- Tháng -->
+                                <div class="col-md-2" id="monthFilter" style="display: none;">
+                                    <input type="month" id="month" name="month" class="form-control" value="@month" />
+                                </div>
+                                <!-- Quý -->
+                                <div class="col-md-2" id="quarterFilter" style="display: none;">
+                                    <select id="quarter" name="quarter" class="form-select">
+                                        <option value="">Chọn quý</option>
+                                        <option value="1">Quý 1</option>
+                                        <option value="2">Quý 2</option>
+                                        <option value="3">Quý 3</option>
+                                        <option value="4">Quý 4</option>
+                                    </select>
+                                </div>
+                                <!-- Năm -->
+                                <div class="col-md-2" id="yearFilter" style="display: none;">
+                                    <select id="year" name="year" class="form-select">
+                                        <option value="">Chọn năm</option>
+                                        @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
+                                <!-- Nút Reset và Collapse -->
+                                <div class="col-md-1 d-flex float-right gap-2" id="buttonsContainer" style="display: none;">
+                                    <a href="#" id="resetButton" class="btn btn-secondary me-2"><i class="bi bi-arrow-repeat"></i></a>
+                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </section>
@@ -299,11 +292,18 @@
         var calendarJobs = @Html.Raw(ViewBag.CalendarJobs);
         var departmentId = '@departmentId';
 
-        // Global chart variables
+        // Global chart and calendar variables
         var scoreTrendChart, summaryScoreChart, jobStatusPieChart, jobsByPeriodBarChart, calendar;
 
-        // Function to initialize or update charts and calendar
-        function initializeCharts(data) {
+        // Function to initialize or update dashboard (charts and calendar)
+        function initializeDashboard(data) {
+            // Destroy existing charts and calendar if they exist
+            if (scoreTrendChart) scoreTrendChart.destroy();
+            if (summaryScoreChart) summaryScoreChart.destroy();
+            if (jobStatusPieChart) jobStatusPieChart.destroy();
+            if (jobsByPeriodBarChart) jobsByPeriodBarChart.destroy();
+            if (calendar) calendar.destroy();
+
             // Update variables with new data
             labels = data.labels || [];
             sumVolume = data.sumVolume || [];
@@ -338,172 +338,166 @@
             $('#noJobPeriodDataMessage').css('display', hasJobPeriodData ? 'none' : 'block');
             $('#noCalendarDataMessage').css('display', hasCalendarData ? 'none' : 'block');
 
-            // Initialize or update Score Trend Chart
-            if (!scoreTrendChart) {
-                var ctx1 = document.getElementById('scoreTrendChart').getContext('2d');
-                scoreTrendChart = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: hasData ? [
-                            { label: 'Tổng Điểm Khối Lượng', data: sumVolume, borderColor: 'blue', fill: false },
-                            { label: 'Tổng Điểm Tiến Độ', data: sumProgress, borderColor: 'green', fill: false },
-                            { label: 'Tổng Điểm Chất Lượng', data: sumQuality, borderColor: 'red', fill: false }
-                        ] : []
-                    },
-                    options: {
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
-                                }
+            // Score Trend Chart
+            var ctx1 = document.getElementById('scoreTrendChart').getContext('2d');
+            scoreTrendChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: hasData ? [
+                        { label: 'Tổng Điểm Khối Lượng', data: sumVolume, borderColor: 'blue', fill: false },
+                        { label: 'Tổng Điểm Tiến Độ', data: sumProgress, borderColor: 'green', fill: false },
+                        { label: 'Tổng Điểm Chất Lượng', data: sumQuality, borderColor: 'red', fill: false }
+                    ] : []
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
                             }
                         }
                     }
-                });
-            } else {
-                scoreTrendChart.data.labels = labels;
-                scoreTrendChart.data.datasets = hasData ? [
-                    { label: 'Tổng Điểm Khối Lượng', data: sumVolume, borderColor: 'blue', fill: false },
-                    { label: 'Tổng Điểm Tiến Độ', data: sumProgress, borderColor: 'green', fill: false },
-                    { label: 'Tổng Điểm Chất Lượng', data: sumQuality, borderColor: 'red', fill: false }
-                ] : [];
-                scoreTrendChart.options.scales.x.title.text = isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm';
-                scoreTrendChart.update();
-            }
+                }
+            });
 
-            // Initialize or update Summary Score Chart
-            if (!summaryScoreChart) {
-                var ctx2 = document.getElementById('summaryScoreChart').getContext('2d');
-                summaryScoreChart = new Chart(ctx2, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: hasData ? [
-                            { label: 'Tổng Điểm Đánh Giá', data: sumSummary, backgroundColor: 'orange' }
-                        ] : []
-                    },
-                    options: {
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
-                                }
+            // Summary Score Chart
+            var ctx2 = document.getElementById('summaryScoreChart').getContext('2d');
+            summaryScoreChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: hasData ? [
+                        { label: 'Tổng Điểm Đánh Giá', data: sumSummary, backgroundColor: 'orange' }
+                    ] : []
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Tổng điểm' } },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
                             }
                         }
                     }
-                });
-            } else {
-                summaryScoreChart.data.labels = labels;
-                summaryScoreChart.data.datasets = hasData ? [
-                    { label: 'Tổng Điểm Đánh Giá', data: sumSummary, backgroundColor: 'orange' }
-                ] : [];
-                summaryScoreChart.options.scales.x.title.text = isDateRange || (labels[0]?.includes('/') && labels[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm';
-                summaryScoreChart.update();
-            }
+                }
+            });
 
-            // Initialize or update Job Status Pie Chart
-            if (!jobStatusPieChart) {
-                var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
-                jobStatusPieChart = new Chart(pieCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Hoàn thành', 'Chưa hoàn thành', 'Hoàn thành muộn', 'Đang xử lý'],
-                        datasets: hasJobStatusData ? [{
-                            data: [jobStatusOntime, jobStatusOverdue, jobStatusLate, jobStatusProcessing],
-                            backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
-                            borderWidth: 1
-                        }] : []
-                    },
-                    options: {
-                        plugins: {
-                            legend: { position: 'bottom' },
-                            tooltip: { callbacks: { label: function(context) { return context.raw + ' công việc'; } } }
-                        }
+            // Job Status Pie Chart
+            var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
+            jobStatusPieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Hoàn thành', 'Chưa hoàn thành', 'Hoàn thành muộn', 'Đang xử lý'],
+                    datasets: hasJobStatusData ? [{
+                        data: [jobStatusOntime, jobStatusOverdue, jobStatusLate, jobStatusProcessing],
+                        backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
+                        borderWidth: 1
+                    }] : []
+                },
+                options: {
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: { callbacks: { label: function(context) { return context.raw + ' công việc'; } } }
                     }
-                });
-            } else {
-                jobStatusPieChart.data.datasets = hasJobStatusData ? [{
-                    data: [jobStatusOntime, jobStatusOverdue, jobStatusLate, jobStatusProcessing],
-                    backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#007bff'],
-                    borderWidth: 1
-                }] : [];
-                jobStatusPieChart.update();
-            }
+                }
+            });
 
-            // Initialize or update Jobs by Period Bar Chart
-            if (!jobsByPeriodBarChart) {
-                var barCtx = document.getElementById('jobsByPeriodBarChart').getContext('2d');
-                jobsByPeriodBarChart = new Chart(barCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: jobMonths,
-                        datasets: hasJobPeriodData ? [{
-                            label: 'Số lượng công việc',
-                            data: jobCounts,
-                            backgroundColor: '#007bff',
-                            borderWidth: 1
-                        }] : []
-                    },
-                    options: {
-                        scales: {
-                            y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: isDateRange || (jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
-                                }
+            // Jobs by Period Bar Chart
+            var barCtx = document.getElementById('jobsByPeriodBarChart').getContext('2d');
+            jobsByPeriodBarChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: jobMonths,
+                    datasets: hasJobPeriodData ? [{
+                        label: 'Số lượng công việc',
+                        data: jobCounts,
+                        backgroundColor: '#007bff',
+                        borderWidth: 1
+                    }] : []
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDateRange || (jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm'
                             }
-                        },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-            } else {
-                jobsByPeriodBarChart.data.labels = jobMonths;
-                jobsByPeriodBarChart.data.datasets = hasJobPeriodData ? [{
-                    label: 'Số lượng công việc',
-                    data: jobCounts,
-                    backgroundColor: '#007bff',
-                    borderWidth: 1
-                }] : [];
-                jobsByPeriodBarChart.options.scales.x.title.text = isDateRange || (jobMonths[0]?.includes('/') && jobMonths[0]?.split('/').length === 3) ? 'Ngày' : 'Tháng/Năm';
-                jobsByPeriodBarChart.update();
-            }
-
-            // Initialize or update Calendar
-            if (!calendar) {
-                var calendarEl = document.getElementById('calendar');
-                calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
-                    events: calendarJobs,
-                    eventBackgroundColor: function(event) {
-                        switch (event.extendedProps.status) {
-                            case 1: return '#28a745'; // Hoàn thành
-                            case 2: return '#dc3545'; // Chưa hoàn thành
-                            case 3: return '#ffc107'; // Hoàn thành muộn
-                            case 4: return '#007bff'; // Đang xử lý
-                            default: return '#6c757d';
                         }
                     },
-                    eventBorderColor: function(event) { return event.backgroundColor; },
-                    height: 350,
-                    eventDidMount: function(info) { info.el.title = info.event.title; }
-                });
-                calendar.render();
-            } else {
-                calendar.getEvents().forEach(event => event.remove());
-                calendar.addEventSource(calendarJobs);
-                calendar.render();
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Calendar
+            var calendarEl = document.getElementById('calendar');
+            var initialView = 'dayGridMonth';
+            var initialDate = null;
+
+            // Adjust calendar view and date based on filter type
+            if (data.filterType === 'day' && data.day) {
+                initialView = 'timeGridDay';
+                initialDate = data.day;
+            } else if (data.filterType === 'month' && data.month) {
+                initialView = 'dayGridMonth';
+                initialDate = data.month + '-01'; // Navigate to first day of the month
             }
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: initialView,
+                initialDate: initialDate,
+                events: calendarJobs,
+                eventBackgroundColor: function(event) {
+                    switch (event.extendedProps.status) {
+                        case 1: return '#28a745'; // Hoàn thành
+                        case 2: return '#dc3545'; // Chưa hoàn thành
+                        case 3: return '#ffc107'; // Hoàn thành muộn
+                        case 4: return '#007bff'; // Đang xử lý
+                        default: return '#6c757d';
+                    }
+                },
+                eventBorderColor: function(event) { return event.backgroundColor; },
+                height: 530,
+                eventDidMount: function(info) { info.el.title = info.event.title; }
+            });
+            calendar.render();
         }
 
         $(document).ready(function () {
-            // Initialize charts with initial data
-            initializeCharts({
+            // Function to show/hide filter fields and buttons based on filter type
+            function toggleFilterFields(filterType) {
+                // Hide all filter fields and buttons
+                $('#dayFilter, #fromDateFilter, #toDateFilter, #monthFilter, #quarterFilter, #yearFilter, #buttonsContainer').hide();
+
+                // Show relevant fields and buttons if a valid filter type is selected
+                if (filterType) {
+                    $('#buttonsContainer').show();
+                    switch (filterType) {
+                        case 'day':
+                            $('#dayFilter').show();
+                            break;
+                        case 'dateRange':
+                            $('#fromDateFilter, #toDateFilter').show();
+                            break;
+                        case 'month':
+                            $('#monthFilter').show();
+                            break;
+                        case 'quarter':
+                            $('#quarterFilter, #yearFilter').show();
+                            break;
+                        case 'year':
+                            $('#yearFilter').show();
+                            break;
+                    }
+                }
+            }
+
+            // Initialize dashboard with initial data
+            initializeDashboard({
                 labels: labels,
                 sumVolume: sumVolume,
                 sumProgress: sumProgress,
@@ -517,17 +511,47 @@
                 jobStatusProcessing: jobStatusProcessing,
                 calendarJobs: calendarJobs,
                 isDateRange: isDateRange,
-                departmentId: departmentId,
                 totalJobs: @ViewBag.TotalJobs,
                 completedJobs: @ViewBag.CompletedJobs,
                 overdueJobs: @ViewBag.OverdueJobs,
-                totalCategories: @ViewBag.TotalCategories
+                totalCategories: @ViewBag.TotalCategories,
+                filterType: '@filterType',
+                day: '@day',
+                month: '@month',
+                departmentId: departmentId
             });
 
-            // Handle form input changes with AJAX
-            $('#filterForm input, #filterForm select').on('change', function() {
+            // Initialize filter fields visibility based on current filter type
+            var currentFilterType = '@filterType';
+            toggleFilterFields(currentFilterType);
+            if (currentFilterType) {
+                $('#filterType').val(currentFilterType);
+            }
+
+            // Handle filter type change
+            $('#filterType').on('change', function () {
+                var filterType = $(this).val();
+                toggleFilterFields(filterType);
+                // Do not trigger AJAX or reset form on filterType change
+            });
+
+            // Handle collapse toggle to show only filterType initially
+            $('#collapseWidthExample').on('show.bs.collapse', function () {
+                toggleFilterFields('');
+                $('#filterTypeContainer').show();
+                $('#filterType').val('');
+            });
+
+            // Handle form input changes with AJAX (exclude filterType)
+            $('#day, #fromDate, #toDate, #month, #quarter, #year').on('change', function() {
+                // Only trigger AJAX if a filter type is selected
+                if (!$('#filterType').val()) {
+                    return;
+                }
+
                 // Validate form inputs
                 const day = $('#day').val();
+                const DEPARTMENTID = $('#departmentId').val();
                 const fromDate = $('#fromDate').val();
                 const toDate = $('#toDate').val();
                 const month = $('#month').val();
@@ -553,23 +577,21 @@
                     return;
                 }
 
-                var formData = $('#filterForm').serialize();
+                var formData = $('#filterForm').serialize() + '&departmentId=' + $('#departmentId').val();
                 $.ajax({
                     url: '@Url.Action("Index")',
                     type: 'GET',
                     data: formData,
                     dataType: 'json',
                     success: function(response) {
-                        // Update form fields to persist selected values
-                        $('#day').val(response.day || '');
-                        $('#fromDate').val(response.fromDate || '');
-                        $('#toDate').val(response.toDate || '');
-                        $('#month').val(response.month || '');
-                        $('#quarter').val(response.quarter || '');
-                        $('#year').val(response.year || '');
-                        $('#departmentId').val(response.departmentId || '');
+                        // Update dashboard (charts and calendar)
+                        response.filterType = $('#filterType').val();
+                        response.day = $('#day').val();
+                        response.month = $('#month').val();
+                        response.departmentId = $('#departmentId').val();
+                        initializeDashboard(response);
 
-                        // Update export button href with new filter values
+                        // Update export button href
                         $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
 
                         // Update page title based on department selection
@@ -578,26 +600,78 @@
                                 .find(d => d.Id == response.departmentId)?.Name || 'Unknown' :
                             'Tất cả phòng ban';
                         $('.content-header h1').text('Thống kê - ' + deptName);
-
-                        // Reinitialize charts with new data
-                        initializeCharts(response);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
-                        $('#noDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
-                        $('#noSummaryDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
-                        $('#noJobStatusDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
-                        $('#noJobPeriodDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
-                        $('#noCalendarDataMessage').css('display', 'block').text('Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.');
+                        alert('Đã xảy ra lỗi khi lọc dữ liệu.');
+                    }
+                });
+            });
+
+            // Handle department filter change with AJAX
+            $('#departmentId').on('change', function() {
+                var formData = $('#filterForm').serialize() + '&departmentId=' + $(this).val();
+                $.ajax({
+                    url: '@Url.Action("Index")',
+                    type: 'GET',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update dashboard (charts and calendar)
+                        response.filterType = $('#filterType').val();
+                        response.day = $('#day').val();
+                        response.month = $('#month').val();
+                        response.departmentId = $('#departmentId').val();
+                        initializeDashboard(response);
+
+                        // Update export button href
+                        $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
+
+                        // Update page title based on department selection
+                        var deptName = response.departmentId ?
+        @Html.Raw(Json.Serialize(ViewBag.Departments))
+                                .find(d => d.Id == response.departmentId)?.Name || 'Unknown' :
+                            'Tất cả phòng ban';
+                        $('.content-header h1').text('Thống kê - ' + deptName);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi lọc dữ liệu.');
                     }
                 });
             });
 
             // Handle reset button
-            $('.btn-reset').on('click', function(e) {
+            $('#resetButton').on('click', function(e) {
                 e.preventDefault();
+                // Clear all form fields
                 $('#filterForm')[0].reset();
-                $('#filterForm input, #filterForm select').trigger('change');
+                $('#departmentId').val('');
+                // Hide all filter fields and buttons
+                toggleFilterFields('');
+                // Trigger AJAX to load default data
+                $.ajax({
+                    url: '@Url.Action("Index")',
+                    type: 'GET',
+                    data: { departmentId: '' }, // Include departmentId as empty
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update dashboard (charts and calendar)
+                        response.filterType = '';
+                        response.day = '';
+                        response.month = '';
+                        response.departmentId = '';
+                        initializeDashboard(response);
+                        // Update export button href to default
+                        $('.btn-export').attr('href', '@Url.Action("ExportToExcel")');
+                        // Reset page title
+                        $('.content-header h1').text('Thống kê - Tất cả phòng ban');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi đặt lại dữ liệu.');
+                    }
+                });
             });
         });
     </script>
