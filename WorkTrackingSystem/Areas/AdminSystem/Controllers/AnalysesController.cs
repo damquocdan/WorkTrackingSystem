@@ -359,7 +359,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.OverdueSum = overdueSum;
             ViewBag.ProcessingSum = processingSum;
             ViewBag.DepartmentName = departmentToQuery.HasValue
-                ? _context.Departments.Where(d => d.Id == departmentToQuery.Value).Select(d => d.Name).FirstOrDefault() ?? "All Departments"
+                ? _context.Departments.Where(d => d.Id == departmentToQuery.Value).Select(d => d.Name).FirstOrDefault() ?? "Tất cả phòng ban"
                 : "Tất cả phòng ban";
             ViewBag.Departments = new SelectList(_context.Departments, "Id", "Name");
             ViewBag.Positions = new SelectList(_context.Positions, "Id", "Name");

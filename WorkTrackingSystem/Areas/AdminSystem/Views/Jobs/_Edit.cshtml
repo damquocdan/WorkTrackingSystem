@@ -114,4 +114,8 @@
         let summary = (volume * 0.6) + (progress * 0.15) + (quality * 0.25);
         document.getElementById("SummaryOfReviews").value = summary.toFixed(2);
     }
+    function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
+    }
 </script>
