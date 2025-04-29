@@ -122,6 +122,14 @@ int page = 1)
             }
 
             // Lọc theo quý
+            // Filter by year if selected
+            if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
+            {
+                scoresQuery = scoresQuery.Where(s =>
+                    s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
+            }
+
+            // Filter by quarter if selected
             if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
             {
                 var startMonth = (selectedQuarter - 1) * 3 + 1;
@@ -130,13 +138,6 @@ int page = 1)
                     s.CreateDate.HasValue &&
                     s.CreateDate.Value.Month >= startMonth &&
                     s.CreateDate.Value.Month <= endMonth);
-
-                // Thêm lọc theo năm của quý
-                if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
-                {
-                    scoresQuery = scoresQuery.Where(s =>
-                        s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
-                }
             }
 
             // Lọc theo tháng

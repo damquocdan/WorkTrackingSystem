@@ -394,10 +394,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
         public async Task<IActionResult> EmployeeScoreSummary(string search ,int? DepartmentId , string timeType, DateTime? fromDate, DateTime? toDate, string time, int? quarter, int? year, string sortOrder, string evaluate, int page = 1)
         {
             var limit = 10;
-           
-       
 
-          
             // Handle time parameters
             int? month = null;
             if (timeType == "month" && !string.IsNullOrEmpty(time) && DateTime.TryParse(time + "-01", out var parsedTime))
@@ -407,11 +404,35 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 fromDate = new DateTime(parsedTime.Year, parsedTime.Month, 1);
                 toDate = fromDate.Value.AddMonths(1).AddDays(-1);
             }
-            else if (timeType == "quarter" && quarter.HasValue && year.HasValue)
+            else if (timeType == "quarter")
             {
-                fromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
-                toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                if (quarter.HasValue && year.HasValue)
+                {
+                    // Cả quý và năm đều được chọn -> lọc theo quý cụ thể
+                    fromDate = new DateTime(year.Value, (quarter.Value - 1) * 3 + 1, 1);
+                    toDate = fromDate.Value.AddMonths(3).AddDays(-1);
+                }
+                else if (quarter.HasValue && !year.HasValue)
+                {
+                    // Chỉ chọn quý -> không giới hạn thời gian (hiển thị toàn bộ quý của tất cả các năm)
+                    fromDate = null;
+                    toDate = null;
+                }
+                else if (!quarter.HasValue && year.HasValue)
+                {
+                    // Chỉ chọn năm -> lọc toàn bộ năm
+                    fromDate = new DateTime(year.Value, 1, 1);
+                    toDate = new DateTime(year.Value, 12, 31);
+                }
+                else
+                {
+                    // Không chọn gì -> hiển thị tất cả
+                    fromDate = null;
+                    toDate = null;
+                    quarter = null;
+                }
             }
+
             else if (timeType == "year" && year.HasValue)
             {
                 fromDate = new DateTime(year.Value, 1, 1);
