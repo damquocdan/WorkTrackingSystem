@@ -279,12 +279,12 @@
         var jobStatusProcessing = @ViewBag.JobStatusProcessing;
         var calendarJobs = @Html.Raw(ViewBag.CalendarJobs);
 
-        // Global chart variables
+        // Global chart and calendar variables
         var scoreTrendChart, summaryScoreChart, jobStatusPieChart, jobsByPeriodBarChart, calendar;
 
-        // Function to initialize or update charts and calendar
-        function initializeCharts(data) {
-            // Destroy existing charts if they exist
+        // Function to initialize or update dashboard (charts and calendar)
+        function initializeDashboard(data) {
+            // Destroy existing charts and calendar if they exist
             if (scoreTrendChart) scoreTrendChart.destroy();
             if (summaryScoreChart) summaryScoreChart.destroy();
             if (jobStatusPieChart) jobStatusPieChart.destroy();
@@ -411,8 +411,21 @@
 
             // Calendar
             var calendarEl = document.getElementById('calendar');
+            var initialView = 'dayGridMonth';
+            var initialDate = null;
+
+            // Adjust calendar view and date based on filter type
+            if (data.filterType === 'day' && data.day) {
+                initialView = 'timeGridDay';
+                initialDate = data.day;
+            } else if (data.filterType === 'month' && data.month) {
+                initialView = 'dayGridMonth';
+                initialDate = data.month + '-01'; // Navigate to first day of the month
+            }
+
             calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
+                initialView: initialView,
+                initialDate: initialDate,
                 events: calendarJobs,
                 eventBackgroundColor: function(event) {
                     switch (event.extendedProps.status) {
@@ -424,7 +437,7 @@
                     }
                 },
                 eventBorderColor: function(event) { return event.backgroundColor; },
-                height: 350,
+                height: 530,
                 eventDidMount: function(info) { info.el.title = info.event.title; }
             });
             calendar.render();
@@ -459,8 +472,8 @@
                 }
             }
 
-            // Initialize charts with initial data
-            initializeCharts({
+            // Initialize dashboard with initial data
+            initializeDashboard({
                 labels: labels,
                 sumVolume: sumVolume,
                 sumProgress: sumProgress,
@@ -477,7 +490,10 @@
                 totalJobs: @ViewBag.TotalJobs,
                 completedJobs: @ViewBag.CompletedJobs,
                 overdueJobs: @ViewBag.OverdueJobs,
-                totalCategories: @ViewBag.TotalCategories
+                totalCategories: @ViewBag.TotalCategories,
+                filterType: '@filterType',
+                day: '@day',
+                month: '@month'
             });
 
             // Initialize filter fields visibility based on current filter type
@@ -514,8 +530,11 @@
                     data: formData,
                     dataType: 'json',
                     success: function(response) {
-                        // Update charts and stats only, do not overwrite form fields
-                        initializeCharts(response);
+                        // Update dashboard (charts and calendar)
+                        response.filterType = $('#filterType').val();
+                        response.day = $('#day').val();
+                        response.month = $('#month').val();
+                        initializeDashboard(response);
 
                         // Update export button href
                         $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
@@ -541,8 +560,11 @@
                     data: {}, // No filter parameters
                     dataType: 'json',
                     success: function(response) {
-                        // Update charts and stats
-                        initializeCharts(response);
+                        // Update dashboard (charts and calendar)
+                        response.filterType = '';
+                        response.day = '';
+                        response.month = '';
+                        initializeDashboard(response);
                         // Update export button href to default
                         $('.btn-export').attr('href', '@Url.Action("ExportToExcel")');
                     },
