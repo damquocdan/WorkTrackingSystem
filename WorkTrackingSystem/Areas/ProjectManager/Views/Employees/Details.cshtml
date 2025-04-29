@@ -21,25 +21,25 @@
 
         <div class="row">
             <div class="col-md-4">
-                <div class="text-center mb-3">
-                    <img src="@Model.Avatar" alt="Avatar" class="rounded-circle" style="width: 50%; border: 3px solid #ddd;">
+                <div class="text-center ">
+                    <img src="@Model.Avatar" alt="Avatar" class="rounded-circle" style="width: 40%; border: 3px solid #ddd;">
                 </div>
             </div>
-            <div class="col-md-4">
-                <p class="fs-4"><strong>Nhân viên:</strong> @Model.Code - @Model.FirstName @Model.LastName</p>
-                <p class="fs-4">
+            <div class="col-md-4 align-content-around">
+                <p class=""><strong>Nhân viên:</strong> @Model.Code - @Model.FirstName @Model.LastName</p>
+                <p class="">
                     <strong>Giới tính:</strong>
                     @(Model.Gender == "Male" ? "Nam" : Model.Gender == "Female" ? "Nữ" : "Khác")
                 </p>
 
-                <p class="fs-4"><strong>Ngày sinh:</strong> @Model.Birthday</p>
-                <p class="fs-4"><strong>TT liên lạc:</strong>(+84) @Model.Phone <br /> @Model.Email</p>
+                <p class=""><strong>Ngày sinh:</strong> @Model.Birthday</p>
+                <p class=""><strong>TT liên lạc:</strong>(+84) @Model.Phone <br /> @Model.Email</p>
             </div>
-            <div class="col-md-4">
-                <p class="fs-4"><strong>Ngày vào làm:</strong> @Model.HireDate</p>
-                <p class="fs-4"><strong>Địa chỉ:</strong> @Model.Address</p>
-                <p class="fs-4"><strong>Phòng ban:</strong> @Model.Department?.Name</p>
-                <p class="fs-4"><strong>Chức vụ:</strong> @Model.Position?.Name</p>
+            <div class="col-md-4 align-content-around">
+                <p class=""><strong>Ngày vào làm:</strong> @Model.HireDate</p>
+                <p class=""><strong>Địa chỉ:</strong> @Model.Address</p>
+                <p class=""><strong>Phòng ban:</strong> @Model.Department?.Name</p>
+                <p class=""><strong>Chức vụ:</strong> @Model.Position?.Name</p>
             </div>
         </div>
     </div>

@@ -506,9 +506,7 @@
                 if (quarter && quarterYear) {
                     return `quý ${quarter}/${quarterYear}`;
                 } else if (quarter) {
-                    return `quý ${quarter} tất cả năm`;
-                } else if (quarterYear) {
-                    return `năm ${quarterYear}`;
+                    return `quý ${quarter} (tất cả các năm)`;
                 }
                 return "theo quý";
             } else if (timeType === "year") {
@@ -537,8 +535,8 @@
             </div>`;
         } else if (timeType === "month") {
             inputHtml = `<input type="month" id="time" name="time" class="form-control" value="@ViewBag.Time" />`;
-        } else if (timeType === "quarter") {
-            inputHtml = `
+            } else if (timeType === "quarter") {
+                inputHtml = `
             <div class="d-flex">
                 <select id="quarter" name="quarter" class="form-control me-2">
                     <option value="">Chọn quý</option>
@@ -548,13 +546,13 @@
                     <option value="4" @(ViewBag.Quarter == 4 ? "selected" : "")>Quý 4</option>
                 </select>
                 <select id="quarterYear" name="quarterYear" class="form-control">
-                    <option value="">Chọn năm</option>`;
-            years.forEach(year => {
-                inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
-            });
-            inputHtml += `</select>
+                    <option value="">Tất cả các năm</option>`;
+                years.forEach(year => {
+                    inputHtml += `<option value="${year}" ${year == "@ViewBag.QuarterYear" ? "selected" : ""}>${year}</option>`;
+                });
+                inputHtml += `</select>
             </div>`;
-        } else if (timeType === "year") {
+            } else if (timeType === "year") {
             inputHtml = `<select id="year" name="year" class="form-control">
                             <option value="">Chọn năm</option>`;
             years.forEach(year => {
@@ -722,9 +720,7 @@
                     if (quarter && quarterYear) {
                         filterText.push(`quý ${quarter}/${quarterYear}`);
                     } else if (quarter) {
-                        filterText.push(`quý ${quarter} tất cả năm`);
-                    } else if (quarterYear) {
-                        filterText.push(`năm ${quarterYear}`);
+                        filterText.push(`quý ${quarter} (tất cả các năm)`);
                     } else {
                         filterText.push("theo quý");
                     }
