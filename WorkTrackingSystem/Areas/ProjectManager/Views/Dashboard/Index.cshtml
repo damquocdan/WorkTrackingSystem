@@ -9,6 +9,7 @@
     var fromDate = Context.Request.Query["fromDate"].ToString();
     var toDate = Context.Request.Query["toDate"].ToString();
     var month = Context.Request.Query["month"].ToString();
+    var filterType = Context.Request.Query["filterType"].ToString();
 }
 
 <!-- Content Header (Page header) -->
@@ -27,71 +28,90 @@
         </div>
     </div>
 </div>
-<p>
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-        Tìm kiếm
-    </button>
 
-    <a href="@Url.Action("ExportToExcel", new { day = day, fromDate = fromDate, toDate = toDate, month = month, quarter = quarter, year = year })" class="btn btn-success btn-export"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
-
-</p>
-<!-- Filter Form -->
+<!-- Filter and Export Section -->
 <section class="content">
-    <div class="collapse show" id="collapseExample">
-        <div class="card card-body mb-3">
-            <form method="get" action="@Url.Action("Index")" id="filterForm">
-                <div class="row gx-2 gy-2 align-items-end">
-                    <!-- Ngày -->
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Ngày</label>
-                        <input type="date" id="day" name="day" class="form-control" value="@day" />
-                    </div>
-                    <!-- Từ ngày -->
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Từ ngày</label>
-                        <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
-                    </div>
-                    <!-- Đến ngày -->
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Đến ngày</label>
-                        <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
-                    </div>
-                    <!-- Tháng -->
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Tháng</label>
-                        <input type="month" id="month" name="month" class="form-control" value="@month" />
-                    </div>
-                    <!-- Quý -->
-                    <div class="col-md-1">
-                        <label class="form-label fw-bold">Quý</label>
-                        <select id="quarter" name="quarter" class="form-select">
-                            <option value="">Chọn quý</option>
-                            <option value="1" >Quý 1</option>
-                            <option value="2">Quý 2</option>
-                            <option value="3">Quý 3</option>
-                            <option value="4">Quý 4</option>
-                        </select>
-                    </div>
-                    <!-- Năm -->
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">Năm</label>
-                        <select id="year" name="year" class="form-select">
-                            <option value="">Chọn năm</option>
-                            @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
-                            {
-                                <option value="@i">@i</option>
-                            }
-                        </select>
-                    </div>
-                    <!-- Nút Reset và Export -->
-                    <div class="col-md-1 d-flex float-right gap-2">
-                        <a href="@Url.Action("Index")" class="btn btn-secondary btn-reset"><i class="bi bi-arrow-repeat"></i></a>
-                        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                            <i class="fa-solid fa-chevron-up"></i>
-                        </button>
+    <div class="container-fluid">
+        <div class="row align-items-end mb-3">
+            <div class="col-auto">
+                <a href="@Url.Action("ExportToExcel", new { day = day, fromDate = fromDate, toDate = toDate, month = month, quarter = quarter, year = year, filterType = filterType })" class="btn btn-success btn-export"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    Lọc
+                </button>
+            </div>
+            <div class="col">
+                <div class="collapse" id="collapseExample">
+                    <div class="">
+                        <form method="get" action="@Url.Action("Index")" id="filterForm">
+                            <div class="row gx-2 gy-2 align-items-end">
+                                <!-- Loại lọc -->
+                                <div class="col-md-2" id="filterTypeContainer">
+                                    <label class="form-label fw-bold">Loại lọc</label>
+                                    <select id="filterType" name="filterType" class="form-select">
+                                        <option value="">Chọn loại lọc</option>
+                                        <option value="day">Ngày</option>
+                                        <option value="dateRange">Từ ngày/Đến ngày</option>
+                                        <option value="month">Tháng</option>
+                                        <option value="quarter">Quý</option>
+                                        <option value="year">Năm</option>
+                                    </select>
+                                </div>
+                                <!-- Ngày -->
+                                <div class="col-md-2" id="dayFilter" style="display: none;">
+                                    <label class="form-label fw-bold">Ngày</label>
+                                    <input type="date" id="day" name="day" class="form-control" value="@day" />
+                                </div>
+                                <!-- Từ ngày -->
+                                <div class="col-md-2" id="fromDateFilter" style="display: none;">
+                                    <label class="form-label fw-bold">Từ ngày</label>
+                                    <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
+                                </div>
+                                <!-- Đến ngày -->
+                                <div class="col-md-2" id="toDateFilter" style="display: none;">
+                                    <label class="form-label fw-bold">Đến ngày</label>
+                                    <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
+                                </div>
+                                <!-- Tháng -->
+                                <div class="col-md-2" id="monthFilter" style="display: none;">
+                                    <label class="form-label fw-bold">Tháng</label>
+                                    <input type="month" id="month" name="month" class="form-control" value="@month" />
+                                </div>
+                                <!-- Quý -->
+                                <div class="col-md-2" id="quarterFilter" style="display: none;">
+                                    <label class="form-label fw-bold">Quý</label>
+                                    <select id="quarter" name="quarter" class="form-select">
+                                        <option value="">Chọn quý</option>
+                                        <option value="1">Quý 1</option>
+                                        <option value="2">Quý 2</option>
+                                        <option value="3">Quý 3</option>
+                                        <option value="4">Quý 4</option>
+                                    </select>
+                                </div>
+                                <!-- Năm -->
+                                <div class="col-md-2" id="yearFilter" style="display: none;">
+                                    <label class="form-label fw-bold">Năm</label>
+                                    <select id="year" name="year" class="form-select">
+                                        <option value="">Chọn năm</option>
+                                        @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
+                                <!-- Nút Reset và Collapse -->
+                                <div class="col-md-1 d-flex float-right gap-2" id="buttonsContainer" style="display: none;">
+                                    <a href="#" id="resetButton" class="btn btn-secondary me-2"><i class="bi bi-arrow-repeat"></i></a>
+                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                        <i class="fa-solid fa-chevron-up"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </section>
@@ -233,13 +253,11 @@
                 </div>
             </section>
             <!-- Right col -->
-
         </div>
         <!-- /.row (main row) -->
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
-
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
@@ -413,6 +431,34 @@
         }
 
         $(document).ready(function () {
+            // Function to show/hide filter fields and buttons based on filter type
+            function toggleFilterFields(filterType) {
+                // Hide all filter fields and buttons
+                $('#dayFilter, #fromDateFilter, #toDateFilter, #monthFilter, #quarterFilter, #yearFilter, #buttonsContainer').hide();
+
+                // Show relevant fields and buttons if a valid filter type is selected
+                if (filterType) {
+                    $('#buttonsContainer').show();
+                    switch (filterType) {
+                        case 'day':
+                            $('#dayFilter').show();
+                            break;
+                        case 'dateRange':
+                            $('#fromDateFilter, #toDateFilter').show();
+                            break;
+                        case 'month':
+                            $('#monthFilter').show();
+                            break;
+                        case 'quarter':
+                            $('#quarterFilter, #yearFilter').show();
+                            break;
+                        case 'year':
+                            $('#yearFilter').show();
+                            break;
+                    }
+                }
+            }
+
             // Initialize charts with initial data
             initializeCharts({
                 labels: labels,
@@ -434,8 +480,33 @@
                 totalCategories: @ViewBag.TotalCategories
             });
 
-            // Handle form input changes with AJAX
-            $('#filterForm input, #filterForm select').on('change', function() {
+            // Initialize filter fields visibility based on current filter type
+            var currentFilterType = '@filterType';
+            toggleFilterFields(currentFilterType);
+            if (currentFilterType) {
+                $('#filterType').val(currentFilterType);
+            }
+
+            // Handle filter type change
+            $('#filterType').on('change', function () {
+                var filterType = $(this).val();
+                toggleFilterFields(filterType);
+                // Do not trigger AJAX or reset form on filterType change
+            });
+
+            // Handle collapse toggle to show only filterType initially
+            $('#collapseExample').on('show.bs.collapse', function () {
+                toggleFilterFields('');
+                $('#filterTypeContainer').show();
+                $('#filterType').val('');
+            });
+
+            // Handle form input changes with AJAX (exclude filterType)
+            $('#day, #fromDate, #toDate, #month, #quarter, #year').on('change', function() {
+                // Only trigger AJAX if a filter type is selected
+                if (!$('#filterType').val()) {
+                    return;
+                }
                 var formData = $('#filterForm').serialize();
                 $.ajax({
                     url: '@Url.Action("Index")',
@@ -443,19 +514,11 @@
                     data: formData,
                     dataType: 'json',
                     success: function(response) {
-                        // Update form fields to persist selected values
-                        $('#day').val(response.day || '');
-                        $('#fromDate').val(response.fromDate || '');
-                        $('#toDate').val(response.toDate || '');
-                        $('#month').val(response.month || '');
-                        $('#quarter').val(response.quarter || '');
-                        $('#year').val(response.year || '');
-
-                        // Update export button href with new filter values
-                        $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
-
-                        // Reinitialize charts with new data
+                        // Update charts and stats only, do not overwrite form fields
                         initializeCharts(response);
+
+                        // Update export button href
+                        $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);
@@ -465,10 +528,29 @@
             });
 
             // Handle reset button
-            $('.btn-reset').on('click', function(e) {
+            $('#resetButton').on('click', function(e) {
                 e.preventDefault();
+                // Clear all form fields
                 $('#filterForm')[0].reset();
-                $('#filterForm input, #filterForm select').trigger('change');
+                // Hide all filter fields and buttons
+                toggleFilterFields('');
+                // Trigger AJAX to load default data
+                $.ajax({
+                    url: '@Url.Action("Index")',
+                    type: 'GET',
+                    data: {}, // No filter parameters
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update charts and stats
+                        initializeCharts(response);
+                        // Update export button href to default
+                        $('.btn-export').attr('href', '@Url.Action("ExportToExcel")');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi đặt lại dữ liệu.');
+                    }
+                });
             });
         });
     </script>
