@@ -37,18 +37,17 @@
                 <a href="@Url.Action("ExportToExcel", new { day = day, fromDate = fromDate, toDate = toDate, month = month, quarter = quarter, year = year, filterType = filterType })" class="btn btn-success btn-export"><i class="bi bi-file-earmark-excel"></i> Xuất Excel</a>
             </div>
             <div class="col-auto">
-                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
                     Lọc
                 </button>
             </div>
             <div class="col">
-                <div class="collapse" id="collapseExample">
+                <div class="collapse collapse-horizontal" id="collapseWidthExample">
                     <div class="">
                         <form method="get" action="@Url.Action("Index")" id="filterForm">
                             <div class="row gx-2 gy-2 align-items-end">
                                 <!-- Loại lọc -->
                                 <div class="col-md-2" id="filterTypeContainer">
-                                    <label class="form-label fw-bold">Loại lọc</label>
                                     <select id="filterType" name="filterType" class="form-select">
                                         <option value="">Chọn loại lọc</option>
                                         <option value="day">Ngày</option>
@@ -60,27 +59,22 @@
                                 </div>
                                 <!-- Ngày -->
                                 <div class="col-md-2" id="dayFilter" style="display: none;">
-                                    <label class="form-label fw-bold">Ngày</label>
                                     <input type="date" id="day" name="day" class="form-control" value="@day" />
                                 </div>
                                 <!-- Từ ngày -->
                                 <div class="col-md-2" id="fromDateFilter" style="display: none;">
-                                    <label class="form-label fw-bold">Từ ngày</label>
                                     <input type="date" id="fromDate" name="fromDate" class="form-control" value="@fromDate" />
                                 </div>
                                 <!-- Đến ngày -->
                                 <div class="col-md-2" id="toDateFilter" style="display: none;">
-                                    <label class="form-label fw-bold">Đến ngày</label>
                                     <input type="date" id="toDate" name="toDate" class="form-control" value="@toDate" />
                                 </div>
                                 <!-- Tháng -->
                                 <div class="col-md-2" id="monthFilter" style="display: none;">
-                                    <label class="form-label fw-bold">Tháng</label>
                                     <input type="month" id="month" name="month" class="form-control" value="@month" />
                                 </div>
                                 <!-- Quý -->
                                 <div class="col-md-2" id="quarterFilter" style="display: none;">
-                                    <label class="form-label fw-bold">Quý</label>
                                     <select id="quarter" name="quarter" class="form-select">
                                         <option value="">Chọn quý</option>
                                         <option value="1">Quý 1</option>
@@ -91,7 +85,6 @@
                                 </div>
                                 <!-- Năm -->
                                 <div class="col-md-2" id="yearFilter" style="display: none;">
-                                    <label class="form-label fw-bold">Năm</label>
                                     <select id="year" name="year" class="form-select">
                                         <option value="">Chọn năm</option>
                                         @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
@@ -103,8 +96,8 @@
                                 <!-- Nút Reset và Collapse -->
                                 <div class="col-md-1 d-flex float-right gap-2" id="buttonsContainer" style="display: none;">
                                     <a href="#" id="resetButton" class="btn btn-secondary me-2"><i class="bi bi-arrow-repeat"></i></a>
-                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                                        <i class="fa-solid fa-chevron-up"></i>
+                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+                                        <i class="fa-solid fa-chevron-left"></i>
                                     </button>
                                 </div>
                             </div>
