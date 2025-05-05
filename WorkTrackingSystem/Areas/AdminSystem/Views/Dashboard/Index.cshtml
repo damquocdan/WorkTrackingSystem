@@ -200,6 +200,21 @@
                         </div>
                     </div>
                 </div>
+                <!-- Bar Chart: Jobs by Period -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-bar mr-1"></i>
+                            Công việc theo khoảng thời gian
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="jobsByPeriodBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
+                        <div id="noJobPeriodDataMessage" class="text-center" style="@(ViewBag.JobMonths.Count == 0 ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
+                        </div>
+                    </div>
+                </div>
             </section>
             <!-- Left col -->
             <section class="col-lg-5 connectedSortable">
@@ -248,21 +263,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- Bar Chart: Jobs by Period -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-chart-bar mr-1"></i>
-                            Công việc theo khoảng thời gian
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="jobsByPeriodBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
-                        <div id="noJobPeriodDataMessage" class="text-center" style="@(ViewBag.JobMonths.Count == 0 ? "" : "display: none;")">
-                            Không có dữ liệu để hiển thị.
-                        </div>
-                    </div>
-                </div>
+               
             </section>
             <!-- Right col -->
         </div>
