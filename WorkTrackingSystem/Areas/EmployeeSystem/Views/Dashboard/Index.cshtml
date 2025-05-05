@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Dashboard";
-    Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml"; // Giả sử layout của bạn
+    Layout = "~/Areas/EmployeeSystem/Views/Shared/_Employee.cshtml";
 }
 
 <!-- Content Header (Page header) -->
@@ -89,6 +89,9 @@
                     </div>
                     <div class="card-body">
                         <canvas id="jobStatusPieChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
+                        <div id="noJobStatusDataMessage" class="text-center" style="@((ViewBag.JobStatusOntime == 0 && ViewBag.JobStatusOverdue == 0 && ViewBag.JobStatusLate == 0 && ViewBag.JobStatusProcessing == 0) ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
+                        </div>
                     </div>
                 </div>
                 <!-- /.card -->
@@ -102,6 +105,9 @@
                     </div>
                     <div class="card-body">
                         <canvas id="jobsByMonthBarChart" style="min-height: 250px; height: 250px; max-height: 250px;"></canvas>
+                        <div id="noJobPeriodDataMessage" class="text-center" style="@(ViewBag.JobMonths.Count == 0 ? "" : "display: none;")">
+                            Không có dữ liệu để hiển thị.
+                        </div>
                     </div>
                 </div>
                 <!-- /.card -->
@@ -126,7 +132,10 @@
                         </div>
                     </div>
                     <div class="card-body pt-0">
-                        <div id="calendar" style="width: 100%"></div>
+                        <div id="calendar" style="width: 100%; min-height:530px !important;"></div>
+                        <div id="noCalendarDataMessage" class="text-center" style="@(ViewBag.CalendarJobs == "[]" ? "" : "display: none;")">
+                            Không có sự kiện để hiển thị.
+                        </div>
                     </div>
                 </div>
                 <!-- /.card -->
@@ -141,9 +150,80 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/vi.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Biểu đồ tròn: Trạng thái công việc
+        // Initial data
+        var isDateRange = @(ViewBag.IsDateRange != null && ViewBag.IsDateRange ? "true" : "false");
+        var filterType = '@(ViewBag.FilterType ?? "")';
+        var day = '@(ViewBag.Day ?? "")';
+        var month = '@(ViewBag.Month ?? "")';
+        var calendarJobs = @Html.Raw(ViewBag.CalendarJobs);
+
+        // Global calendar variable
+        var calendar;
+
+        // Function to initialize or update calendar
+        function initializeCalendar(data) {
+            // Destroy existing calendar if it exists
+            if (calendar) calendar.destroy();
+
+            // Update variables with new data
+            calendarJobs = data.calendarJobs || [];
+            filterType = data.filterType || '';
+            day = data.day || '';
+            month = data.month || '';
+            isDateRange = data.isDateRange || false;
+
+            // Show/hide no data message
+            const hasCalendarData = calendarJobs.length > 0;
+            $('#noCalendarDataMessage').css('display', hasCalendarData ? 'none' : 'block');
+
+            // Calendar
+            var calendarEl = document.getElementById('calendar');
+            var initialView = 'dayGridMonth';
+            var initialDate = null;
+
+            // Adjust calendar view and date based on filter type
+            if (filterType === 'day' && day) {
+                initialView = 'timeGridDay';
+                initialDate = day;
+            } else if (filterType === 'month' && month) {
+                initialView = 'dayGridMonth';
+                initialDate = month + '-01'; // Navigate to first day of the month
+            }
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: initialView,
+                initialDate: initialDate,
+                locale: 'vi', // Sử dụng locale tiếng Việt
+                buttonText: {
+                    today: 'Hôm nay',
+                    month: 'Tháng',
+                    week: 'Tuần',
+                    day: 'Ngày',
+                    list: 'Danh sách'
+                },
+                dayHeaderFormat: { weekday: 'long' }, // Hiển thị tên ngày đầy đủ (Thứ Hai, Thứ Ba, ...)
+                events: calendarJobs,
+                eventBackgroundColor: function (event) {
+                    switch (event.extendedProps.status) {
+                        case 1: return '#28a745'; // Hoàn thành
+                        case 2: return '#dc3545'; // Chưa hoàn thành
+                        case 3: return '#ffc107'; // Hoàn thành muộn
+                        case 4: return '#007bff'; // Đang xử lý
+                        default: return '#6c757d';
+                    }
+                },
+                eventBorderColor: function (event) { return event.backgroundColor; },
+                height: 530,
+                eventDidMount: function (info) { info.el.title = info.event.title; }
+            });
+            calendar.render();
+        }
+
+        $(document).ready(function () {
+            // Initialize charts
             var pieCtx = document.getElementById('jobStatusPieChart').getContext('2d');
             var jobStatusPieChart = new Chart(pieCtx, {
                 type: 'pie',
@@ -158,12 +238,11 @@
                 options: {
                     plugins: {
                         legend: { position: 'bottom' },
-                        tooltip: { callbacks: { label: function(context) { return context.raw + ' công việc'; } } }
+                        tooltip: { callbacks: { label: function (context) { return context.raw + ' công việc'; } } }
                     }
                 }
             });
 
-            // Biểu đồ cột: Công việc theo tháng/năm
             var barCtx = document.getElementById('jobsByMonthBarChart').getContext('2d');
             var jobsByMonthBarChart = new Chart(barCtx, {
                 type: 'bar',
@@ -178,36 +257,21 @@
                 },
                 options: {
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } }
+                        y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } },
+                        x: { title: { display: true, text: 'Tháng/Năm' } }
                     },
                     plugins: { legend: { display: false } }
                 }
             });
 
-            // Lịch công việc
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                events: @Html.Raw(ViewBag.CalendarJobs),
-                eventBackgroundColor: function(event) {
-                    switch (event.extendedProps.status) {
-                        case 1: return '#28a745'; // Hoàn thành
-                        case 2: return '#dc3545'; // Chưa hoàn thành
-                        case 3: return '#ffc107'; // Hoàn thành muộn
-                        case 4: return '#007bff'; // Đang xử lý
-                        default: return '#6c757d';
-                    }
-                },
-                eventBorderColor: function(event) {
-                    return event.backgroundColor; // Đồng bộ viền với màu nền
-                },
-                height: 350, // Thu nhỏ từ 400px xuống 350px
-                eventDidMount: function(info) {
-                    // Hiển thị tooltip với tên công việc
-                    info.el.title = info.event.title;
-                }
+            // Initialize calendar with initial data
+            initializeCalendar({
+                calendarJobs: calendarJobs,
+                filterType: filterType,
+                day: day,
+                month: month,
+                isDateRange: isDateRange
             });
-            calendar.render();
         });
     </script>
 }

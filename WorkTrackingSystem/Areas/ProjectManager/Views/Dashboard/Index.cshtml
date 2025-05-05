@@ -256,6 +256,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/vi.js"></script>
     <script>
         // Initial data
         var isDateRange = @(isDateRange ? "true" : "false");
@@ -419,6 +420,15 @@
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: initialView,
                 initialDate: initialDate,
+                locale: 'vi', // Sử dụng locale tiếng Việt
+                buttonText: {
+                    today: 'Hôm nay',
+                    month: 'Tháng',
+                    week: 'Tuần',
+                    day: 'Ngày',
+                    list: 'Danh sách'
+                },
+                dayHeaderFormat: { weekday: 'long' },
                 events: calendarJobs,
                 eventBackgroundColor: function(event) {
                     switch (event.extendedProps.status) {
