@@ -26,11 +26,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string searchText = "",
     string month = "",
     string day = "",
-    string year = "", // Thêm tham số year
-    string quarter = "", // Thêm tham số quarter
+    string year = "",
+    string quarter = "", 
     string quarterYear = "",
-    string fromDate = "", // Thêm tham số fromDate
-    string toDate = "", // Thêm tham số toDate
+    string fromDate = "", 
+    string toDate = "", 
     string status = "",
     string categoryId = "",
     string sortOrder = "",
@@ -89,7 +89,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
                 .Where(s =>
                     (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
-                    (s.JobMapEmployee.EmployeeId == null && s.CreateBy == managerUsername && !assignedJobIds.Contains(s.JobMapEmployee.JobId))
+                    (s.JobMapEmployee.EmployeeId == null /*&& s.CreateBy == managerUsername*/ && !assignedJobIds.Contains(s.JobMapEmployee.JobId))
                 );
 
             // Filter theo JobId cụ thể
@@ -280,7 +280,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         .ThenInclude(jme => jme.Job)
                             .ThenInclude(j => j.Category)
                     .Where(s => s.JobMapEmployee.EmployeeId == null
-                             && s.CreateBy == managerUsername
+                             //&& s.CreateBy == managerUsername
                              && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
                     .Select(s => new
                     {
