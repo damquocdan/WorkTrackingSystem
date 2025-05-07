@@ -1,4 +1,6 @@
-﻿namespace WorkTrackingSystem.Areas.EmployeeSystem.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WorkTrackingSystem.Areas.EmployeeSystem.Models
 {
 	public class JobViewModel
 	{
@@ -10,6 +12,12 @@
 		public DateOnly? CompletionDate { get; set; }
 		public DateOnly? Deadline { get; set; }
 		public double? Progress { get; set; }
-	
-	}
+
+
+        public double? VolumeAssessment { get; set; }
+        public double? ProgressAssessment { get; set; }
+        public double? QualityAssessment { get; set; }
+        public double? SummaryOfReviews { get; set; }
+
+    }
 }

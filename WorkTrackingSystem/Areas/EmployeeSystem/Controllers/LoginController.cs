@@ -36,6 +36,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             {
                 HttpContext.Session.SetString("EmployeeSystem", model.UserName);
                 HttpContext.Session.SetString("UserId", dataLogin.Id.ToString());
+                HttpContext.Session.SetString("EmployeeId", dataLogin.EmployeeId.ToString());
                 HttpContext.Session.SetString("UserAvatar", dataLogin.Employee?.Avatar ?? "~/images/avatar.png");
                 return RedirectToAction("Index", "Dashboard");
             }

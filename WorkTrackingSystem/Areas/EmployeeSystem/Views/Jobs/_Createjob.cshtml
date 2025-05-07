@@ -1,0 +1,52 @@
+﻿@model WorkTrackingSystem.Models.Job
+
+@{
+    ViewData["Title"] = "Tạo công việc mới";
+}
+
+<div class="modal-content">
+    <form asp-action="Createjob" method="post" id="createJobForm">
+        <div class="modal-header">
+            <h3 class="text-center">Tạo công việc mới</h3>
+            <button type="button" data-bs-toggle="collapse" href="#collapsecreate" role="button" aria-expanded="false" aria-controls="collapsecreate"><i class="fa-solid fa-chevron-up"></i></button>
+        </div>
+
+        <div class="modal-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="row">
+                <div class="form-group col-md-2">
+                    <label asp-for="CategoryId" class="control-label">Danh mục</label>
+                    <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId" required>
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2">
+                    <label asp-for="Deadline1" class="control-label">Deadline1</label>
+                    <input asp-for="Deadline1" type="date" class=" form-control" />
+                </div>
+                <div class="form-group col-md-8">
+                    <label asp-for="Name" class="control-label">Tên công việc</label>
+                    <input asp-for="Name" class="form-control" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label">Mô tả</label>
+
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Tạo công việc</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

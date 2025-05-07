@@ -345,17 +345,19 @@
                 </table>
             </div>
             <div class="pagination">
-                @Html.PagedListPager(Model, page => Url.Action("JobEvaluation", new
-                    {
-                        page,
-                        searchText = ViewBag.SearchText,
-                        month = ViewBag.Month,
-                        status = ViewBag.Status,
-                        categoryId = ViewBag.CategoryId,
-                        sortOrder = ViewBag.SortOrder,
-                        showCompletedZeroReview = ViewBag.ShowCompletedZeroReview,
-                        dueToday = ViewBag.DueToday
-                    }), new PagedListRenderOptions
+                @if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
+                {
+                    @Html.PagedListPager(Model, page => Url.Action("JobEvaluation", new
+                        {
+                            page,
+                            searchText = ViewBag.SearchText,
+                            month = ViewBag.Month,
+                            status = ViewBag.Status,
+                            categoryId = ViewBag.CategoryId,
+                            sortOrder = ViewBag.SortOrder,
+                            showCompletedZeroReview = ViewBag.ShowCompletedZeroReview,
+                            dueToday = ViewBag.DueToday
+                        }), new PagedListRenderOptions
            {
                LiElementClasses = new string[] { "page-item" },
                PageClasses = new string[] { "page-link" },
@@ -366,6 +368,7 @@
                DisplayEllipsesWhenNotShowingAllPageNumbers = true,
                MaximumPageNumbersToDisplay = 5
            })
+                }
             </div>
         </div>
     </div>

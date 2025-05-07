@@ -2,133 +2,177 @@
 @model X.PagedList.IPagedList<WorkTrackingSystem.Areas.EmployeeSystem.Models.JobViewModel>
 
 <table class="table table-bordered text-left table-hover shadow">
-	<thead class="text-center">
-		<tr>
-			<th>Hạng mục</th>
-			<th>Tên công việc</th>
-			<th>Hạn chót</th>
-			<th>Ngày hoàn thiện</th>
-			<th>Trạng thái</th>
-			<th>Tiến độ </th>
-
-		</tr>
-	</thead>
-	<tbody id="jobTable">
-
-		@foreach (var item in Model)
-		{
-			<tr class="job-row @GetStatusClass(item.ScoreStatus)" data-status="@item.ScoreStatus">
-				<td>@item.CategoryName</td>
-				<td class="job-name">@item.JobName</td>
-				<td>@item.Deadline?.ToString("dd/MM/yyyy")</td>
-				<td class="text-center">
-					@if (item.Progress == 100 && item.CompletionDate.HasValue)
-					{
-						@item.CompletionDate.Value.ToString("dd/MM/yyyy")
-					}
-					else
-					{
-						<text>-</text> <!-- Hiển thị dấu "-" nếu công việc chưa hoàn thành -->
-					}
-				</td>
-				<td class="text-center">
-					<span class="badge
-                                        @(item.ScoreStatus == 1 ? "bg-success" :
-                                        item.ScoreStatus == 2 ? "bg-warning" :
-                                        item.ScoreStatus == 3 ? "bg-danger" :
-                                        item.ScoreStatus == 4 ? "bg-primary" :
-                                        "bg-secondary")" style="padding:7px;">
-						@switch (item.ScoreStatus)
-						{
-							case 1:
-								@("Hoàn thành")
-								; break;
-							case 2:
-								@("Chưa hoàn thành")
-								; break;
-							case 3:
-								@("Hoàn thành muộn")
-								; break;
-							case 4:
-								@("Đang xử lý")
-								; break;
-							case 0:
-								@("Chưa bắt đầu")
-								; break;
-							default:
-								@("Chưa bắt đầu")
-								; break;
-						}
-					</span>
-				</td>
-				@* <td class="text-center">
-					<span>
-						@if (item.ScoreStatus == 1)
-						{
-							<text>Hoàn thành</text>
-						}
-						else if (item.ScoreStatus == 2)
-						{
-							<text>Chưa hoàn thành</text>
-						}
-						else if (item.ScoreStatus == 3)
-						{
-							<text>Hoàn thành muộn</text>
-						}
-						else if (item.ScoreStatus == 4)
-						{
-							<text>Đang xử lý</text>
-						}
-						else if (item.ScoreStatus == 0)
-						{
-							<text>Chưa bắt đầu</text>
-						}
-					</span>
-				</td> *@
-				<td class="text-center">
-					<input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
-					<span class="progress-value">@item.Progress%</span>
-				</td>
-			</tr>
-		}
-	</tbody>
+    <thead class="text-center">
+        <tr>
+            <th>Hạng mục</th>
+            <th>Tên công việc</th>
+            <th>Hạn chót</th>
+            <th>Ngày hoàn thiện</th>
+            <th>Trạng thái</th>
+            <th>Đánh giá khối lượng</th>
+            <th>Đánh giá tiến độ</th>
+            <th>Đánh giá chất lượng</th>
+            <th>Tổng hợp đánh giá</th>
+            <th>Tiến độ</th>
+        </tr>
+    </thead>
+    <tbody id="jobTable">
+        @foreach (var item in Model)
+        {
+            <tr class="job-row @GetStatusClass(item.ScoreStatus)" data-status="@item.ScoreStatus">
+                <td>@item.CategoryName</td>
+                <td class="job-name">@item.JobName</td>
+                <td>@item.Deadline?.ToString("dd/MM/yyyy")</td>
+                <td class="text-center">
+                    @if (item.Progress == 100 && item.CompletionDate.HasValue)
+                    {
+                        @item.CompletionDate.Value.ToString("dd/MM/yyyy")
+                    }
+                    else
+                    {
+                        <text>-</text> <!-- Hiển thị dấu "-" nếu công việc chưa hoàn thành -->
+                    }
+                </td>
+                <td class="text-center">
+                    <span class="badge
+                        @(item.ScoreStatus == 1 ? "bg-success" :
+                          item.ScoreStatus == 2 ? "bg-warning" :
+                          item.ScoreStatus == 3 ? "bg-danger" :
+                          item.ScoreStatus == 4 ? "bg-primary" :
+                          "bg-secondary")" style="padding:7px;">
+                        @switch (item.ScoreStatus)
+                        {
+                            case 1:
+                                @("Hoàn thành")
+                                break;
+                            case 2:
+                                @("Chưa hoàn thành")
+                                break;
+                            case 3:
+                                @("Hoàn thành muộn")
+                                break;
+                            case 4:
+                                @("Đang xử lý")
+                                break;
+                            case 0:
+                                @("Chưa bắt đầu")
+                                break;
+                            default:
+                                @("Chưa bắt đầu")
+                                break;
+                        }
+                    </span>
+                </td>
+                <td class="text-center">
+                    <select class="form-control assessment-input"
+                            data-field="VolumeAssessment"
+                            data-id="@item.JobId">
+                        @{
+                            var volumeOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
+                            foreach (var value in volumeOptions)
+                            {
+                                if (item.VolumeAssessment.HasValue && Math.Abs(item.VolumeAssessment.Value - value) < 0.01)
+                                {
+                                    <option value="@value" selected>@value.ToString("F1")</option>
+                                }
+                                else
+                                {
+                                    <option value="@value">@value.ToString("F1")</option>
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+                <td class="text-center">
+                    <select class="form-control assessment-input"
+                            data-field="ProgressAssessment"
+                            data-id="@item.JobId">
+                        @{
+                            var progressOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
+                            foreach (var value in progressOptions)
+                            {
+                                if (item.ProgressAssessment.HasValue && Math.Abs(item.ProgressAssessment.Value - value) < 0.01)
+                                {
+                                    <option value="@value" selected>@value.ToString("F1")</option>
+                                }
+                                else
+                                {
+                                    <option value="@value">@value.ToString("F1")</option>
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+                <td class="text-center">
+                    <select class="form-control assessment-input"
+                            data-field="QualityAssessment"
+                            data-id="@item.JobId">
+                        @{
+                            var qualityOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
+                            foreach (var value in qualityOptions)
+                            {
+                                if (item.QualityAssessment.HasValue && Math.Abs(item.QualityAssessment.Value - value) < 0.01)
+                                {
+                                    <option value="@value" selected>@value.ToString("F1")</option>
+                                }
+                                else
+                                {
+                                    <option value="@value">@value.ToString("F1")</option>
+                                }
+                            }
+                        }
+                    </select>
+                </td>
+                <td class="text-center">
+                    <span class="summary-display" data-id="@item.JobId">
+                        @(item.SummaryOfReviews?.ToString("F2") ?? "0.00")
+                    </span>
+                </td>
+                <td class="text-center">
+                    <input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
+                    <span class="progress-value">@item.Progress%</span>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
 @if (Model.TotalItemCount > Model.PageSize) // Chỉ hiển thị phân trang nếu số công việc > limit
 {
-	@Html.PagedListPager(Model, page => Url.Action("Index", new
-		{
-			page = page,
-			filterStatus = ViewBag.FilterStatus,
-			search = ViewBag.Search,
-			selectedMonth = ViewBag.SelectedMonth,
-			startDate = ViewBag.StartDate,
-			endDate = ViewBag.EndDate,
-			deadlineStartDate = ViewBag.deadlineStartDate,
-			deadlineEndDate = ViewBag.deadlineEndDate
-		}), new PagedListRenderOptions
+    @Html.PagedListPager(Model, page => Url.Action("Index", new
+        {
+            page = page,
+            filterStatus = ViewBag.FilterStatus,
+            search = ViewBag.Search,
+            selectedMonth = ViewBag.SelectedMonth,
+            startDate = ViewBag.StartDate,
+            endDate = ViewBag.EndDate,
+            deadlineStartDate = ViewBag.deadlineStartDate,
+            deadlineEndDate = ViewBag.deadlineEndDate
+        }), new PagedListRenderOptions
 {
-	LiElementClasses = new string[] { "page-item" },
-	PageClasses = new string[] { "page-link" },
-	DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-	DisplayLinkToLastPage = PagedListDisplayMode.Always,
-	DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-	DisplayLinkToNextPage = PagedListDisplayMode.Always,
-	DisplayEllipsesWhenNotShowingAllPageNumbers = true,
-	MaximumPageNumbersToDisplay = 5
+    LiElementClasses = new string[] { "page-item" },
+    PageClasses = new string[] { "page-link" },
+    DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+    DisplayLinkToLastPage = PagedListDisplayMode.Always,
+    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+    DisplayEllipsesWhenNotShowingAllPageNumbers = true,
+    MaximumPageNumbersToDisplay = 5
 })
 }
+
 @functions {
-	public string GetStatusClass(int? status)
-	{
-		int statusValue = status ?? 0;
-		switch (statusValue)
-		{
-			case 1: return "table-success"; // Hoàn thành
-			case 2: return "table-warning"; // Chưa hoàn thành
-			case 3: return "table-danger";  // Hoàn thành muộn
-			case 4: return "table-primary"; // Đang xử lý
-			case 0: return "table-secondary"; // Chưa bắt đầu
-			default: return "table-secondary";
-		}
-	}
+    public string GetStatusClass(int? status)
+    {
+        int statusValue = status ?? 0;
+        switch (statusValue)
+        {
+            case 1: return "table-success"; // Hoàn thành
+            case 2: return "table-warning"; // Chưa hoàn thành
+            case 3: return "table-danger";  // Hoàn thành muộn
+            case 4: return "table-primary"; // Đang xử lý
+            case 0: return "table-secondary"; // Chưa bắt đầu
+            default: return "table-secondary";
+        }
+    }
 }
