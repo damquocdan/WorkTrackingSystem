@@ -28,4 +28,5 @@ public partial class Jobmapemployee
     public virtual Job? Job { get; set; }
 
     public virtual ICollection<Score> Scores { get; set; } = new List<Score>();
+    public virtual ICollection<ScoreEmployee> ScoreEmployees { get; set; } = new List<ScoreEmployee>();
 }

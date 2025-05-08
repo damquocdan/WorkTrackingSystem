@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
 using WorkTrackingSystem.Areas.ProjectManager.Models;
 
@@ -34,6 +35,7 @@ public partial class WorkTrackingSystemContext : DbContext
     public virtual DbSet<Position> Positions { get; set; }
 
     public virtual DbSet<Score> Scores { get; set; }
+    public virtual DbSet<ScoreEmployee> Scoreemployees { get; set; }
 
     public virtual DbSet<Systemsw> Systemsws { get; set; }
 
@@ -369,6 +371,46 @@ public partial class WorkTrackingSystemContext : DbContext
                 .HasConstraintName("FK__SCORE__JobMapEmp__0B27A5C0");
         });
 
+
+        modelBuilder.Entity<ScoreEmployee>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_CoreEmployee");
+
+            entity.ToTable("SCOREEMPLOYEE");
+
+            entity.Property(e => e.CompletionDate).HasDefaultValueSql("(NULL)");
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(100)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnName("Create_By");
+            entity.Property(e => e.CreateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("Create_Date");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDelete).HasDefaultValue(false);
+            entity.Property(e => e.JobMapEmployeeId).HasColumnName("JobMapEmployee_Id");
+            entity.Property(e => e.ProgressAssessment).HasDefaultValue(0.0);
+            entity.Property(e => e.QualityAssessment).HasDefaultValue(0.0);
+            entity.Property(e => e.SummaryOfReviews).HasDefaultValue(0.0);
+            entity.Property(e => e.Time).HasColumnType("datetime");
+            entity.Property(e => e.UpdateBy)
+                .HasMaxLength(100)
+                .HasDefaultValueSql("(NULL)")
+                .HasColumnName("Update_By");
+            entity.Property(e => e.UpdateDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("Update_Date");
+            entity.Property(e => e.VolumeAssessment).HasDefaultValue(0.0);
+
+            entity.HasOne(d => d.JobMapEmployee).WithMany(p => p.ScoreEmployees)
+                .HasForeignKey(d => d.JobMapEmployeeId)
+                .HasConstraintName("FK__SCORE__JobMapEmp__0B27A5C2");
+        });
+
+        modelBuilder.Entity<ScoreEmployee>()
+            .ToTable(tb => tb.HasTrigger("SomeTrigger"));
         modelBuilder.Entity<Systemsw>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__SYSTEMSW__3214EC07147B2F97");
@@ -433,6 +475,7 @@ public partial class WorkTrackingSystemContext : DbContext
                 .HasConstraintName("FK__USERS__Employee___0C1BC9F9");
         });
 
+     
         OnModelCreatingPartial(modelBuilder);
     }
 
