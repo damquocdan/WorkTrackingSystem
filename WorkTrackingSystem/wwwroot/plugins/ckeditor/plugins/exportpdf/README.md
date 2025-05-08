@@ -6,7 +6,7 @@ Thanks to this plugin, it takes exactly one button click to get a PDF file with 
 
 CKEditor 4 **Export to PDF** also allows various customizations like changing the page size and margin, setting additional styling, adding custom headers and footers and pre-processing content. This gives great flexibility and control over the PDF output and allows to keep all the PDF documents consistent when it comes to styling.
 
-This is a premium feature. Please [contact us](https://ckeditor.com/contact/) if you would like to purchase a license. Let us know if you have any feedback or questions! You can also sign up for the [CKEditor Premium Features 30-day Free Trial](https://orders.ckeditor.com/trial/premium-features).
+This is a premium feature. Please [contact us](https://ckeditor.com/contact/) if you would like to purchase a license. Let us know if you have any feedback or questions! You can also ??ng nh?p for the [CKEditor Premium Features 30-day Free Trial](https://orders.ckeditor.com/trial/premium-features).
 
 If this feature is used without authorization, the resulting documents will be watermarked.
 
