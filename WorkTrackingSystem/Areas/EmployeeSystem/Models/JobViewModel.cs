@@ -18,6 +18,6 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Models
         public double? ProgressAssessment { get; set; }
         public double? QualityAssessment { get; set; }
         public double? SummaryOfReviews { get; set; }
-
+        public bool IsActive { get; set; }
     }
 }

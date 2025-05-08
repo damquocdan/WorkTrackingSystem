@@ -273,7 +273,7 @@
                                 <td class="text-center ">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
-                                        @item.JobMapEmployee.Employee.FirstName @item.JobMapEmployee.Employee.LastName
+                                        @(item.JobMapEmployee.Employee.FirstName + " " + item.JobMapEmployee.Employee.LastName)
                                     }
                                     else
                                     {

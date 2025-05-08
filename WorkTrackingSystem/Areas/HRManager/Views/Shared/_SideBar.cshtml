@@ -10,9 +10,18 @@
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
+                @if (HttpContextAccessor.HttpContext.Session.GetString("UserAvatar") != null)
+                {
                 <img src="@HttpContextAccessor.HttpContext.Session.GetString("UserAvatar")"
                      class="img-circle elevation-2"
-                     alt="User Image">
+                    alt="User Image">
+                }
+                else
+                {
+                    <img src="~/images//avatar.png"
+                         class="img-circle elevation-2"
+                         alt="User Image">
+                }
             </div>
             <div class="info">
                 @if (HttpContextAccessor.HttpContext.Session.GetString("HRManagerLogin") != null)

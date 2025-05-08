@@ -65,13 +65,13 @@
                     </span>
                 </td>
                 <td class="text-center">
-                    <input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
-                    <span class="progress-value">@item.Progress%</span>
+                    <input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5" @(item.IsActive ? "" : "disabled")>
+                    <span class="progress-value" >@item.Progress%</span>
                 </td>
                 <td class="text-center">
                     <select class="form-control assessment-input"
                             data-field="VolumeAssessment"
-                            data-id="@item.JobId">
+                            data-id="@item.JobId" @(item.IsActive ? "" : "disabled")>
                         @{
                             var volumeOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
                             foreach (var value in volumeOptions)
@@ -91,7 +91,7 @@
                 <td class="text-center">
                     <select class="form-control assessment-input"
                             data-field="ProgressAssessment"
-                            data-id="@item.JobId">
+                            data-id="@item.JobId" @(item.IsActive ? "" : "disabled")>
                         @{
                             var progressOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
                             foreach (var value in progressOptions)
@@ -111,7 +111,7 @@
                 <td class="text-center">
                     <select class="form-control assessment-input"
                             data-field="QualityAssessment"
-                            data-id="@item.JobId">
+                            data-id="@item.JobId" @(item.IsActive ? "" : "disabled")>
                         @{
                             var qualityOptions = new double[] { 0, 0.5, 1, 1.5, 2, 2.5, 3 };
                             foreach (var value in qualityOptions)

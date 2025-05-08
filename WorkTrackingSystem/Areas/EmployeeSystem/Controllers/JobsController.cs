@@ -63,7 +63,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 									.ThenInclude(jm => jm.Job)
 										.ThenInclude(j => j.Category)
 								.Include(s => s.JobMapEmployee.Employee)
-								.Where(s => s.JobMapEmployee.EmployeeId == user.EmployeeId && s.IsActive == true && s.IsDelete == false);
+								.Where(s => s.JobMapEmployee.EmployeeId == user.EmployeeId  && s.IsDelete == false);
 			if (!string.IsNullOrEmpty(search))
 			{
 				jobs = jobs.Where(jm => jm.JobMapEmployee.Job.Name.Contains(search));
@@ -110,6 +110,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 										ProgressAssessment= s.ProgressAssessment ?? 0,
 										QualityAssessment=s.QualityAssessment ?? 0,
 										SummaryOfReviews=s.SummaryOfReviews ?? 0,	
+										IsActive=s.IsActive ?? true,
 									})
 									.ToListAsync();
 
@@ -122,6 +123,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			ViewBag.deadlineEndDate = deadlineEndDate?.ToString("yyyy-MM-dd");
 			ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
 			ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+			
 			if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
 			{
 				return PartialView("_JobListPartial", pagedJobs);
