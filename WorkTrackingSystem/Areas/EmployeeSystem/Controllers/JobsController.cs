@@ -259,29 +259,30 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
                 score.ProgressAssessment = 1;
                 score.QualityAssessment = 1;
             }
-            else if (score.Progress <= 37.5)
+            else if (score.Progress <= 50)
             {
                 score.VolumeAssessment = 1.5;
                 score.ProgressAssessment = 1.5;
                 score.QualityAssessment = 1.5;
             }
-            else if (score.Progress <= 50)
+            else if (score.Progress <= 70)
             {
                 score.VolumeAssessment = 2;
                 score.ProgressAssessment = 2;
                 score.QualityAssessment = 2;
             }
-            else if (score.Progress <= 62.5)
-            {
-                score.VolumeAssessment = 2.5;
-                score.ProgressAssessment = 2.5;
-                score.QualityAssessment = 2.5;
-            }
-            else
+            else if (score.Progress >=100)
             {
                 score.VolumeAssessment = 3;
                 score.ProgressAssessment = 3;
                 score.QualityAssessment = 3;
+                
+            }
+            else
+            {
+                score.VolumeAssessment = 2.5;
+                score.ProgressAssessment = 2.5;
+                score.QualityAssessment = 2.5;
             }
 
             // Tính SummaryOfReviews
@@ -313,7 +314,23 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
                 score.Status = 0; // Chưa bắt đầu
                 score.CompletionDate = null;
             }
-
+            //update progressAssessment
+            if (score.Status == 1)
+            {
+                score.ProgressAssessment = 3;
+            }
+            else if ((score.Status == 2 && score.Progress>=50) || score.Status == 4)
+            {
+                score.ProgressAssessment = 1.5;
+            }
+            else if (score.Status == 3)
+            {
+                score.ProgressAssessment = 2;
+            }
+            else 
+            {
+                score.ProgressAssessment = 0;
+            }
             // Lưu thay đổi vào database
             _context.Entry(score).State = EntityState.Modified;
             await UpdateBaselineAssessment(jobMapEmployee.EmployeeId);
@@ -361,11 +378,12 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 					default:
 						return Json(new { success = false, message = "Trường không hợp lệ." });
 				}
-
-				// Update SummaryOfReviews automatically
-				score.SummaryOfReviews = (score.VolumeAssessment ?? 0) * 0.6f +
+			
+					
+                // Update SummaryOfReviews automatically
+                score.SummaryOfReviews = Math.Round((score.VolumeAssessment ?? 0) * 0.6f +
 										 (score.ProgressAssessment ?? 0) * 0.15f +
-										 (score.QualityAssessment ?? 0) * 0.2f;
+										 (score.QualityAssessment ?? 0) * 0.25f,2);
 
 				score.UpdateDate = DateTime.Now;
 				score.UpdateBy = HttpContext.Session.GetString("EmployeeSystem");

@@ -98,7 +98,7 @@
 
 	</div>
 </div>
-<div class="actionCreate collapse mb-1" id="collapsecreate"></div>
+<div class="actionCreate collapse mb-3" id="collapsecreate"></div>
 <div id="jobListContainer">
 	@await Html.PartialAsync("_JobListPartial", Model)
 </div>
@@ -132,8 +132,21 @@
                     case 3: return "table-danger";
                     case 4: return "table-primary";
                     case 0: return "table-secondary";
-                    default: return "";
+                    default: return "table-secondary";
                 }
+       
+            }
+            // Hàm lấy class trạng thái
+            function getClassStatus(status) {
+                switch (status) {
+                    case 1: return "bg-success";
+                    case 2: return "bg-warning";
+                    case 3: return "bg-danger";
+                    case 4: return "bg-primary";
+                    case 0: return "bg-secondary";
+                    default: return "bg-secondary";
+                }
+
             }
 
             // Xử lý tìm kiếm
@@ -240,9 +253,10 @@
                             if (data.success) {
                                 console.log("Cập nhật tiến độ thành công! Data:", data);
                                 let $row = $(`.progress-slider[data-job-id="${jobId}"]`).closest('.job-row');
-
+                                let $statusTd = $row.find('td:nth-child(5) ');
                                 // Cập nhật trạng thái
-                                let $statusSpan = $row.find('td:nth-child(5) span');
+                                let $statusSpan = $statusTd.find('span');
+                                // let $statusSpan = $row.find('td:nth-child(5) span');
                                 if ($statusSpan.length) {
                                     let newStatus = data.newStatus;
                                     $statusSpan.text(newStatus === 1 ? "Hoàn thành"
@@ -253,6 +267,9 @@
                                     $row.attr('data-status', newStatus);
                                     $row.removeClass("table-success table-warning table-danger table-primary table-secondary");
                                     $row.addClass(getStatusClass(newStatus));
+                                    console.log("check bg", newStatus)
+                                    $statusSpan.removeClass("bg-success bg-warning bg-danger bg-primary bg-secondary");
+                                    $statusSpan.addClass(getClassStatus(newStatus));
                                 }
 
                                 // Cập nhật ngày hoàn thành
@@ -379,6 +396,6 @@
         });
     </script>
 }
-}
+
 
 

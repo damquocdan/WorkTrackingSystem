@@ -9,11 +9,12 @@
             <th>Hạn chót</th>
             <th>Ngày hoàn thiện</th>
             <th>Trạng thái</th>
+            <th>Tiến độ</th>
             <th>Đánh giá khối lượng</th>
             <th>Đánh giá tiến độ</th>
             <th>Đánh giá chất lượng</th>
             <th>Tổng hợp đánh giá</th>
-            <th>Tiến độ</th>
+          
         </tr>
     </thead>
     <tbody id="jobTable">
@@ -62,6 +63,10 @@
                                 break;
                         }
                     </span>
+                </td>
+                <td class="text-center">
+                    <input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
+                    <span class="progress-value">@item.Progress%</span>
                 </td>
                 <td class="text-center">
                     <select class="form-control assessment-input"
@@ -128,10 +133,7 @@
                         @(item.SummaryOfReviews?.ToString("F2") ?? "0.00")
                     </span>
                 </td>
-                <td class="text-center">
-                    <input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5">
-                    <span class="progress-value">@item.Progress%</span>
-                </td>
+               
             </tr>
         }
     </tbody>

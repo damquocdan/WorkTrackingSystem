@@ -1048,9 +1048,9 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
 
                 // Update SummaryOfReviews automatically
-                score.SummaryOfReviews = (score.VolumeAssessment ?? 0) * 0.6f +
+                score.SummaryOfReviews = Math.Round((score.VolumeAssessment ?? 0) * 0.6f +
                                          (score.ProgressAssessment ?? 0) * 0.15f +
-                                         (score.QualityAssessment ?? 0) * 0.25f;
+                                         (score.QualityAssessment ?? 0) * 0.25f,2);
 
                 score.UpdateDate = DateTime.Now;
                 score.UpdateBy = HttpContext.Session.GetString("AdminLogin");
