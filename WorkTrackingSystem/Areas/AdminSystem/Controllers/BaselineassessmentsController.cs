@@ -1063,6 +1063,15 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
                 }
 
                 _context.Update(score);
+                var scoreEmployee = await _context.Scoreemployees
+                   .FirstOrDefaultAsync(se => se.JobMapEmployeeId == score.JobMapEmployeeId && se.IsActive == true);
+
+                if (scoreEmployee != null)
+                {
+                    scoreEmployee.IsActive = false;
+                    _context.Update(scoreEmployee);
+                }
+
                 await _context.SaveChangesAsync();
 
                 return Json(new { success = true });
