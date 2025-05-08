@@ -58,8 +58,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 			//	.Include(jm => jm.Employee)
 			//	.Include(jm => jm.Scores)
 			//	.Where(jm => jm.EmployeeId == user.EmployeeId && jm.IsActive == true && jm.IsDelete == false);
-			var jobs = _context.Scores
-								.Include(s => s.JobMapEmployee)
+			var jobs = _context.Scoreemployees
+                                .Include(s => s.JobMapEmployee)
 									.ThenInclude(jm => jm.Job)
 										.ThenInclude(j => j.Category)
 								.Include(s => s.JobMapEmployee.Employee)
@@ -174,8 +174,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				await _context.SaveChangesAsync(); // Lưu để lấy Id của JobMapEmployee
 
 				// Tạo Score (Gán JobMapEmployeeId)
-				var score = new Score
-				{
+				var score = new ScoreEmployee
+                {
 					JobMapEmployeeId = jobMapEmployee.Id,
 					Status = 0, // Mặc định trạng thái chưa bat dau
 					IsDelete = false,
@@ -186,7 +186,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 					UpdateBy = job.UpdateBy
 				};
 
-				_context.Scores.Add(score);
+				_context.Scoreemployees.Add(score);
 				await _context.SaveChangesAsync();
 
 				return RedirectToAction(nameof(Index));
@@ -225,7 +225,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
             var job = jobMapEmployee.Job;
 
             // Tìm bản ghi Score liên quan đến công việc
-            var score = await _context.Scores
+            var score = await _context.Scoreemployees
                 .Include(s => s.JobMapEmployee)
                 .FirstOrDefaultAsync(s => s.JobMapEmployeeId == jobMapEmployee.Id && s.IsActive == true && s.IsDelete == false);
 
@@ -336,8 +336,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> UpdateAssessment(long id, string field, float value)
 		{
-			var score = await _context.Scores
-				.Include(s => s.JobMapEmployee)
+			var score = await _context.Scoreemployees
+                .Include(s => s.JobMapEmployee)
 				.FirstOrDefaultAsync(s => s.Id == id);
 			if (score == null)
 			{
@@ -393,8 +393,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				return;
 
 			// Lấy tất cả bản ghi Score của nhân viên
-			var jobs = await _context.Scores
-				.Where(j => j.JobMapEmployee.EmployeeId == employeeId && j.CreateDate.HasValue)
+			var jobs = await _context.Scoreemployees
+                .Where(j => j.JobMapEmployee.EmployeeId == employeeId && j.CreateDate.HasValue)
 				.ToListAsync();
 
 			if (!jobs.Any())
@@ -463,8 +463,8 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				return;
 
 			// Lấy tất cả bản ghi Score của nhân viên
-			var jobs = await _context.Scores
-				.Where(j => j.JobMapEmployee.EmployeeId == employeeId && j.CreateDate.HasValue)
+			var jobs = await _context.Scoreemployees
+                .Where(j => j.JobMapEmployee.EmployeeId == employeeId && j.CreateDate.HasValue)
 				.ToListAsync();
 
 			if (!jobs.Any())
