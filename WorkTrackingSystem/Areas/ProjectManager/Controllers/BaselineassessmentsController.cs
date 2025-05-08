@@ -550,7 +550,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                 score.SummaryOfReviews = Math.Round((score.VolumeAssessment ?? 0) * 0.6f +
                                          (score.ProgressAssessment ?? 0) * 0.15f +
-                                         (score.QualityAssessment ?? 0) * 0.25f,2);
+                                         (score.QualityAssessment ?? 0) * 0.25f, 2);
 
                 score.UpdateDate = DateTime.Now;
                 score.UpdateBy = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -561,7 +561,20 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     await UpdateAnalysis(score.JobMapEmployee.EmployeeId);
                 }
 
+                // Update the SCORE record
                 _context.Update(score);
+
+                // Find and update the corresponding SCOREEMPLOYEE record
+                var scoreEmployee = await _context.Scoreemployees
+                    .FirstOrDefaultAsync(se => se.JobMapEmployeeId == score.JobMapEmployeeId && se.IsActive == true);
+
+                if (scoreEmployee != null)
+                {
+                    scoreEmployee.IsActive = false;
+                    _context.Update(scoreEmployee);
+                }
+
+                // Save all changes
                 await _context.SaveChangesAsync();
 
                 return Json(new { success = true });
