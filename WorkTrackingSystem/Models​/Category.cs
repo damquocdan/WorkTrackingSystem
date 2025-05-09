@@ -4,18 +4,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WorkTrackingSystem.Models​;
 
-public partial class Position
+public partial class Category
 {
-    public long Id { get; set; }
+	public long Id { get; set; }
+	[Display(Name = "Mã danh mục")]
 
-	[Display(Name = "Tên")]
+	public string Code { get; set; } = null!;
+
+	[Display(Name = "Tên danh mục")]
 	public string? Name { get; set; }
 
 	[Display(Name = "Mô tả")]
 	public string? Description { get; set; }
 
-	[Display(Name = "Trạng thái")]
-	public bool? Status { get; set; }
+	[Display(Name = "ID danh mục cha")]
+	public long? IdParent { get; set; }
 
 	[Display(Name = "Đã xóa?")]
 	public bool? IsDelete { get; set; }
@@ -35,5 +38,5 @@ public partial class Position
 	[Display(Name = "Người cập nhật")]
 	public string? UpdateBy { get; set; }
 
-	public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+	public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
 }

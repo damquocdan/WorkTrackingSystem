@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
-using WorkTrackingSystem.Areas.ProjectManager.Models;
 
 namespace WorkTrackingSystem.Models​;
 
@@ -16,8 +14,7 @@ public partial class WorkTrackingSystemContext : DbContext
         : base(options)
     {
     }
-    public DbSet<EmployeeScoreSummary> EmployeeScoreSummaries { get; set; }
-    public DbSet<ScoreSummary> ScoreSummaries { get; set; }
+
     public virtual DbSet<Analysis> Analyses { get; set; }
 
     public virtual DbSet<Baselineassessment> Baselineassessments { get; set; }
@@ -32,10 +29,13 @@ public partial class WorkTrackingSystemContext : DbContext
 
     public virtual DbSet<Jobmapemployee> Jobmapemployees { get; set; }
 
+    public virtual DbSet<Jobrepeat> Jobrepeats { get; set; }
+
     public virtual DbSet<Position> Positions { get; set; }
 
     public virtual DbSet<Score> Scores { get; set; }
-    public virtual DbSet<ScoreEmployee> Scoreemployees { get; set; }
+
+    public virtual DbSet<Scoreemployee> Scoreemployees { get; set; }
 
     public virtual DbSet<Systemsw> Systemsws { get; set; }
 
@@ -43,15 +43,13 @@ public partial class WorkTrackingSystemContext : DbContext
 
 //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=DAMQUOCDAN;Database=WorkTrackingSystem;uid=sa;pwd=1234;MultipleActiveResultSets=True;TrustServerCertificate=True");
+//        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=WorkTrackingSystem;uid=sa;pwd=1234;MultipleActiveResultSets=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<EmployeeScoreSummary>().HasNoKey();
-        modelBuilder.Entity<ScoreSummary>().HasNoKey();
         modelBuilder.Entity<Analysis>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC07E14945A9");
+            entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC075CB560D0");
 
             entity.ToTable("ANALYSIS");
 
@@ -83,12 +81,12 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Analyses)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__ANALYSIS__Employ__047AA831");
+                .HasConstraintName("FK__ANALYSIS__Employ__208CD6FA");
         });
 
         modelBuilder.Entity<Baselineassessment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__BASELINE__3214EC07D1C43AEF");
+            entity.HasKey(e => e.Id).HasName("PK__BASELINE__3214EC07CFEE9997");
 
             entity.ToTable("BASELINEASSESSMENT");
 
@@ -119,16 +117,16 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Baselineassessments)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__BASELINEA__Emplo__056ECC6A");
+                .HasConstraintName("FK__BASELINEA__Emplo__2180FB33");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CATEGORY__3214EC079BEF1BC2");
+            entity.HasKey(e => e.Id).HasName("PK__CATEGORY__3214EC07517D6B3C");
 
             entity.ToTable("CATEGORY");
 
-            entity.HasIndex(e => e.Code, "UQ__CATEGORY__A25C5AA7E97CBFA1").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__CATEGORY__A25C5AA796B4ACA2").IsUnique();
 
             entity.Property(e => e.Code)
                 .HasMaxLength(50)
@@ -159,11 +157,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DEPARTME__3214EC070155D190");
+            entity.HasKey(e => e.Id).HasName("PK__DEPARTME__3214EC07E66B04A8");
 
             entity.ToTable("DEPARTMENT");
 
-            entity.HasIndex(e => e.Code, "UQ__DEPARTME__A25C5AA7DD20E978").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__DEPARTME__A25C5AA75155D337").IsUnique();
 
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.CreateBy)
@@ -189,11 +187,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__EMPLOYEE__3214EC07114771A5");
+            entity.HasKey(e => e.Id).HasName("PK__EMPLOYEE__3214EC0794C6F8F6");
 
             entity.ToTable("EMPLOYEE");
 
-            entity.HasIndex(e => e.Code, "UQ__EMPLOYEE__A25C5AA74D2E5399").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__EMPLOYEE__A25C5AA7E04A5FEC").IsUnique();
 
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.CreateBy)
@@ -229,16 +227,16 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Department).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.DepartmentId)
-                .HasConstraintName("FK__EMPLOYEE__Depart__0662F0A3");
+                .HasConstraintName("FK__EMPLOYEE__Depart__22751F6C");
 
             entity.HasOne(d => d.Position).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.PositionId)
-                .HasConstraintName("FK__EMPLOYEE__Positi__075714DC");
+                .HasConstraintName("FK__EMPLOYEE__Positi__236943A5");
         });
 
         modelBuilder.Entity<Job>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__JOB__3214EC07CF635702");
+            entity.HasKey(e => e.Id).HasName("PK__JOB__3214EC078EDA6055");
 
             entity.ToTable("JOB");
 
@@ -256,6 +254,14 @@ public partial class WorkTrackingSystemContext : DbContext
             entity.Property(e => e.Deadline3).HasDefaultValueSql("(NULL)");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDelete).HasDefaultValue(false);
+            entity.Property(e => e.RecurrenceEndDate).HasColumnName("Recurrence_End_Date");
+            entity.Property(e => e.RecurrenceInterval)
+                .HasDefaultValue((byte)1)
+                .HasColumnName("Recurrence_Interval");
+            entity.Property(e => e.RecurrenceType)
+                .HasDefaultValue((byte)0)
+                .HasColumnName("Recurrence_Type");
+            entity.Property(e => e.Recurring).HasDefaultValue(false);
             entity.Property(e => e.UpdateBy)
                 .HasMaxLength(100)
                 .HasDefaultValueSql("(NULL)")
@@ -267,12 +273,12 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Jobs)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK__JOB__Category_Id__084B3915");
+                .HasConstraintName("FK__JOB__Category_Id__245D67DE");
         });
 
         modelBuilder.Entity<Jobmapemployee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__JOBMAPEM__3214EC07D21766BE");
+            entity.HasKey(e => e.Id).HasName("PK__JOBMAPEM__3214EC07922EFC05");
 
             entity.ToTable("JOBMAPEMPLOYEE");
 
@@ -299,16 +305,41 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Jobmapemployees)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__JOBMAPEMP__Emplo__093F5D4E");
+                .HasConstraintName("FK__JOBMAPEMP__Emplo__2FCF1A8A");
 
             entity.HasOne(d => d.Job).WithMany(p => p.Jobmapemployees)
                 .HasForeignKey(d => d.JobId)
-                .HasConstraintName("FK__JOBMAPEMP__Job_I__0A338187");
+                .HasConstraintName("FK__JOBMAPEMP__Job_I__30C33EC3");
+        });
+
+        modelBuilder.Entity<Jobrepeat>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_JobRepeat");
+
+            entity.ToTable("JOBREPEAT");
+
+            entity.Property(e => e.CreateBy)
+                .HasMaxLength(100)
+                .HasColumnName("Create_By");
+            entity.Property(e => e.CreateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Create_Date");
+            entity.Property(e => e.JobId).HasColumnName("Job_Id");
+            entity.Property(e => e.UpdateBy)
+                .HasMaxLength(100)
+                .HasColumnName("Update_By");
+            entity.Property(e => e.UpdateDate)
+                .HasColumnType("datetime")
+                .HasColumnName("Update_Date");
+
+            entity.HasOne(d => d.Job).WithMany(p => p.Jobrepeats)
+                .HasForeignKey(d => d.JobId)
+                .HasConstraintName("FK_JOBREPEAT_JOB");
         });
 
         modelBuilder.Entity<Position>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__POSITION__3214EC0732AD3B49");
+            entity.HasKey(e => e.Id).HasName("PK__POSITION__3214EC07D43BAA1B");
 
             entity.ToTable("POSITION");
 
@@ -336,7 +367,7 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Score>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SCORE__3214EC070872C7AA");
+            entity.HasKey(e => e.Id).HasName("PK__SCORE__3214EC071B698CBB");
 
             entity.ToTable("SCORE");
 
@@ -352,6 +383,7 @@ public partial class WorkTrackingSystemContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDelete).HasDefaultValue(false);
             entity.Property(e => e.JobMapEmployeeId).HasColumnName("JobMapEmployee_Id");
+            entity.Property(e => e.Progress).HasDefaultValue(0.0);
             entity.Property(e => e.ProgressAssessment).HasDefaultValue(0.0);
             entity.Property(e => e.QualityAssessment).HasDefaultValue(0.0);
             entity.Property(e => e.SummaryOfReviews).HasDefaultValue(0.0);
@@ -368,52 +400,42 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.JobMapEmployee).WithMany(p => p.Scores)
                 .HasForeignKey(d => d.JobMapEmployeeId)
-                .HasConstraintName("FK__SCORE__JobMapEmp__0B27A5C0");
+                .HasConstraintName("FK__SCORE__JobMapEmp__395884C4");
         });
 
-
-        modelBuilder.Entity<ScoreEmployee>(entity =>
+        modelBuilder.Entity<Scoreemployee>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_CoreEmployee");
 
-            entity.ToTable("SCOREEMPLOYEE");
+            entity.ToTable("SCOREEMPLOYEE", tb =>
+                {
+                    tb.HasTrigger("trg_insert");
+                    tb.HasTrigger("trg_update");
+                });
 
-            entity.Property(e => e.CompletionDate).HasDefaultValueSql("(NULL)");
             entity.Property(e => e.CreateBy)
                 .HasMaxLength(100)
-                .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Create_By");
             entity.Property(e => e.CreateDate)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("Create_Date");
-            entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsDelete).HasDefaultValue(false);
             entity.Property(e => e.JobMapEmployeeId).HasColumnName("JobMapEmployee_Id");
-            entity.Property(e => e.ProgressAssessment).HasDefaultValue(0.0);
-            entity.Property(e => e.QualityAssessment).HasDefaultValue(0.0);
-            entity.Property(e => e.SummaryOfReviews).HasDefaultValue(0.0);
             entity.Property(e => e.Time).HasColumnType("datetime");
             entity.Property(e => e.UpdateBy)
                 .HasMaxLength(100)
-                .HasDefaultValueSql("(NULL)")
                 .HasColumnName("Update_By");
             entity.Property(e => e.UpdateDate)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("Update_Date");
-            entity.Property(e => e.VolumeAssessment).HasDefaultValue(0.0);
 
-            entity.HasOne(d => d.JobMapEmployee).WithMany(p => p.ScoreEmployees)
+            entity.HasOne(d => d.JobMapEmployee).WithMany(p => p.Scoreemployees)
                 .HasForeignKey(d => d.JobMapEmployeeId)
-                .HasConstraintName("FK__SCORE__JobMapEmp__0B27A5C2");
+                .HasConstraintName("FK_SCOREEMPLOYEE_JOBMAPEMPLOYEE");
         });
 
-        modelBuilder.Entity<ScoreEmployee>()
-            .ToTable(tb => tb.HasTrigger("SomeTrigger"));
         modelBuilder.Entity<Systemsw>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SYSTEMSW__3214EC07147B2F97");
+            entity.HasKey(e => e.Id).HasName("PK__SYSTEMSW__3214EC0708D487E5");
 
             entity.ToTable("SYSTEMSW");
 
@@ -440,11 +462,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__USERS__3214EC072FACE72E");
+            entity.HasKey(e => e.Id).HasName("PK__USERS__3214EC079D9C06A3");
 
             entity.ToTable("USERS");
 
-            entity.HasIndex(e => e.UserName, "UQ__USERS__C9F2845633777A70").IsUnique();
+            entity.HasIndex(e => e.UserName, "UQ__USERS__C9F28456BE8BAAD6").IsUnique();
 
             entity.Property(e => e.CreateBy)
                 .HasMaxLength(100)
@@ -472,10 +494,9 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Users)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__USERS__Employee___0C1BC9F9");
+                .HasConstraintName("FK__USERS__Employee___282DF8C2");
         });
 
-     
         OnModelCreatingPartial(modelBuilder);
     }
 

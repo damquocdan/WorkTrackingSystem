@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WorkTrackingSystem.Models​;
 
-public partial class ScoreEmployee
+public partial class Score
 {
-    public long Id { get; set; }
+	public long Id { get; set; }
 
-    public long? JobMapEmployeeId { get; set; }
-    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+	public long? JobMapEmployeeId { get; set; }
+	[DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
 	[Display(Name = "Ngày hoàn thành")]
 	public DateOnly? CompletionDate { get; set; }
 

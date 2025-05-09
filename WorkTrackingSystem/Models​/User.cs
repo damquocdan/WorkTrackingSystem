@@ -6,7 +6,7 @@ namespace WorkTrackingSystem.Models​;
 
 public partial class User
 {
-    public long Id { get; set; }
+	public long Id { get; set; }
 
 	[Display(Name = "Tên đăng nhập")]
 	public string UserName { get; set; } = null!;

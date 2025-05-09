@@ -6,7 +6,7 @@ namespace WorkTrackingSystem.Models​;
 
 public partial class Department
 {
-    public long Id { get; set; }
+	public long Id { get; set; }
 
 	[Display(Name = "Mã phòng ban")]
 	public string Code { get; set; } = null!;

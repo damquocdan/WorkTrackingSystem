@@ -3,13 +3,21 @@ using System.Collections.Generic;
 
 namespace WorkTrackingSystem.Models​;
 
-public partial class Jobmapemployee
+public partial class Jobrepeat
 {
     public long Id { get; set; }
 
-    public long? EmployeeId { get; set; }
-
     public long? JobId { get; set; }
+
+    public string? Name { get; set; }
+
+    public string? Description { get; set; }
+
+    public DateOnly? Deadline1 { get; set; }
+
+    public DateOnly? Deadline2 { get; set; }
+
+    public DateOnly? Deadline3 { get; set; }
 
     public bool? IsDelete { get; set; }
 
@@ -23,10 +31,5 @@ public partial class Jobmapemployee
 
     public string? UpdateBy { get; set; }
 
-    public virtual Employee? Employee { get; set; }
-
     public virtual Job? Job { get; set; }
-
-    public virtual ICollection<Score> Scores { get; set; } = new List<Score>();
-    public virtual ICollection<ScoreEmployee> ScoreEmployees { get; set; } = new List<ScoreEmployee>();
 }

@@ -6,7 +6,7 @@ namespace WorkTrackingSystem.Models​;
 
 public partial class Employee
 {
-    public long Id { get; set; }
+	public long Id { get; set; }
 
 	[Display(Name = "Mã phòng ban")]
 	public long? DepartmentId { get; set; }
@@ -63,13 +63,13 @@ public partial class Employee
 	public string? UpdateBy { get; set; }
 	public virtual ICollection<Analysis> Analyses { get; set; } = new List<Analysis>();
 
-    public virtual ICollection<Baselineassessment> Baselineassessments { get; set; } = new List<Baselineassessment>();
+	public virtual ICollection<Baselineassessment> Baselineassessments { get; set; } = new List<Baselineassessment>();
 
-    public virtual Department? Department { get; set; }
+	public virtual Department? Department { get; set; }
 
-    public virtual ICollection<Jobmapemployee> Jobmapemployees { get; set; } = new List<Jobmapemployee>();
+	public virtual ICollection<Jobmapemployee> Jobmapemployees { get; set; } = new List<Jobmapemployee>();
 
-    public virtual Position? Position { get; set; }
+	public virtual Position? Position { get; set; }
 
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+	public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

@@ -44,8 +44,17 @@ public partial class Job
 	[Display(Name = "Người cập nhật")]
 	public string? UpdateBy { get; set; }
 
+	public bool? Recurring { get; set; }
 
-public virtual Category? Category { get; set; }
+    public byte? RecurrenceType { get; set; }
+
+    public byte? RecurrenceInterval { get; set; }
+
+    public DateOnly? RecurrenceEndDate { get; set; }
+
+    public virtual Category? Category { get; set; }
 
     public virtual ICollection<Jobmapemployee> Jobmapemployees { get; set; } = new List<Jobmapemployee>();
+
+    public virtual ICollection<Jobrepeat> Jobrepeats { get; set; } = new List<Jobrepeat>();
 }

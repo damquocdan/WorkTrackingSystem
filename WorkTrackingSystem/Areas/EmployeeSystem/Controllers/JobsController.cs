@@ -176,7 +176,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Controllers
 				await _context.SaveChangesAsync(); // Lưu để lấy Id của JobMapEmployee
 
 				// Tạo Score (Gán JobMapEmployeeId)
-				var score = new ScoreEmployee
+				var score = new Scoreemployee
                 {
 					JobMapEmployeeId = jobMapEmployee.Id,
 					Status = 0, // Mặc định trạng thái chưa bat dau
