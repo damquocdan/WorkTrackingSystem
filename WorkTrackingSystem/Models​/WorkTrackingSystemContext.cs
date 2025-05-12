@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-
+using WorkTrackingSystem.Areas.ProjectManager.Models;
 namespace WorkTrackingSystem.Models​;
 
 public partial class WorkTrackingSystemContext : DbContext
@@ -41,15 +41,15 @@ public partial class WorkTrackingSystemContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=WorkTrackingSystem;uid=sa;pwd=1234;MultipleActiveResultSets=True;TrustServerCertificate=True");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=DAMQUOCDAN;Database=WorkTrackingSystem;uid=sa;pwd=1234;MultipleActiveResultSets=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Analysis>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC075CB560D0");
+            entity.HasKey(e => e.Id).HasName("PK__ANALYSIS__3214EC07400D5EE4");
 
             entity.ToTable("ANALYSIS");
 
@@ -81,12 +81,12 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Analyses)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__ANALYSIS__Employ__208CD6FA");
+                .HasConstraintName("FK__ANALYSIS__Employ__2739D489");
         });
 
         modelBuilder.Entity<Baselineassessment>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__BASELINE__3214EC07CFEE9997");
+            entity.HasKey(e => e.Id).HasName("PK__BASELINE__3214EC07995C3A9A");
 
             entity.ToTable("BASELINEASSESSMENT");
 
@@ -117,16 +117,16 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Baselineassessments)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__BASELINEA__Emplo__2180FB33");
+                .HasConstraintName("FK__BASELINEA__Emplo__282DF8C2");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__CATEGORY__3214EC07517D6B3C");
+            entity.HasKey(e => e.Id).HasName("PK__CATEGORY__3214EC07D45447C3");
 
             entity.ToTable("CATEGORY");
 
-            entity.HasIndex(e => e.Code, "UQ__CATEGORY__A25C5AA796B4ACA2").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__CATEGORY__A25C5AA74E76B80E").IsUnique();
 
             entity.Property(e => e.Code)
                 .HasMaxLength(50)
@@ -157,11 +157,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Department>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DEPARTME__3214EC07E66B04A8");
+            entity.HasKey(e => e.Id).HasName("PK__DEPARTME__3214EC07D534E2F1");
 
             entity.ToTable("DEPARTMENT");
 
-            entity.HasIndex(e => e.Code, "UQ__DEPARTME__A25C5AA75155D337").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__DEPARTME__A25C5AA775CD911D").IsUnique();
 
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.CreateBy)
@@ -187,11 +187,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__EMPLOYEE__3214EC0794C6F8F6");
+            entity.HasKey(e => e.Id).HasName("PK__EMPLOYEE__3214EC077404DA32");
 
             entity.ToTable("EMPLOYEE");
 
-            entity.HasIndex(e => e.Code, "UQ__EMPLOYEE__A25C5AA7E04A5FEC").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__EMPLOYEE__A25C5AA764DD30DB").IsUnique();
 
             entity.Property(e => e.Code).HasMaxLength(50);
             entity.Property(e => e.CreateBy)
@@ -227,11 +227,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Department).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.DepartmentId)
-                .HasConstraintName("FK__EMPLOYEE__Depart__22751F6C");
+                .HasConstraintName("FK__EMPLOYEE__Depart__29221CFB");
 
             entity.HasOne(d => d.Position).WithMany(p => p.Employees)
                 .HasForeignKey(d => d.PositionId)
-                .HasConstraintName("FK__EMPLOYEE__Positi__236943A5");
+                .HasConstraintName("FK__EMPLOYEE__Positi__2A164134");
         });
 
         modelBuilder.Entity<Job>(entity =>
@@ -294,6 +294,7 @@ public partial class WorkTrackingSystemContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDelete).HasDefaultValue(false);
             entity.Property(e => e.JobId).HasColumnName("Job_Id");
+            entity.Property(e => e.JobRepeatId).HasColumnName("JobRepeat_Id");
             entity.Property(e => e.UpdateBy)
                 .HasMaxLength(100)
                 .HasDefaultValueSql("(NULL)")
@@ -310,6 +311,10 @@ public partial class WorkTrackingSystemContext : DbContext
             entity.HasOne(d => d.Job).WithMany(p => p.Jobmapemployees)
                 .HasForeignKey(d => d.JobId)
                 .HasConstraintName("FK__JOBMAPEMP__Job_I__30C33EC3");
+
+            entity.HasOne(d => d.JobRepeat).WithMany(p => p.Jobmapemployees)
+                .HasForeignKey(d => d.JobRepeatId)
+                .HasConstraintName("FK_JOBMAPEMPLOYEE_JOBREPEAT");
         });
 
         modelBuilder.Entity<Jobrepeat>(entity =>
@@ -339,7 +344,7 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Position>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__POSITION__3214EC07D43BAA1B");
+            entity.HasKey(e => e.Id).HasName("PK__POSITION__3214EC078A0F3D81");
 
             entity.ToTable("POSITION");
 
@@ -435,7 +440,7 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<Systemsw>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__SYSTEMSW__3214EC0708D487E5");
+            entity.HasKey(e => e.Id).HasName("PK__SYSTEMSW__3214EC072D86F414");
 
             entity.ToTable("SYSTEMSW");
 
@@ -462,11 +467,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__USERS__3214EC079D9C06A3");
+            entity.HasKey(e => e.Id).HasName("PK__USERS__3214EC0794F2164C");
 
             entity.ToTable("USERS");
 
-            entity.HasIndex(e => e.UserName, "UQ__USERS__C9F28456BE8BAAD6").IsUnique();
+            entity.HasIndex(e => e.UserName, "UQ__USERS__C9F2845686B24373").IsUnique();
 
             entity.Property(e => e.CreateBy)
                 .HasMaxLength(100)
@@ -494,9 +499,11 @@ public partial class WorkTrackingSystemContext : DbContext
 
             entity.HasOne(d => d.Employee).WithMany(p => p.Users)
                 .HasForeignKey(d => d.EmployeeId)
-                .HasConstraintName("FK__USERS__Employee___282DF8C2");
+                .HasConstraintName("FK__USERS__Employee___31B762FC");
         });
-
+        modelBuilder.Entity<EmployeeScoreSummary>()
+                .HasNoKey()
+                .ToView(null);
         OnModelCreatingPartial(modelBuilder);
     }
 
