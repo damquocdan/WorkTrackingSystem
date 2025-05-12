@@ -32,4 +32,6 @@ public partial class Jobrepeat
     public string? UpdateBy { get; set; }
 
     public virtual Job? Job { get; set; }
+
+    public virtual ICollection<Jobmapemployee> Jobmapemployees { get; set; } = new List<Jobmapemployee>();
 }

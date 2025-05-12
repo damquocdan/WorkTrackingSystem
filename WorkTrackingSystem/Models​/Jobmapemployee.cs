@@ -23,9 +23,13 @@ public partial class Jobmapemployee
 
     public string? UpdateBy { get; set; }
 
+    public long? JobRepeatId { get; set; }
+
     public virtual Employee? Employee { get; set; }
 
     public virtual Job? Job { get; set; }
+
+    public virtual Jobrepeat? JobRepeat { get; set; }
 
     public virtual ICollection<Scoreemployee> Scoreemployees { get; set; } = new List<Scoreemployee>();
 
