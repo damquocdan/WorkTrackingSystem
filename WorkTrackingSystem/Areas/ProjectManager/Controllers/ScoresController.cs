@@ -27,10 +27,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string month = "",
     string day = "",
     string year = "",
-    string quarter = "", 
+    string quarter = "",
     string quarterYear = "",
-    string fromDate = "", 
-    string toDate = "", 
+    string fromDate = "",
+    string toDate = "",
     string status = "",
     string categoryId = "",
     string sortOrder = "",
@@ -80,16 +80,19 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Distinct()
                 .ToListAsync();
 
+            // Điều chỉnh scoresQuery để bao gồm JobRepeat
             var scoresQuery = _context.Scores
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Employee)
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Job)
                         .ThenInclude(j => j.Category)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.JobRepeat) // Thêm Include cho JobRepeat
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
                 .Where(s =>
                     (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
-                    (s.JobMapEmployee.EmployeeId == null /*&& s.CreateBy == managerUsername*/ && !assignedJobIds.Contains(s.JobMapEmployee.JobId))
+                    (s.JobMapEmployee.EmployeeId == null && !assignedJobIds.Contains(s.JobMapEmployee.JobId))
                 );
 
             // Filter theo JobId cụ thể
@@ -130,7 +133,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.CreateDate.Value.Month >= startMonth &&
                     s.CreateDate.Value.Month <= endMonth);
 
-                // Nếu có chọn năm của quý, lọc thêm theo năm
                 if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
                 {
                     scoresQuery = scoresQuery.Where(s =>
@@ -139,12 +141,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
             else if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
             {
-                // Nếu chỉ chọn năm của quý mà không chọn quý, hiển thị toàn bộ dữ liệu của năm đó
                 scoresQuery = scoresQuery.Where(s =>
                     s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
             }
 
-            // Lọc theo năm (nếu không phải là năm của quý)
+            // Lọc theo năm
             if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear) && string.IsNullOrEmpty(quarterYear))
             {
                 scoresQuery = scoresQuery.Where(s =>
@@ -200,24 +201,30 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
             }
 
-            // Sắp xếp: công việc chưa được giao (null) hiển thị lên đầu, sau đó theo ngày mới nhất
+            // Sắp xếp: sử dụng JobRepeat.Deadline1 nếu có, nếu không thì Job.Deadline1
             switch (sortOrder)
             {
                 case "due_asc":
-                    scoresQuery = scoresQuery.OrderBy(s => s.JobMapEmployee.Job.Deadline1);
+                    scoresQuery = scoresQuery.OrderBy(s =>
+                        s.JobMapEmployee.JobRepeat != null && s.JobMapEmployee.JobRepeat.Deadline1.HasValue
+                        ? s.JobMapEmployee.JobRepeat.Deadline1.Value
+                        : s.JobMapEmployee.Job.Deadline1);
                     break;
                 case "due_desc":
-                    scoresQuery = scoresQuery.OrderByDescending(s => s.JobMapEmployee.Job.Deadline1);
+                    scoresQuery = scoresQuery.OrderByDescending(s =>
+                        s.JobMapEmployee.JobRepeat != null && s.JobMapEmployee.JobRepeat.Deadline1.HasValue
+                        ? s.JobMapEmployee.JobRepeat.Deadline1.Value
+                        : s.JobMapEmployee.Job.Deadline1);
                     break;
                 case "review_asc":
-                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews ?? 0); // Handle null reviews
+                    scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews ?? 0);
                     break;
                 case "review_desc":
-                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews ?? 0); // Handle null reviews
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.SummaryOfReviews ?? 0);
                     break;
                 default:
                     scoresQuery = scoresQuery
-                        .OrderBy(s => s.JobMapEmployee.EmployeeId.HasValue) // false (null) lên đầu
+                        .OrderBy(s => s.JobMapEmployee.EmployeeId.HasValue)
                         .ThenByDescending(s => s.CreateDate);
                     break;
             }
@@ -228,10 +235,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             ViewBag.SearchText = searchText;
             ViewBag.Month = month;
             ViewBag.Day = day;
-            ViewBag.Year = year; // Thêm ViewBag cho năm
-            ViewBag.Quarter = quarter; // Thêm ViewBag cho quý
-            ViewBag.FromDate = fromDate; // Thêm ViewBag cho từ ngày
-            ViewBag.ToDate = toDate; // Thêm ViewBag cho đến ngày
+            ViewBag.Year = year;
+            ViewBag.Quarter = quarter;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
             ViewBag.Status = status?.ToString();
             ViewBag.CategoryId = categoryId?.ToString();
             ViewBag.SortOrder = sortOrder;
@@ -240,7 +247,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             return View(scores);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetJobsByEmployee(long employeeId)
         {
@@ -295,22 +301,40 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     .ToListAsync();
 
                 // Công việc đã giao cho nhân viên cụ thể
-                var assignedJobs = await _context.Scores
+                // Bước 1: Lấy danh sách Score với JobMapEmployee và Job
+                var scores = await _context.Scores
                     .Include(s => s.JobMapEmployee)
                         .ThenInclude(jme => jme.Job)
                             .ThenInclude(j => j.Category)
                     .Where(s => s.JobMapEmployee.EmployeeId == employeeId)
-                    .Select(s => new
+                    .ToListAsync();
+
+                // Bước 2: Lấy JobRepeatId và Deadline1 từ JobRepeat nếu cần
+                var jobMapEmployeeIds = scores.Select(s => s.JobMapEmployee.Id).ToList();
+                var jobMapEmployeesWithRepeats = await _context.Jobmapemployees
+                    .Include(jme => jme.JobRepeat)
+                    .Where(jme => jobMapEmployeeIds.Contains(jme.Id))
+                    .ToDictionaryAsync(jme => jme.Id, jme => jme.JobRepeat);
+
+                // Bước 3: Tạo kết quả
+                var assignedJobs = scores.Select(s =>
+                {
+                    var jobMapEmployee = s.JobMapEmployee;
+                    var jobRepeat = jobMapEmployeesWithRepeats.ContainsKey(jobMapEmployee.Id) ? jobMapEmployeesWithRepeats[jobMapEmployee.Id] : null;
+
+                    return new
                     {
-                        Id = s.JobMapEmployee.JobId,
-                        Name = s.JobMapEmployee.Job.Name,
-                        CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
+                        Id = jobMapEmployee.JobRepeatId.HasValue ? jobMapEmployee.JobRepeatId.Value : jobMapEmployee.JobId,
+                        Name = jobMapEmployee.Job.Name,
+                        CategoryName = jobMapEmployee.Job.Category != null ? jobMapEmployee.Job.Category.Name : "N/A",
                         Time = s.Time,
-                        Deadline1 = s.JobMapEmployee.Job.Deadline1,
+                        Deadline1 = jobRepeat != null && jobRepeat.Deadline1.HasValue
+                            ? jobRepeat.Deadline1
+                            : jobMapEmployee.Job.Deadline1,
                         Status = s.Status,
                         CompletionDate = s.CompletionDate
-                    })
-                    .ToListAsync();
+                    };
+                }).ToList();
 
                 return Json(new
                 {
@@ -326,7 +350,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline)
+        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline, bool recurring, byte? recurrenceType, byte? recurrenceInterval, string recurrenceEndDate)
         {
             var job = await _context.Jobs.FindAsync(jobId);
             if (job == null)
@@ -340,7 +364,48 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return Json(new { success = false, message = "Employee not found" });
             }
 
-            // Tạo JobMapEmployee
+            // Update job recurrence settings
+            job.Recurring = recurring;
+            if (recurring)
+            {
+                if (!recurrenceType.HasValue || !recurrenceInterval.HasValue || string.IsNullOrEmpty(recurrenceEndDate))
+                {
+                    return Json(new { success = false, message = "Recurring job requires type, interval, and end date" });
+                }
+                job.RecurrenceType = recurrenceType;
+                job.RecurrenceInterval = recurrenceInterval;
+                if (DateOnly.TryParse(recurrenceEndDate, out DateOnly parsedRecurrenceEndDate))
+                {
+                    job.RecurrenceEndDate = parsedRecurrenceEndDate;
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Invalid recurrence end date format" });
+                }
+            }
+            else
+            {
+                job.RecurrenceType = null;
+                job.RecurrenceInterval = null;
+                job.RecurrenceEndDate = null;
+            }
+            _context.Jobs.Update(job);
+
+            // Parse time and deadline
+            DateTime? parsedTime = null;
+            DateOnly? parsedDeadline = null;
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
+            {
+                parsedTime = startDate;
+            }
+            if (!string.IsNullOrEmpty(deadline) && DateOnly.TryParseExact(deadline, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateOnly endDate))
+            {
+                parsedDeadline = endDate;
+                job.Deadline1 = parsedDeadline;
+                _context.Jobs.Update(job);
+            }
+
+            // Create JobMapEmployee for the main job
             var jobMapEmployee = new Jobmapemployee
             {
                 JobId = jobId,
@@ -350,27 +415,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 IsActive = true,
                 IsDelete = false
             };
-
             _context.Jobmapemployees.Add(jobMapEmployee);
             await _context.SaveChangesAsync();
 
-            // Xử lý ngày bắt đầu và ngày kết thúc
-            DateTime? parsedTime = null;
-            DateOnly? parsedDeadline = null;
-
-            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
-            {
-                parsedTime = startDate;
-            }
-
-            if (!string.IsNullOrEmpty(deadline) && DateOnly.TryParseExact(deadline, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateOnly endDate))
-            {
-                parsedDeadline = endDate;
-                job.Deadline1 = parsedDeadline;
-                _context.Jobs.Update(job);
-            }
-
-            // Tạo Score
+            // Create Score for the main job
             var score = new Score
             {
                 JobMapEmployeeId = jobMapEmployee.Id,
@@ -382,9 +430,103 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             _context.Scores.Add(score);
             await _context.SaveChangesAsync();
 
+            // Handle Recurring Jobs
+            if (job.Recurring == true && job.RecurrenceType.HasValue && job.RecurrenceInterval.HasValue && job.RecurrenceEndDate.HasValue)
+            {
+                var currentDate = job.Deadline1 ?? DateOnly.FromDateTime(DateTime.Now);
+                var recurrenceEnd = job.RecurrenceEndDate.Value;
+
+                // Tăng currentDate lên một chu kỳ lặp ngay từ đầu để bỏ qua ngày ban đầu
+                switch (job.RecurrenceType)
+                {
+                    case 1: // Daily
+                        currentDate = currentDate.AddDays(job.RecurrenceInterval.Value);
+                        break;
+                    case 2: // Weekly
+                        currentDate = currentDate.AddDays(7 * job.RecurrenceInterval.Value);
+                        break;
+                    case 3: // Monthly
+                        currentDate = currentDate.AddMonths(job.RecurrenceInterval.Value);
+                        break;
+                    case 4: // Yearly
+                        currentDate = currentDate.AddYears(job.RecurrenceInterval.Value);
+                        break;
+                    default:
+                        return Json(new { success = false, message = "Invalid recurrence type" });
+                }
+
+                // Tạo các Jobrepeat cho các ngày tiếp theo
+                while (currentDate <= recurrenceEnd)
+                {
+                    var jobRepeat = new Jobrepeat
+                    {
+                        JobId = job.Id,
+                        Name = job.Name,
+                        Description = job.Description,
+                        Deadline1 = currentDate,
+                        Deadline2 = job.Deadline2.HasValue ? currentDate.AddDays((job.Deadline2.Value.ToDateTime(TimeOnly.MinValue) - job.Deadline1.Value.ToDateTime(TimeOnly.MinValue)).Days) : null,
+                        Deadline3 = job.Deadline3.HasValue ? currentDate.AddDays((job.Deadline3.Value.ToDateTime(TimeOnly.MinValue) - job.Deadline1.Value.ToDateTime(TimeOnly.MinValue)).Days) : null,
+                        IsDelete = false,
+                        IsActive = true,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        CreateBy = job.CreateBy,
+                        UpdateBy = job.UpdateBy
+                    };
+
+                    _context.Jobrepeats.Add(jobRepeat);
+                    await _context.SaveChangesAsync();
+
+                    var jobRepeatMapEmployee = new Jobmapemployee
+                    {
+                        JobId = job.Id,
+                        JobRepeatId = jobRepeat.Id,
+                        EmployeeId = employeeId,
+                        IsDelete = false,
+                        IsActive = true,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        CreateBy = job.CreateBy,
+                        UpdateBy = job.UpdateBy
+                    };
+                    _context.Jobmapemployees.Add(jobRepeatMapEmployee);
+                    await _context.SaveChangesAsync();
+
+                    var jobRepeatScore = new Score
+                    {
+                        JobMapEmployeeId = jobRepeatMapEmployee.Id,
+                        Status = 0,
+                        IsDelete = false,
+                        IsActive = true,
+                        CreateDate = jobRepeat.Deadline1?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Now,
+                        Time = parsedTime ?? DateTime.Now,
+                        CreateBy = job.CreateBy,
+                        UpdateBy = job.UpdateBy
+                    };
+                    _context.Scores.Add(jobRepeatScore);
+                    await _context.SaveChangesAsync();
+
+                    // Tăng currentDate cho chu kỳ lặp tiếp theo
+                    switch (job.RecurrenceType)
+                    {
+                        case 1: // Daily
+                            currentDate = currentDate.AddDays(job.RecurrenceInterval.Value);
+                            break;
+                        case 2: // Weekly
+                            currentDate = currentDate.AddDays(7 * job.RecurrenceInterval.Value);
+                            break;
+                        case 3: // Monthly
+                            currentDate = currentDate.AddMonths(job.RecurrenceInterval.Value);
+                            break;
+                        case 4: // Yearly
+                            currentDate = currentDate.AddYears(job.RecurrenceInterval.Value);
+                            break;
+                    }
+                }
+            }
+
             return Json(new { success = true });
         }
-
         [HttpPost]
         public async Task<IActionResult> UpdateJobDate(long jobId, string field, string date)
         {
@@ -434,21 +576,28 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Createjob([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
+        public async Task<IActionResult> Createjob([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy,Recurring,RecurrenceType,RecurrenceInterval,RecurrenceEndDate")] Job job)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
             if (ModelState.IsValid)
             {
-                // Tạo Job
+                // Set audit fields for the Job
                 job.CreateBy = managerUsername;
+                job.UpdateBy = managerUsername;
+                job.CreateDate = DateTime.Now;
+                job.UpdateDate = DateTime.Now;
+                job.IsDelete = false;
+                job.IsActive = true;
+
+                // Add the Job to the context
                 _context.Jobs.Add(job);
                 await _context.SaveChangesAsync();
 
-                // Tạo JobMapEmployee (Gán JobId)
+                // Create JobMapEmployee for the Job
                 var jobMapEmployee = new Jobmapemployee
                 {
                     JobId = job.Id,
-                    EmployeeId = null, // Chưa có Employee, cần cập nhật sau nếu cần
+                    EmployeeId = null, // To be updated later if needed
                     IsDelete = false,
                     IsActive = true,
                     CreateDate = DateTime.Now,
@@ -456,30 +605,29 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     CreateBy = job.CreateBy,
                     UpdateBy = job.UpdateBy
                 };
-
                 _context.Jobmapemployees.Add(jobMapEmployee);
-                await _context.SaveChangesAsync(); // Lưu để lấy Id của JobMapEmployee
+                await _context.SaveChangesAsync();
 
-                // Tạo Score (Gán JobMapEmployeeId)
+                // Create Score for the JobMapEmployee
                 var score = new Score
                 {
                     JobMapEmployeeId = jobMapEmployee.Id,
-                    Status = 0, // Mặc định trạng thái chưa bat dau
+                    Status = 0, // Default status (not started)
                     IsDelete = false,
                     IsActive = true,
-                    CreateDate = null,
+                    CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
                     CreateBy = job.CreateBy,
                     UpdateBy = job.UpdateBy
                 };
-
                 _context.Scores.Add(score);
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            // If ModelState is invalid, return the view with validation errors
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
             return View(job);
         }
 

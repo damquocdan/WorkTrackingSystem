@@ -235,6 +235,12 @@
     @Html.AntiForgeryToken()
     <input type="hidden" name="jobId" id="form-job-id" />
     <input type="hidden" name="employeeId" id="form-employee-id" />
+    <input type="hidden" name="time" id="form-time" />
+    <input type="hidden" name="deadline" id="form-deadline" />
+    <input type="hidden" name="recurring" id="form-recurring" />
+    <input type="hidden" name="recurrenceType" id="form-recurrenceType" />
+    <input type="hidden" name="recurrenceInterval" id="form-recurrenceInterval" />
+    <input type="hidden" name="recurrenceEndDate" id="form-recurrenceEndDate" />
 </form>
 <div class="actionCreate collapse" id="collapsecreate"></div>
 
@@ -265,12 +271,12 @@
                         {
                             index++;
                             <tr class="@(item.Status == 1 ? "table-success" :
-                                        item.Status == 2 ? "table-warning" :
-                                        item.Status == 3 ? "table-danger" :
-                                        item.Status == 4 ? "table-primary" :
-                                        item.Status == 0 ? "table-secondary" : "")">
+                    item.Status == 2 ? "table-warning" :
+                    item.Status == 3 ? "table-danger" :
+                    item.Status == 4 ? "table-primary" :
+                    item.Status == 0 ? "table-secondary" : "")">
                                 <td class="text-center">@index</td>
-                                <td class="text-center ">
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         @(item.JobMapEmployee.Employee.FirstName + " " + item.JobMapEmployee.Employee.LastName)
@@ -280,19 +286,36 @@
                                         <span class="text-danger">Chưa giao việc</span>
                                     }
                                 </td>
-                                <td class="text-center ">@item.JobMapEmployee.Job.Category.Name</td>
+                                <td class="text-center">@item.JobMapEmployee.Job.Category.Name</td>
                                 <td>@item.JobMapEmployee.Job.Name</td>
-                                <td class="text-center ">
+                                <td class="text-center">
                                     @{
                                         var createDate = item.CreateDate?.Date;
-                                        var deadline1 = item.JobMapEmployee?.Job?.Deadline1;
-                                        var deadline2 = item.JobMapEmployee?.Job?.Deadline2;
-                                        var deadline3 = item.JobMapEmployee?.Job?.Deadline3;
+                                        DateOnly? deadline = null;
+
+                                        // Ưu tiên JobRepeat.Deadline1 nếu có
+                                        if (item.JobMapEmployee?.JobRepeat != null && item.JobMapEmployee.JobRepeat.Deadline1.HasValue)
+                                        {
+                                            deadline = item.JobMapEmployee.JobRepeat.Deadline1;
+                                        }
+                                        // Nếu không có JobRepeat, sử dụng Job.Deadline1, Deadline2, hoặc Deadline3
+                                        else if (item.JobMapEmployee?.Job != null)
+                                        {
+                                            if (item.JobMapEmployee.Job.Deadline1.HasValue)
+                                            {
+                                                deadline = item.JobMapEmployee.Job.Deadline1;
+                                            }
+                                            else if (item.JobMapEmployee.Job.Deadline2.HasValue)
+                                            {
+                                                deadline = item.JobMapEmployee.Job.Deadline2;
+                                            }
+                                            else if (item.JobMapEmployee.Job.Deadline3.HasValue)
+                                            {
+                                                deadline = item.JobMapEmployee.Job.Deadline3;
+                                            }
+                                        }
                                     }
-                                    @if (item.JobMapEmployee?.Employee != null
-                                   && ((createDate.HasValue && deadline1.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline1.Value)
-                                   || (createDate.HasValue && deadline2.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline2.Value)
-                                   || (createDate.HasValue && deadline3.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline3.Value)))
+                                    @if (item.JobMapEmployee?.Employee != null && createDate.HasValue && deadline.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline.Value)
                                     {
                                         @Html.DisplayFor(modelItem => item.CreateDate)
                                     }
@@ -301,13 +324,13 @@
                                         <span></span>
                                     }
                                 </td>
-                                <td class="text-center ">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
-                                <td class="text-center ">
+                                <td class="text-center">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
+                                <td class="text-center">
                                     <span class="badge @(item.Status == 1 ? "bg-success" :
-                                                        item.Status == 2 ? "bg-warning" :
-                                                        item.Status == 3 ? "bg-danger" :
-                                                        item.Status == 4 ? "bg-primary" :
-                                                        "bg-secondary") w-100" style="padding:7px;">
+                                    item.Status == 2 ? "bg-warning" :
+                                    item.Status == 3 ? "bg-danger" :
+                                    item.Status == 4 ? "bg-primary" :
+                                    "bg-secondary") w-100" style="padding:7px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
@@ -331,7 +354,7 @@
                                         }
                                     </span>
                                 </td>
-                                <td class="text-center ">
+                                <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
                                     {
                                         <span class="summary-display" data-id="@item.Id">
@@ -339,7 +362,7 @@
                                         </span>
                                     }
                                 </td>
-                                <td class="text-center  p-0">
+                                <td class="text-center p-0">
                                     <div class="d-flex justify-content-around mx-2">
                                         @if (item.JobMapEmployee?.Employee != null && (item.IsActive ?? false))
                                         {
@@ -655,60 +678,107 @@
             }
 
             // Hiển thị danh sách công việc
-            function displayJobs(unassignedJobs, assignedJobs) {
-                var unassignedTableBody = $("#unassigned-jobs-table tbody");
-                var assignedTableBody = $("#assigned-jobs-table tbody");
+                    function displayJobs(unassignedJobs, assignedJobs) {
+            var unassignedTableBody = $("#unassigned-jobs-table tbody");
+            var assignedTableBody = $("#assigned-jobs-table tbody");
 
-                unassignedTableBody.empty();
-                assignedTableBody.empty();
+            unassignedTableBody.empty();
+            assignedTableBody.empty();
 
-                unassignedJobs.forEach(function (job) {
-                    var statusText = getStatusText(job.status);
-                    var rowClass = getStatusClass(job.status);
-                    unassignedTableBody.append(`
-                        <tr class="${rowClass}" data-job-id="${job.id}">
-                            <td>${job.categoryName || 'N/A'}</td>
-                            <td>${job.name || 'N/A'}</td>
-                            <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
-                            <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
-                            <td><span class="text-bold">${statusText}</span></td>
-                            <td>
-                                <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
-                            </td>
-                        </tr>
-                    `);
-                });
+            unassignedJobs.forEach(function (job) {
+                var statusText = getStatusText(job.status);
+                var rowClass = getStatusClass(job.status);
+                unassignedTableBody.append(`
+                    <tr class="${rowClass}" data-job-id="${job.id}">
+                        <td>${job.categoryName || 'N/A'}</td>
+                        <td>${job.name || 'N/A'}</td>
+                        <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
+                        <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
+                        <td><span class="text-bold">${statusText}</span></td>
+                        <td>
+                            <div class="recurrence-settings">
+                                <div class="form-group mb-2">
+                                    <label class="form-label">Công việc lặp lại:</label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input recurring-radio" type="radio" name="recurring_${job.id}" value="true" data-bs-toggle="collapse" data-bs-target="#recurringDetails_${job.id}:not(.show)" aria-controls="recurringDetails_${job.id}">
+                                        <label class="form-check-label">Có</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input recurring-radio" type="radio" name="recurring_${job.id}" value="false" data-bs-toggle="collapse" data-bs-target="#recurringDetails_${job.id}.show" aria-controls="recurringDetails_${job.id}" checked>
+                                        <label class="form-check-label">Không</label>
+                                    </div>
+                                </div>
+                                <div class="collapse" id="recurringDetails_${job.id}">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label">Loại lặp lại:</label>
+                                        <select class="form-control recurrence-type" name="recurrenceType_${job.id}">
+                                            <option value="">-- Chọn loại lặp lại --</option>
+                                            <option value="1">Hàng ngày</option>
+                                            <option value="2">Hàng tuần</option>
+                                            <option value="3">Hàng tháng</option>
+                                            <option value="4">Hàng năm</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label class="form-label">Khoảng cách lặp lại:</label>
+                                        <input type="number" class="form-control recurrence-interval" name="recurrenceInterval_${job.id}" min="1" value="1" />
+                                    </div>
+                                    <div class="form-group mb-2">
+                                        <label class="form-label">Ngày kết thúc lặp lại:</label>
+                                        <input type="date" class="form-control recurrence-end-date" name="recurrenceEndDate_${job.id}" />
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
+                        </td>
+                    </tr>
+                `);
+            });
 
-                assignedJobs.forEach(function (job) {
-                    var statusText = getStatusText(job.status);
-                    var rowClass = getStatusClass(job.status);
-                    assignedTableBody.append(`
-                        <tr class="${rowClass}" data-job-id="${job.id}">
-                            <td>${job.categoryName || 'N/A'}</td>
-                            <td>${job.name || 'N/A'}</td>
-                            <td>${formatDate(job.time)}</td>
-                            <td>${formatDate(job.deadline1)}</td>
-                            <td><span class="text-bold">${statusText}</span></td>
-                            <td>${formatDate(job.completionDate)}</td>
-                        </tr>
-                    `);
-                });
+            assignedJobs.forEach(function (job) {
+                var statusText = getStatusText(job.status);
+                var rowClass = getStatusClass(job.status);
+                assignedTableBody.append(`
+                    <tr class="${rowClass}" data-job-id="${job.id}">
+                        <td>${job.categoryName || 'N/A'}</td>
+                        <td>${job.name || 'N/A'}</td>
+                        <td>${formatDate(job.time)}</td>
+                        <td>${formatDate(job.deadline1)}</td>
+                        <td><span class="text-bold">${statusText}</span></td>
+                        <td>${formatDate(job.completionDate)}</td>
+                    </tr>
+                `);
+            });
 
-                // Khởi tạo lại datepicker
-                $(".datepicker-time").datepicker({
-                    dateFormat: 'dd/mm/yy',
-                    changeMonth: true,
-                    changeYear: true
-                });
-                $(".datepicker-deadline").datepicker({
-                    dateFormat: 'dd/mm/yy',
-                    changeMonth: true,
-                    changeYear: true
-                });
+            // Khởi tạo lại datepicker
+            $(".datepicker-time").datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
+            $(".datepicker-deadline").datepicker({
+                dateFormat: 'dd/mm/yy',
+                changeMonth: true,
+                changeYear: true
+            });
 
-                bindCheckboxEvents();
-                bindAjaxActions();
-            }
+            // Bind collapse behavior for recurring details
+            $(".recurring-radio").on("change", function () {
+                var jobId = $(this).closest("tr").data("job-id");
+                var isRecurring = $(this).val() === "true";
+                if (isRecurring) {
+                    $(`#recurringDetails_${jobId}`).collapse("show");
+                } else {
+                    $(`#recurringDetails_${jobId}`).collapse("hide");
+                    $(`select[name='recurrenceType_${jobId}']`).val("");
+                    $(`input[name='recurrenceInterval_${jobId}']`).val("1");
+                    $(`input[name='recurrenceEndDate_${jobId}']`).val("");
+                }
+            });
+
+            bindCheckboxEvents();
+            bindAjaxActions();
+        }
 
             // Lấy văn bản trạng thái
             function getStatusText(status) {
@@ -735,71 +805,96 @@
             }
 
             // Gắn sự kiện checkbox
-            function bindCheckboxEvents() {
-                $(".assign-job-checkbox").off("change").on("change", function () {
-                    var checkbox = $(this);
-                    var jobId = checkbox.data("job-id");
-                    var employeeId = $("#selected-employee").data("employee-id");
-                    var time = checkbox.closest("tr").find(".datepicker-time").val();
-                    var deadline = checkbox.closest("tr").find(".datepicker-deadline").val();
+                    function bindCheckboxEvents() {
+            $(".assign-job-checkbox").off("change").on("change", function () {
+                var checkbox = $(this);
+                var jobId = checkbox.data("job-id");
+                var employeeId = $("#selected-employee").data("employee-id");
+                var time = checkbox.closest("tr").find(".datepicker-time").val();
+                var deadline = checkbox.closest("tr").find(".datepicker-deadline").val();
+                var recurring = $(`input[name='recurring_${jobId}']:checked`).val() === "true";
+                var recurrenceType = $(`select[name='recurrenceType_${jobId}']`).val();
+                var recurrenceInterval = $(`input[name='recurrenceInterval_${jobId}']`).val();
+                var recurrenceEndDate = $(`input[name='recurrenceEndDate_${jobId}']`).val();
 
-                    if (checkbox.is(":checked")) {
-                        if (!employeeId) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Vui lòng chọn nhân viên trước!",
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-                            checkbox.prop("checked", false);
-                            return;
-                        }
+                if (checkbox.is(":checked")) {
+                    if (!employeeId) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Vui lòng chọn nhân viên trước!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        checkbox.prop("checked", false);
+                        return;
+                    }
 
-                        $("#form-job-id").val(jobId);
-                        $("#form-employee-id").val(employeeId);
+                    if (recurring && (!recurrenceType || !recurrenceInterval || !recurrenceEndDate)) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Vui lòng điền đầy đủ thông tin lặp lại!",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        checkbox.prop("checked", false);
+                        return;
+                    }
 
-                        $.ajax({
-                            url: $("#assign-job-form").attr("action"),
-                            type: "POST",
-                            data: {
-                                jobId: jobId,
-                                employeeId: employeeId,
-                                time: time,
-                                deadline: deadline,
-                                "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
-                            },
-                            success: function (result) {
-                                if (result.success) {
-                                    Swal.fire({
-                                        icon: "success",
-                                        title: "Đã giao công việc thành công!",
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    fetchJobs(employeeId);
-                                } else {
-                                    Swal.fire({
-                                        icon: "error",
-                                        title: "Lỗi: " + result.message,
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    checkbox.prop("checked", false);
-                                }
-                            },
-                            error: function (xhr) {
+                    $("#form-job-id").val(jobId);
+                    $("#form-employee-id").val(employeeId);
+                    $("#form-time").val(time);
+                    $("#form-deadline").val(deadline);
+                    $("#form-recurring").val(recurring);
+                    $("#form-recurrenceType").val(recurrenceType);
+                    $("#form-recurrenceInterval").val(recurrenceInterval);
+                    $("#form-recurrenceEndDate").val(recurrenceEndDate);
+
+                    $.ajax({
+                        url: $("#assign-job-form").attr("action"),
+                        type: "POST",
+                        data: {
+                            jobId: jobId,
+                            employeeId: employeeId,
+                            time: time,
+                            deadline: deadline,
+                            recurring: recurring,
+                            recurrenceType: recurrenceType,
+                            recurrenceInterval: recurrenceInterval,
+                            recurrenceEndDate: recurrenceEndDate,
+                            "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (result) {
+                            if (result.success) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "Đã giao công việc thành công!",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                                fetchJobs(employeeId);
+                            } else {
                                 Swal.fire({
                                     icon: "error",
-                                    title: "Lỗi khi gán công việc",
+                                    title: "Lỗi: " + result.message,
                                     showConfirmButton: false,
                                     timer: 1500
                                 });
                                 checkbox.prop("checked", false);
                             }
-                        });
-                    }
-                });
-            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Lỗi khi gán công việc",
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            checkbox.prop("checked", false);
+                        }
+                    });
+                }
+            });
+        }
 
             // Gắn sự kiện giao việc trực tiếp từ bảng chính
             $(".assign-job-btn").click(function () {
