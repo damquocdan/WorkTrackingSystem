@@ -861,6 +861,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
         }
 
         // GET: ProjectManager/Scores/Create
+        // GET: Create
         public IActionResult Create(int? currentJobMapEmployeeId)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
@@ -895,6 +896,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .ToList();
 
             var currentEmployeeId = currentJobMapEmployee.EmployeeId;
+
             var employeesInManagedDepartments = _context.Employees
                 .Where(e => e.DepartmentId.HasValue &&
                            managedDepartments.Contains(e.DepartmentId.Value) &&
@@ -908,23 +910,29 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             ViewBag.EmployeeList = employeesInManagedDepartments;
             ViewBag.CurrentJobMapEmployeeId = currentJobMapEmployeeId;
-            // Truyền thêm Job để sử dụng Deadline1 trong view nếu cần
             ViewBag.Job = currentJobMapEmployee.Job;
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Create");
             }
+
             return View();
         }
-
+        // POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int employeeId, DateOnly deadline, int currentJobMapEmployeeId)
+        public async Task<IActionResult> Create(int employeeId, int currentJobMapEmployeeId, DateOnly deadline)
         {
             var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
             var currentJobMapEmployee = await _context.Jobmapemployees
                 .Include(j => j.Job)
+                .Include(j => j.JobRepeat)
                 .FirstOrDefaultAsync(j => j.Id == currentJobMapEmployeeId);
 
             if (currentJobMapEmployee == null)
@@ -932,9 +940,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 return BadRequest("Không tìm thấy công việc hiện tại");
             }
 
-            // Vô hiệu hóa Score cũ của currentJobMapEmployee
+            // Disable old scores
             var oldScores = await _context.Scores
-               .Where(s => s.JobMapEmployeeId == currentJobMapEmployeeId)
+                .Where(s => s.JobMapEmployeeId == currentJobMapEmployeeId)
                 .ToListAsync();
 
             foreach (var oldScore in oldScores)
@@ -944,51 +952,73 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             _context.Scores.UpdateRange(oldScores);
 
-            // Tạo JobMapEmployee mới
+            // Create new JobMapEmployee
             var newJobMapEmployee = new Jobmapemployee
             {
                 JobId = currentJobMapEmployee.JobId,
                 EmployeeId = employeeId,
+                JobRepeatId = currentJobMapEmployee.JobRepeatId
             };
 
             _context.Jobmapemployees.Add(newJobMapEmployee);
             await _context.SaveChangesAsync();
 
-            // Cập nhật deadline cho Job (gán vào Deadline2 hoặc Deadline3)
-            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == currentJobMapEmployee.JobId);
-            if (job != null)
+            // Update deadline
+            if (currentJobMapEmployee.JobRepeat != null)
             {
-                if (job.Deadline2 == null)
+                var jobRepeat = await _context.Jobrepeats
+                    .FirstOrDefaultAsync(jr => jr.Id == currentJobMapEmployee.JobRepeatId);
+                if (jobRepeat != null)
                 {
-                    job.Deadline2 = deadline;
+                    if (jobRepeat.Deadline2 == null)
+                    {
+                        jobRepeat.Deadline2 = deadline;
+                    }
+                    else if (jobRepeat.Deadline3 == null)
+                    {
+                        jobRepeat.Deadline3 = deadline;
+                    }
+                    _context.Jobrepeats.Update(jobRepeat);
                 }
-                else if (job.Deadline3 == null)
+            }
+            else
+            {
+                var job = await _context.Jobs
+                    .FirstOrDefaultAsync(j => j.Id == currentJobMapEmployee.JobId);
+                if (job != null)
                 {
-                    job.Deadline3 = deadline;
+                    if (job.Deadline2 == null)
+                    {
+                        job.Deadline2 = deadline;
+                    }
+                    else if (job.Deadline3 == null)
+                    {
+                        job.Deadline3 = deadline;
+                    }
+                    _context.Jobs.Update(job);
                 }
-                _context.Jobs.Update(job);
             }
 
-            // Tạo Score mới với Time = Deadline1 của Job
+            // Create new Score
+            var jobFromMap = currentJobMapEmployee.Job;
             var score = new Score
             {
                 CreateBy = managerUsername,
                 JobMapEmployeeId = newJobMapEmployee.Id,
                 Status = 0,
-                Time = job.Deadline1.HasValue ? DateTime.Parse(job.Deadline1.Value.ToString("yyyy-MM-dd")) : DateTime.Now,
+                Time = jobFromMap.Deadline1.HasValue ? DateTime.Parse(jobFromMap.Deadline1.Value.ToString("yyyy-MM-dd")) : DateTime.Now,
                 CreateDate = deadline.ToDateTime(TimeOnly.MinValue),
-
                 IsActive = true,
                 IsDelete = false
             };
 
+            // Call update methods
             await UpdateBaselineAssessment(newJobMapEmployee.EmployeeId);
             await UpdateAnalysis(newJobMapEmployee.EmployeeId);
 
-            _context.Add(score);
+            _context.Scores.Add(score);
             await _context.SaveChangesAsync();
 
-            // Trả về JSON để AJAX xử lý
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return Json(new { success = true });
@@ -996,6 +1026,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             return RedirectToAction("Index");
         }
+
         // GET: ProjectManager/Scores/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
@@ -1014,7 +1045,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             {
                 return NotFound();
             }
-
 
             ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id", score.JobMapEmployeeId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", score.JobMapEmployee?.Job?.CategoryId);
@@ -1043,6 +1073,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     var existingScore = await _context.Scores
                         .Include(s => s.JobMapEmployee)
                         .ThenInclude(jme => jme.Job)
+                        .ThenInclude(j => j.Category)
+                        .Include(s => s.JobMapEmployee)
+                        .ThenInclude(jme => jme.JobRepeat)
                         .FirstOrDefaultAsync(s => s.Id == id);
 
                     if (existingScore == null)
@@ -1050,7 +1083,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         return NotFound();
                     }
 
-                    // Cập nhật các thuộc tính của Score
+                    // Update Score properties
                     existingScore.CreateDate = score.CreateDate;
                     existingScore.CompletionDate = score.CompletionDate;
                     existingScore.Status = score.Status;
@@ -1063,6 +1096,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                     if (existingScore.JobMapEmployee?.EmployeeId != null)
                     {
+                        // Update Job properties if it exists
                         var job = existingScore.JobMapEmployee.Job;
                         if (job != null)
                         {
@@ -1070,29 +1104,48 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                             job.CategoryId = score.JobMapEmployee?.Job?.CategoryId;
                         }
 
-
-                        if (job != null && score.CreateDate.HasValue)
+                        if (score.CreateDate.HasValue)
                         {
-                            // Chuyển CreateDate (DateTime?) sang DateOnly
                             DateOnly createDateAsDateOnly = DateOnly.FromDateTime(score.CreateDate.Value);
 
-                            // Trường hợp 3: Nếu Deadline1, Deadline2, và Deadline3 đều có giá trị
-                            if (job.Deadline1.HasValue && job.Deadline2.HasValue && job.Deadline3.HasValue)
+                            // Prioritize JobRepeat if it exists
+                            var jobRepeat = existingScore.JobMapEmployee.JobRepeat;
+                            if (jobRepeat != null)
                             {
-                                job.Deadline3 = createDateAsDateOnly;
+                                // Update JobRepeat deadlines
+                                if (jobRepeat.Deadline1.HasValue && jobRepeat.Deadline2.HasValue && jobRepeat.Deadline3.HasValue)
+                                {
+                                    jobRepeat.Deadline3 = createDateAsDateOnly;
+                                }
+                                else if (jobRepeat.Deadline1.HasValue && jobRepeat.Deadline2.HasValue)
+                                {
+                                    jobRepeat.Deadline2 = createDateAsDateOnly;
+                                }
+                                else if (!jobRepeat.Deadline1.HasValue || (jobRepeat.Deadline1.HasValue && !jobRepeat.Deadline2.HasValue))
+                                {
+                                    jobRepeat.Deadline1 = createDateAsDateOnly;
+                                }
                             }
-                            // Trường hợp 2: Nếu Deadline1 và Deadline2 có giá trị
-                            else if (job.Deadline1.HasValue && job.Deadline2.HasValue)
+                            // Fallback to updating Job deadlines if JobRepeat does not exist
+                            else if (job != null)
                             {
-                                job.Deadline2 = createDateAsDateOnly;
-                            }
-                            // Trường hợp 1: Nếu Deadline1 là null hoặc (Deadline1 có giá trị nhưng Deadline2 là null)
-                            else if (!job.Deadline1.HasValue || (job.Deadline1.HasValue && !job.Deadline2.HasValue))
-                            {
-                                job.Deadline1 = createDateAsDateOnly;
+                                // Update Job deadlines
+                                if (job.Deadline1.HasValue && job.Deadline2.HasValue && job.Deadline3.HasValue)
+                                {
+                                    job.Deadline3 = createDateAsDateOnly;
+                                }
+                                else if (job.Deadline1.HasValue && job.Deadline2.HasValue)
+                                {
+                                    job.Deadline2 = createDateAsDateOnly;
+                                }
+                                else if (!job.Deadline1.HasValue || (job.Deadline1.HasValue && !job.Deadline2.HasValue))
+                                {
+                                    job.Deadline1 = createDateAsDateOnly;
+                                }
                             }
                         }
                     }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -1108,6 +1161,10 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            // Repopulate ViewData if validation fails
+            ViewData["JobMapEmployeeId"] = new SelectList(_context.Jobmapemployees, "Id", "Id", score.JobMapEmployeeId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", score.JobMapEmployee?.Job?.CategoryId);
             return View(score);
         }
 
