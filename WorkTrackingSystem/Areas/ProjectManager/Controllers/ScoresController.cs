@@ -80,22 +80,23 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 .Distinct()
                 .ToListAsync();
 
-            // Điều chỉnh scoresQuery để bao gồm JobRepeat
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
             var scoresQuery = _context.Scores
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Employee)
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Job)
                         .ThenInclude(j => j.Category)
-                .Include(s => s.JobMapEmployee)
-                    .ThenInclude(jme => jme.JobRepeat) // Thêm Include cho JobRepeat
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
+                .Where(s => s.JobMapEmployee.JobRepeatId == null) // Exclude Jobmapemployee with JobRepeatId
                 .Where(s =>
                     (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
-                    (s.JobMapEmployee.EmployeeId == null && !assignedJobIds.Contains(s.JobMapEmployee.JobId))
-                );
+                    (s.JobMapEmployee.EmployeeId == null && !assignedJobIds.Contains(s.JobMapEmployee.JobId)))
+                .Where(s => s.JobMapEmployee.Job.Deadline1 <= today ||
+                            s.JobMapEmployee.Job.Deadline2 <= today ||
+                            s.JobMapEmployee.Job.Deadline3 <= today);
 
-            // Filter theo JobId cụ thể
             if (jobId.HasValue)
             {
                 bool hasAssignedJob = await _context.Jobmapemployees
@@ -109,7 +110,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 }
             }
 
-            // Tìm kiếm
             if (!string.IsNullOrEmpty(searchText))
             {
                 searchText = searchText.ToLower();
@@ -123,7 +123,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 );
             }
 
-            // Lọc theo quý
             if (!string.IsNullOrEmpty(quarter) && int.TryParse(quarter, out int selectedQuarter))
             {
                 var startMonth = (selectedQuarter - 1) * 3 + 1;
@@ -145,14 +144,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
             }
 
-            // Lọc theo năm
             if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear) && string.IsNullOrEmpty(quarterYear))
             {
                 scoresQuery = scoresQuery.Where(s =>
                     s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedYear);
             }
 
-            // Lọc theo tháng
             if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
             {
                 scoresQuery = scoresQuery.Where(s =>
@@ -161,14 +158,12 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.CreateDate.Value.Month == selectedMonth.Month);
             }
 
-            // Lọc theo ngày
             if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
             {
                 scoresQuery = scoresQuery.Where(s =>
                     s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
             }
 
-            // Lọc theo khoảng thời gian
             if (!string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate) &&
                 DateTime.TryParse(fromDate, out DateTime startDate) && DateTime.TryParse(toDate, out DateTime endDate))
             {
@@ -176,45 +171,34 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date && s.CreateDate.Value.Date <= endDate.Date);
             }
 
-            // Lọc theo trạng thái
             if (!string.IsNullOrEmpty(status) && byte.TryParse(status, out byte statusValue))
             {
                 scoresQuery = scoresQuery.Where(s => s.Status == statusValue);
             }
 
-            // Lọc theo danh mục
             if (!string.IsNullOrEmpty(categoryId) && long.TryParse(categoryId, out long catId))
             {
                 scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.Job.CategoryId == catId);
             }
 
-            // Công việc hoàn thành nhưng chưa đánh giá
             if (showCompletedZeroReview)
             {
                 scoresQuery = scoresQuery.Where(s =>
                     s.Status == 1 && (!s.SummaryOfReviews.HasValue || s.SummaryOfReviews == 0));
             }
 
-            // Công việc hết hạn hôm nay
             if (dueToday)
             {
                 scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
             }
 
-            // Sắp xếp: sử dụng JobRepeat.Deadline1 nếu có, nếu không thì Job.Deadline1
             switch (sortOrder)
             {
                 case "due_asc":
-                    scoresQuery = scoresQuery.OrderBy(s =>
-                        s.JobMapEmployee.JobRepeat != null && s.JobMapEmployee.JobRepeat.Deadline1.HasValue
-                        ? s.JobMapEmployee.JobRepeat.Deadline1.Value
-                        : s.JobMapEmployee.Job.Deadline1);
+                    scoresQuery = scoresQuery.OrderBy(s => s.JobMapEmployee.Job.Deadline1);
                     break;
                 case "due_desc":
-                    scoresQuery = scoresQuery.OrderByDescending(s =>
-                        s.JobMapEmployee.JobRepeat != null && s.JobMapEmployee.JobRepeat.Deadline1.HasValue
-                        ? s.JobMapEmployee.JobRepeat.Deadline1.Value
-                        : s.JobMapEmployee.Job.Deadline1);
+                    scoresQuery = scoresQuery.OrderByDescending(s => s.JobMapEmployee.Job.Deadline1);
                     break;
                 case "review_asc":
                     scoresQuery = scoresQuery.OrderBy(s => s.SummaryOfReviews ?? 0);
@@ -231,7 +215,41 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             var scores = scoresQuery.ToPagedList(page, limit);
 
-            // Gán ViewBag để giữ trạng thái lọc/sắp xếp
+            // Calculate badgeData
+            var badgeData = (await scoresQuery
+                .Where(s => s.JobMapEmployee.Job.Recurring == true)
+                .GroupBy(s => new
+                {
+                    s.JobMapEmployee.JobId,
+                    s.JobMapEmployee.Job.Name,
+                    s.JobMapEmployee.Job.RecurrenceType
+                })
+                .Select(g => new
+                {
+                    JobId = g.Key.JobId,
+                    Name = g.Key.Name,
+                    RecurrenceType = g.Key.RecurrenceType,
+                    RepeatCount = _context.Jobrepeats.Count(jr => jr.JobId == g.Key.JobId)
+                })
+                .ToListAsync()) // Await the database query
+                .Select(x => new
+                {
+                    JobId = x.JobId,
+                    JobName = x.Name,
+                    ShowBadge = true,
+                    BadgeText = $"{(x.RecurrenceType switch
+                    {
+                        1 => "Hàng ngày",
+                        2 => "Hàng tuần",
+                        3 => "Hàng tháng",
+                        4 => "Hàng năm",
+                        _ => "Không xác định"
+                    })}, Lần lặp {x.RepeatCount}"
+                })
+                .ToList(); // In-memory ToList
+
+            ViewBag.BadgeData = badgeData;
+
             ViewBag.SearchText = searchText;
             ViewBag.Month = month;
             ViewBag.Day = day;
@@ -847,16 +865,26 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             var score = await _context.Scores
-                .Include(s => s.JobMapEmployee).Include(s => s.JobMapEmployee.Job).Include(s => s.JobMapEmployee.Employee).Include(s => s.JobMapEmployee.Job.Category)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Employee)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Job)
+                        .ThenInclude(j => j.Category)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.Job)
+                        .ThenInclude(j => j.Jobrepeats) // Include Jobrepeats
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (score == null)
             {
                 return NotFound();
             }
+
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return PartialView("_Details",score);
+                return PartialView("_Details", score);
             }
+
             return View(score);
         }
 

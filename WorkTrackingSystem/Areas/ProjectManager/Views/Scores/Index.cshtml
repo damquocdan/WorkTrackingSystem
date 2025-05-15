@@ -271,10 +271,10 @@
                         {
                             index++;
                             <tr class="@(item.Status == 1 ? "table-success" :
-                    item.Status == 2 ? "table-warning" :
-                    item.Status == 3 ? "table-danger" :
-                    item.Status == 4 ? "table-primary" :
-                    item.Status == 0 ? "table-secondary" : "")">
+                                        item.Status == 2 ? "table-warning" :
+                                        item.Status == 3 ? "table-danger" :
+                                        item.Status == 4 ? "table-primary" :
+                                        item.Status == 0 ? "table-secondary" : "")">
                                 <td class="text-center">@index</td>
                                 <td class="text-center">
                                     @if (item.JobMapEmployee?.Employee != null)
@@ -287,19 +287,23 @@
                                     }
                                 </td>
                                 <td class="text-center">@item.JobMapEmployee.Job.Category.Name</td>
-                                <td>@item.JobMapEmployee.Job.Name</td>
+                                <td>
+                                    @item.JobMapEmployee.Job.Name
+                                    @foreach (var badge in ViewBag.BadgeData)
+                                    {
+                                        if (badge.ShowBadge && badge.JobId == item.JobMapEmployee.JobId)
+                                        {
+                                            <b>(@badge.BadgeText)</b>
+                                        }
+                                    }
+                                </td>
                                 <td class="text-center">
                                     @{
                                         var createDate = item.CreateDate?.Date;
                                         DateOnly? deadline = null;
 
-                                        // Ưu tiên JobRepeat.Deadline1 nếu có
-                                        if (item.JobMapEmployee?.JobRepeat != null && item.JobMapEmployee.JobRepeat.Deadline1.HasValue)
-                                        {
-                                            deadline = item.JobMapEmployee.JobRepeat.Deadline1;
-                                        }
-                                        // Nếu không có JobRepeat, sử dụng Job.Deadline1, Deadline2, hoặc Deadline3
-                                        else if (item.JobMapEmployee?.Job != null)
+                                        // Use Job.Deadline1, Deadline2, or Deadline3 (no JobRepeat)
+                                        if (item.JobMapEmployee?.Job != null)
                                         {
                                             if (item.JobMapEmployee.Job.Deadline1.HasValue)
                                             {
@@ -327,10 +331,10 @@
                                 <td class="text-center">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
                                 <td class="text-center">
                                     <span class="badge @(item.Status == 1 ? "bg-success" :
-                                    item.Status == 2 ? "bg-warning" :
-                                    item.Status == 3 ? "bg-danger" :
-                                    item.Status == 4 ? "bg-primary" :
-                                    "bg-secondary") w-100" style="padding:7px;">
+                                                        item.Status == 2 ? "bg-warning" :
+                                                        item.Status == 3 ? "bg-danger" :
+                                                        item.Status == 4 ? "bg-primary" :
+                                                        "bg-secondary") w-100" style="padding:7px;">
                                         @switch (item.Status)
                                         {
                                             case 1:
@@ -694,9 +698,8 @@
                         <td>${job.name || 'N/A'}</td>
                         <td><input type="text" class="datepicker-time form-control" value="${formatDate(job.time)}" /></td>
                         <td><input type="text" class="datepicker-deadline form-control" value="${formatDate(job.deadline1)}" /></td>
-                        <td><span class="text-bold">${statusText}</span></td>
-                        <td>
-                            <div class="recurrence-settings">
+                        <td><span class="text-bold">${statusText}</span>
+                             <div class="recurrence-settings">
                                 <div class="form-group mb-2">
                                     <label class="form-label">Công việc lặp lại:</label>
                                     <div class="form-check form-check-inline">
@@ -728,7 +731,8 @@
                                         <input type="date" class="form-control recurrence-end-date" name="recurrenceEndDate_${job.id}" />
                                     </div>
                                 </div>
-                            </div>
+                            </div></td>
+                        <td>
                             <input type="checkbox" class="assign-job-checkbox" data-job-id="${job.id}" />
                         </td>
                     </tr>
@@ -1008,7 +1012,7 @@
                 const year = d.getFullYear();
                 return `${day}/${month}/${year}`;
             }
-            
+
         });
     </script>
 }
