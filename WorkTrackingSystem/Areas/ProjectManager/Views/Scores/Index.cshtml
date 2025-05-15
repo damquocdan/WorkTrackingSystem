@@ -319,15 +319,16 @@
                                             }
                                         }
                                     }
-                                    @if (item.JobMapEmployee?.Employee != null && createDate.HasValue && deadline.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline.Value)
+                                    @if (item.JobMapEmployee?.Employee != null && createDate.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline.Value)
                                     {
-                                        @Html.DisplayFor(modelItem => item.CreateDate)
+                                        @createDate.Value.ToString("dd/MM/yyyy")
                                     }
                                     else
                                     {
                                         <span></span>
                                     }
                                 </td>
+
                                 <td class="text-center">@Html.DisplayFor(modelItem => item.CompletionDate)</td>
                                 <td class="text-center">
                                     <span class="badge @(item.Status == 1 ? "bg-success" :

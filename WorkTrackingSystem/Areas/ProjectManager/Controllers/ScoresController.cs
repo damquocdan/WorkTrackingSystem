@@ -83,19 +83,22 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             var today = DateOnly.FromDateTime(DateTime.Today);
 
             var scoresQuery = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                    .ThenInclude(jme => jme.Employee)
-                .Include(s => s.JobMapEmployee)
-                    .ThenInclude(jme => jme.Job)
-                        .ThenInclude(j => j.Category)
-                .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
-                .Where(s => s.JobMapEmployee.JobRepeatId == null) // Exclude Jobmapemployee with JobRepeatId
-                .Where(s =>
-                    (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
-                    (s.JobMapEmployee.EmployeeId == null && !assignedJobIds.Contains(s.JobMapEmployee.JobId)))
-                .Where(s => s.JobMapEmployee.Job.Deadline1 <= today ||
-                            s.JobMapEmployee.Job.Deadline2 <= today ||
-                            s.JobMapEmployee.Job.Deadline3 <= today);
+    .Include(s => s.JobMapEmployee)
+        .ThenInclude(jme => jme.Employee)
+    .Include(s => s.JobMapEmployee)
+        .ThenInclude(jme => jme.Job)
+            .ThenInclude(j => j.Category)
+    .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
+    .Where(s => s.JobMapEmployee.JobRepeatId == null)
+    .Where(s =>
+        (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
+        (s.JobMapEmployee.EmployeeId == null && !assignedJobIds.Contains(s.JobMapEmployee.JobId) &&
+         s.Id == _context.Scores
+             .Where(s2 => s2.JobMapEmployee.JobId == s.JobMapEmployee.JobId && s2.JobMapEmployee.EmployeeId == null)
+             .OrderByDescending(s2 => s2.CreateDate)
+             .Select(s2 => s2.Id)
+             .FirstOrDefault()))
+    .Distinct();
 
             if (jobId.HasValue)
             {
@@ -300,23 +303,24 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                 // Công việc chưa giao và không nằm trong danh sách JobId đã gán
                 var unassignedJobs = await _context.Scores
-                    .Include(s => s.JobMapEmployee)
-                        .ThenInclude(jme => jme.Job)
-                            .ThenInclude(j => j.Category)
-                    .Where(s => s.JobMapEmployee.EmployeeId == null
-                             //&& s.CreateBy == managerUsername
-                             && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
-                    .Select(s => new
-                    {
-                        Id = s.JobMapEmployee.JobId,
-                        Name = s.JobMapEmployee.Job.Name,
-                        CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
-                        Time = s.Time,
-                        Deadline1 = s.JobMapEmployee.Job.Deadline1,
-                        Status = s.Status,
-                        CompletionDate = s.CompletionDate
-                    })
-                    .ToListAsync();
+     .Include(s => s.JobMapEmployee)
+         .ThenInclude(jme => jme.Job)
+             .ThenInclude(j => j.Category)
+     .Where(s => s.JobMapEmployee.EmployeeId == null
+              //&& s.CreateBy == managerUsername
+              && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
+     .Select(s => new
+     {
+         Id = s.JobMapEmployee.JobId,
+         Name = s.JobMapEmployee.Job.Name,
+         CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
+         Time = s.Time,
+         Deadline1 = s.JobMapEmployee.Job.Deadline1,
+         Status = s.Status,
+         CompletionDate = s.CompletionDate
+     })
+     .Distinct() // Loại bỏ các bản ghi trùng lặp dựa trên toàn bộ object
+     .ToListAsync();
 
                 // Công việc đã giao cho nhân viên cụ thể
                 // Bước 1: Lấy danh sách Score với JobMapEmployee và Job
@@ -639,6 +643,20 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     UpdateBy = job.UpdateBy
                 };
                 _context.Scores.Add(score);
+                await _context.SaveChangesAsync();
+
+                var scoreEmployee = new Scoreemployee
+                {
+                    JobMapEmployeeId = jobMapEmployee.Id,
+                    Status = 0, // Default status (not started)
+                    IsDelete = false,
+                    IsActive = true,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now,
+                    CreateBy = job.CreateBy,
+                    UpdateBy = job.UpdateBy
+                };
+                _context.Scoreemployees.Add(scoreEmployee);
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
