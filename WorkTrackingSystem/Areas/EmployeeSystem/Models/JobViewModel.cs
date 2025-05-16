@@ -13,7 +13,7 @@ namespace WorkTrackingSystem.Areas.EmployeeSystem.Models
 		public DateOnly? Deadline { get; set; }
 		public double? Progress { get; set; }
 
-
+        public long? JobRepeatId { get; set; }
         public double? VolumeAssessment { get; set; }
         public double? ProgressAssessment { get; set; }
         public double? QualityAssessment { get; set; }

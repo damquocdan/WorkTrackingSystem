@@ -65,7 +65,7 @@
                     </span>
                 </td>
                 <td class="text-center">
-                    <input type="range" class="progress-slider" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5" @(item.IsActive ? "" : "disabled")>
+                    <input type="range" class="progress-slider" data-job-repeat-id="@item.JobRepeatId" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5" @(item.IsActive ? "" : "disabled")>
                     <span class="progress-value" >@item.Progress%</span>
                 </td>
                 <td class="text-center">

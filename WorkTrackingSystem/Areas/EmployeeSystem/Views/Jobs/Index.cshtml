@@ -40,7 +40,7 @@
 					<div class="col-md-4">
 						<label class="form-label fw-bold">Tìm kiếm</label>
 						<div class="input-group">
-							<input type="text" class="form-control" name="search" placeholder="Nhập tên công việc / Code" value="@Context.Request.Query["search"]">
+                            <input type="text" class="form-control" name="search" placeholder="Nhập tên công việc / Code" value="@ViewBag.Search">
 						</div>
 					</div>
 
@@ -82,9 +82,15 @@
 							<option value="0">Chưa bắt đầu</option>
 						</select>
 					</div>
-
+                    @* Lọc công việc đã review *@
+                    <div class="col-md-1">
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="showReview" name="showReview" value="true" @(ViewBag.ShowReview ? "checked" : "") />
+                            <label class="form-check-label" for="showReview">Đã đánh giá</label>
+                        </div>
+                    </div>
 					<!-- Nút Lọc & Reset -->
-					<div class="col-md-2 d-flex justify-content-end mt-4">
+					<div class="col-md-1 d-flex justify-content-end mt-4">
 						<a href="#" id="resetButton" class="btn btn-secondary me-2">
 							<i class="bi bi-arrow-repeat"></i>
 						</a>
@@ -117,6 +123,7 @@
                     },
                     success: function (data) {
                         $("#jobListContainer").html(data);
+                        history.pushState({}, '', url);
                     },
                     error: function () {
                         alert("Đã xảy ra lỗi khi tải dữ liệu.");
@@ -178,7 +185,16 @@
                 url.searchParams.set("selectedMonth", $(this).val());
                 loadJobs(url.toString());
             });
-
+            // Xử lý bộ lọc công việc đã đánh giá
+            $("#showReview").change(function () {
+                let url = new URL(window.location.href);
+                if ($(this).is(":checked")) {
+                    url.searchParams.set("showReview", "true");
+                } else {
+                    url.searchParams.delete("showReview");
+                }
+                loadJobs(url.toString());
+            });
             // Xử lý bộ lọc trạng thái
             $("#filterStatus").change(function () {
                 let url = new URL(window.location.href);
@@ -205,6 +221,7 @@
                 $("input[name='endDate']").val('');
                 $("input[name='selectedMonth']").val('');
                 $("#filterStatus").val('');
+                $("#showReview").prop("checked", false);
 
                 let url = new URL(window.location.href);
                 url.searchParams.delete("search");
@@ -214,10 +231,10 @@
                 url.searchParams.delete("endDate");
                 url.searchParams.delete("selectedMonth");
                 url.searchParams.delete("filterStatus");
+                url.searchParams.delete("showReview");
 
                 loadJobs(url.toString());
             });
-
             // Xử lý sự kiện AJAX cho nút tạo công việc
             $(document).on("click", ".ajax-action-create", function (e) {
                 e.preventDefault();
@@ -240,6 +257,7 @@
                 clearTimeout(debounceTimer);
                 let $slider = $(this);
                 let jobId = parseInt($slider.data('jobId'));
+                let jobRepeatId = $slider.data('jobRepeatId');
                 let progress = parseFloat($slider.val());
                 $slider.next().text(progress + '%');
 
@@ -248,11 +266,11 @@
                         url: '/EmployeeSystem/Jobs/UpdateProgress',
                         method: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({ id: jobId, progress: progress }),
+                        data: JSON.stringify({ id: jobId ,jobRepeatId: jobRepeatId ? parseInt(jobRepeatId) : null, progress: progress }),
                         success: function (data) {
                             if (data.success) {
                                 console.log("Cập nhật tiến độ thành công! Data:", data);
-                                let $row = $(`.progress-slider[data-job-id="${jobId}"]`).closest('.job-row');
+                                let $row = $(`.progress-slider[data-job-id="${jobId}"][data-job-repeat-id="${jobRepeatId}"]`).closest('.job-row');
                                 let $statusTd = $row.find('td:nth-child(5) ');
                                 // Cập nhật trạng thái
                                 let $statusSpan = $statusTd.find('span');
