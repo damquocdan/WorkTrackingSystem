@@ -69,7 +69,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
             ViewBag.DisplayMonth = displayMonth;
 
-
             if (!string.IsNullOrEmpty(employeeName))
             {
                 assessments = assessments.Where(b => b.Employee.FirstName.Contains(employeeName) || b.Employee.LastName.Contains(employeeName));
@@ -257,11 +256,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     string searchText = "",
     string month = "",
     string day = "",
-    string fromDate = "", // Thêm tham số từ ngày
-    string toDate = "",   // Thêm tham số đến ngày
-    string quarter = "",  // Thêm tham số quý
-    string quarterYear = "", // Thêm tham số năm của quý
-    string year = "",     // Thêm tham số năm
+    string fromDate = "",
+    string toDate = "",
+    string quarter = "",
+    string quarterYear = "",
+    string year = "",
     string status = "",
     string categoryId = "",
     string sortOrder = "",
@@ -298,34 +297,20 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             ViewData["Categories"] = await _context.Categories.ToListAsync();
 
-            var assignedJobIds = await _context.Jobmapemployees
-                .Where(jme => jme.EmployeeId != null)
-                .Select(jme => jme.JobId)
-                .Distinct()
-                .ToListAsync();
-
             var scoresQuery = _context.Scores
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Employee)
                 .Include(s => s.JobMapEmployee)
                     .ThenInclude(jme => jme.Job)
                         .ThenInclude(j => j.Category)
+                .Include(s => s.JobMapEmployee)
+                    .ThenInclude(jme => jme.JobRepeat) // Include JobRepeat to access Deadline1
                 .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
-                .Where(s =>
-                    (s.JobMapEmployee.EmployeeId.HasValue && managedEmployeeIds.Contains(s.JobMapEmployee.EmployeeId.Value))
-                    || (s.JobMapEmployee.EmployeeId == null && s.CreateBy == managerUsername && !assignedJobIds.Contains(s.JobMapEmployee.JobId)));
+                .Where(s => s.JobMapEmployee.EmployeeId.HasValue && managedEmployeeIds.Contains(s.JobMapEmployee.EmployeeId.Value));
 
             if (jobId.HasValue)
             {
-                bool hasAssignedJob = await _context.Jobmapemployees
-                    .Where(jme => jme.JobId == jobId.Value && jme.EmployeeId.HasValue)
-                    .AnyAsync();
-
-                if (hasAssignedJob)
-                {
-                    scoresQuery = scoresQuery.Where(s =>
-                        !(s.JobMapEmployee.JobId == jobId.Value && s.JobMapEmployee.EmployeeId == null));
-                }
+                scoresQuery = scoresQuery.Where(s => s.JobMapEmployee.JobId == jobId.Value);
             }
 
             // Lọc theo từ khóa tìm kiếm
@@ -340,24 +325,24 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
 
             // Lọc theo tháng
-            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", out DateTime selectedMonth))
+            if (!string.IsNullOrEmpty(month) && DateTime.TryParse(month + "-01", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedMonth))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedMonth.Year && s.CreateDate.Value.Month == selectedMonth.Month);
             }
 
             // Lọc theo ngày cụ thể
-            if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, out DateTime selectedDay))
+            if (!string.IsNullOrEmpty(day) && DateTime.TryParse(day, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime selectedDay))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == selectedDay.Date);
             }
 
             // Lọc theo từ ngày - đến ngày
-            if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, out DateTime startDate))
+            if (!string.IsNullOrEmpty(fromDate) && DateTime.TryParse(fromDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date >= startDate.Date);
             }
 
-            if (!string.IsNullOrEmpty(toDate) && DateTime.TryParse(toDate, out DateTime endDate))
+            if (!string.IsNullOrEmpty(toDate) && DateTime.TryParse(toDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
             {
                 scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date <= endDate.Date);
             }
@@ -372,7 +357,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     s.CreateDate.Value.Month >= startMonth &&
                     s.CreateDate.Value.Month <= endMonth);
 
-                // Nếu có chọn năm của quý, lọc thêm theo năm
                 if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
                 {
                     scoresQuery = scoresQuery.Where(s =>
@@ -381,12 +365,11 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             }
             else if (!string.IsNullOrEmpty(quarterYear) && int.TryParse(quarterYear, out int selectedQuarterYear))
             {
-                // Nếu chỉ chọn năm của quý mà không chọn quý, hiển thị toàn bộ dữ liệu của năm đó
                 scoresQuery = scoresQuery.Where(s =>
                     s.CreateDate.HasValue && s.CreateDate.Value.Year == selectedQuarterYear);
             }
 
-            // Lọc theo năm (nếu không phải là năm của quý)
+            // Lọc theo năm
             if (!string.IsNullOrEmpty(year) && int.TryParse(year, out int selectedYear) && string.IsNullOrEmpty(quarterYear))
             {
                 scoresQuery = scoresQuery.Where(s =>
@@ -414,7 +397,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             // Lọc công việc có deadline là hôm nay
             if (dueToday)
             {
-                scoresQuery = scoresQuery.Where(s => s.Time == s.CreateDate);
+                scoresQuery = scoresQuery.Where(s => s.CreateDate.HasValue && s.CreateDate.Value.Date == DateTime.Today);
             }
 
             // Sắp xếp
@@ -459,7 +442,6 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             return View(scores);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline)
@@ -557,14 +539,15 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
                 if (score.JobMapEmployee != null)
                 {
+                    // Cập nhật BaselineAssessment và Analysis
                     await UpdateBaselineAssessment(score.JobMapEmployee.EmployeeId);
                     await UpdateAnalysis(score.JobMapEmployee.EmployeeId);
                 }
 
-                // Update the SCORE record
+                // Cập nhật SCORE record
                 _context.Update(score);
 
-                // Find and update the corresponding SCOREEMPLOYEE record
+                // Cập nhật SCOREEMPLOYEE record
                 var scoreEmployee = await _context.Scoreemployees
                     .FirstOrDefaultAsync(se => se.JobMapEmployeeId == score.JobMapEmployeeId && se.IsActive == true);
 
@@ -574,7 +557,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                     _context.Update(scoreEmployee);
                 }
 
-                // Save all changes
+                // Lưu tất cả thay đổi
                 await _context.SaveChangesAsync();
 
                 return Json(new { success = true });
@@ -788,6 +771,90 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Lỗi: " + ex.Message });
+            }
+        }
+
+        // Phương thức mới để kiểm tra và cập nhật điểm định kỳ
+        [HttpPost]
+        public async Task<IActionResult> UpdateScoresForJobRepeats()
+        {
+            try
+            {
+                var today = DateOnly.FromDateTime(DateTime.Today);
+
+                // Lấy tất cả Jobmapemployee có JobRepeat không null và deadline khớp với hôm nay
+                var jobMapEmployeesWithRepeat = await _context.Jobmapemployees
+                    .Include(jme => jme.Job)
+                    .Include(jme => jme.JobRepeat)
+                    .Include(jme => jme.Scores)
+                    .Where(jme => jme.JobRepeatId != null && jme.Job.Deadline1 == today)
+                    .ToListAsync();
+
+                foreach (var jobMapEmployee in jobMapEmployeesWithRepeat)
+                {
+                    // Tìm Jobmapemployee ban đầu của Job (không có JobRepeat)
+                    var originalJobMapEmployee = await _context.Jobmapemployees
+                        .Include(jme => jme.Scores)
+                        .FirstOrDefaultAsync(jme => jme.JobId == jobMapEmployee.JobId
+                                                 && jme.JobRepeatId == null
+                                                 && jme.EmployeeId == jobMapEmployee.EmployeeId);
+
+                    if (originalJobMapEmployee != null)
+                    {
+                        // Lấy Score của Jobmapemployee có JobRepeat
+                        var repeatScore = jobMapEmployee.Scores.FirstOrDefault(s => s.IsActive == true);
+
+                        if (repeatScore != null)
+                        {
+                            // Tìm hoặc tạo Score cho Jobmapemployee ban đầu
+                            var originalScore = originalJobMapEmployee.Scores.FirstOrDefault(s => s.IsActive == true);
+                            if (originalScore == null)
+                            {
+                                originalScore = new Score
+                                {
+                                    JobMapEmployeeId = originalJobMapEmployee.Id,
+                                    CreateDate = DateTime.Now,
+                                    CreateBy = jobMapEmployee.CreateBy,
+                                    Time = DateTime.Now,
+                                    Status = 0,
+                                    IsActive = true
+                                };
+                                _context.Scores.Add(originalScore);
+                            }
+
+                            // Cập nhật điểm từ repeatScore sang originalScore
+                            originalScore.VolumeAssessment = repeatScore.VolumeAssessment;
+                            originalScore.ProgressAssessment = repeatScore.ProgressAssessment;
+                            originalScore.QualityAssessment = repeatScore.QualityAssessment;
+                            originalScore.SummaryOfReviews = Math.Round(
+                                (originalScore.VolumeAssessment ?? 0) * 0.6f +
+                                (originalScore.ProgressAssessment ?? 0) * 0.15f +
+                                (originalScore.QualityAssessment ?? 0) * 0.25f, 2);
+                            originalScore.UpdateDate = DateTime.Now;
+                            originalScore.UpdateBy = jobMapEmployee.UpdateBy;
+
+                            // Cập nhật Scoreemployee cho originalJobMapEmployee
+                            var originalScoreEmployee = await _context.Scoreemployees
+                                .FirstOrDefaultAsync(se => se.JobMapEmployeeId == originalJobMapEmployee.Id && se.IsActive == true);
+                            if (originalScoreEmployee != null)
+                            {
+                                originalScoreEmployee.IsActive = false;
+                                _context.Update(originalScoreEmployee);
+                            }
+
+                            // Cập nhật BaselineAssessment và Analysis
+                            await UpdateBaselineAssessment(originalJobMapEmployee.EmployeeId);
+                            await UpdateAnalysis(originalJobMapEmployee.EmployeeId);
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
     }

@@ -301,27 +301,44 @@
                                     @{
                                         var createDate = item.CreateDate?.Date;
                                         DateOnly? deadline = null;
+                                        var today = DateOnly.FromDateTime(DateTime.Today);
 
-                                        // Use Job.Deadline1, Deadline2, or Deadline3 (no JobRepeat)
                                         if (item.JobMapEmployee?.Job != null)
                                         {
-                                            if (item.JobMapEmployee.Job.Deadline1.HasValue)
+                                            if (item.JobMapEmployee.Job.Recurring == true)
                                             {
-                                                deadline = item.JobMapEmployee.Job.Deadline1;
+                                                // Lấy Deadline1 từ JobRepeat gần nhất với ngày hôm nay
+                                                var nearestJobRepeat = item.JobMapEmployee.Job.Jobrepeats
+                                                ?.Where(jr => jr.Deadline1.HasValue)
+                                                ?.OrderBy(jr => Math.Abs((jr.Deadline1.Value.ToDateTime(TimeOnly.MinValue) - today.ToDateTime(TimeOnly.MinValue)).TotalDays))
+                                                ?.FirstOrDefault();
+
+                                                if (nearestJobRepeat != null)
+                                                {
+                                                    deadline = nearestJobRepeat.Deadline1;
+                                                }
                                             }
-                                            else if (item.JobMapEmployee.Job.Deadline2.HasValue)
+                                            else
                                             {
-                                                deadline = item.JobMapEmployee.Job.Deadline2;
-                                            }
-                                            else if (item.JobMapEmployee.Job.Deadline3.HasValue)
-                                            {
-                                                deadline = item.JobMapEmployee.Job.Deadline3;
+                                                // Sử dụng Deadline1, Deadline2, hoặc Deadline3 từ Job (logic hiện tại)
+                                                if (item.JobMapEmployee.Job.Deadline1.HasValue)
+                                                {
+                                                    deadline = item.JobMapEmployee.Job.Deadline1;
+                                                }
+                                                else if (item.JobMapEmployee.Job.Deadline2.HasValue)
+                                                {
+                                                    deadline = item.JobMapEmployee.Job.Deadline2;
+                                                }
+                                                else if (item.JobMapEmployee.Job.Deadline3.HasValue)
+                                                {
+                                                    deadline = item.JobMapEmployee.Job.Deadline3;
+                                                }
                                             }
                                         }
                                     }
-                                    @if (item.JobMapEmployee?.Employee != null && createDate.HasValue && DateOnly.FromDateTime(createDate.Value) == deadline.Value)
+                                    @if (item.JobMapEmployee?.Employee != null && deadline.HasValue)
                                     {
-                                        @createDate.Value.ToString("dd/MM/yyyy")
+                                        @deadline.Value.ToString("dd/MM/yyyy")
                                     }
                                     else
                                     {

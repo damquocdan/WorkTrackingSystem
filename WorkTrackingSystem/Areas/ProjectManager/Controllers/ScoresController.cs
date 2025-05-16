@@ -88,6 +88,9 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
     .Include(s => s.JobMapEmployee)
         .ThenInclude(jme => jme.Job)
             .ThenInclude(j => j.Category)
+    .Include(s => s.JobMapEmployee) // Thêm Include để nạp JobRepeats
+        .ThenInclude(jme => jme.Job)
+            .ThenInclude(j => j.Jobrepeats) // Nạp JobRepeats
     .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
     .Where(s => s.JobMapEmployee.JobRepeatId == null)
     .Where(s =>
