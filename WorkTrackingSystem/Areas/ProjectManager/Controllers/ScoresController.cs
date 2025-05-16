@@ -444,7 +444,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
             await _context.SaveChangesAsync();
 
             // Create Score for the main job
-            var score = new Score
+            var score = new Scoreemployee
             {
                 JobMapEmployeeId = jobMapEmployee.Id,
                 Time = parsedTime ?? DateTime.Now,
@@ -452,7 +452,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 CreateDate = job.Deadline1?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Now,
                 CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
             };
-            _context.Scores.Add(score);
+            _context.Scoreemployees.Add(score);
             await _context.SaveChangesAsync();
 
             // Handle Recurring Jobs
@@ -634,19 +634,19 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                 await _context.SaveChangesAsync();
 
                 // Create Score for the JobMapEmployee
-                var score = new Score
-                {
-                    JobMapEmployeeId = jobMapEmployee.Id,
-                    Status = 0, // Default status (not started)
-                    IsDelete = false,
-                    IsActive = true,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now,
-                    CreateBy = job.CreateBy,
-                    UpdateBy = job.UpdateBy
-                };
-                _context.Scores.Add(score);
-                await _context.SaveChangesAsync();
+                //var score = new Score
+                //{
+                //    JobMapEmployeeId = jobMapEmployee.Id,
+                //    Status = 0, // Default status (not started)
+                //    IsDelete = false,
+                //    IsActive = true,
+                //    CreateDate = DateTime.Now,
+                //    UpdateDate = DateTime.Now,
+                //    CreateBy = job.CreateBy,
+                //    UpdateBy = job.UpdateBy
+                //};
+                //_context.Scores.Add(score);
+                //await _context.SaveChangesAsync();
 
                 var scoreEmployee = new Scoreemployee
                 {
@@ -1455,36 +1455,48 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
 
             if (jobMapEmployee.EmployeeId == null)
             {
-                // Lấy tất cả JobMapEmployee liên quan đến Job
+                // Get all JobMapEmployee related to Job
                 var relatedJobMapEmployees = await _context.Jobmapemployees
                     .Where(jme => jme.JobId == job.Id)
                     .ToListAsync();
 
-                // Lấy tất cả Score liên quan đến bất kỳ JobMapEmployee nào trong danh sách
+                // Get all Scoreemployee related to any JobMapEmployee in the list
                 var jobMapEmployeeIds = relatedJobMapEmployees.Select(jme => jme.Id).ToList();
+                var relatedScoreemployees = await _context.Scoreemployees
+                    .Where(se => se.JobMapEmployeeId.HasValue && jobMapEmployeeIds.Contains(se.JobMapEmployeeId.Value))
+                    .ToListAsync();
+                _context.Scoreemployees.RemoveRange(relatedScoreemployees);
+
+                // Get all Scores related to any JobMapEmployee in the list
                 var relatedScores = await _context.Scores
                     .Where(s => s.JobMapEmployeeId.HasValue && jobMapEmployeeIds.Contains(s.JobMapEmployeeId.Value))
                     .ToListAsync();
                 _context.Scores.RemoveRange(relatedScores);
 
-                // Xóa tất cả JobMapEmployee liên quan đến Job
+                // Delete all JobMapEmployee related to Job
                 _context.Jobmapemployees.RemoveRange(relatedJobMapEmployees);
 
-                // Cuối cùng xóa Job
+                // Finally delete Job
                 _context.Jobs.Remove(job);
             }
             else
             {
-                // Xóa Score trước
+                // Get all Scoreemployee related to the specific JobMapEmployee
+                var relatedScoreemployees = await _context.Scoreemployees
+                    .Where(se => se.JobMapEmployeeId == jobMapEmployee.Id)
+                    .ToListAsync();
+                _context.Scoreemployees.RemoveRange(relatedScoreemployees);
+
+                // Delete Score
                 _context.Scores.Remove(score);
 
-                // Xóa JobMapEmployee
+                // Delete JobMapEmployee
                 _context.Jobmapemployees.Remove(jobMapEmployee);
 
-                // Kiểm tra và xóa Deadline nếu cần
-                if (score.CreateDate.HasValue) // Kiểm tra null cho DateTime?
+                // Check and update Deadlines if needed
+                if (score.CreateDate.HasValue)
                 {
-                    var scoreCreateDate = score.CreateDate.Value; // Lấy giá trị từ nullable DateTime
+                    var scoreCreateDate = score.CreateDate.Value;
 
                     if (job.Deadline1.HasValue && scoreCreateDate.Date == job.Deadline1.Value.ToDateTime(TimeOnly.MinValue))
                     {
@@ -1499,7 +1511,7 @@ namespace WorkTrackingSystem.Areas.ProjectManager.Controllers
                         job.Deadline3 = null;
                     }
 
-                    // Cập nhật Job nếu có thay đổi Deadline
+                    // Update Job if any Deadline changed
                     if (job.Deadline1 == null || job.Deadline2 == null || job.Deadline3 == null)
                     {
                         job.UpdateDate = DateTime.Now;

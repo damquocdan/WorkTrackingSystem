@@ -11,122 +11,195 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-12">
+            <a data-bs-toggle="collapse" href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1" class="col-md-12">
                 <label class="form-label fw-bold">Nhân viên</label>
                 <p class="form-control bg-light">
                     @if (Model.JobMapEmployee?.Employee != null)
                     {
-                        @($"{Model.JobMapEmployee.Employee.Code} - {Model.JobMapEmployee.Employee.FirstName} {Model.JobMapEmployee.Employee.LastName}")
+                        @($"{Model.JobMapEmployee.Employee.Code} - {Model.JobMapEmployee.Employee.FirstName} {Model.JobMapEmployee.Employee.LastName}") <i class="fa-solid fa-circle-info"></i>
                     }
                     else
                     {
                         <text>Chưa giao</text>
                     }
                 </p>
+            </a>
+            <div class="row">
+                <label class="form-label fw-bold">Công việc</label>
+                <textarea readonly class="form-control bg-light">@Model.JobMapEmployee.Job.Name</textarea>
             </div>
         </div>
-        <div class="row">
-            <label class="form-label fw-bold">Công việc</label>
-            <textarea readonly class="form-control bg-light ">@Model.JobMapEmployee.Job.Name</textarea>
+        <div class="collapse show" id="collapseExample1">
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    <p class="form-control bg-light">
+                        @switch (Model.Status)
+                        {
+                            case 1:
+                                <text>Hoàn thành (@Model.CompletionDate)</text>
+                                break;
+                            case 2:
+                                <text>Chưa hoàn thành</text>
+                                break;
+                            case 3:
+                                <text>Hoàn thành muộn (@Model.CompletionDate)</text>
+                                break;
+                            case 4:
+                                <text>Đang xử lý</text>
+                                break;
+                            case 0:
+                                <text>Chưa bắt đầu</text>
+                                break;
+                            default:
+                                <text>Không xác định</text>
+                                break;
+                        }
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Tiến độ</label>
+                    <p class="form-control bg-light">@Model.Progress%</p>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm K.lượng</label>
+                    <p class="form-control bg-light">@Model.VolumeAssessment</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm T.độ</label>
+                    <p class="form-control bg-light">@Model.ProgressAssessment</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm C.lượng</label>
+                    <p class="form-control bg-light">@Model.QualityAssessment</p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Tổng Đ.giá</label>
+                    <p class="form-control bg-light">
+                        @Model.SummaryOfReviews?.ToString("N2")
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Ngày bắt đầu</label>
+                    <p class="form-control bg-light">
+                        @Model.Time?.ToString("dd/MM/yyyy")
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Hạn chót</label>
+                    <p class="form-control bg-light">
+                        @Model.CreateDate?.ToString("dd/MM/yyyy")
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Ngày hoàn thành</label>
+                    <p class="form-control bg-light">
+                        @(Model.CompletionDate?.ToString("dd/MM/yyyy") ?? "Chưa hoàn thành")
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Ngày tạo</label>
+                    <p class="form-control bg-light">@(Model.CreateDate?.ToString("dd/MM/yyyy"))</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Ngày cập nhật</label>
+                    <p class="form-control bg-light">
+                        @(Model.UpdateDate?.ToString("dd/MM/yyyy"))
+                    </p>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Lặp lại</label>
+                    <p class="form-control bg-light">
+                        @(Model.JobMapEmployee.Job.Recurring == true ? "Có" : "Không")
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Loại lặp lại</label>
+                    <p class="form-control bg-light">
+                        @switch (Model.JobMapEmployee.Job.RecurrenceType)
+                        {
+                            case 1:
+                                <text>Hàng ngày</text>
+                                break;
+                            case 2:
+                                <text>Hàng tuần</text>
+                                break;
+                            case 3:
+                                <text>Hàng tháng</text>
+                                break;
+                            case 4:
+                                <text>Hàng năm</text>
+                                break;
+                            default:
+                                <text>Không</text>
+                                break;
+                        }
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Chu kỳ lặp</label>
+                    <p class="form-control bg-light">
+                        @(Model.JobMapEmployee.Job.RecurrenceInterval?.ToString() ?? "Không")
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Kết thúc lặp</label>
+                    <p class="form-control bg-light">
+                        @(Model.JobMapEmployee.Job.RecurrenceEndDate?.ToString("dd/MM/yyyy") ?? "Không")
+                    </p>
+                </div>
+            </div>
+
         </div>
         <div class="row mt-2">
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Trạng thái</label>
-                <p readonly class="form-control bg-light">
-                    @switch (Model.Status)
-                    {
-                        case 1:
-                            <text>Hoàn thành (@Model.CompletionDate)</text>
-                            ; break;
-                        case 2:
-                            <text>Chưa hoàn thành</text>
-                            ; break;
-                        case 3:
-                            <text>Hoàn thành muộn (@Model.CompletionDate)</text>
-                            ; break;
-                        case 4:
-                            <text>Đang xử lý</text>
-                            ; break;
-                        case 0:
-                            <text>Chưa bắt đầu</text>
-                            ; break;
-                        default:
-                            <text>Không xác định</text>
-                            ; break;
-                    }
-                </p>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Tiến độ</label>
-                <p class="form-control bg-light">@Model.Progress%</p>
-            </div>
-        </div>
-
-        <div class="row mt-2">
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Điểm K.lượng</label>
-                <p class="form-control bg-light">@Model.VolumeAssessment</p>
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Điểm T.độ</label>
-                <p class="form-control bg-light">@Model.ProgressAssessment</p>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Điểm C.lượng</label>
-                <p class="form-control bg-light">@Model.QualityAssessment</p>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Tổng Đ.giá</label>
-                <p class="form-control bg-light">
-                    @Model.SummaryOfReviews?.ToString("N2")
-                </p>
-            </div>
-
-
-        </div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <label class="form-label fw-bold">Ngày bắt đầu</label>
-                <p class="form-control bg-light">
-                    @Model.Time?.ToString("dd/MM/yyyy")
-                </p>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-bold">Hạn chót</label>
-                <p class="form-control bg-light">
-                    @Model.CreateDate?.ToString("dd/MM/yyyy")
-                </p>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-bold">Ngày hoàn thành</label>
-                <p class="form-control bg-light">
-                    @(Model.CompletionDate?.ToString("dd/MM/yyyy") ?? "Chưa hoàn thành")
-                </p>
-            </div>
-
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Ngày tạo</label>
-                <p class="form-control bg-light">@(Model.CreateDate?.ToString("dd/MM/yyyy"))</p>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold">Ngày cập nhật</label>
-                <p class="form-control bg-light">
-                    @(Model.UpdateDate?.ToString("dd/MM/yyyy"))
-                </p>
+            <div class="col-md-12">
+                <label class="form-label fw-bold">Danh sách các công việc lặp lại</label>
+                @if (Model.JobMapEmployee.Job.Jobrepeats != null && Model.JobMapEmployee.Job.Jobrepeats.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Hạn chót 1</th>
+                                    <th>Hạn chót 2</th>
+                                    <th>Hạn chót 3</th>
+                                    <th>Ngày tạo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var jobRepeat in Model.JobMapEmployee.Job.Jobrepeats)
+                                {
+                                    <tr>
+                                        <td>@(jobRepeat.Deadline1?.ToString("dd/MM/yyyy") ?? "Không")</td>
+                                        <td>@(jobRepeat.Deadline2?.ToString("dd/MM/yyyy") ?? "Không")</td>
+                                        <td>@(jobRepeat.Deadline3?.ToString("dd/MM/yyyy") ?? "Không")</td>
+                                        <td>@(jobRepeat.CreateDate?.ToString("dd/MM/yyyy") ?? "Không")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Không có công việc lặp lại nào.</p>
+                }
             </div>
         </div>
     </div>
-    @* <div class="card-footer d-flex justify-content-end">
-    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning">Sửa</a>
-    </div> *@
-</div>
 </div>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script>
     function closeDetailSection() {
         $("#list-section").removeClass("col-md-8").addClass("col-md-12");

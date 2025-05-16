@@ -27,28 +27,25 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             _context = context;
         }
         public async Task<IActionResult> Index(
-            int? DepartmentId,
-string searchText = "",
-string month = "",
-string day = "",
-string year = "", // Thêm tham số year
-string quarter = "", // Thêm tham số quarter
-string quarterYear = "",
-string fromDate = "", // Thêm tham số fromDate
-string toDate = "", // Thêm tham số toDate
-string status = "",
-string categoryId = "",
-string sortOrder = "",
-bool showCompletedZeroReview = false,
-bool dueToday = false,
-long? jobId = null,
-int page = 1)
+                        int? DepartmentId,
+                        string searchText = "",
+                        string month = "",
+                        string day = "",
+                        string year = "", // Thêm tham số year
+                        string quarter = "", // Thêm tham số quarter
+                        string quarterYear = "",
+                        string fromDate = "", // Thêm tham số fromDate
+                        string toDate = "", // Thêm tham số toDate
+                        string status = "",
+                        string categoryId = "",
+                        string sortOrder = "",
+                        bool showCompletedZeroReview = false,
+                        bool dueToday = false,
+                        long? jobId = null,
+                        int page = 1)
         {
             var limit = 10;
            
-
-          
-
             var employeesInManagedDepartments = await _context.Employees
             
                 .Select(e => new
@@ -68,18 +65,34 @@ int page = 1)
                 .Distinct()
                 .ToListAsync();
 
+            var today = DateOnly.FromDateTime(DateTime.Today);
             var scoresQuery = _context.Scores
-                .Include(s => s.JobMapEmployee)
-                    .ThenInclude(jme => jme.Employee)
-                    .ThenInclude(e=>e.Department)
-                .Include(s => s.JobMapEmployee)
-                    .ThenInclude(jme => jme.Job)
-                        .ThenInclude(j => j.Category)
-                .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
-                .Where(s =>
-                    (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
-                    (s.JobMapEmployee.EmployeeId == null &&  !assignedJobIds.Contains(s.JobMapEmployee.JobId))
-                );
+               .Include(s => s.JobMapEmployee)
+                   .ThenInclude(jme => jme.Employee)
+               .Include(s => s.JobMapEmployee)
+                   .ThenInclude(jme => jme.Job)
+                       .ThenInclude(j => j.Category)
+               .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
+               .Where(s => s.JobMapEmployee.JobRepeatId == null) // Exclude Jobmapemployee with JobRepeatId
+               .Where(s =>
+                   (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
+                   (s.JobMapEmployee.EmployeeId == null && !assignedJobIds.Contains(s.JobMapEmployee.JobId)));
+               //.Where(s => s.JobMapEmployee.Job.Deadline1 <= today ||
+                           //s.JobMapEmployee.Job.Deadline2 <= today ||
+                           //s.JobMapEmployee.Job.Deadline3 <= today);
+
+            //var scoresQuery = _context.Scores
+            //    .Include(s => s.JobMapEmployee)
+            //        .ThenInclude(jme => jme.Employee)
+            //        .ThenInclude(e=>e.Department)
+            //    .Include(s => s.JobMapEmployee)
+            //        .ThenInclude(jme => jme.Job)
+            //            .ThenInclude(j => j.Category)
+            //    .Where(s => s.JobMapEmployee != null && s.JobMapEmployee.Job != null)
+            //    .Where(s =>
+            //        (s.JobMapEmployee.EmployeeId.HasValue && employeesInManagedDepartments.Select(e => long.Parse(e.Value)).Contains(s.JobMapEmployee.EmployeeId.Value)) ||
+            //        (s.JobMapEmployee.EmployeeId == null &&  !assignedJobIds.Contains(s.JobMapEmployee.JobId))
+            //    );
 
             // Filter theo JobId cụ thể
             if (jobId.HasValue)
@@ -212,7 +225,42 @@ int page = 1)
             }
 
             var scores = scoresQuery.ToPagedList(page, limit);
-			ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
+            // Calculate badgeData
+            var badgeData = (await scoresQuery
+                .Where(s => s.JobMapEmployee.Job.Recurring == true)
+                .GroupBy(s => new
+                {
+                    s.JobMapEmployee.JobId,
+                    s.JobMapEmployee.Job.Name,
+                    s.JobMapEmployee.Job.RecurrenceType
+                })
+                .Select(g => new
+                {
+                    JobId = g.Key.JobId,
+                    Name = g.Key.Name,
+                    RecurrenceType = g.Key.RecurrenceType,
+                    RepeatCount = _context.Jobrepeats.Count(jr => jr.JobId == g.Key.JobId)
+                })
+                .ToListAsync()) // Await the database query
+                .Select(x => new
+                {
+                    JobId = x.JobId,
+                    JobName = x.Name,
+                    ShowBadge = true,
+                    BadgeText = $"{(x.RecurrenceType switch
+                    {
+                        1 => "Hàng ngày",
+                        2 => "Hàng tuần",
+                        3 => "Hàng tháng",
+                        4 => "Hàng năm",
+                        _ => "Không xác định"
+                    })}, Lần lặp {x.RepeatCount}"
+                })
+                .ToList(); // In-memory ToList
+
+            ViewBag.BadgeData = badgeData;
+
+            ViewBag.Department = new SelectList(_context.Departments, "Id", "Name");
 			// Gán ViewBag để giữ trạng thái lọc/sắp xếp
 			ViewBag.SearchText = searchText;
             ViewBag.Month = month;
@@ -229,32 +277,11 @@ int page = 1)
 			ViewBag.DepartmentId = DepartmentId;
 			return View(scores);
         }
-
+        [HttpGet]
         public async Task<IActionResult> GetJobsByEmployee(long employeeId)
         {
             try
             {
-                //var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
-                //if (string.IsNullOrEmpty(managerUsername))
-                //{
-                //    return Json(new { success = false, message = "Vui lòng đăng nhập." });
-                //}
-
-                //var manager = await _context.Users
-                //    .Where(u => u.UserName == managerUsername)
-                //    .Select(u => u.Employee)
-                //    .FirstOrDefaultAsync();
-
-                //if (manager == null)
-                //{
-                //    return Json(new { success = false, message = "Không tìm thấy thông tin quản lý." });
-                //}
-
-                //var managedDepartments = await _context.Departments
-                //    .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-                //    .Select(d => d.Id)
-                //    .ToListAsync();
-
                 // Lấy danh sách JobId đã được gán cho bất kỳ nhân viên nào (Employee_Id không null)
                 var assignedJobIds = await _context.Jobmapemployees // Truy cập trực tiếp bảng JOBMAPEMPLOYEE
                     .Where(jme => jme.EmployeeId != null)
@@ -264,41 +291,60 @@ int page = 1)
 
                 // Công việc chưa giao và không nằm trong danh sách JobId đã gán
                 var unassignedJobs = await _context.Scores
-                    .Include(s => s.JobMapEmployee)
-                        .ThenInclude(jme => jme.Job)
-                            .ThenInclude(j => j.Category)
-                    .Where(s => s.JobMapEmployee.EmployeeId == null
-                             //&& s.CreateBy == managerUsername
-                             && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
-                    .Select(s => new
-                    {
-                        Id = s.JobMapEmployee.JobId,
-                        Name = s.JobMapEmployee.Job.Name,
-                        CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
-                        Time = s.Time,
-                        Deadline1 = s.JobMapEmployee.Job.Deadline1,
-                        Status = s.Status,
-                        CompletionDate = s.CompletionDate
-                    })
-                    .ToListAsync();
+     .Include(s => s.JobMapEmployee)
+         .ThenInclude(jme => jme.Job)
+             .ThenInclude(j => j.Category)
+     .Where(s => s.JobMapEmployee.EmployeeId == null
+              //&& s.CreateBy == managerUsername
+              && !assignedJobIds.Contains(s.JobMapEmployee.JobId)) // Loại bỏ toàn bộ JobId đã được gán
+     .Select(s => new
+     {
+         Id = s.JobMapEmployee.JobId,
+         Name = s.JobMapEmployee.Job.Name,
+         CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
+         Time = s.Time,
+         Deadline1 = s.JobMapEmployee.Job.Deadline1,
+         Status = s.Status,
+         CompletionDate = s.CompletionDate
+     })
+     .Distinct() // Loại bỏ các bản ghi trùng lặp dựa trên toàn bộ object
+     .ToListAsync();
 
                 // Công việc đã giao cho nhân viên cụ thể
-                var assignedJobs = await _context.Scores
+                // Bước 1: Lấy danh sách Score với JobMapEmployee và Job
+                var scores = await _context.Scoreemployees
                     .Include(s => s.JobMapEmployee)
                         .ThenInclude(jme => jme.Job)
                             .ThenInclude(j => j.Category)
                     .Where(s => s.JobMapEmployee.EmployeeId == employeeId)
-                    .Select(s => new
+                    .ToListAsync();
+
+                // Bước 2: Lấy JobRepeatId và Deadline1 từ JobRepeat nếu cần
+                var jobMapEmployeeIds = scores.Select(s => s.JobMapEmployee.Id).ToList();
+                var jobMapEmployeesWithRepeats = await _context.Jobmapemployees
+                    .Include(jme => jme.JobRepeat)
+                    .Where(jme => jobMapEmployeeIds.Contains(jme.Id))
+                    .ToDictionaryAsync(jme => jme.Id, jme => jme.JobRepeat);
+
+                // Bước 3: Tạo kết quả
+                var assignedJobs = scores.Select(s =>
+                {
+                    var jobMapEmployee = s.JobMapEmployee;
+                    var jobRepeat = jobMapEmployeesWithRepeats.ContainsKey(jobMapEmployee.Id) ? jobMapEmployeesWithRepeats[jobMapEmployee.Id] : null;
+
+                    return new
                     {
-                        Id = s.JobMapEmployee.JobId,
-                        Name = s.JobMapEmployee.Job.Name,
-                        CategoryName = s.JobMapEmployee.Job.Category != null ? s.JobMapEmployee.Job.Category.Name : "N/A",
+                        Id = jobMapEmployee.JobRepeatId.HasValue ? jobMapEmployee.JobRepeatId.Value : jobMapEmployee.JobId,
+                        Name = jobMapEmployee.Job.Name,
+                        CategoryName = jobMapEmployee.Job.Category != null ? jobMapEmployee.Job.Category.Name : "N/A",
                         Time = s.Time,
-                        Deadline1 = s.JobMapEmployee.Job.Deadline1,
+                        Deadline1 = jobRepeat != null && jobRepeat.Deadline1.HasValue
+                            ? jobRepeat.Deadline1
+                            : jobMapEmployee.Job.Deadline1,
                         Status = s.Status,
                         CompletionDate = s.CompletionDate
-                    })
-                    .ToListAsync();
+                    };
+                }).ToList();
 
                 return Json(new
                 {
@@ -314,7 +360,7 @@ int page = 1)
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline)
+        public async Task<IActionResult> AssignEmployee(long jobId, long employeeId, string time, string deadline, bool recurring, byte? recurrenceType, byte? recurrenceInterval, string recurrenceEndDate)
         {
             var job = await _context.Jobs.FindAsync(jobId);
             if (job == null)
@@ -328,7 +374,48 @@ int page = 1)
                 return Json(new { success = false, message = "Employee not found" });
             }
 
-            // Tạo JobMapEmployee
+            // Update job recurrence settings
+            job.Recurring = recurring;
+            if (recurring)
+            {
+                if (!recurrenceType.HasValue || !recurrenceInterval.HasValue || string.IsNullOrEmpty(recurrenceEndDate))
+                {
+                    return Json(new { success = false, message = "Recurring job requires type, interval, and end date" });
+                }
+                job.RecurrenceType = recurrenceType;
+                job.RecurrenceInterval = recurrenceInterval;
+                if (DateOnly.TryParse(recurrenceEndDate, out DateOnly parsedRecurrenceEndDate))
+                {
+                    job.RecurrenceEndDate = parsedRecurrenceEndDate;
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Invalid recurrence end date format" });
+                }
+            }
+            else
+            {
+                job.RecurrenceType = null;
+                job.RecurrenceInterval = null;
+                job.RecurrenceEndDate = null;
+            }
+            _context.Jobs.Update(job);
+
+            // Parse time and deadline
+            DateTime? parsedTime = null;
+            DateOnly? parsedDeadline = null;
+            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
+            {
+                parsedTime = startDate;
+            }
+            if (!string.IsNullOrEmpty(deadline) && DateOnly.TryParseExact(deadline, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateOnly endDate))
+            {
+                parsedDeadline = endDate;
+                job.Deadline1 = parsedDeadline;
+                _context.Jobs.Update(job);
+            }
+
+            // Create JobMapEmployee for the main job
             var jobMapEmployee = new Jobmapemployee
             {
                 JobId = jobId,
@@ -338,41 +425,118 @@ int page = 1)
                 IsActive = true,
                 IsDelete = false
             };
-
             _context.Jobmapemployees.Add(jobMapEmployee);
             await _context.SaveChangesAsync();
 
-            // Xử lý ngày bắt đầu và ngày kết thúc
-            DateTime? parsedTime = null;
-            DateOnly? parsedDeadline = null;
-
-            if (!string.IsNullOrEmpty(time) && DateTime.TryParseExact(time, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime startDate))
-            {
-                parsedTime = startDate;
-            }
-
-            if (!string.IsNullOrEmpty(deadline) && DateOnly.TryParseExact(deadline, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateOnly endDate))
-            {
-                parsedDeadline = endDate;
-                job.Deadline1 = parsedDeadline;
-                _context.Jobs.Update(job);
-            }
-
-            // Tạo Score
-            var score = new Score
+            // Create Score for the main job
+            var score = new Scoreemployee
             {
                 JobMapEmployeeId = jobMapEmployee.Id,
                 Time = parsedTime ?? DateTime.Now,
                 Status = 0,
                 CreateDate = job.Deadline1?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Now,
-                CreateBy = HttpContext.Session.GetString("ProjectManagerLogin")
+                CreateBy = HttpContext.Session.GetString("AdminLogin")
             };
-            _context.Scores.Add(score);
+            _context.Scoreemployees.Add(score);
             await _context.SaveChangesAsync();
+
+            // Handle Recurring Jobs
+            if (job.Recurring == true && job.RecurrenceType.HasValue && job.RecurrenceInterval.HasValue && job.RecurrenceEndDate.HasValue)
+            {
+                var currentDate = job.Deadline1 ?? DateOnly.FromDateTime(DateTime.Now);
+                var recurrenceEnd = job.RecurrenceEndDate.Value;
+
+                // Tăng currentDate lên một chu kỳ lặp ngay từ đầu để bỏ qua ngày ban đầu
+                switch (job.RecurrenceType)
+                {
+                    case 1: // Daily
+                        currentDate = currentDate.AddDays(job.RecurrenceInterval.Value);
+                        break;
+                    case 2: // Weekly
+                        currentDate = currentDate.AddDays(7 * job.RecurrenceInterval.Value);
+                        break;
+                    case 3: // Monthly
+                        currentDate = currentDate.AddMonths(job.RecurrenceInterval.Value);
+                        break;
+                    case 4: // Yearly
+                        currentDate = currentDate.AddYears(job.RecurrenceInterval.Value);
+                        break;
+                    default:
+                        return Json(new { success = false, message = "Invalid recurrence type" });
+                }
+
+                // Tạo các Jobrepeat cho các ngày tiếp theo
+                while (currentDate <= recurrenceEnd)
+                {
+                    var jobRepeat = new Jobrepeat
+                    {
+                        JobId = job.Id,
+                        Name = job.Name,
+                        Description = job.Description,
+                        Deadline1 = currentDate,
+                        Deadline2 = job.Deadline2.HasValue ? currentDate.AddDays((job.Deadline2.Value.ToDateTime(TimeOnly.MinValue) - job.Deadline1.Value.ToDateTime(TimeOnly.MinValue)).Days) : null,
+                        Deadline3 = job.Deadline3.HasValue ? currentDate.AddDays((job.Deadline3.Value.ToDateTime(TimeOnly.MinValue) - job.Deadline1.Value.ToDateTime(TimeOnly.MinValue)).Days) : null,
+                        IsDelete = false,
+                        IsActive = true,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        CreateBy = job.CreateBy,
+                        UpdateBy = job.UpdateBy
+                    };
+
+                    _context.Jobrepeats.Add(jobRepeat);
+                    await _context.SaveChangesAsync();
+
+                    var jobRepeatMapEmployee = new Jobmapemployee
+                    {
+                        JobId = job.Id,
+                        JobRepeatId = jobRepeat.Id,
+                        EmployeeId = employeeId,
+                        IsDelete = false,
+                        IsActive = true,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        CreateBy = job.CreateBy,
+                        UpdateBy = job.UpdateBy
+                    };
+                    _context.Jobmapemployees.Add(jobRepeatMapEmployee);
+                    await _context.SaveChangesAsync();
+
+                    var jobRepeatScore = new Score
+                    {
+                        JobMapEmployeeId = jobRepeatMapEmployee.Id,
+                        Status = 0,
+                        IsDelete = false,
+                        IsActive = true,
+                        CreateDate = jobRepeat.Deadline1?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Now,
+                        Time = parsedTime ?? DateTime.Now,
+                        CreateBy = job.CreateBy,
+                        UpdateBy = job.UpdateBy
+                    };
+                    _context.Scores.Add(jobRepeatScore);
+                    await _context.SaveChangesAsync();
+
+                    // Tăng currentDate cho chu kỳ lặp tiếp theo
+                    switch (job.RecurrenceType)
+                    {
+                        case 1: // Daily
+                            currentDate = currentDate.AddDays(job.RecurrenceInterval.Value);
+                            break;
+                        case 2: // Weekly
+                            currentDate = currentDate.AddDays(7 * job.RecurrenceInterval.Value);
+                            break;
+                        case 3: // Monthly
+                            currentDate = currentDate.AddMonths(job.RecurrenceInterval.Value);
+                            break;
+                        case 4: // Yearly
+                            currentDate = currentDate.AddYears(job.RecurrenceInterval.Value);
+                            break;
+                    }
+                }
+            }
 
             return Json(new { success = true });
         }
-
         [HttpPost]
         public async Task<IActionResult> UpdateJobDate(long jobId, string field, string date)
         {
@@ -390,14 +554,14 @@ int page = 1)
             switch (field.ToLower())
             {
                 case "time":
-                    var score = await _context.Scores
+                    var score = await _context.Scoreemployees
                         .Where(s => s.JobMapEmployee.JobId == jobId)
                         .FirstOrDefaultAsync();
                     if (score != null)
                     {
                         score.CreateDate = job.Deadline1?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Now;
                         score.Time = parsedDate;
-                        _context.Scores.Update(score);
+                        _context.Scoreemployees.Update(score);
                     }
                     break;
                 //case "deadline1":
@@ -422,21 +586,28 @@ int page = 1)
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Createjob([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy")] Job job)
+        public async Task<IActionResult> Createjob([Bind("Id,CategoryId,Name,Description,Deadline1,Deadline2,Deadline3,IsDelete,IsActive,CreateDate,UpdateDate,CreateBy,UpdateBy,Recurring,RecurrenceType,RecurrenceInterval,RecurrenceEndDate")] Job job)
         {
-            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            var managerUsername = HttpContext.Session.GetString("AdminLogin");
             if (ModelState.IsValid)
             {
-                // Tạo Job
+                // Set audit fields for the Job
                 job.CreateBy = managerUsername;
+                job.UpdateBy = managerUsername;
+                job.CreateDate = DateTime.Now;
+                job.UpdateDate = DateTime.Now;
+                job.IsDelete = false;
+                job.IsActive = true;
+
+                // Add the Job to the context
                 _context.Jobs.Add(job);
                 await _context.SaveChangesAsync();
 
-                // Tạo JobMapEmployee (Gán JobId)
+                // Create JobMapEmployee for the Job
                 var jobMapEmployee = new Jobmapemployee
                 {
                     JobId = job.Id,
-                    EmployeeId = null, // Chưa có Employee, cần cập nhật sau nếu cần
+                    EmployeeId = null, // To be updated later if needed
                     IsDelete = false,
                     IsActive = true,
                     CreateDate = DateTime.Now,
@@ -444,39 +615,56 @@ int page = 1)
                     CreateBy = job.CreateBy,
                     UpdateBy = job.UpdateBy
                 };
-
                 _context.Jobmapemployees.Add(jobMapEmployee);
-                await _context.SaveChangesAsync(); // Lưu để lấy Id của JobMapEmployee
+                await _context.SaveChangesAsync();
 
-                // Tạo Score (Gán JobMapEmployeeId)
-                var score = new Score
+                // Create Score for the JobMapEmployee
+                //var score = new Score
+                //{
+                //    JobMapEmployeeId = jobMapEmployee.Id,
+                //    Status = 0, // Default status (not started)
+                //    IsDelete = false,
+                //    IsActive = true,
+                //    CreateDate = DateTime.Now,
+                //    UpdateDate = DateTime.Now,
+                //    CreateBy = job.CreateBy,
+                //    UpdateBy = job.UpdateBy
+                //};
+                //_context.Scores.Add(score);
+                //await _context.SaveChangesAsync();
+
+                var scoreEmployee = new Scoreemployee
                 {
                     JobMapEmployeeId = jobMapEmployee.Id,
-                    Status = 0, // Mặc định trạng thái chưa bat dau
+                    Status = 0, // Default status (not started)
                     IsDelete = false,
                     IsActive = true,
-                    CreateDate = null,
+                    CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
                     CreateBy = job.CreateBy,
                     UpdateBy = job.UpdateBy
                 };
-
-                _context.Scores.Add(score);
+                _context.Scoreemployees.Add(scoreEmployee);
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Id", job.CategoryId);
+            // If ModelState is invalid, return the view with validation errors
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", job.CategoryId);
             return View(job);
         }
 
         public IActionResult Create(int? currentJobMapEmployeeId)
         {
-           
+            var managerUsername = HttpContext.Session.GetString("AdminLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
 
             var manager = _context.Users
-                
+              
                 .Include(u => u.Employee)
                 .Select(u => u.Employee)
                 .FirstOrDefault();
@@ -495,15 +683,13 @@ int page = 1)
                 return BadRequest("Không tìm thấy công việc hiện tại");
             }
 
-            var managedDepartments = _context.Departments
-                .Where(d => d.Employees.Any(e => e.Id == manager.Id && e.PositionId == 3))
-                .Select(d => d.Id)
-                .ToList();
+            
 
             var currentEmployeeId = currentJobMapEmployee.EmployeeId;
+
             var employeesInManagedDepartments = _context.Employees
                 .Where(e => e.DepartmentId.HasValue &&
-                           managedDepartments.Contains(e.DepartmentId.Value) &&
+                          
                            e.Id != currentEmployeeId)
                 .Select(e => new {
                     Value = e.Id.ToString(),
@@ -514,23 +700,29 @@ int page = 1)
 
             ViewBag.EmployeeList = employeesInManagedDepartments;
             ViewBag.CurrentJobMapEmployeeId = currentJobMapEmployeeId;
-            // Truyền thêm Job để sử dụng Deadline1 trong view nếu cần
             ViewBag.Job = currentJobMapEmployee.Job;
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_Create");
             }
+
             return View();
         }
-
+        // POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int employeeId, DateOnly deadline, int currentJobMapEmployeeId)
+        public async Task<IActionResult> Create(int employeeId, int currentJobMapEmployeeId, DateOnly deadline)
         {
-            var managerUsername = HttpContext.Session.GetString("ProjectManagerLogin");
+            var managerUsername = HttpContext.Session.GetString("AdminLogin");
+            if (string.IsNullOrEmpty(managerUsername))
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
             var currentJobMapEmployee = await _context.Jobmapemployees
                 .Include(j => j.Job)
+                .Include(j => j.JobRepeat)
                 .FirstOrDefaultAsync(j => j.Id == currentJobMapEmployeeId);
 
             if (currentJobMapEmployee == null)
@@ -538,9 +730,9 @@ int page = 1)
                 return BadRequest("Không tìm thấy công việc hiện tại");
             }
 
-            // Vô hiệu hóa Score cũ của currentJobMapEmployee
+            // Disable old scores
             var oldScores = await _context.Scores
-               .Where(s => s.JobMapEmployeeId == currentJobMapEmployeeId)
+                .Where(s => s.JobMapEmployeeId == currentJobMapEmployeeId)
                 .ToListAsync();
 
             foreach (var oldScore in oldScores)
@@ -550,51 +742,73 @@ int page = 1)
 
             _context.Scores.UpdateRange(oldScores);
 
-            // Tạo JobMapEmployee mới
+            // Create new JobMapEmployee
             var newJobMapEmployee = new Jobmapemployee
             {
                 JobId = currentJobMapEmployee.JobId,
                 EmployeeId = employeeId,
+                JobRepeatId = currentJobMapEmployee.JobRepeatId
             };
 
             _context.Jobmapemployees.Add(newJobMapEmployee);
             await _context.SaveChangesAsync();
 
-            // Cập nhật deadline cho Job (gán vào Deadline2 hoặc Deadline3)
-            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == currentJobMapEmployee.JobId);
-            if (job != null)
+            // Update deadline
+            if (currentJobMapEmployee.JobRepeat != null)
             {
-                if (job.Deadline2 == null)
+                var jobRepeat = await _context.Jobrepeats
+                    .FirstOrDefaultAsync(jr => jr.Id == currentJobMapEmployee.JobRepeatId);
+                if (jobRepeat != null)
                 {
-                    job.Deadline2 = deadline;
+                    if (jobRepeat.Deadline2 == null)
+                    {
+                        jobRepeat.Deadline2 = deadline;
+                    }
+                    else if (jobRepeat.Deadline3 == null)
+                    {
+                        jobRepeat.Deadline3 = deadline;
+                    }
+                    _context.Jobrepeats.Update(jobRepeat);
                 }
-                else if (job.Deadline3 == null)
+            }
+            else
+            {
+                var job = await _context.Jobs
+                    .FirstOrDefaultAsync(j => j.Id == currentJobMapEmployee.JobId);
+                if (job != null)
                 {
-                    job.Deadline3 = deadline;
+                    if (job.Deadline2 == null)
+                    {
+                        job.Deadline2 = deadline;
+                    }
+                    else if (job.Deadline3 == null)
+                    {
+                        job.Deadline3 = deadline;
+                    }
+                    _context.Jobs.Update(job);
                 }
-                _context.Jobs.Update(job);
             }
 
-            // Tạo Score mới với Time = Deadline1 của Job
+            // Create new Score
+            var jobFromMap = currentJobMapEmployee.Job;
             var score = new Score
             {
                 CreateBy = managerUsername,
                 JobMapEmployeeId = newJobMapEmployee.Id,
                 Status = 0,
-                Time = job.Deadline1.HasValue ? DateTime.Parse(job.Deadline1.Value.ToString("yyyy-MM-dd")) : DateTime.Now,
+                Time = jobFromMap.Deadline1.HasValue ? DateTime.Parse(jobFromMap.Deadline1.Value.ToString("yyyy-MM-dd")) : DateTime.Now,
                 CreateDate = deadline.ToDateTime(TimeOnly.MinValue),
-
                 IsActive = true,
                 IsDelete = false
             };
 
+            // Call update methods
             await UpdateBaselineAssessment(newJobMapEmployee.EmployeeId);
             await UpdateAnalysis(newJobMapEmployee.EmployeeId);
 
-            _context.Add(score);
+            _context.Scores.Add(score);
             await _context.SaveChangesAsync();
 
-            // Trả về JSON để AJAX xử lý
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return Json(new { success = true });
@@ -765,38 +979,48 @@ int page = 1)
 
             if (jobMapEmployee.EmployeeId == null)
             {
-                // Lấy tất cả JobMapEmployee liên quan đến Job
+                // Get all JobMapEmployee related to Job
                 var relatedJobMapEmployees = await _context.Jobmapemployees
                     .Where(jme => jme.JobId == job.Id)
                     .ToListAsync();
 
-                // Lấy tất cả Score liên quan đến bất kỳ JobMapEmployee nào trong danh sách
+                // Get all Scoreemployee related to any JobMapEmployee in the list
                 var jobMapEmployeeIds = relatedJobMapEmployees.Select(jme => jme.Id).ToList();
+                var relatedScoreemployees = await _context.Scoreemployees
+                    .Where(se => se.JobMapEmployeeId.HasValue && jobMapEmployeeIds.Contains(se.JobMapEmployeeId.Value))
+                    .ToListAsync();
+                _context.Scoreemployees.RemoveRange(relatedScoreemployees);
+
+                // Get all Scores related to any JobMapEmployee in the list
                 var relatedScores = await _context.Scores
                     .Where(s => s.JobMapEmployeeId.HasValue && jobMapEmployeeIds.Contains(s.JobMapEmployeeId.Value))
                     .ToListAsync();
                 _context.Scores.RemoveRange(relatedScores);
 
-                // Xóa tất cả JobMapEmployee liên quan đến Job
+                // Delete all JobMapEmployee related to Job
                 _context.Jobmapemployees.RemoveRange(relatedJobMapEmployees);
 
-                // Cuối cùng xóa Job
-                //job.IsDelete = true;
-                //job.IsActive= false;
+                // Finally delete Job
                 _context.Jobs.Remove(job);
             }
             else
             {
-                // Xóa Score trước
+                // Get all Scoreemployee related to the specific JobMapEmployee
+                var relatedScoreemployees = await _context.Scoreemployees
+                    .Where(se => se.JobMapEmployeeId == jobMapEmployee.Id)
+                    .ToListAsync();
+                _context.Scoreemployees.RemoveRange(relatedScoreemployees);
+
+                // Delete Score
                 _context.Scores.Remove(score);
 
-                // Xóa JobMapEmployee
+                // Delete JobMapEmployee
                 _context.Jobmapemployees.Remove(jobMapEmployee);
 
-                // Kiểm tra và xóa Deadline nếu cần
-                if (score.CreateDate.HasValue) // Kiểm tra null cho DateTime?
+                // Check and update Deadlines if needed
+                if (score.CreateDate.HasValue)
                 {
-                    var scoreCreateDate = score.CreateDate.Value; // Lấy giá trị từ nullable DateTime
+                    var scoreCreateDate = score.CreateDate.Value;
 
                     if (job.Deadline1.HasValue && scoreCreateDate.Date == job.Deadline1.Value.ToDateTime(TimeOnly.MinValue))
                     {
@@ -811,7 +1035,7 @@ int page = 1)
                         job.Deadline3 = null;
                     }
 
-                    // Cập nhật Job nếu có thay đổi Deadline
+                    // Update Job if any Deadline changed
                     if (job.Deadline1 == null || job.Deadline2 == null || job.Deadline3 == null)
                     {
                         job.UpdateDate = DateTime.Now;
@@ -823,6 +1047,7 @@ int page = 1)
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         public IActionResult JobOfEmployee(string search, int? DepartmentId, int page = 1)
 		{
@@ -1325,9 +1550,6 @@ int page = 1)
 
             await _context.SaveChangesAsync();
         }
-
-
-      
 
         private bool JobExists(long id)
         {

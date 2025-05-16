@@ -607,9 +607,9 @@
                         $('.btn-export').attr('href', '@Url.Action("ExportToExcel")?' + formData);
 
                         // Update page title based on department selection
+                        var departments = @Html.Raw(Json.Serialize(ViewBag.Departments));
                         var deptName = response.departmentId ?
-        @Html.Raw(Json.Serialize(ViewBag.Departments))
-                                .find(d => d.Id == response.departmentId)?.Name || 'Unknown' :
+                            (departments.find(d => d.Id == response.departmentId)?.Name || 'Unknown') :
                             'Tất cả phòng ban';
                         $('.content-header h1').text('Thống kê - ' + deptName);
                     },
@@ -644,7 +644,7 @@
         @Html.Raw(Json.Serialize(ViewBag.Departments))
                                 .find(d => d.Id == response.departmentId)?.Name || 'Unknown' :
                             'Tất cả phòng ban';
-                        $('.content-header h1').text('Thống kê - ' + deptName);
+                        // $('.content-header h1').text('Thống kê - ' + deptName);
                     },
                     error: function(xhr, status, error) {
                         console.error('Error:', error);

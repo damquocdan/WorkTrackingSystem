@@ -41,6 +41,7 @@ namespace WorkTrackingSystem.Areas.AdminSystem.Controllers
             ViewBag.Quarter = quarter;
             ViewBag.Year = year;
             ViewBag.DepartmentId = departmentId;
+            //ViewBag.DepartmentName = _context.Departments.Where(d=>d.Id== departmentId);
 
             // Check if filtering by date range
             bool isDateRange = !string.IsNullOrEmpty(fromDate) && !string.IsNullOrEmpty(toDate);

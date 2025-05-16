@@ -27,7 +27,7 @@
             </div>
 
             <div class="form-group">
-                <label class="control-label">Deadline 2</label>
+                <label class="control-label">Hạn chót</label>
                 <input type="date" class="form-control" name="deadline" id="deadlineInput" required />
                 <span class="text-danger" id="deadlineValidation"></span>
             </div>
@@ -43,8 +43,8 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        $(document).ready(function() {
-            $('#createScoreForm').submit(function(e) {
+        $(document).ready(function () {
+            $('#createScoreForm').submit(function (e) {
                 e.preventDefault();
 
                 let isValid = true;
@@ -74,7 +74,7 @@
                     url: '@Url.Action("Create")',
                     method: 'POST',
                     data: formData,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             $('#modalContainer .modal').modal('hide');
                             location.reload();
@@ -82,7 +82,7 @@
                             alert(response.message || 'Có lỗi xảy ra');
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert('Có lỗi xảy ra khi giao việc');
                     }
                 });
@@ -90,3 +90,9 @@
         });
     </script>
 }
+<script>
+    function closeDetailSection() {
+        $("#list-section").removeClass("col-md-8").addClass("col-md-12");
+        $("#detail-section").addClass("d-none");
+    }
+</script>
