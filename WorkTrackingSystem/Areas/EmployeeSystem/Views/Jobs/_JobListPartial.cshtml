@@ -10,9 +10,9 @@
             <th>Ngày hoàn thiện</th>
             <th>Trạng thái</th>
             <th>Tiến độ</th>
-            <th>Đánh giá khối lượng</th>
+            @* <th>Đánh giá khối lượng</th>
             <th>Đánh giá tiến độ</th>
-            <th>Đánh giá chất lượng</th>
+            <th>Đánh giá chất lượng</th> *@
             <th>Tổng hợp đánh giá</th>
           
         </tr>
@@ -68,7 +68,7 @@
                     <input type="range" class="progress-slider" data-job-repeat-id="@item.JobRepeatId" data-job-id="@item.JobId" value="@item.Progress" min="0" max="100" step="5" @(item.IsActive ? "" : "disabled")>
                     <span class="progress-value" >@item.Progress%</span>
                 </td>
-                <td class="text-center">
+                @* <td class="text-center">
                     <select class="form-control assessment-input"
                             data-field="VolumeAssessment"
                             data-id="@item.JobId" @(item.IsActive ? "" : "disabled")>
@@ -127,7 +127,7 @@
                             }
                         }
                     </select>
-                </td>
+                </td> *@
                 <td class="text-center">
                     <span class="summary-display" data-id="@item.JobId">
                         @(item.SummaryOfReviews?.ToString("F2") ?? "0.00")
